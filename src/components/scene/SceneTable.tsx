@@ -23,7 +23,7 @@ import type {
   DragSeatConfig,
 } from '@/hooks/ui/useDragDropState';
 import SeatGrid, { type SeatConfig } from '@/components/scene/SeatGrid';
-import { seatTableCorners } from '@/utils/ui/seatMark';
+import { seatTableCorners, seatTableEdges } from '@/utils/ui/seatMark';
 import RotationHandle from '@/components/scene/RotationHandle';
 import { useSeatDrag } from '@/hooks/scene/useSeatDrag';
 import {
@@ -35,6 +35,9 @@ import {
   type TableRotationHandler,
 } from '@/hooks/scene/useTableRotation';
 import { useHasHoverPointer } from '@/hooks/ui/useHasHoverPointer';
+
+/** The dashed outline of a table taken out of the mix. */
+const TABLE_OUT_OF_MIX_DASH = '5 4';
 
 type TableProps = {
   table: ClassroomTable;
@@ -302,6 +305,7 @@ function SceneTable({
       col,
       row,
       tableCorners: seatTableCorners(col, row, cols, rows),
+      tableEdges: seatTableEdges(col, row, cols, rows),
       locked,
       isOriginSeat,
       isHoverSeat,
@@ -381,6 +385,10 @@ function SceneTable({
         seatWidth={seatWidth}
         seatHeight={seatHeight}
         tableEdgeWidth={baseTableStrokeWidth}
+        // Only a plan a student can be dragged in sees students fly, so only
+        // its seats carry the outline a flight shows (`useSeatFlight`).
+        tableEdgeStroke={draggable ? tableStroke : undefined}
+        tableEdgeDash={outOfMix ? TABLE_OUT_OF_MIX_DASH : undefined}
         tableRotation={table.rotation}
         allStudents={allStudents}
         showSpecialNeeds={showSpecialNeeds}
@@ -530,7 +538,7 @@ function SceneTable({
         pointerEvents="none"
         strokeLinejoin="round"
         strokeLinecap="round"
-        strokeDasharray={outOfMix ? '5 4' : undefined}
+        strokeDasharray={outOfMix ? TABLE_OUT_OF_MIX_DASH : undefined}
         opacity={baseTableStrokeOpacity}
       />
       {!table.locked && editable && (selected || isHovered) && (

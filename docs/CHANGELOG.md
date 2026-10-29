@@ -13,6 +13,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - On a phone, "Mix" and "Align" stand with their words centred just above the status bar, within reach of the thumb, instead of squeezed into it beside the toolbar's switch, which they covered in the circle
 - On a phone and a tablet, the seating plan and the circle fit between the header and the status bar, so the page no longer scrolls a little way where the plan fits: on a tablet held upright, with a note above the plan, and in Safari on an iPhone. Only on a phone held sideways, where the plan would otherwise get too small, does the page still scroll
 
+### Fixed
+
+- After mixing, the students no longer jump half-way at the start of their glide on a slower computer: they set off from their old seats and glide the whole way at an even pace
+- A student gliding to a new seat already has the rounded corners and the table's outline of the seat they land in, so nothing jumps when they arrive; the preview while dragging a student is rounded like the tables too
+
 ## [3.2.2] - 2026-10-28
 
 ### Improved

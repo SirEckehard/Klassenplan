@@ -6,6 +6,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   SEAT_CENTRE_ATTR,
   SEAT_FLIGHT_ATTR,
+  SEAT_FLIGHT_EDGE_ATTR,
   SEAT_FLIGHT_PART_ATTR,
   SEAT_STUDENT_ATTR,
   useSeatFlight,
@@ -92,6 +93,7 @@ function Plan({
           }}
         >
           <text>{student}</text>
+          <path visibility="hidden" {...{ [SEAT_FLIGHT_EDGE_ATTR]: '' }} />
         </g>
       ))}
       {seating.map((student, index) =>
@@ -111,18 +113,42 @@ function Plan({
 describe('useSeatFlight', () => {
   let finish: () => void;
   const animate = vi.fn();
+  const pause = vi.fn();
+  const play = vi.fn();
+  let frames: Map<number, FrameRequestCallback>;
+  let lastFrame: number;
+  /** Draws one frame: runs what was asked for before it. */
+  const drawFrame = () => {
+    const due = [...frames.values()];
+    frames.clear();
+    due.forEach((callback) => callback(0));
+  };
   let reduceMotion = false;
 
   beforeEach(() => {
     reduceMotion = false;
     animate.mockReset();
+    pause.mockReset();
+    play.mockReset();
+    frames = new Map();
+    lastFrame = 0;
     let resolve = () => {};
     const finished = new Promise<void>((done) => {
       resolve = done;
     });
     finish = resolve;
-    animate.mockImplementation(() => ({ finished, cancel: vi.fn() }));
+    animate.mockImplementation(() => ({
+      finished,
+      cancel: vi.fn(),
+      pause,
+      play,
+    }));
     Element.prototype.animate = animate as never;
+    vi.stubGlobal('requestAnimationFrame', (callback: FrameRequestCallback) => {
+      frames.set(++lastFrame, callback);
+      return lastFrame;
+    });
+    vi.stubGlobal('cancelAnimationFrame', (id: number) => frames.delete(id));
     vi.stubGlobal('DOMPoint', Point);
     (SVGElement.prototype as unknown as Record<string, unknown>).getScreenCTM =
       function (this: Element) {
@@ -173,11 +199,47 @@ describe('useSeatFlight', () => {
       container.querySelector(`[${SEAT_FLIGHT_PART_ATTR}="2"]`),
     ).toHaveStyle({ opacity: '0' });
     expect(flight.querySelector(`[${SEAT_STUDENT_ATTR}]`)).toBeNull();
+    // Away from its table the copy wears the table's outline; the seat
+    // leaves it to its table.
+    expect(
+      flight.querySelector(`[${SEAT_FLIGHT_EDGE_ATTR}]`),
+    ).not.toHaveAttribute('visibility');
+    expect(
+      seat(container, 2).querySelector(`[${SEAT_FLIGHT_EDGE_ATTR}]`),
+    ).toHaveAttribute('visibility', 'hidden');
 
     await act(async () => finish());
 
     expect(layerOf(container).childElementCount).toBe(0);
     expect(seat(container, 2).style.opacity).toBe('');
+  });
+
+  it('takes off only after the first frame that shows the flight', () => {
+    const { rerender } = render(<Plan seating={['ada', 'ben', null]} />);
+
+    rerender(<Plan seating={['ben', 'ada', null]} />);
+
+    // Two students, each a flight and a lift: held at the old seat …
+    expect(pause).toHaveBeenCalledTimes(4);
+    drawFrame();
+    expect(play).not.toHaveBeenCalled();
+
+    // … through the frame that first draws them, then off.
+    drawFrame();
+    expect(play).toHaveBeenCalledTimes(4);
+  });
+
+  it('never takes off once it has landed', () => {
+    const { rerender, unmount } = render(
+      <Plan seating={['ada', 'ben', null]} />,
+    );
+    rerender(<Plan seating={['ben', 'ada', null]} />);
+
+    drawFrame();
+    unmount();
+    drawFrame();
+
+    expect(play).not.toHaveBeenCalled();
   });
 
   it('lets two who swapped seats pass each other', () => {

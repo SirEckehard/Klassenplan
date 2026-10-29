@@ -45,8 +45,8 @@ describe('TableSeat component', () => {
       </svg>,
     );
 
-    // Should render the seat rectangle(s) but no student content
-    expect(container.querySelectorAll('rect').length).toBeGreaterThan(0);
+    // Should render the seat's shape but no student content
+    expect(container.querySelector('[data-seat-shape]')).toBeInTheDocument();
     expect(container.querySelector('text')).toBeNull();
   });
 
@@ -295,7 +295,7 @@ describe('TableSeat component', () => {
     // the table can neither clip nor cover it.
     const drop = container.querySelector('[data-seat-drop]');
     expect(drop).toHaveAttribute('data-seat-drop', 'target');
-    const ring = drop?.querySelector('path');
+    const ring = drop?.querySelector<SVGPathElement>('path[fill="none"]');
     // Blue: where the student can land is where the teacher can act.
     expect(ring?.style.stroke).toBe('var(--border-option-selected)');
     // 2 clear of the outline's inner side: 0.5 + 2 + half the ring's 2.5.
@@ -531,7 +531,7 @@ describe('TableSeat component', () => {
 
     const warn = seat({ highlightStatus: 'warn', highlightMode: 'persistent' });
     expect(warn).toHaveAttribute('data-seat-highlight', 'warn');
-    const ring = warn?.querySelector('path');
+    const ring = warn?.querySelector<SVGPathElement>('path[fill="none"]');
     expect(ring?.style.stroke).toBe('var(--status-warn)');
     // Inset, so the table's outline cannot clip it.
     expect(ring?.getAttribute('d')).toMatch(/^M[\d.]+ 3\.75H/);
@@ -542,9 +542,9 @@ describe('TableSeat component', () => {
       highlightTone: 'focus',
     });
     expect(focus).toHaveAttribute('data-seat-highlight', 'focus');
-    expect(focus?.querySelector('path')?.style.stroke).toBe(
-      'var(--border-option-selected)',
-    );
+    expect(
+      focus?.querySelector<SVGPathElement>('path[fill="none"]')?.style.stroke,
+    ).toBe('var(--border-option-selected)');
     // It stands still: a pointed-at badge does not blink.
     expect(focus?.querySelector('.animate-pulse')).toBeNull();
     // A badge is no verdict: no fulfilment in the tooltip.
@@ -597,7 +597,9 @@ describe('TableSeat component', () => {
     });
     const ring = landed.querySelector('[data-seat-highlight="confirm"]');
     expect(ring).toHaveClass('seat-drop-confirm');
-    expect(ring?.querySelector('path')?.style.stroke).toBe('var(--status-ok)');
+    expect(
+      ring?.querySelector<SVGPathElement>('path[fill="none"]')?.style.stroke,
+    ).toBe('var(--status-ok)');
   });
 
   it('calls onSeatPointerDown with correct parameters', () => {
@@ -833,8 +835,8 @@ describe('TableSeat component', () => {
     );
 
     // Should render with dark mode colors (verified by appearance calculation)
-    const seatRect = container.querySelector('rect[rx="4"]');
-    expect(seatRect).toBeInTheDocument();
+    const seatShape = container.querySelector('[data-seat-shape]');
+    expect(seatShape).toBeInTheDocument();
   });
 
   it('applies locked feedback styling', () => {
@@ -864,9 +866,9 @@ describe('TableSeat component', () => {
     // A held seat refuses the drop in the alert colour, in both themes.
     const drop = container.querySelector('[data-seat-drop]');
     expect(drop).toHaveAttribute('data-seat-drop', 'blocked');
-    expect(drop?.querySelector('path')?.style.stroke).toBe(
-      'var(--status-alert)',
-    );
+    expect(
+      drop?.querySelector<SVGPathElement>('path[fill="none"]')?.style.stroke,
+    ).toBe('var(--status-alert)');
   });
 
   it("follows the table's corners with its mark and keeps it clear of a thicker outline", () => {
@@ -894,7 +896,7 @@ describe('TableSeat component', () => {
           />
         </svg>,
       )
-        .container.querySelector('[data-seat-drop] path')
+        .container.querySelector('[data-seat-drop] path[fill="none"]')
         ?.getAttribute('d');
 
     // The top corners are the table's: radius 8 less the inset of 3.75.
@@ -903,6 +905,48 @@ describe('TableSeat component', () => {
     );
     // A selected table's outline is 2.4 wide: the ring moves in with it.
     expect(ring({ tableEdgeWidth: 2.4 })).toMatch(/^M[\d.]+ 4\.45H/);
+  });
+
+  it('has the shape its table cuts and carries the outline a flight shows', () => {
+    const { container } = render(
+      <svg>
+        <TableSeat
+          student={baseStudent}
+          seatIndex={0}
+          tableIndex={0}
+          col={0}
+          row={0}
+          seatWidth={55}
+          seatHeight={65}
+          tableCorners={[true, true, false, false]}
+          tableEdges={[true, true, false, true]}
+          tableEdgeStroke="#000"
+          tableEdgeWidth={1}
+          isDark={false}
+          locked={false}
+          isOriginSeat={false}
+          isHoverSeat={false}
+          isHoverLockedSeat={false}
+          isLockedFeedbackSeat={false}
+          showSpecialNeeds={true}
+          lockSeatLabelOrientation={true}
+          seatTextRotation={0}
+        />
+      </svg>,
+    );
+
+    // The table's radius of 8 at the top, the seat's own 4 below.
+    expect(
+      container.querySelector('[data-seat-shape]')?.getAttribute('d'),
+    ).toMatch(/^M8 0H47A8 8 0 0 1 55 8V61A4 4 0 0 1 51 65H/);
+    // The table draws its outline here; the seat keeps its own copy hidden
+    // for the flight (`useSeatFlight`).
+    const edge = container.querySelector('[data-seat-flight-edge]');
+    expect(edge).toHaveAttribute('visibility', 'hidden');
+    expect(edge).toHaveAttribute('stroke', '#000');
+    expect(edge?.getAttribute('d')).toBe(
+      'M0 61V8A8 8 0 0 1 8 0H47A8 8 0 0 1 55 8V61',
+    );
   });
 
   it("draws a held seat's contour all round, inside the table's outline", () => {

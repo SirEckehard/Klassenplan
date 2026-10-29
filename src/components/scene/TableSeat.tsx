@@ -33,7 +33,9 @@ import {
   seatEdgeLineInset,
   seatFocusInset,
   seatMarkInset,
+  seatTableEdgePath,
   type SeatCorners,
+  type SeatEdges,
   type SeatMarkKind,
 } from '@/utils/ui/seatMark';
 import {
@@ -49,6 +51,7 @@ import {
   SEAT_CENTRE_ATTR,
   SEAT_FLIGHT_ATTR,
   SEAT_FLIGHT_PART_ATTR,
+  SEAT_FLIGHT_EDGE_ATTR,
   SEAT_STUDENT_ATTR,
   seatFlightKey,
 } from '@/hooks/scene/useSeatFlight';
@@ -65,6 +68,11 @@ interface TableSeatProps {
   tableCorners?: SeatCorners;
   /** The width of the table's outline, which a mark keeps clear of. */
   tableEdgeWidth?: number;
+  /** Which of the seat's sides are its table's, outlined while it flies. */
+  tableEdges?: SeatEdges;
+  /** The table's outline, as the seat wears it on its way to another seat. */
+  tableEdgeStroke?: string;
+  tableEdgeDash?: string;
   tableRotation?: number;
   allStudents?: Student[];
   isDark: boolean;
@@ -161,6 +169,8 @@ const LOCK_FOCUS_RADIUS = 7.5;
 
 /** A seat that is not drawn inside a table's grid keeps its own corners. */
 const OWN_CORNERS: SeatCorners = [false, false, false, false];
+/** … and has no side of a table to outline. */
+const NO_EDGES: SeatEdges = [false, false, false, false];
 
 /**
  * A seat's mark (see `utils/ui/seatMark`): a tint over the seat and a ring
@@ -195,10 +205,8 @@ function SeatMark({
       className={motion === 'confirm' ? 'seat-drop-confirm' : undefined}
       style={{ pointerEvents: 'none' }}
     >
-      <rect
-        width={seatWidth}
-        height={seatHeight}
-        rx={4}
+      <path
+        d={insetSeatPath(seatWidth, seatHeight, 0, corners)}
         className={motion === 'pulse' ? 'animate-pulse' : undefined}
         style={{ fill: colors.tint, transition: 'fill 160ms ease' }}
       />
@@ -242,6 +250,9 @@ function TableSeat({
   seatHeight,
   tableCorners = OWN_CORNERS,
   tableEdgeWidth = 1,
+  tableEdges = NO_EDGES,
+  tableEdgeStroke,
+  tableEdgeDash,
   tableRotation = 0,
   allStudents = [],
   isDark,
@@ -345,6 +356,14 @@ function TableSeat({
   // seat's own contour instead of the table's faint divider. A held seat
   // keeps the divider and draws its contour inside the table's outline
   // (below), where the outline cannot cover it.
+  const seatPath = React.useMemo(
+    () => insetSeatPath(seatWidth, seatHeight, 0, tableCorners),
+    [seatWidth, seatHeight, tableCorners],
+  );
+  const edgePath = React.useMemo(
+    () => seatTableEdgePath(seatWidth, seatHeight, tableEdges),
+    [seatWidth, seatHeight, tableEdges],
+  );
   const seatStrokeWidth = contrast ? 1.5 : 0.75;
   const seatStrokeValue = contrast ? seatStroke : dividerStroke;
   const showsEdgeLine = locked && !contrast;
@@ -535,14 +554,15 @@ function TableSeat({
             }}
           />
         )}
-        {/* Visual seat rectangle */}
-        <rect
-          width={seatWidth}
-          height={seatHeight}
+        {/* The seat as its table cuts it: the table's radius in the table's
+            corners, its own elsewhere — so a copy flying to another seat
+            already has the shape it lands in. */}
+        <path
+          data-seat-shape=""
+          d={seatPath}
           fill={seatFill}
           stroke={seatStrokeValue}
           strokeWidth={seatStrokeWidth}
-          rx={4}
           strokeLinejoin="round"
           strokeLinecap="round"
           vectorEffect="non-scaling-stroke"
@@ -770,6 +790,23 @@ function TableSeat({
           </>
         )}
       </g>
+      {/* The table's outline along the seat's outer sides. Hidden here, where
+          the table draws it; a copy flying to this seat shows it, so nothing
+          is added when it lands (`useSeatFlight`). */}
+      {tableEdgeStroke && edgePath && (
+        <path
+          d={edgePath}
+          fill="none"
+          stroke={tableEdgeStroke}
+          strokeWidth={tableEdgeWidth}
+          strokeDasharray={tableEdgeDash}
+          strokeLinejoin="round"
+          strokeLinecap="round"
+          visibility="hidden"
+          pointerEvents="none"
+          {...{ [SEAT_FLIGHT_EDGE_ATTR]: '' }}
+        />
+      )}
     </g>
   );
 }
@@ -900,8 +937,20 @@ const MemoizedTableSeat = React.memo(TableSeat, (prevProps, nextProps) => {
   )
     return false;
 
-  // The table's corners and outline the marks follow
+  // The table's corners and outline the marks and the seat's shape follow
   if (prevProps.tableEdgeWidth !== nextProps.tableEdgeWidth) return false;
+  if (
+    prevProps.tableEdgeStroke !== nextProps.tableEdgeStroke ||
+    prevProps.tableEdgeDash !== nextProps.tableEdgeDash
+  )
+    return false;
+  if (
+    prevProps.tableEdges !== nextProps.tableEdges &&
+    (prevProps.tableEdges ?? NO_EDGES).some(
+      (edge, i) => edge !== (nextProps.tableEdges ?? NO_EDGES)[i],
+    )
+  )
+    return false;
   if (
     prevProps.tableCorners !== nextProps.tableCorners &&
     (prevProps.tableCorners ?? OWN_CORNERS).some(

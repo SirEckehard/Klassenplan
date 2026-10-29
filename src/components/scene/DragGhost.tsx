@@ -4,7 +4,11 @@ import React from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { ArrowsLeftRightIcon, type Icon } from '@phosphor-icons/react';
-import { cardSurfaceClass, type DataFamily } from '@/utils';
+import {
+  cardSurfaceClass,
+  TABLE_CORNER_RADIUS,
+  type DataFamily,
+} from '@/utils';
 import {
   BADGE_PILL_COLORS,
   calculateBadgePillLayout,
@@ -99,11 +103,15 @@ function GhostCard({
     >
       <div
         className={`relative flex items-center justify-center ${
-          shape === 'token' ? 'rounded-full' : 'rounded-md'
+          shape === 'token' ? 'rounded-full' : ''
         }`}
         style={{
           width,
           height,
+          // A seat on its own: the table's radius all round, at the ghost's
+          // scale, as a table's corners are drawn at the plan's.
+          borderRadius:
+            shape === 'token' ? undefined : TABLE_CORNER_RADIUS * sizeScale,
           backgroundColor: appearance.fill,
           border: `2px solid ${appearance.stroke}`,
         }}

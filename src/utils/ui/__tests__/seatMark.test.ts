@@ -6,6 +6,8 @@ import {
   seatFocusInset,
   seatMarkInset,
   seatTableCorners,
+  seatTableEdgePath,
+  seatTableEdges,
   tokenMarkRadius,
 } from '../seatMark';
 
@@ -20,6 +22,39 @@ describe('seatMark', () => {
     expect(seatTableCorners(0, 0, 1, 1)).toEqual([true, true, true, true]);
     // The middle seat of a row of three touches no corner.
     expect(seatTableCorners(1, 0, 3, 1)).toEqual([false, false, false, false]);
+  });
+
+  it('names the sides a seat shares with its table', () => {
+    // An upright double table: the top seat has its table's top and sides.
+    expect(seatTableEdges(0, 0, 1, 2)).toEqual([true, true, false, true]);
+    // The middle seat of a row of three: the table's top and bottom only.
+    expect(seatTableEdges(1, 0, 3, 1)).toEqual([true, false, true, false]);
+    // A single table: every side is the table's.
+    expect(seatTableEdges(0, 0, 1, 1)).toEqual([true, true, true, true]);
+  });
+
+  it("draws the table's outline along a seat's outer sides, its corners the table's", () => {
+    // The top seat of an upright double table: down the left side, round the
+    // top corners, down the right side — each side ending where the seat's
+    // own corner of 4 begins.
+    expect(seatTableEdgePath(55, 65, [true, true, false, true])).toBe(
+      'M0 61V8A8 8 0 0 1 8 0H47A8 8 0 0 1 55 8V61',
+    );
+    // The middle seat of a row: two lines, no corner.
+    expect(seatTableEdgePath(55, 65, [true, false, true, false])).toBe(
+      'M4 0H51M51 65H4',
+    );
+    // A single table: the whole outline.
+    expect(seatTableEdgePath(55, 65, [true, true, true, true])).toBe(
+      insetSeatPath(55, 65, 0, [true, true, true, true]),
+    );
+    expect(seatTableEdgePath(55, 65, [false, false, false, false])).toBe('');
+  });
+
+  it("is, with no inset, the seat's outline as its table cuts it", () => {
+    expect(insetSeatPath(55, 65, 0, [true, true, false, false])).toBe(
+      'M8 0H47A8 8 0 0 1 55 8V61A4 4 0 0 1 51 65H4A4 4 0 0 1 0 61V8A8 8 0 0 1 8 0Z',
+    );
   });
 
   it('keeps the ring 2 clear of the inner side of the edge, on a seat and on the circle', () => {

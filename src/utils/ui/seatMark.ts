@@ -97,19 +97,30 @@ export function tokenMarkRadius(radius: number, edgeWidth: number): number {
   return radius - seatMarkInset(edgeWidth);
 }
 
+/** Which sides of a seat are sides of its table: top, right, bottom, left. */
+export type SeatEdges = readonly [boolean, boolean, boolean, boolean];
+
+/** The seat's sides its table shares, from its cell in the table's grid. */
+export function seatTableEdges(
+  col: number,
+  row: number,
+  cols: number,
+  rows: number,
+): SeatEdges {
+  return [row === 0, col === cols - 1, row === rows - 1, col === 0];
+}
+
 /**
- * A rounded rectangle `inset` inside a seat, each corner concentric with the
- * seat's: the table's radius where the corner is the table's, the seat's own
- * elsewhere.
+ * The radii of a rectangle `inset` inside a seat, each concentric with the
+ * seat's corner: the table's radius where the corner is the table's, the
+ * seat's own elsewhere.
  */
-export function insetSeatPath(
-  width: number,
-  height: number,
+function insetCornerRadii(
+  w: number,
+  h: number,
   inset: number,
   corners: SeatCorners,
-): string {
-  const w = Math.max(width - inset * 2, 0);
-  const h = Math.max(height - inset * 2, 0);
+): [number, number, number, number] {
   const [tl, tr, br, bl] = corners.map((isTableCorner) =>
     Math.min(
       Math.max(
@@ -120,22 +131,96 @@ export function insetSeatPath(
       h / 2,
     ),
   );
+  return [tl, tr, br, bl];
+}
+
+const arcTo = (r: number, x: number, y: number) =>
+  r > 0 ? `A${r} ${r} 0 0 1 ${x} ${y}` : '';
+
+/**
+ * A rounded rectangle `inset` inside a seat, each corner concentric with the
+ * seat's: the table's radius where the corner is the table's, the seat's own
+ * elsewhere. With no inset it is the seat's own outline, as its table clips
+ * it.
+ */
+export function insetSeatPath(
+  width: number,
+  height: number,
+  inset: number,
+  corners: SeatCorners,
+): string {
+  const w = Math.max(width - inset * 2, 0);
+  const h = Math.max(height - inset * 2, 0);
+  const [tl, tr, br, bl] = insetCornerRadii(w, h, inset, corners);
   const x0 = inset;
   const y0 = inset;
   const x1 = inset + w;
   const y1 = inset + h;
-  const arc = (r: number, x: number, y: number) =>
-    r > 0 ? `A${r} ${r} 0 0 1 ${x} ${y}` : '';
   return [
     `M${x0 + tl} ${y0}`,
     `H${x1 - tr}`,
-    arc(tr, x1, y0 + tr),
+    arcTo(tr, x1, y0 + tr),
     `V${y1 - br}`,
-    arc(br, x1 - br, y1),
+    arcTo(br, x1 - br, y1),
     `H${x0 + bl}`,
-    arc(bl, x0, y1 - bl),
+    arcTo(bl, x0, y1 - bl),
     `V${y0 + tl}`,
-    arc(tl, x0 + tl, y0),
+    arcTo(tl, x0 + tl, y0),
     'Z',
   ].join('');
+}
+
+/**
+ * The part of a seat's outline that is its table's outline: the table's
+ * sides and the table's corners between them, each side ending where a
+ * corner of the seat's own begins. Empty for a seat with no side outside.
+ */
+export function seatTableEdgePath(
+  width: number,
+  height: number,
+  edges: SeatEdges,
+): string {
+  const [top, right, bottom, left] = edges;
+  const corners: SeatCorners = [
+    top && left,
+    top && right,
+    bottom && right,
+    bottom && left,
+  ];
+  const [tl, tr, br, bl] = insetCornerRadii(width, height, 0, corners);
+  // The outline clockwise from the top left, each piece with where it starts.
+  const pieces: { on: boolean; from: [number, number]; to: string }[] = [
+    { on: top, from: [tl, 0], to: `H${width - tr}` },
+    { on: corners[1], from: [width - tr, 0], to: arcTo(tr, width, tr) },
+    { on: right, from: [width, tr], to: `V${height - br}` },
+    {
+      on: corners[2],
+      from: [width, height - br],
+      to: arcTo(br, width - br, height),
+    },
+    { on: bottom, from: [width - br, height], to: `H${bl}` },
+    { on: corners[3], from: [bl, height], to: arcTo(bl, 0, height - bl) },
+    { on: left, from: [0, height - bl], to: `V${tl}` },
+    { on: corners[0], from: [0, tl], to: arcTo(tl, tl, 0) },
+  ];
+  if (pieces.every((piece) => piece.on)) {
+    return insetSeatPath(width, height, 0, corners);
+  }
+  // Start after a gap, so a run across the top left corner stays one line.
+  const first = pieces.findIndex(
+    (piece, i) =>
+      piece.on && !pieces[(i + pieces.length - 1) % pieces.length].on,
+  );
+  if (first < 0) return '';
+  const path: string[] = [];
+  for (let step = 0; step < pieces.length; step++) {
+    const i = (first + step) % pieces.length;
+    const piece = pieces[i];
+    if (!piece.on) continue;
+    if (!pieces[(i + pieces.length - 1) % pieces.length].on) {
+      path.push(`M${piece.from[0]} ${piece.from[1]}`);
+    }
+    path.push(piece.to);
+  }
+  return path.join('');
 }

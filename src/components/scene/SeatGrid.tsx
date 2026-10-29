@@ -6,7 +6,7 @@ import TableSeat, { TableSeatBadgeOverlay } from '@/components/scene/TableSeat';
 import type { NameDisplayMode, NameLabels } from '@/utils';
 import type { SeatBadgeView } from '@/utils/ui/seatBadges';
 import type { SeatHighlightTone } from '@/utils/ui/statisticsHighlight';
-import type { SeatCorners } from '@/utils/ui/seatMark';
+import type { SeatCorners, SeatEdges } from '@/utils/ui/seatMark';
 import { seatFlightKey } from '@/hooks/scene/useSeatFlight';
 
 type SeatPointerDownHandler = NonNullable<
@@ -33,6 +33,8 @@ export interface SeatConfig {
   row: number;
   /** Which of the seat's corners are its table's (`seatTableCorners`). */
   tableCorners?: SeatCorners;
+  /** Which of the seat's sides are its table's (`seatTableEdges`). */
+  tableEdges?: SeatEdges;
   locked: boolean;
   isOriginSeat: boolean;
   isHoverSeat: boolean;
@@ -55,6 +57,9 @@ interface SeatGridProps {
   seatHeight: number;
   /** The width of the table's outline, which a seat's mark keeps clear of. */
   tableEdgeWidth?: number;
+  /** The table's outline, which a seat wears on its way to another seat. */
+  tableEdgeStroke?: string;
+  tableEdgeDash?: string;
   tableRotation: number;
   allStudents: Student[];
   showSpecialNeeds: boolean;
@@ -96,6 +101,8 @@ function SeatGrid({
   seatWidth,
   seatHeight,
   tableEdgeWidth,
+  tableEdgeStroke,
+  tableEdgeDash,
   tableRotation,
   allStudents,
   showSpecialNeeds,
@@ -135,6 +142,9 @@ function SeatGrid({
             seatHeight={seatHeight}
             tableCorners={config.tableCorners}
             tableEdgeWidth={tableEdgeWidth}
+            tableEdges={config.tableEdges}
+            tableEdgeStroke={tableEdgeStroke}
+            tableEdgeDash={tableEdgeDash}
             tableRotation={tableRotation}
             allStudents={allStudents}
             isDark={isDark}

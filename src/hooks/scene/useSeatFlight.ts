@@ -15,6 +15,8 @@ export const SEAT_STUDENT_ATTR = 'data-seat-student';
 export const SEAT_FLIGHT_PART_ATTR = 'data-seat-flight-part';
 /** The seat's middle as "x y" in its own coordinates. */
 export const SEAT_CENTRE_ATTR = 'data-seat-centre';
+/** The table's outline along a seat's outer sides: hidden, shown in flight. */
+export const SEAT_FLIGHT_EDGE_ATTR = 'data-seat-flight-edge';
 
 /** How a seat of a table is named for a flight. */
 export const seatFlightKey = (tableIndex: number, seatIndex: number) =>
@@ -71,6 +73,10 @@ function flightCopy(part: Graphics, transform: DOMMatrix): Graphics {
     SEAT_CENTRE_ATTR,
   ]);
   copy.style.opacity = '';
+  // Away from its table the seat wears the table's outline itself.
+  copy.querySelectorAll(`[${SEAT_FLIGHT_EDGE_ATTR}]`).forEach((edge) => {
+    edge.removeAttribute('visibility');
+  });
   copy.setAttribute('transform', matrixCss(transform));
   return copy;
 }
@@ -83,7 +89,9 @@ function flightCopy(part: Graphics, transform: DOMMatrix): Graphics {
  * drawn after it, so a student cannot leave it on its own. The flight copies
  * what the student looks like at the new seat — the seat, its badges, its
  * photo — into a layer above every table, starts the copy where the student
- * sat and lets it land; the seat itself shows again the moment it does. The
+ * sat and lets it land; the seat itself shows again the moment it does. A
+ * seat is drawn in the shape its table cuts, and the copy shows the table's
+ * outline along the seat's outer sides, so nothing changes on landing. The
  * copies are only looked at: the real seats keep their focus, their pointer
  * events and their names for the screen reader throughout.
  *
@@ -139,31 +147,24 @@ export function useSeatFlight({
     const seatAt = (seat: string) =>
       svg.querySelector<Graphics>(`[${SEAT_FLIGHT_ATTR}="${seat}"]`);
 
-    const hidden: Graphics[] = [];
-    const flights: SVGGElement[] = [];
-    const animations: Animation[] = [];
-    for (const [student, seat] of movers) {
+    // Every position is read before anything is hidden or appended: a write
+    // between two reads makes the next `getScreenCTM` lay the whole plan out
+    // again, once per student.
+    const plans = movers.flatMap(([student, seat]) => {
       const from = seatAt(before.get(student)!);
       const to = seatAt(seat);
       const fromMatrix = from && inLayer(from);
       const toMatrix = to && inLayer(to);
-      if (!from || !to || !fromMatrix || !toMatrix) continue;
+      if (!from || !to || !fromMatrix || !toMatrix) return [];
       const parts = [
         to,
         ...svg.querySelectorAll<Graphics>(
           `[${SEAT_FLIGHT_PART_ATTR}="${seat}"]`,
         ),
-      ];
-      const flight = document.createElementNS(SVG_NS, 'g');
-      const lift = document.createElementNS(SVG_NS, 'g');
-      flight.append(lift);
-      for (const part of parts) {
+      ].flatMap((part) => {
         const matrix = inLayer(part);
-        if (!matrix) continue;
-        lift.append(flightCopy(part, matrix));
-        part.style.opacity = '0';
-        hidden.push(part);
-      }
+        return matrix ? [{ part, matrix }] : [];
+      });
       // The copies stand at the new seat; the flight starts them at the old
       // one — its middle on the old middle, turned as the old seat is.
       const fromCentre = centreOf(from);
@@ -172,6 +173,21 @@ export function useSeatFlight({
         .translate(fromCentre.x - toCentre.x, fromCentre.y - toCentre.y)
         .multiply(toMatrix.inverse());
       const centre = toCentre.matrixTransform(toMatrix);
+      return [{ parts, start, centre }];
+    });
+
+    const hidden: Graphics[] = [];
+    const flights: SVGGElement[] = [];
+    const animations: Animation[] = [];
+    for (const { parts, start, centre } of plans) {
+      const flight = document.createElementNS(SVG_NS, 'g');
+      const lift = document.createElementNS(SVG_NS, 'g');
+      flight.append(lift);
+      for (const { part, matrix } of parts) {
+        lift.append(flightCopy(part, matrix));
+        part.style.opacity = '0';
+        hidden.push(part);
+      }
       for (const group of [flight, lift]) {
         group.style.transformBox = 'view-box';
       }
@@ -199,7 +215,20 @@ export function useSeatFlight({
       );
     }
 
+    // An animation counts from the frame drawn before this commit, so the
+    // rest of the commit would come off the flight: a student would show up
+    // half-way. Each one waits at the old seat until the frame after the first
+    // one that shows it — that first frame is stamped with the time it began,
+    // while the commit was still running — and leaves from there.
+    animations.forEach((animation) => animation.pause());
+    let takeOff = requestAnimationFrame(() => {
+      takeOff = requestAnimationFrame(() => {
+        animations.forEach((animation) => animation.play());
+      });
+    });
+
     landRef.current = () => {
+      cancelAnimationFrame(takeOff);
       animations.forEach((animation) => animation.cancel());
       flights.forEach((flight) => flight.remove());
       hidden.forEach((part) => {
