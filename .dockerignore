@@ -11,3 +11,6 @@ dist
 coverage
 .env
 .env.*
+# Lossless masters of the start page screenshots; the build serves the
+# AVIF/WebP files in public/preview/.
+assets/preview

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 //
-// Captures the start page screenshots — the PNG masters in public/preview/ —
+// Captures the start page screenshots — the PNG masters in assets/preview/ —
 // from the app, for every slide in German and English, light and dark. The
 // script starts its own Vite dev server.
 //
@@ -42,7 +42,7 @@ const projectRoot = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
   '..',
 );
-const previewDir = path.join(projectRoot, 'public', 'preview');
+const masterDir = path.join(projectRoot, 'assets', 'preview');
 const localesDir = path.join(projectRoot, 'src', 'i18n', 'locales');
 
 const LANGUAGES = ['de', 'en'];
@@ -276,7 +276,7 @@ async function saveSlide(page, output, slug, lang, theme, target, clip) {
   const name = `${slug}_${lang}_${theme}`;
   const rgbaPng = path.join(output.tmpDir, `${name}.png`);
   const losslessWebp = path.join(output.tmpDir, `${name}.webp`);
-  const file = path.join(previewDir, `${name}.png`);
+  const file = path.join(masterDir, `${name}.png`);
   await fs.writeFile(
     rgbaPng,
     await scaleTo(output.scalePage, screenshot, target),

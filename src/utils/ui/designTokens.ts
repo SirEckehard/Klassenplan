@@ -46,8 +46,6 @@ export const dataChipClass = 'data-chip';
 
 export const dataHeadingClass = 'data-heading';
 
-export const badgeSurfaceClass = 'badge-surface';
-
 export const primaryButtonClass = 'primary-button';
 
 export const secondaryButtonClass = 'secondary-button';
@@ -55,10 +53,6 @@ export const secondaryButtonClass = 'secondary-button';
 export const neutralButtonClass = 'neutral-button';
 
 export const dangerButtonClass = 'danger-button';
-
-export const successButtonClass = 'success-button';
-
-export const warningButtonClass = 'warning-button';
 
 export const iconButtonClass = 'icon-button';
 
@@ -73,8 +67,6 @@ export const quietLinkClass = 'quiet-link';
 export const dangerIconButtonClass = 'danger-icon-button';
 
 export const successIconButtonClass = 'success-icon-button';
-
-export const loadingIconButtonClass = 'loading-icon-button';
 
 export const mutedIconButtonClass = 'muted-icon-button';
 
@@ -95,8 +87,6 @@ export const editableTitleClass =
   'block min-w-0 wrap-break-word cursor-text select-text rounded-xl border border-(--border-card) bg-(--surface-card) px-3 py-1 text-left text-(--text-page) shadow-sm transition-colors hover:bg-(--surface-option-selected) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) focus-visible:border-(--border-option-selected)';
 
 export const selectFieldClass = inputFieldClass;
-
-export const textareaFieldClass = 'textarea-field';
 
 /** Recessed track for a segmented control; wraps `pill-tab-base` options. */
 export const segmentedTrackClass = 'segmented-track';

@@ -100,7 +100,6 @@
   --surface-card: #ffffff;
   --border-card: #e3dfd6;
   --shadow-card: 0 1px 2px rgba(23, 24, 26, 0.05);
-  --shadow-card-hover: 0 2px 8px -2px rgba(23, 24, 26, 0.1);
   /* A sheet rising from the bottom edge casts its shadow upwards. */
   --shadow-sheet: 0 -8px 24px -12px rgba(23, 24, 26, 0.3);
   --radius-card: 0.625rem;
@@ -115,10 +114,6 @@
   --surface-option-selected: #eaf0fe;
   --border-option-selected: #2563eb;
   --accent-option: #2563eb;
-  --surface-badge: #ffffff;
-  --border-badge: #e3dfd6;
-  --shadow-badge: none;
-  --radius-badge: 9999px;
   --text-badge: #1d4ed8;
   /* Controls are 8px rounded rectangles now, not pills. */
   --radius-pill: 0.5rem;
@@ -140,24 +135,11 @@
   --button-secondary-text: #17181a;
   --button-secondary-border: #e3dfd6;
   --button-secondary-shadow: none;
-  /*
-   * `warning-button` carried the old amber "back / side trip" accent and is
-   * used for navigation, not for warnings (Namensspiel, Zurück zum
-   * Klassenraum). Amber now belongs to the Verhalten data family, so the token
-   * renders neutral until those call sites move to `secondary-button`.
-   */
-  --button-warning-bg: #ffffff;
-  --button-warning-bg-hover: #f3f1ec;
-  --button-warning-text: #17181a;
-  --button-warning-border: #e3dfd6;
   --button-danger-bg: #be123c;
   --button-danger-bg-hover: #9f1239;
   --button-danger-text: #ffffff;
   --button-danger-shadow: none;
   --button-success-bg: #15803d;
-  --button-success-bg-hover: #14622f;
-  --button-success-text: #ffffff;
-  --button-success-shadow: none;
   --button-icon-bg: #ffffff;
   --button-icon-bg-hover: #f3f1ec;
   --button-icon-text: #43464b;
@@ -172,9 +154,6 @@
   --button-icon-success-bg: #e6f2ea;
   --button-icon-success-hover: #d6ebdd;
   --button-icon-success-text: #14622f;
-  --button-icon-loading-bg: #eaf0fe;
-  --button-icon-loading-hover: #dbe6fd;
-  --button-icon-loading-text: #1d4ed8;
   --button-icon-muted-bg: #ffffff;
   --button-icon-muted-hover: #f3f1ec;
   --button-icon-muted-text: #43464b;
@@ -233,7 +212,6 @@
    */
   --status-ok: #15803d;
   --status-ok-surface: #e6f2ea;
-  --status-ok-text: #14622f;
   --status-warn: #b45309;
   --status-warn-surface: #fbf0df;
   --status-warn-text: #8a3d06;
@@ -288,27 +266,6 @@
   --data-history: #a21caf;
   --data-history-text: #86198f;
   --data-history-surface: #fae8fb;
-
-  --animate-marquee-label: marquee-label 6s ease-in-out infinite alternate;
-}
-
-/*
- * Hover/focus marquee for labels that are clipped by `truncate`.
- *
- * The scroll distance is the container width minus the label width
- * (`100cqw - 100%`), so the animation needs an `@container` ancestor and moves
- * only what actually overflows — labels that already fit stay put thanks to the
- * `min()`. Users who prefer reduced motion keep the static ellipsis via the
- * global motion guard at the end of this file.
- */
-@keyframes marquee-label {
-  from {
-    transform: translateX(0);
-  }
-
-  to {
-    transform: translateX(min(0px, calc(100cqw - 100%)));
-  }
 }
 
 @layer base {
@@ -325,7 +282,6 @@
     --surface-card: #181a1d;
     --border-card: #2a2d31;
     --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.4);
-    --shadow-card-hover: 0 2px 8px -2px rgba(0, 0, 0, 0.55);
     --shadow-sheet: 0 -8px 24px -12px rgba(0, 0, 0, 0.6);
     --surface-list: #181a1d;
     --border-list: #2a2d31;
@@ -343,9 +299,6 @@
     --present-bar-border: #3a3d42;
     --present-bar-text: #f2f1ee;
     --present-bar-muted: #c9cbcf;
-    --surface-badge: #181a1d;
-    --border-badge: #2a2d31;
-    --shadow-badge: none;
     --text-badge: #93b4fb;
 
     --focus-ring-primary: #4f86f7;
@@ -360,16 +313,10 @@
     --button-secondary-text: #f2f1ee;
     --button-secondary-border: #2a2d31;
     --button-secondary-shadow: none;
-    --button-warning-bg: #181a1d;
-    --button-warning-bg-hover: #202327;
-    --button-warning-text: #f2f1ee;
-    --button-warning-border: #2a2d31;
     --button-danger-bg: #9f1239;
     --button-danger-bg-hover: #be123c;
     --button-danger-shadow: none;
     --button-success-bg: #14622f;
-    --button-success-bg-hover: #15803d;
-    --button-success-shadow: none;
     --button-icon-bg: #181a1d;
     --button-icon-bg-hover: #202327;
     --button-icon-text: #c9cbcf;
@@ -384,9 +331,6 @@
     --button-icon-success-bg: rgba(21, 128, 61, 0.16);
     --button-icon-success-hover: rgba(21, 128, 61, 0.26);
     --button-icon-success-text: #6fce8f;
-    --button-icon-loading-bg: rgba(37, 99, 235, 0.16);
-    --button-icon-loading-hover: rgba(37, 99, 235, 0.26);
-    --button-icon-loading-text: #93b4fb;
     --button-icon-muted-bg: #181a1d;
     --button-icon-muted-hover: #202327;
     --button-icon-muted-text: #c9cbcf;
@@ -425,7 +369,6 @@
 
     --status-ok: #5ec07f;
     --status-ok-surface: rgba(21, 128, 61, 0.2);
-    --status-ok-text: #6fce8f;
     --status-warn: #dd9a4a;
     --status-warn-surface: rgba(180, 83, 9, 0.22);
     --status-warn-text: #e8b374;
@@ -480,19 +423,6 @@
   textarea {
     font-size: 16px;
   }
-}
-
-@utility name-box {
-  width: 5rem;
-  height: 1.5rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-@utility name-text {
-  font-size: 0.75rem;
-  line-height: 1rem;
 }
 
 @utility panel-surface {
@@ -660,25 +590,6 @@
   color: var(--data-chip-text, var(--text-muted));
 }
 
-@utility badge-surface {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  padding: 0.25rem 0.75rem;
-  font-size: 0.875rem;
-  line-height: 1.25rem;
-  font-weight: 600;
-  border-radius: var(--radius-badge);
-  border: 1px solid var(--border-badge);
-  background: var(--surface-badge);
-  box-shadow: var(--shadow-badge);
-  color: var(--text-badge);
-  transition:
-    background-color 150ms ease,
-    border-color 150ms ease,
-    color 150ms ease;
-}
-
 @utility primary-button {
   display: inline-flex;
   align-items: center;
@@ -715,42 +626,7 @@
   opacity: 0.6;
 }
 
-@utility warning-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.5rem 1rem;
-  font-size: 0.875rem;
-  line-height: 1.25rem;
-  font-weight: 600;
-  border-radius: var(--radius-pill);
-  background-color: var(--button-warning-bg);
-  border: 1px solid var(--button-warning-border);
-  color: var(--button-warning-text);
-  transition:
-    background-color 150ms ease,
-    box-shadow 150ms ease,
-    color 150ms ease;
-  text-decoration: none;
-  cursor: pointer;
-}
-
-.warning-button:hover:not(:disabled, [aria-disabled='true']) {
-  background-color: var(--button-warning-bg-hover);
-}
-
-.warning-button:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 2px var(--focus-ring-primary);
-}
-
 /* [aria-disabled] keeps the button clickable so it can explain why it is inactive */
-.warning-button:disabled,
-.warning-button[aria-disabled='true'] {
-  cursor: not-allowed;
-  opacity: 0.6;
-}
-
 @utility secondary-button {
   display: inline-flex;
   align-items: center;
@@ -879,42 +755,6 @@
   opacity: 0.6;
 }
 
-@utility success-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.5rem 1rem;
-  font-size: 0.875rem;
-  line-height: 1.25rem;
-  font-weight: 600;
-  border-radius: var(--radius-pill);
-  background-color: var(--button-success-bg);
-  color: var(--button-success-text);
-  box-shadow: var(--button-success-shadow);
-  transition:
-    background-color 150ms ease,
-    box-shadow 150ms ease,
-    color 150ms ease;
-  text-decoration: none;
-  cursor: pointer;
-}
-
-.success-button:hover:not(:disabled) {
-  background-color: var(--button-success-bg-hover);
-}
-
-.success-button:focus-visible {
-  outline: none;
-  box-shadow:
-    0 0 0 2px var(--focus-ring-success),
-    var(--button-success-shadow);
-}
-
-.success-button:disabled {
-  cursor: not-allowed;
-  opacity: 0.6;
-}
-
 /*
  * In a modal dialog the focused button is the one Enter presses, so it must
  * be seen. A dialog focuses its button by script (ConfirmDialog takes
@@ -927,9 +767,7 @@
     .primary-button,
     .secondary-button,
     .neutral-button,
-    .warning-button,
-    .danger-button,
-    .success-button
+    .danger-button
   ):focus {
   outline: 2px solid var(--focus-ring-primary);
   outline-offset: 2px;
@@ -937,10 +775,6 @@
 
 [aria-modal='true'] .danger-button:focus {
   outline-color: var(--focus-ring-danger);
-}
-
-[aria-modal='true'] .success-button:focus {
-  outline-color: var(--focus-ring-success);
 }
 
 @utility icon-button {
@@ -1117,34 +951,6 @@
   opacity: 0.6;
 }
 
-@utility loading-icon-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.5rem;
-  border-radius: var(--radius-pill);
-  background-color: var(--button-icon-loading-bg);
-  color: var(--button-icon-loading-text);
-  transition:
-    background-color 150ms ease,
-    color 150ms ease;
-  cursor: pointer;
-}
-
-.loading-icon-button:hover:not(:disabled) {
-  background-color: var(--button-icon-loading-hover);
-}
-
-.loading-icon-button:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 2px var(--focus-ring-primary);
-}
-
-.loading-icon-button:disabled {
-  cursor: not-allowed;
-  opacity: 0.6;
-}
-
 @utility muted-icon-button {
   display: inline-flex;
   align-items: center;
@@ -1202,37 +1008,6 @@
 }
 
 .input-field:disabled {
-  cursor: not-allowed;
-  opacity: 0.6;
-}
-
-@utility textarea-field {
-  display: block;
-  width: 100%;
-  padding: 0.5rem 0.75rem;
-  font-size: 0.875rem;
-  line-height: 1.25rem;
-  border-radius: 0.75rem;
-  border: 1px solid var(--input-border);
-  background-color: var(--input-bg);
-  color: var(--input-text);
-  box-shadow: var(--input-shadow);
-  transition:
-    background-color 150ms ease,
-    border-color 150ms ease,
-    color 150ms ease,
-    box-shadow 150ms ease;
-}
-
-.textarea-field:focus-visible {
-  outline: none;
-  border-color: var(--button-secondary-border);
-  box-shadow:
-    var(--input-shadow),
-    0 0 0 2px var(--focus-ring-primary);
-}
-
-.textarea-field:disabled {
   cursor: not-allowed;
   opacity: 0.6;
 }
@@ -1686,80 +1461,6 @@ html.dark {
   border-radius: 9999px;
 }
 
-/* Wizard Progress Bar Utilities */
-@utility wizard-step-indicator {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 2rem;
-  height: 2rem;
-  border-radius: 9999px;
-  border: 2px solid var(--border-card);
-  background-color: var(--surface-card);
-  color: var(--button-icon-muted-text);
-  font-weight: 600;
-  transition:
-    background-color 200ms ease,
-    border-color 200ms ease,
-    color 200ms ease,
-    transform 200ms ease,
-    box-shadow 200ms ease;
-  cursor: pointer;
-}
-
-@media (min-width: 640px) {
-  .wizard-step-indicator {
-    width: 2.75rem;
-    height: 2.75rem;
-  }
-}
-
-.wizard-step-indicator:hover:not(.wizard-step-active) {
-  transform: scale(1.05);
-  border-color: var(--button-primary-bg);
-}
-
-@utility wizard-step-active {
-  background-color: var(--button-primary-bg);
-  border-color: var(--button-primary-bg);
-  color: var(--button-primary-text);
-  box-shadow: var(--button-primary-shadow);
-  transform: scale(1.1);
-}
-
-@utility wizard-step-completed {
-  background-color: var(--button-success-bg);
-  border-color: var(--button-success-bg);
-  color: var(--button-success-text);
-}
-
-@utility wizard-step-pending {
-  background-color: var(--surface-card);
-  border-color: var(--border-card);
-  color: var(--button-icon-muted-text);
-}
-
-@utility wizard-connector {
-  flex: 1;
-  height: 3px;
-  min-width: 1.5rem;
-  max-width: 4rem;
-  background-color: var(--border-card);
-  border-radius: 9999px;
-  transition: background-color 300ms ease;
-}
-
-@media (min-width: 640px) {
-  .wizard-connector {
-    min-width: 3rem;
-    max-width: 8rem;
-  }
-}
-
-@utility wizard-connector-completed {
-  background-color: var(--button-success-bg);
-}
-
 /* Onboarding tour: a ring around the element a coach mark explains, the rest of
    the page dimmed. The shadow does the dimming, so the element stays clickable
    and the backdrop never catches a click (the element carries
@@ -1842,9 +1543,11 @@ html.theme-switching *::after {
   text-decoration: none;
   outline: none;
 }
+
 .kp-mark {
   display: block;
 }
+
 .kp-mark rect {
   transform-box: fill-box;
   transform-origin: center;
@@ -1854,9 +1557,11 @@ html.theme-switching *::after {
   fill: #2563eb;
   opacity: 0.1;
 }
+
 .kp-k rect {
   fill: #2563eb;
 }
+
 .kp-accent {
   fill: #f59e0b;
 }
@@ -1865,6 +1570,7 @@ html.theme-switching *::after {
 .kp-lockup:focus-visible .kp-k rect {
   animation: kp-pop 380ms cubic-bezier(0.22, 0.61, 0.36, 1) both;
 }
+
 .kp-lockup:hover .kp-accent,
 .kp-lockup:focus-visible .kp-accent {
   animation: kp-popAmber 520ms cubic-bezier(0.22, 0.85, 0.36, 1) both;
@@ -1874,26 +1580,32 @@ html.theme-switching *::after {
 .kp-lockup:focus-visible .kp-k rect[data-i='0'] {
   animation-delay: 0ms;
 }
+
 .kp-lockup:hover .kp-k rect[data-i='1'],
 .kp-lockup:focus-visible .kp-k rect[data-i='1'] {
   animation-delay: 110ms;
 }
+
 .kp-lockup:hover .kp-k rect[data-i='2'],
 .kp-lockup:focus-visible .kp-k rect[data-i='2'] {
   animation-delay: 220ms;
 }
+
 .kp-lockup:hover .kp-k rect[data-i='3'],
 .kp-lockup:focus-visible .kp-k rect[data-i='3'] {
   animation-delay: 330ms;
 }
+
 .kp-lockup:hover .kp-k rect[data-i='4'],
 .kp-lockup:focus-visible .kp-k rect[data-i='4'] {
   animation-delay: 440ms;
 }
+
 .kp-lockup:hover .kp-k rect[data-i='5'],
 .kp-lockup:focus-visible .kp-k rect[data-i='5'] {
   animation-delay: 550ms;
 }
+
 .kp-lockup:hover .kp-accent,
 .kp-lockup:focus-visible .kp-accent {
   animation-delay: 760ms;
@@ -1909,6 +1621,7 @@ html.theme-switching *::after {
     transform: scale(1);
   }
 }
+
 @keyframes kp-popAmber {
   0% {
     opacity: 0;
@@ -1930,10 +1643,12 @@ html.theme-switching *::after {
   transform-origin: left center;
   transition: transform 280ms cubic-bezier(0.22, 0.61, 0.36, 1);
 }
+
 .kp-wordmark-svg {
   display: block;
   overflow: visible;
 }
+
 .kp-lockup:hover .kp-wordmark-text,
 .kp-lockup:focus-visible .kp-wordmark-text {
   transform: scale(1.04);
@@ -1948,10 +1663,12 @@ html.theme-switching *::after {
     fill: #fbbf24;
   }
 }
+
 .dark .kp-ghost rect {
   fill: #60a5fa;
   opacity: 0.16;
 }
+
 .dark .kp-accent {
   fill: #fbbf24;
 }

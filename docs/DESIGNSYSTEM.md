@@ -28,7 +28,6 @@ The look is called **Papier & Werkzeug**: the interface is a passepartout in war
 | `panelSurfaceClass`      | `panel-surface`       | Shells, wizard steps, quick menu                        |
 | `cardSurfaceClass`       | `card-surface`        | Cards, dialog content                                   |
 | `listContainerClass`     | `list-container`      | History panels, template lists                          |
-| `badgeSurfaceClass`      | `badge-surface`       | Status badges, pills                                    |
 | `dataChipClass`          | `data-chip`           | One pedagogical fact: icon, word, family colour         |
 | `dataHeadingClass`       | `data-heading`        | A section heading in its family's accent                |
 | `dataFamilyClass[…]`     | `data-behavior`, …    | Sets the family's three custom properties               |
@@ -36,18 +35,14 @@ The look is called **Papier & Werkzeug**: the interface is a passepartout in war
 | `secondaryButtonClass`   | `secondary-button`    | Secondary actions                                       |
 | `neutralButtonClass`     | `neutral-button`      | Neutral actions (e.g. back navigation)                  |
 | `dangerButtonClass`      | `danger-button`       | Destructive actions                                     |
-| `successButtonClass`     | `success-button`      | Confirmations                                           |
-| `warningButtonClass`     | `warning-button`      | Warning actions                                         |
 | `iconButtonClass`        | `icon-button`         | Prominent icon actions                                  |
 | `quietIconButtonClass`   | `quiet-icon-button`   | Toolbar / secondary actions                             |
 | `quietLinkClass`         | `quiet-link`          | Links in a page's chrome: FAQ, contact, "Zurück"        |
 | `dangerIconButtonClass`  | `danger-icon-button`  | Warn / delete icons                                     |
 | `successIconButtonClass` | `success-icon-button` | Success icons                                           |
-| `loadingIconButtonClass` | `loading-icon-button` | Loading indicators                                      |
 | `mutedIconButtonClass`   | `muted-icon-button`   | Neutral icon actions, basis for student toggles         |
 | `inputFieldClass`        | `input-field`         | Inputs, selects, textareas                              |
 | `selectFieldClass`       | `input-field`         | Alias for select elements                               |
-| `textareaFieldClass`     | `textarea-field`      | Multi-line fields                                       |
 | `segmentedTrackClass`    | `segmented-track`     | Recessed track a segmented control's options sit in     |
 | `pillTabBaseClass`       | `pill-tab-base`       | Segmented options: layer switcher, filters, dialog tabs |
 | `pillTabActiveClass`     | `pill-tab-active`     | Active pill states                                      |
@@ -99,7 +94,6 @@ The central radii live in `@theme`:
 | `--radius-list`            | `0.625rem` (10 px) | History panels                                                        |
 | `--radius-pill`            | `0.5rem` (8 px)    | Buttons, tabs, a toast's button                                       |
 | `--radius-floating-status` | `0.5rem` (8 px)    | `floating-status`                                                     |
-| `--radius-badge`           | `9999px`           | `badge-surface` — the only round shape left                           |
 
 `--radius-pill` keeps its name for compatibility; controls stopped being pills. Only badges and avatars stay circular.
 

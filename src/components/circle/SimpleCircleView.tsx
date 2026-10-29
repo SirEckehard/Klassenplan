@@ -85,7 +85,6 @@ type SimpleCircleViewProps = {
   photoMode?: PhotoDisplayMode;
   /** Uniform name rule for the tokens (see {@link NameDisplayMode}). */
   nameDisplay?: NameDisplayMode;
-  onPhotoModeChange?: (mode: PhotoDisplayMode) => void;
   /** Which badges the tokens show and how (see `SeatBadgeView`). */
   badgeView?: SeatBadgeView;
   /** The badge being pointed at — here or in the legend — whose seats light up. */

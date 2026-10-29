@@ -16,7 +16,7 @@ import {
 import {
   CanvasSettingsGroups,
   type CanvasSettingsGroup,
-} from '@/components/SeatingPlanGenerator/canvas/CanvasSettingsButton';
+} from '@/components/SeatingPlanGenerator/canvas/CanvasSettingsGroups';
 import { VIEW_SETTING_ICONS } from '@/components/SeatingPlanGenerator/canvas/viewSettingIcons';
 import { menuSurfaceClass } from '@/utils';
 import { TOUR_ANCHORS } from '@/components/onboarding/tours';

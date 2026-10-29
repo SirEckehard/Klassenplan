@@ -8,7 +8,7 @@ import {
 } from '@phosphor-icons/react';
 import { applyNameDisplayMode, summarizeNameLabels } from '@/utils';
 import type { NameDisplayMode } from '@/utils';
-import type { CanvasSettingsGroup } from './CanvasSettingsButton';
+import type { CanvasSettingsGroup } from './CanvasSettingsGroups';
 
 type NameDisplayGroupOptions = {
   id: string;

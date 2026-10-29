@@ -442,8 +442,6 @@ type ToolRailButtonProps = {
   active?: boolean;
   disabled?: boolean;
   onClick?: () => void;
-  /** The entry opens a dialog of its own rather than a panel of the rail. */
-  opensDialog?: boolean;
   /**
    * For an entry that is dragged onto the stage rather than pressed — the
    * table templates and the room elements. Turns the entry into a drag source.
@@ -469,7 +467,6 @@ export function ToolRailButton({
   active,
   disabled = false,
   onClick,
-  opensDialog = false,
   onPointerDown,
   panel,
   'data-tour': dataTour,
@@ -521,7 +518,7 @@ export function ToolRailButton({
       aria-pressed={
         onClick && !panel && active !== undefined ? active : undefined
       }
-      aria-haspopup={panel || opensDialog ? 'dialog' : undefined}
+      aria-haspopup={panel ? 'dialog' : undefined}
       aria-expanded={panel ? open : undefined}
       className={
         isCompact

@@ -3,7 +3,7 @@
 import '@testing-library/jest-dom/vitest';
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
-import { CanvasSettingsButton } from '../CanvasSettingsButton';
+import { CanvasSettingsGroups } from '../CanvasSettingsGroups';
 import { buildFeatureVisibilityGroup } from '../featureVisibilityGroup';
 import { FEATURE_TYPES } from '@/utils/ui';
 import type { ClassroomFeatureType } from '@/types';
@@ -21,7 +21,7 @@ const renderWithFeatureGroup = ({
     typeof buildFeatureVisibilityGroup
   >[0]['t'];
   render(
-    <CanvasSettingsButton
+    <CanvasSettingsGroups
       groups={[
         buildFeatureVisibilityGroup({
           id: 'test-features',
@@ -32,15 +32,11 @@ const renderWithFeatureGroup = ({
           onToggle,
         }),
       ]}
-      buttonAriaLabel="Ansichtseinstellungen"
     />,
-  );
-  fireEvent.click(
-    screen.getByRole('button', { name: 'Ansichtseinstellungen' }),
   );
 };
 
-describe('CanvasSettingsButton check list', () => {
+describe('CanvasSettingsGroups check list', () => {
   it('renders one pressed row per feature type inside a labelled group', () => {
     renderWithFeatureGroup();
     const group = screen.getByRole('group', { name: 'Raumelemente' });
@@ -88,11 +84,11 @@ describe('CanvasSettingsButton check list', () => {
   });
 });
 
-describe('CanvasSettingsButton choices', () => {
+describe('CanvasSettingsGroups choices', () => {
   it('checks the chosen value and switches to another one', () => {
     const onChange = vi.fn();
     render(
-      <CanvasSettingsButton
+      <CanvasSettingsGroups
         groups={[
           {
             id: 'photos',
@@ -112,11 +108,7 @@ describe('CanvasSettingsButton choices', () => {
             ],
           },
         ]}
-        buttonAriaLabel="Ansichtseinstellungen"
       />,
-    );
-    fireEvent.click(
-      screen.getByRole('button', { name: 'Ansichtseinstellungen' }),
     );
 
     expect(screen.getByRole('button', { name: 'An' })).toHaveAttribute(

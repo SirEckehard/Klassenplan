@@ -3,7 +3,7 @@
 import React from 'react';
 import SmartSidebar from '@/components/ui/panels/SmartSidebar';
 import RoomToolPanel from '@/components/SeatingPlanGenerator/views/RoomToolPanel';
-import type { CanvasSettingsGroup } from '@/components/SeatingPlanGenerator/canvas/CanvasSettingsButton';
+import type { CanvasSettingsGroup } from '@/components/SeatingPlanGenerator/canvas/CanvasSettingsGroups';
 import { TOUR_ANCHORS } from '@/components/onboarding/tours';
 import type { ClassroomFeatureType, TableTemplateType } from '@/types';
 

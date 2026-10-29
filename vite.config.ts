@@ -349,9 +349,7 @@ export default defineConfig({
         clientsClaim: true,
         globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2}'],
         // The start page screenshots are left to the runtime cache below; the
-        // ones meant for offline use are listed in `includeAssets`. Globbing
-        // them here precached every PNG master — 24 files, 11 MB — on each
-        // first visit, although the app never requests one.
+        // ones meant for offline use are listed in `includeAssets`.
         globIgnores: ['**/node_modules/**/*', 'preview/**'],
         // The carousel asks for its screenshots with the set's version
         // appended (`?v=…`, see HeroMockup). Ignoring it lets the precached

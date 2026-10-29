@@ -5,7 +5,7 @@ import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { createMockStudent } from '@/__tests__/utils';
 import BadgeLegend from '../BadgeLegend';
-import { CanvasSettingsGroups } from '../CanvasSettingsButton';
+import { CanvasSettingsGroups } from '../CanvasSettingsGroups';
 import { buildBadgeDisplayGroup } from '../badgeDisplayGroup';
 import i18n from '@/i18n';
 

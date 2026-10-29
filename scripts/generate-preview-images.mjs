@@ -4,8 +4,9 @@
 // Encodes the start page screenshots that HeroMockup serves through `srcset`
 // and shows in its lightbox.
 //
-// The PNGs in public/preview/ are the lossless masters, usually written by
-// capture-preview-screenshots.mjs. For each master this writes the full-size
+// The PNGs in assets/preview/ are the lossless masters, usually written by
+// capture-preview-screenshots.mjs; they stay out of public/, so no build ships
+// them. For each master this writes into public/preview/ the full-size
 // `<name>.avif` and `<name>.webp`, which the lightbox and the web app manifest
 // use, and `<name>-<width>.avif` / `<name>-<width>.webp` for every width in
 // src/data/previewImages.json that is smaller than the master itself.
@@ -44,6 +45,7 @@ const projectRoot = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
   '..',
 );
+const masterDir = path.join(projectRoot, 'assets', 'preview');
 const previewDir = path.join(projectRoot, 'public', 'preview');
 const configPath = path.join(projectRoot, 'src', 'data', 'previewImages.json');
 
@@ -93,12 +95,12 @@ async function isUpToDate(output, masterMtime) {
 
 async function main() {
   const { variantWidths } = JSON.parse(await fs.readFile(configPath, 'utf-8'));
-  const masters = (await fs.readdir(previewDir))
+  const masters = (await fs.readdir(masterDir))
     .filter((name) => name.endsWith('.png'))
     .sort();
 
   if (masters.length === 0) {
-    throw new Error(`no PNG masters in ${previewDir}`);
+    throw new Error(`no PNG masters in ${masterDir}`);
   }
 
   const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'kp-preview-'));
@@ -107,7 +109,7 @@ async function main() {
 
   try {
     for (const master of masters) {
-      const masterPath = path.join(previewDir, master);
+      const masterPath = path.join(masterDir, master);
       const base = master.slice(0, -'.png'.length);
       const { width } = await readPngSize(masterPath);
       const { mtimeMs } = await fs.stat(masterPath);

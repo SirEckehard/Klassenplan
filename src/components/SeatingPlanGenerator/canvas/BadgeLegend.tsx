@@ -11,7 +11,7 @@ import {
 } from '@/utils/ui/seatBadges';
 import { describeBadge } from '@/utils/ui/studentAppearance';
 import { badgeFamilyLabelKey } from '@/components/scene/BadgeTooltip';
-import { menuHeadingClass } from './CanvasSettingsButton';
+import { menuHeadingClass } from './CanvasSettingsGroups';
 
 /**
  * The key to the icons on the seats: every badge the class carries, under its

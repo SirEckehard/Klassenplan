@@ -15,7 +15,7 @@ import type {
   BadgeHoverSettings,
 } from '@/utils/ui/seatBadges';
 import BadgeLegend from './BadgeLegend';
-import type { CanvasSettingsGroup } from './CanvasSettingsButton';
+import type { CanvasSettingsGroup } from './CanvasSettingsGroups';
 
 const BADGE_DISPLAY_ICONS: Record<BadgeDisplayMode, typeof EyeIcon> = {
   all: EyeIcon,

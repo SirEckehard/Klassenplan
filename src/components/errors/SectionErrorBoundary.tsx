@@ -10,7 +10,6 @@ type SectionErrorBoundaryProps = {
     | ((args: { error: Error; reset: () => void }) => React.ReactNode);
   name?: string;
   onError?: (error: Error, info: React.ErrorInfo) => void;
-  onReset?: () => void;
   resetKeys?: ReadonlyArray<unknown>;
 };
 
@@ -77,9 +76,6 @@ export default class SectionErrorBoundary extends React.Component<
 
   private readonly reset = () => {
     this.setState({ hasError: false, error: null });
-    if (this.props.onReset) {
-      this.props.onReset();
-    }
   };
 
   render() {

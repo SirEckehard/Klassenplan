@@ -8,7 +8,7 @@ import {
   FEATURE_TYPE_LABEL_KEYS,
   type FeatureVisibilityFlags,
 } from '@/utils/ui';
-import type { CanvasSettingsGroup } from './CanvasSettingsButton';
+import type { CanvasSettingsGroup } from './CanvasSettingsGroups';
 
 /**
  * Which kinds of room element the room has at all. A kind it lacks is offered

@@ -32,8 +32,6 @@ type Props = {
   draftName: string;
   setDraftName: (value: string) => void;
   showEditButton?: boolean;
-  onEditStart?: () => void; // Called when editing starts
-  onEditEnd?: () => void; // Called when editing ends (save or cancel)
   /**
    * What Enter does after the name is saved. Given one, the field stays open
    * and hands over — the inspector steps to the next student, and a whole
@@ -57,8 +55,6 @@ type Props = {
  * @param draftName - Current draft name during editing
  * @param setDraftName - Setter for draft name
  * @param showEditButton - Whether to show the inline edit button (default: true)
- * @param onEditStart - Optional callback when editing starts
- * @param onEditEnd - Optional callback when editing ends
  */
 export default function StudentNameEditor({
   student,
@@ -69,8 +65,6 @@ export default function StudentNameEditor({
   draftName,
   setDraftName,
   showEditButton = true,
-  onEditStart,
-  onEditEnd,
   onSubmit,
   autoFocus = true,
 }: Props) {
@@ -123,20 +117,17 @@ export default function StudentNameEditor({
 
     setIsEditing(false);
     setDraftName('');
-    onEditEnd?.(); // Notify that editing ended
     return true;
   };
 
   const startEditing = () => {
     setIsEditing(true);
     setDraftName(student.name);
-    onEditStart?.(); // Notify that editing started
   };
 
   const cancelEditing = () => {
     setIsEditing(false);
     setDraftName('');
-    onEditEnd?.(); // Notify that editing ended
   };
 
   // The whole width of the inspector's title, so a long name fits its field

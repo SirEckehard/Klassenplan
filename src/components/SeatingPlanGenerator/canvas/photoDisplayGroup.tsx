@@ -3,7 +3,7 @@
 import type { TFunction } from 'i18next';
 import { CursorIcon, EyeIcon, EyeSlashIcon } from '@phosphor-icons/react';
 import type { PhotoDisplayMode } from '@/types';
-import type { CanvasSettingsGroup } from './CanvasSettingsButton';
+import type { CanvasSettingsGroup } from './CanvasSettingsGroups';
 
 type PhotoDisplayGroupOptions = {
   /** The group's id; `optionId` names its one control. */
