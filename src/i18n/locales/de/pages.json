@@ -424,6 +424,10 @@
         "q": "Kann ich eine Klassenliste ausdrucken?",
         "a": "Ja. „Liste drucken“ in der Werkzeugleiste der Klasse öffnet sie direkt, auch ohne gemischten Plan; auf der Exportseite findest du sie unter „Ansicht“ als „Liste“. Neben jedem Namen ist Platz zum Schreiben: Notizzeilen für Beobachtungen oder ein Raster mit leeren Spalten zum Abhaken, dessen Köpfe du selbst mit Datum oder Thema beschriftest. Die Reihenfolge kann den Tischen wie im Plan, dem Sitzkreis folgen oder alphabetisch sortiert werden."
       },
+      "substitute": {
+        "q": "Wie gebe ich einer Vertretung den Sitzplan mit?",
+        "a": "Auf der Exportseite wählst du in der Werkzeugleiste unter „Ansicht“ die „Vertretung“. Das Blatt zeigt den Sitzplan oder den Sitzkreis mit den Namen – ohne Merkmale und ohne Geschlechterfarben, auch wenn du sie für deinen eigenen Ausdruck eingeschaltet hast. In der Kopfzeile stehen die Klasse, der Raum und der Tag der Vertretung, den du im Inspektor festlegst. Darunter kannst du einen Hinweis wie den Arbeitsauftrag eintragen und leere Zeilen für die Vertretung drucken, etwa für Fehlende. Der Hinweis wird nicht gespeichert, und Fotos kommen nur auf das Blatt, wenn du sie einschaltest."
+      },
       "names": {
         "q": "Die Namen sind auf dem Plan zu lang und zu klein – was kann ich tun?",
         "a": "Im Sitzplan unter „Ansichtseinstellungen › Namen“, im Präsentiermodus und auf der Exportseite unter „Namen“ legst du fest, wie Namen erscheinen: nur Vorname, Vorname + Initial des Nachnamens oder Vor- und Nachname. Namen, die gleich aussähen, unterscheidet Klassenplan von selbst – aus „Frida Ehrmann“ und „Frida Emmerich“ werden „Frida Eh.“ und „Frida Em.“. Größer werden die Namen auch, wenn weniger auf den Plätzen steht: Die Merkmale blendest du im Sitzplan unter „Ansichtseinstellungen › Merkmale“ aus, im Präsentiermodus über „Merkmale“ in der Leiste und auf der Exportseite im Inspektor unter „Merkmale auf dem Blatt“. Lass außerdem die Funktion „Anzeige vergrößern“ eingeschaltet, dann werden die Tische auf das ganze Blatt angepasst."

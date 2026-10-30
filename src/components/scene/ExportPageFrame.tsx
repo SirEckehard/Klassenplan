@@ -74,16 +74,24 @@ export type ExportPageLayout = {
   area: { x: number; y: number; width: number; height: number };
   /** Top edge of the legend band, when there is one. */
   legendY: number;
+  /** Top edge of the notes band at the foot, when there is one. */
+  notesY: number;
 };
 
+/**
+ * The page's bands from top to bottom: the header, the plan, the legend and,
+ * at the foot, the substitute's notes (decision 0034).
+ */
 export function getExportPageLayout({
   orientation,
   metadataLineCount,
   legendHeight = 0,
+  notesHeight = 0,
 }: {
   orientation: ExportOrientation;
   metadataLineCount: number;
   legendHeight?: number;
+  notesHeight?: number;
 }): ExportPageLayout {
   const portrait = orientation === 'portrait';
   const pageWidth = portrait ? 595 : 842;
@@ -96,6 +104,7 @@ export function getExportPageLayout({
       : 0);
   const areaY = margin + headerHeight + BAND_GAP;
   const legendBand = legendHeight > 0 ? legendHeight + BAND_GAP : 0;
+  const notesBand = notesHeight > 0 ? notesHeight + BAND_GAP : 0;
   return {
     pageWidth,
     pageHeight,
@@ -105,9 +114,10 @@ export function getExportPageLayout({
       x: margin,
       y: areaY,
       width: pageWidth - margin * 2,
-      height: pageHeight - margin - legendBand - areaY,
+      height: pageHeight - margin - notesBand - legendBand - areaY,
     },
-    legendY: pageHeight - margin - legendHeight,
+    legendY: pageHeight - margin - notesBand - legendHeight,
+    notesY: pageHeight - margin - notesHeight,
   };
 }
 

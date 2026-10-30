@@ -16,11 +16,13 @@ import {
   canvasFrameClass,
   canvasStageClass,
   errorHandlers,
+  formatLongDate,
   hasPlanForScene,
   LEGACY_EXPORT_KEYS,
   LOCAL_STORAGE_KEYS,
   logError,
   primaryButtonClass,
+  toIsoDate,
 } from '@/utils';
 import type { DataFamily, NameDisplayMode } from '@/utils';
 import { BADGE_FAMILY_ORDER, getClassBadges } from '@/utils/ui/seatBadges';
@@ -50,6 +52,16 @@ import {
   type NoteListSettings,
 } from '@/utils/ui/noteList';
 import type { NoteListInput } from '@/components/scene/NoteListSheet';
+import {
+  DEFAULT_SUBSTITUTE_SETTINGS,
+  normalizeSubstituteSettings,
+  substituteHeaderLines,
+  substituteRenderOptions,
+  type SheetNotes,
+  type SubstituteArrangement,
+  type SubstituteSheetSettings,
+} from '@/utils/ui/substituteSheet';
+import type { ExportClassMetadata } from '@/services/export/sceneRenderer';
 import { buildPhotoDataUrlMap } from '@/services/export/pdfExportFunctions';
 import type { PhotoDisplayMode, SeatingArrangement, Student } from '@/types';
 import usePersistentState from '@/hooks/usePersistentState';
@@ -78,6 +90,25 @@ import SmartSidebar from '@/components/ui/panels/SmartSidebar';
 import { useInspector } from '@/contexts/InspectorContext';
 
 type PageOrientation = 'landscape' | 'portrait';
+
+/**
+ * What the plan's or the circle's sheet carries besides the arrangement — the
+ * ordinary sheet's switches, or the substitute's sheet's fixed set (decision
+ * 0034). The preview, the PDF and the images read this one object.
+ */
+type SheetContent = {
+  showSpecialNeeds: boolean;
+  showGenderColors: boolean;
+  showLegend: boolean;
+  showConnections: boolean;
+  nameDisplay: NameDisplayMode;
+  showPhotos: boolean;
+  classMetadata?: ExportClassMetadata;
+  hiddenBadgeFamilies?: readonly DataFamily[];
+  metadataLines?: readonly string[];
+  dateLabel?: string;
+  notes?: SheetNotes;
+};
 
 /**
  * Read a value persisted by the editor (via {@link usePersistentState}) so the
@@ -175,6 +206,8 @@ export default function Export() {
     circleGenerationInProgress,
     circleGenerationStatus,
     activeClass,
+    rooms,
+    activeRoomId,
   } = useSeatingPlanState();
   const {
     generateCircleSeating,
@@ -343,6 +376,44 @@ export default function Export() {
     [setStoredNoteList],
   );
 
+  // The substitute's sheet (decision 0034) keeps its own settings in one
+  // object, apart from the teacher's own sheet. What belongs to this one
+  // sheet — the arrangement, the day, the note, the title — lasts as long as
+  // the page and is never stored.
+  const [storedSubstitute, setStoredSubstitute] = usePersistentState<
+    Partial<SubstituteSheetSettings>
+  >(LOCAL_STORAGE_KEYS.exportSubstitute, DEFAULT_SUBSTITUTE_SETTINGS);
+  const substituteSettings = useMemo(
+    () => normalizeSubstituteSettings(storedSubstitute),
+    [storedSubstitute],
+  );
+  const updateSubstitute = useCallback(
+    (patch: Partial<SubstituteSheetSettings>) =>
+      setStoredSubstitute((current) => ({
+        ...normalizeSubstituteSettings(current),
+        ...patch,
+      })),
+    [setStoredSubstitute],
+  );
+  const [substituteArrangement, setSubstituteArrangement] =
+    useState<SubstituteArrangement>(() =>
+      navigationState.mode === 'circle' &&
+      (circleLayout ?? navigationState.circleLayout)
+        ? 'circle'
+        : 'table',
+    );
+  const [substituteDate, setSubstituteDate] = useState(() => toIsoDate());
+  const [substituteNote, setSubstituteNote] = useState('');
+  const [substituteTitle, setSubstituteTitle] = useState(() =>
+    t('export.substitute.defaultTitle'),
+  );
+  const isSubstitute = previewMode === 'substitute';
+  // The arrangement on the sheet: the substitute's sheet shows either.
+  const sheetArrangement =
+    previewMode === 'substitute' ? substituteArrangement : previewMode;
+  const roomName =
+    rooms?.find((room) => room.id === activeRoomId)?.name.trim() || undefined;
+
   const studentNames = useMemo(
     () => students.map((student) => student.name),
     [students],
@@ -461,9 +532,9 @@ export default function Export() {
     }
   }, []);
   const activeOrientation =
-    previewMode === 'list'
+    sheetArrangement === 'list'
       ? noteListSettings.orientation
-      : previewMode === 'circle'
+      : sheetArrangement === 'circle'
         ? circleOrientation
         : tableOrientation;
 
@@ -535,6 +606,71 @@ export default function Export() {
       effectiveNameDisplay,
       hiddenBadgeFamilies,
       showGenderColors,
+    ],
+  );
+
+  // The title, the header and the foot of the substitute's sheet: the class
+  // always named, the day of the cover in place of the printing date.
+  const substituteSheetTitle =
+    substituteTitle.trim() || t('export.substitute.defaultTitle');
+  const substituteDateLabel = t('export.substitute.dateLabel', {
+    date:
+      formatLongDate(substituteDate, i18n.language) ||
+      formatLongDate(new Date(), i18n.language),
+  });
+  const substituteLines = useMemo(
+    () =>
+      substituteHeaderLines(
+        {
+          className,
+          label: activeClass.label,
+          notes: activeClass.notes,
+          roomName,
+        },
+        substituteSettings,
+      ),
+    [
+      className,
+      activeClass.label,
+      activeClass.notes,
+      roomName,
+      substituteSettings,
+    ],
+  );
+  const sheetTitle = isSubstitute ? substituteSheetTitle : title;
+  const sheetContent = useMemo<SheetContent>(
+    () =>
+      isSubstitute
+        ? {
+            ...substituteRenderOptions(substituteSettings),
+            metadataLines: substituteLines,
+            dateLabel: substituteDateLabel,
+            notes: { text: substituteNote, lines: substituteSettings.lines },
+          }
+        : {
+            showSpecialNeeds: showNeeds,
+            showGenderColors,
+            showLegend,
+            showConnections,
+            nameDisplay: effectiveNameDisplay,
+            showPhotos,
+            classMetadata: classMetadataForExport,
+            hiddenBadgeFamilies,
+          },
+    [
+      isSubstitute,
+      substituteSettings,
+      substituteLines,
+      substituteDateLabel,
+      substituteNote,
+      showNeeds,
+      showGenderColors,
+      showLegend,
+      showConnections,
+      effectiveNameDisplay,
+      showPhotos,
+      classMetadataForExport,
+      hiddenBadgeFamilies,
     ],
   );
 
@@ -753,6 +889,32 @@ export default function Export() {
     [ensureCircleLayout],
   );
 
+  // The substitute's sheet draws the circle once there is one, as the
+  // toolbar's own entry does.
+  const handleSubstituteArrangement = useCallback(
+    (next: SubstituteArrangement) => {
+      if (next === 'table') {
+        setSubstituteArrangement('table');
+        return;
+      }
+      void (async () => {
+        try {
+          const layout = await ensureCircleLayout();
+          if (layout) {
+            setSubstituteArrangement('circle');
+          }
+        } catch (error) {
+          logError(
+            'Circle activation for the substitute sheet failed',
+            { error },
+            'ExportPage.handleSubstituteArrangement',
+          );
+        }
+      })();
+    },
+    [ensureCircleLayout],
+  );
+
   const [isGenerating, setIsGenerating] = useState(true);
 
   useEffect(() => {
@@ -780,23 +942,26 @@ export default function Export() {
           return;
         }
 
-        if (previewMode === 'circle' && circleLayout) {
+        if (sheetArrangement === 'circle' && circleLayout) {
           const circlePhotoUrls = await buildPhotoDataUrlMap(
             circleLayout.students
               .map((entry) => entry.student)
               .filter((student): student is Student => Boolean(student)),
           );
-          const svg = await renderCircleSvg(circleLayout, title, {
-            showSpecialNeeds: showNeeds,
-            showConnections,
+          const svg = await renderCircleSvg(circleLayout, sheetTitle, {
+            showSpecialNeeds: sheetContent.showSpecialNeeds,
+            showConnections: sheetContent.showConnections,
             orientation: circleOrientation,
-            nameDisplay: effectiveNameDisplay,
-            classMetadata: classMetadataForExport,
+            nameDisplay: sheetContent.nameDisplay,
+            classMetadata: sheetContent.classMetadata,
             photoDataUrls: circlePhotoUrls,
-            photoDisplayMode: showPhotos ? 'all' : 'off',
-            showLegend,
-            showGenderColors,
-            hiddenBadgeFamilies,
+            photoDisplayMode: sheetContent.showPhotos ? 'all' : 'off',
+            showLegend: sheetContent.showLegend,
+            showGenderColors: sheetContent.showGenderColors,
+            hiddenBadgeFamilies: sheetContent.hiddenBadgeFamilies,
+            metadataLines: sheetContent.metadataLines,
+            dateLabel: sheetContent.dateLabel,
+            notes: sheetContent.notes,
           });
           if (!isCancelled) {
             setPreviewPages([svg]);
@@ -806,21 +971,24 @@ export default function Export() {
         }
 
         const photoDataUrls = await buildPhotoDataUrlMap(students);
-        const svg = await renderSceneSvg(classroomScene, seating, title, {
+        const svg = await renderSceneSvg(classroomScene, seating, sheetTitle, {
           allStudents: students,
           photoDataUrls,
-          showSpecialNeeds: showNeeds,
+          showSpecialNeeds: sheetContent.showSpecialNeeds,
           featureVisibility: effectiveVisibility,
           lockSeatLabelOrientation: true,
           orientation: tableOrientation,
           flipped: flipView,
           frameOnTables,
-          nameDisplay: effectiveNameDisplay,
-          photoDisplayMode: showPhotos ? 'all' : 'off',
-          showLegend,
-          showGenderColors,
-          classMetadata: classMetadataForExport,
-          hiddenBadgeFamilies,
+          nameDisplay: sheetContent.nameDisplay,
+          photoDisplayMode: sheetContent.showPhotos ? 'all' : 'off',
+          showLegend: sheetContent.showLegend,
+          showGenderColors: sheetContent.showGenderColors,
+          classMetadata: sheetContent.classMetadata,
+          hiddenBadgeFamilies: sheetContent.hiddenBadgeFamilies,
+          metadataLines: sheetContent.metadataLines,
+          dateLabel: sheetContent.dateLabel,
+          notes: sheetContent.notes,
         });
         if (!isCancelled) {
           setPreviewPages([svg]);
@@ -852,24 +1020,18 @@ export default function Export() {
     };
   }, [
     previewMode,
+    sheetArrangement,
     circleLayout,
     seating,
     classroomScene,
-    title,
+    sheetTitle,
+    sheetContent,
     students,
-    showNeeds,
     effectiveVisibility,
-    showConnections,
     circleOrientation,
     tableOrientation,
     flipView,
     frameOnTables,
-    effectiveNameDisplay,
-    showPhotos,
-    showLegend,
-    showGenderColors,
-    classMetadataForExport,
-    hiddenBadgeFamilies,
     noteListInput,
     noteListSettings.showPhotos,
   ]);
@@ -889,11 +1051,12 @@ export default function Export() {
 
   // Circle exports are deliberately not recorded: the usage record tracks who
   // sat next to whom at the tables, which a circle says nothing about. Nor is
-  // the note list: it is a list of names, not the plan.
+  // the note list: it is a list of names, not the plan. The substitute's
+  // sheet of the table plan is the plan in use.
   const recordPreviewExport = useCallback(() => {
-    if (previewMode !== 'table') return;
+    if (sheetArrangement !== 'table') return;
     recordTablePlanExport();
-  }, [previewMode, recordTablePlanExport]);
+  }, [sheetArrangement, recordTablePlanExport]);
 
   // "Notizliste_7b": the list's file names the class, whatever its title.
   const noteListFilename = [t('export.noteList.defaultTitle'), className]
@@ -903,8 +1066,8 @@ export default function Export() {
   const printFilename =
     previewMode === 'list'
       ? noteListFilename
-      : title ||
-        (previewMode === 'circle'
+      : sheetTitle ||
+        (sheetArrangement === 'circle'
           ? t('export.circleDefaultFilename')
           : t('export.tableDefaultFilename'));
 
@@ -977,19 +1140,13 @@ export default function Export() {
     try {
       const { exportTableLayoutToPdf } =
         await import('@/services/export/pdfExportFunctions');
-      await exportTableLayoutToPdf(classroomScene, seating, title, {
+      await exportTableLayoutToPdf(classroomScene, seating, sheetTitle, {
+        ...sheetContent,
         allStudents: students,
-        showSpecialNeeds: showNeeds,
         featureVisibility: effectiveVisibility,
-        nameDisplay: effectiveNameDisplay,
-        showPhotos,
-        showLegend,
-        showGenderColors,
         orientation: tableOrientation,
         flipped: flipView,
         frameOnTables,
-        classMetadata: classMetadataForExport,
-        hiddenBadgeFamilies,
       });
       recordTablePlanExport();
     } catch (error) {
@@ -998,19 +1155,13 @@ export default function Export() {
   }, [
     classroomScene,
     seating,
-    title,
+    sheetTitle,
+    sheetContent,
     students,
-    showNeeds,
     effectiveVisibility,
-    effectiveNameDisplay,
-    showPhotos,
-    showLegend,
-    showGenderColors,
     tableOrientation,
     flipView,
     frameOnTables,
-    classMetadataForExport,
-    hiddenBadgeFamilies,
     recordTablePlanExport,
     exportError,
     t,
@@ -1022,32 +1173,18 @@ export default function Export() {
     try {
       const { exportCircleLayoutToPdf } =
         await import('@/services/export/pdfExportFunctions');
-      await exportCircleLayoutToPdf(layout, title, {
-        showSpecialNeeds: showNeeds,
-        showConnections,
+      await exportCircleLayoutToPdf(layout, sheetTitle, {
+        ...sheetContent,
         orientation: circleOrientation,
-        nameDisplay: effectiveNameDisplay,
-        showPhotos,
-        showLegend,
-        showGenderColors,
-        classMetadata: classMetadataForExport,
-        hiddenBadgeFamilies,
       });
     } catch (error) {
       exportError(error as Error, t('export.errors.circlePdfFailed'));
     }
   }, [
     ensureCircleLayout,
-    title,
-    showNeeds,
-    showConnections,
+    sheetTitle,
+    sheetContent,
     circleOrientation,
-    effectiveNameDisplay,
-    showPhotos,
-    showLegend,
-    showGenderColors,
-    classMetadataForExport,
-    hiddenBadgeFamilies,
     exportError,
     t,
   ]);
@@ -1065,10 +1202,10 @@ export default function Export() {
   // Image exports reuse the rendered preview markup (WYSIWYG) instead of
   // re-rendering, so they always match what the user is looking at.
   const imageExportBaseName =
-    title.trim() ||
-    (previewMode === 'circle' ? t('mode.circle') : t('mode.table'));
+    sheetTitle.trim() ||
+    (sheetArrangement === 'circle' ? t('mode.circle') : t('mode.table'));
   const imageOrientation =
-    previewMode === 'circle' ? circleOrientation : tableOrientation;
+    sheetArrangement === 'circle' ? circleOrientation : tableOrientation;
 
   const requirePreviewSvg = useCallback((): string | null => {
     if (previewSvg) {
@@ -1126,12 +1263,18 @@ export default function Export() {
       void handleNoteListPdf();
       return;
     }
-    if (previewMode === 'circle') {
+    if (sheetArrangement === 'circle') {
       void handleCirclePdf();
       return;
     }
     void handleTablePdf();
-  }, [previewMode, handleNoteListPdf, handleCirclePdf, handleTablePdf]);
+  }, [
+    previewMode,
+    sheetArrangement,
+    handleNoteListPdf,
+    handleCirclePdf,
+    handleTablePdf,
+  ]);
 
   const backToPlan = useCallback(
     () => navigate('/generator', { state: { step: returnStep } }),
@@ -1173,14 +1316,30 @@ export default function Export() {
         onChange: updateNoteList,
         orders: noteListOrders,
       }}
+      substitute={{
+        arrangement: substituteArrangement,
+        onArrangementChange: handleSubstituteArrangement,
+        date: substituteDate,
+        onDateChange: setSubstituteDate,
+        room: roomName
+          ? {
+              checked: substituteSettings.showRoom,
+              onChange: (showRoom) => updateSubstitute({ showRoom }),
+            }
+          : undefined,
+        note: substituteNote,
+        onNoteChange: setSubstituteNote,
+        lines: substituteSettings.lines,
+        onLinesChange: (lines) => updateSubstitute({ lines }),
+      }}
       pageCount={pageCount}
-      title={title}
-      onTitleChange={setTitle}
+      title={isSubstitute ? substituteTitle : title}
+      onTitleChange={isSubstitute ? setSubstituteTitle : setTitle}
       orientation={activeOrientation}
       onOrientationChange={
         isList
           ? (orientation) => updateNoteList({ orientation })
-          : previewMode === 'circle'
+          : sheetArrangement === 'circle'
             ? setCircleOrientation
             : setTableOrientation
       }
@@ -1214,7 +1373,12 @@ export default function Export() {
               checked: noteListSettings.showPhotos,
               onChange: (next) => updateNoteList({ showPhotos: next }),
             }
-          : { checked: showPhotos, onChange: handleTogglePhotos }
+          : isSubstitute
+            ? {
+                checked: substituteSettings.showPhotos,
+                onChange: (next) => updateSubstitute({ showPhotos: next }),
+              }
+            : { checked: showPhotos, onChange: handleTogglePhotos }
       }
       legend={{
         checked: showLegend,
@@ -1223,13 +1387,28 @@ export default function Export() {
           ? undefined
           : t('export.legendUnavailable'),
       }}
-      classInfo={{ checked: showClassInfo, onChange: handleToggleClassInfo }}
+      // The substitute's sheet names the class always; its school year and
+      // notes only when asked for, apart from the teacher's own sheet.
+      classInfo={
+        isSubstitute
+          ? {
+              checked: substituteSettings.showClassInfo,
+              onChange: (showClassInfo) => updateSubstitute({ showClassInfo }),
+            }
+          : { checked: showClassInfo, onChange: handleToggleClassInfo }
+      }
       connections={{
         checked: showConnections,
         onChange: handleToggleConnections,
       }}
-      nameDisplay={effectiveNameDisplay}
-      onNameDisplayChange={setNameDisplay}
+      nameDisplay={
+        isSubstitute ? substituteSettings.nameDisplay : effectiveNameDisplay
+      }
+      onNameDisplayChange={
+        isSubstitute
+          ? (nameDisplay) => updateSubstitute({ nameDisplay })
+          : setNameDisplay
+      }
       names={studentNames}
       featureAvailability={featureAvailability}
       featureVisibility={featureVisibility}

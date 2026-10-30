@@ -121,6 +121,9 @@ export const STORAGE_KEYS = {
     // The note list's form, order, orientation and what it shows, in one
     // object (`NoteListSettings`).
     exportNoteList: 'spg.export.noteList',
+    // The substitute's sheet's own settings in one object
+    // (`SubstituteSheetSettings`, decision 0034).
+    exportSubstitute: 'spg.export.substitute',
   },
   indexedDB: {
     students: 'spg.students',
@@ -259,6 +262,7 @@ export const PROJECT_LOCAL_STORAGE_KEYS = [
   STORAGE_KEYS.localStorage.exportFrameOnTables,
   STORAGE_KEYS.localStorage.exportShowGenderColors,
   STORAGE_KEYS.localStorage.exportNoteList,
+  STORAGE_KEYS.localStorage.exportSubstitute,
   LEGACY_EXPORT_KEYS.showFullNames,
   LEGACY_EXPORT_KEYS.pageOrientation,
   LEGACY_LANGUAGE_KEY,

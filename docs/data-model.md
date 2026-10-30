@@ -1,6 +1,6 @@
 # Data Model
 
-> **Status:** current · **Last reviewed:** 2026-10-29 · **Source of truth:**
+> **Status:** current · **Last reviewed:** 2026-10-30 · **Source of truth:**
 > `src/utils/data/storageKeys.ts`, `src/types/`, `src/repositories/`
 
 Everything Klassenplan stores lives in the teacher's browser. This document
@@ -319,7 +319,10 @@ list is `PROJECT_LOCAL_STORAGE_KEYS` in `storageKeys.ts`. Groups:
   `spg.export.noteList` holds the note list's settings in one object
   (`NoteListSettings`: form, lines, columns, order, orientation, photos,
   badges), read field by field (`normalizeNoteListSettings`) so a field added
-  later starts at its default.
+  later starts at its default. `spg.export.substitute` does the same for the
+  substitute's sheet (`SubstituteSheetSettings`: name rule, photos, class
+  info, room, lines; [decision 0034](decisions/0034-substitute-sheet.md)); the
+  note, the day and the title typed for that sheet are never stored.
 - **Keyboard:** `spg.characterKeyShortcuts` — `false` once the teacher has
   switched off the shortcuts on a single character key ("?", P, F, 1–3, Q/E …)
   in the settings menu, for speech input (WCAG 2.1.4, `utils/characterKeys.ts`).

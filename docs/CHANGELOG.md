@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- A sheet for the substitute: "Substitute" under "View" on the export page prints the seating plan or the circle with the names, the class, the room and the day of the lesson — never markers or gender colors, whatever your own printout shows. A note such as the task and empty lines to fill in go at the foot of the sheet; the note is printed, never stored, and photos only appear when switched on
+
 ### Improved
 
 - Wishes take turns over several seating plans instead of turning into fixed pairs: a student with several preferred partners sits with each of them in turn, and a classmate who was wished for without wishing back no longer sits beside the same student week after week. Friends who wish each other mostly stay together, and the first wish of a list still comes round most often. Turn "Repetition" down or off for fixed pairs

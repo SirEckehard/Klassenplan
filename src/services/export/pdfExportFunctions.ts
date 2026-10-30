@@ -16,6 +16,7 @@ import i18n from '@/i18n';
 import type { DataFamily, NameDisplayMode } from '@/utils';
 import { confirmDownload } from '@/utils/ui/downloadConfirmation';
 import type { FeatureVisibilityFlags } from '@/utils/ui/featureStyles';
+import type { SheetNotes } from '@/utils/ui/substituteSheet';
 import { getStudentPhotoDataUrl } from '@/hooks/student/studentPhotoCache';
 import {
   extractSvgElement,
@@ -68,6 +69,12 @@ export type ExportOptions = {
   classMetadata?: ExportClassMetadata;
   /** Badge families the printout leaves out, on the seats and in the legend. */
   hiddenBadgeFamilies?: readonly DataFamily[];
+  /** Header lines in place of `classMetadata`'s (the substitute's sheet). */
+  metadataLines?: readonly string[];
+  /** The header's date in place of today's. */
+  dateLabel?: string;
+  /** The substitute's note and ruled lines at the foot. */
+  notes?: SheetNotes;
 };
 
 /**
@@ -95,6 +102,9 @@ export async function exportTableLayoutToPdf(
     showGenderColors: options?.showGenderColors ?? true,
     classMetadata: options?.classMetadata,
     hiddenBadgeFamilies: options?.hiddenBadgeFamilies,
+    metadataLines: options?.metadataLines,
+    dateLabel: options?.dateLabel,
+    notes: options?.notes,
   });
 
   await exportSvgToPdf(
@@ -129,6 +139,9 @@ export async function exportCircleLayoutToPdf(
     showLegend: options?.showLegend ?? false,
     showGenderColors: options?.showGenderColors ?? true,
     hiddenBadgeFamilies: options?.hiddenBadgeFamilies,
+    metadataLines: options?.metadataLines,
+    dateLabel: options?.dateLabel,
+    notes: options?.notes,
   });
 
   await exportSvgToPdf(

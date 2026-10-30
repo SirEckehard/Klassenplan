@@ -7,6 +7,7 @@ import {
   FilePdfIcon,
   GridNineIcon,
   ListChecksIcon,
+  UserSwitchIcon,
   VectorTwoIcon,
 } from '@phosphor-icons/react';
 import {
@@ -16,8 +17,11 @@ import {
   type ToolRailDensity,
 } from '@/components/shell/ToolRail';
 
-/** What the sheet shows: the plan, the circle or the note list. */
-export type ExportView = 'table' | 'circle' | 'list';
+/**
+ * What the sheet shows: the plan, the circle, the note list or the
+ * substitute's sheet (decision 0034).
+ */
+export type ExportView = 'table' | 'circle' | 'list' | 'substitute';
 
 type Props = {
   density: ToolRailDensity;
@@ -42,8 +46,10 @@ type Props = {
  *
  * The view is the plan layer's own pair of entries, so the sheet is switched
  * the way the plan is, and the note list beside them — the class with room
- * to write. The files save the sheet as it stands — the PDF of whatever is
- * shown, which is why there is one PDF entry rather than one per view. The
+ * to write — and the sheet for a substitute, the plan or the circle with
+ * names and nothing else (decision 0034), which needs a plan as they do. The
+ * files save the sheet as it stands — the PDF of whatever is shown, which is
+ * why there is one PDF entry rather than one per view. The
  * list may run to several pages, so it is a PDF only. Printing is the page's
  * primary action and lives at the end of the status bar.
  */
@@ -84,6 +90,13 @@ export default function ExportToolPanel({
           disabled={modeDisabled}
           onClick={() => onModeChange('list')}
         />
+        <ToolRailButton
+          icon={<UserSwitchIcon size={18} />}
+          label={t('export.substitute.view')}
+          active={mode === 'substitute'}
+          disabled={modeDisabled || planViewsDisabled}
+          onClick={() => onModeChange('substitute')}
+        />
       </ToolRailGroup>
 
       <ToolRailGroup title={t('export.saveAs')}>
@@ -95,7 +108,9 @@ export default function ExportToolPanel({
               ? t('export.circlePdfShortcut')
               : mode === 'list'
                 ? t('export.noteList.pdfShortcut')
-                : t('export.tablePdfShortcut')
+                : mode === 'substitute'
+                  ? t('export.substitute.pdfShortcut')
+                  : t('export.tablePdfShortcut')
           }
           onClick={onPdf}
         />

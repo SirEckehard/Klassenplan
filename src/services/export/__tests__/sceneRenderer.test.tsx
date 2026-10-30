@@ -15,6 +15,10 @@ import { buildDemoClassroomScene } from '@/utils/demo/demoClass';
 import type { ClassroomScene, SeatingArrangement, Student } from '@/types';
 import type { CircleLayout } from '@/types/Circle';
 import { STUDENT_COLORS } from '@/utils/ui/studentAppearance';
+import {
+  DEFAULT_SUBSTITUTE_SETTINGS,
+  substituteRenderOptions,
+} from '@/utils/ui/substituteSheet';
 
 const scene: ClassroomScene = {
   tables: [
@@ -560,5 +564,117 @@ describe('renderNoteListSvgPages', () => {
 
     expect(page).toContain('Plan nach den Ferien');
     expect(page).toContain('Klasse 7b');
+  });
+});
+
+// Decision 0034: the substitute's sheet carries names and what the teacher
+// adds for this one cover, nothing a seat would say about a student.
+describe('the substitute sheet', () => {
+  const restless = createMockStudent({
+    id: 'r1',
+    name: 'Anna Meier',
+    gender: 'girl',
+    restless: true,
+  });
+  const other = createMockStudent({
+    id: 'o1',
+    name: 'Ben Kuhn',
+    gender: 'boy',
+  });
+  const options = substituteRenderOptions(DEFAULT_SUBSTITUTE_SETTINGS);
+  const sheet = {
+    allStudents: [restless, other],
+    showSpecialNeeds: options.showSpecialNeeds,
+    showGenderColors: options.showGenderColors,
+    showLegend: options.showLegend,
+    nameDisplay: options.nameDisplay,
+    photoDisplayMode: 'off' as const,
+    metadataLines: ['Klasse 7b • Raum 204'],
+    dateLabel: 'Vertretung am 3. November 2026',
+  };
+  const ruledLines = (svg: string) =>
+    (svg.match(/<line[^>]*stroke="#94a3b8"/g) ?? []).length;
+  const scaleOf = (svg: string) =>
+    Number(/rotate\(\d+\) scale\(([\d.]+)\)/.exec(svg)?.[1]);
+
+  it('names the class, the room and the day of the cover, with no badge or tint', async () => {
+    const svg = await renderSceneSvg(
+      buildDemoClassroomScene(24),
+      [[restless, other]],
+      'Vertretung',
+      sheet,
+    );
+
+    expect(svg).toContain('Klasse 7b • Raum 204');
+    expect(svg).toContain('Vertretung am 3. November 2026');
+    expect(svg).not.toMatch(/Datum:/);
+    expect(svg).not.toContain('data-badge-pill');
+    expect(svg).not.toContain(STUDENT_COLORS.girl.fill.light);
+  });
+
+  it('puts the note and the lines to write on at the foot, and the plan above them', async () => {
+    // Landscape, where the page's height binds the plan.
+    const room = buildDemoClassroomScene(24);
+    const landscape = { ...sheet, orientation: 'landscape' as const };
+    const without = await renderSceneSvg(room, [], 'Vertretung', landscape);
+    const withNotes = await renderSceneSvg(room, [], 'Vertretung', {
+      ...landscape,
+      notes: { text: 'Arbeitsblatt Seite 12', lines: 3 },
+    });
+
+    expect(without).not.toContain('Anmerkungen');
+    expect(withNotes).toContain('Anmerkungen');
+    expect(withNotes).toContain('Arbeitsblatt Seite 12');
+    expect(ruledLines(withNotes)).toBe(3);
+    expect(scaleOf(withNotes)).toBeLessThan(scaleOf(without));
+  });
+
+  it('draws the lines alone without a note, and nothing without either', async () => {
+    const linesOnly = await renderSceneSvg(scene, [], 'Vertretung', {
+      ...sheet,
+      notes: { text: '  ', lines: 6 },
+    });
+    const empty = await renderSceneSvg(scene, [], 'Vertretung', {
+      ...sheet,
+      notes: { text: '', lines: 0 },
+    });
+
+    expect(ruledLines(linesOnly)).toBe(6);
+    expect(empty).not.toContain('Anmerkungen');
+  });
+
+  it('draws the circle with the same header and foot', async () => {
+    const circle: CircleLayout = {
+      students: [restless, other].map((student, index) => ({
+        student,
+        angle: index * 180,
+        x: 0,
+        y: 0,
+        preservedNeighbors: [],
+        lostNeighbors: [],
+        newNeighbors: [],
+      })),
+      radius: { horizontal: 200, vertical: 150 },
+      center: { x: 450, y: 300 },
+      preservedNeighborhoods: 0,
+      totalOriginalNeighborhoods: 0,
+      newNeighborhoods: 0,
+      preservationRate: 0,
+      mode: 'preserve-neighbors',
+      timestamp: 0,
+      neighborhoodPairs: [],
+    };
+    const svg = await renderCircleSvg(circle, 'Vertretung', {
+      ...sheet,
+      showConnections: options.showConnections,
+      notes: { text: 'Bitte Hausaufgaben einsammeln', lines: 3 },
+    });
+
+    expect(svg).toContain('Klasse 7b • Raum 204');
+    expect(svg).toContain('Vertretung am 3. November 2026');
+    expect(svg).toContain('Bitte Hausaufgaben einsammeln');
+    expect(ruledLines(svg)).toBe(3);
+    expect(svg).not.toContain('data-badge-pill');
+    expect(svg).not.toContain(STUDENT_COLORS.girl.fill.light);
   });
 });

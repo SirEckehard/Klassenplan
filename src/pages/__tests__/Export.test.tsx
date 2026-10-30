@@ -537,6 +537,148 @@ describe('Export page', () => {
     });
   });
 
+  // Decision 0034: names and what the teacher adds for this one cover.
+  describe('substitute sheet', () => {
+    const sheetPanel = () =>
+      screen.findByRole('complementary', { name: 'Blatt' });
+    // The toolbar's entry, not the inspector's chip of the same name.
+    const toolbarButton = (name: string) =>
+      screen
+        .getAllByRole('button', { name })
+        .find((button) => !button.closest('[aria-label="Blatt"]'))!;
+    const openSubstitute = async () => {
+      seatingState.current = {
+        ...withPlan(),
+        rooms: [{ id: 'r1', name: 'Raum 204', createdAt: '2026-09-01' }],
+        activeRoomId: 'r1',
+      };
+      renderExport();
+      await userEvent.click(toolbarButton('Vertretung'));
+    };
+    const lastSceneOptions = () =>
+      vi.mocked(renderSceneSvg).mock.calls.at(-1)?.[3];
+
+    it('draws names, the class, the room and the day, and nothing a seat would say', async () => {
+      localStorage.setItem(LOCAL_STORAGE_KEYS.exportShowNeeds, 'true');
+      localStorage.setItem(LOCAL_STORAGE_KEYS.exportShowLegend, 'true');
+      await openSubstitute();
+
+      await waitFor(() =>
+        expect(renderSceneSvg).toHaveBeenLastCalledWith(
+          expect.anything(),
+          expect.anything(),
+          'Vertretung',
+          expect.objectContaining({
+            showSpecialNeeds: false,
+            showGenderColors: false,
+            showLegend: false,
+            nameDisplay: 'full',
+            photoDisplayMode: 'off',
+            classMetadata: undefined,
+            metadataLines: ['Klasse 7b • Raum 204'],
+            dateLabel: expect.stringMatching(/^Vertretung am /),
+            notes: { text: '', lines: 3 },
+          }),
+        ),
+      );
+    });
+
+    it('keeps the note on the sheet and nowhere in storage', async () => {
+      await openSubstitute();
+
+      const field = within(await sheetPanel()).getByRole('textbox', {
+        name: 'Hinweis für die Vertretung',
+      });
+      await userEvent.type(field, 'Arbeitsblatt Seite 12');
+      await userEvent.tab();
+
+      await waitFor(() =>
+        expect(lastSceneOptions()?.notes).toEqual({
+          text: 'Arbeitsblatt Seite 12',
+          lines: 3,
+        }),
+      );
+      for (let index = 0; index < localStorage.length; index++) {
+        const key = localStorage.key(index)!;
+        expect(localStorage.getItem(key)).not.toContain('Arbeitsblatt');
+      }
+    });
+
+    it("keeps its own settings and leaves the teacher's sheet as it was", async () => {
+      await openSubstitute();
+      const panel = await sheetPanel();
+      await userEvent.click(
+        within(panel).getByRole('switch', { name: 'Fotos' }),
+      );
+
+      await waitFor(() =>
+        expect(
+          JSON.parse(
+            localStorage.getItem(LOCAL_STORAGE_KEYS.exportSubstitute) ?? '{}',
+          ),
+        ).toMatchObject({ showPhotos: true }),
+      );
+      await waitFor(() =>
+        expect(lastSceneOptions()?.photoDisplayMode).toBe('all'),
+      );
+
+      await userEvent.click(toolbarButton('Sitzplan'));
+      await waitFor(() =>
+        expect(renderSceneSvg).toHaveBeenLastCalledWith(
+          expect.anything(),
+          expect.anything(),
+          'Plan A',
+          expect.objectContaining({
+            showSpecialNeeds: true,
+            showGenderColors: true,
+            metadataLines: undefined,
+            dateLabel: undefined,
+          }),
+        ),
+      );
+    });
+
+    it('saves the PDF of the substitute sheet', async () => {
+      await openSubstitute();
+
+      await userEvent.click(
+        screen.getByRole('button', { name: 'PDF-Dokument' }),
+      );
+
+      await waitFor(() =>
+        expect(exportTableLayoutToPdf).toHaveBeenCalledWith(
+          expect.anything(),
+          expect.anything(),
+          'Vertretung',
+          expect.objectContaining({
+            showSpecialNeeds: false,
+            showGenderColors: false,
+            showLegend: false,
+            metadataLines: ['Klasse 7b • Raum 204'],
+            notes: { text: '', lines: 3 },
+          }),
+        ),
+      );
+    });
+
+    it('is greyed out without a plan, as the plan and the circle are', async () => {
+      seatingState.current = withoutPlan();
+      render(
+        <MemoryRouter
+          initialEntries={[
+            { pathname: '/export', state: { mode: 'list', returnStep: 1 } },
+          ]}
+        >
+          <Export />
+        </MemoryRouter>,
+      );
+
+      expect(
+        await screen.findByRole('button', { name: 'Vertretung' }),
+      ).toBeDisabled();
+    });
+  });
+
   it('lets the sheet fill its frame on screen, whatever the paper size', async () => {
     // A cap at 297 × 210 mm shrank a landscape sheet into the middle of a
     // large screen; only print sets the paper's size.

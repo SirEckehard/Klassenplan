@@ -392,3 +392,148 @@ describe('ExportSheetInspector legend', () => {
     expect(legend).toHaveAttribute('aria-checked', 'true');
   });
 });
+
+// Decision 0034: the substitute's sheet has rows of its own and none for
+// what it never carries.
+describe('ExportSheetInspector substitute sheet', () => {
+  const substitute = (
+    overrides: Partial<
+      NonNullable<
+        React.ComponentProps<typeof ExportSheetInspector>['substitute']
+      >
+    > = {},
+  ) => ({
+    arrangement: 'table' as const,
+    onArrangementChange: vi.fn(),
+    date: '2026-11-03',
+    onDateChange: vi.fn(),
+    room: { checked: true, onChange: vi.fn() },
+    note: '',
+    onNoteChange: vi.fn(),
+    lines: 3 as const,
+    onLinesChange: vi.fn(),
+    ...overrides,
+  });
+  const headings = () =>
+    screen.getAllByRole('heading', { level: 3 }).map((h) => h.textContent);
+
+  it('runs from the page through the header and the notes to the room elements', () => {
+    renderInspector({
+      mode: 'substitute',
+      substitute: substitute(),
+      featureAvailability: { board: true },
+      featureVisibility: { board: true },
+    });
+
+    expect(headings()).toEqual([
+      expect.stringMatching(/^(Seitenformat|Page Format)$/),
+      expect.stringMatching(/^(Kopfzeile|Header)$/),
+      expect.stringMatching(/^(Anmerkungen|Notes)$/),
+      expect.stringMatching(/^(Namen|Names)$/),
+      expect.stringMatching(/^(Auf dem Blatt|On the sheet)$/),
+      expect.stringMatching(/^(Raumelemente|Room Elements)$/),
+    ]);
+  });
+
+  it('offers photos alone of what a seat may carry', () => {
+    renderInspector({ mode: 'substitute', substitute: substitute() });
+
+    expect(
+      screen.getByRole('switch', { name: /^(Fotos|Photos)$/ }),
+    ).toBeInTheDocument();
+    for (const name of [
+      /^(Merkmale|Markers)$/,
+      /^(Geschlechterfarben|Gender colors)$/,
+      /^(Legende|Legend)$/,
+      /^(Verbindungen|Connections)$/,
+    ]) {
+      expect(screen.queryByRole('switch', { name })).toBeNull();
+    }
+    expect(
+      screen.queryByRole('group', {
+        name: /Merkmale auf dem Blatt|Markers on the sheet/,
+      }),
+    ).toBeNull();
+  });
+
+  it('switches between the plan and the circle', () => {
+    const onArrangementChange = vi.fn();
+    renderInspector({
+      mode: 'substitute',
+      substitute: substitute({ onArrangementChange }),
+    });
+
+    fireEvent.click(
+      screen.getByRole('button', { name: /^(Sitzkreis|Circle)$/ }),
+    );
+    expect(onArrangementChange).toHaveBeenCalledWith('circle');
+  });
+
+  it('leaves the view direction and the room elements out for the circle', () => {
+    renderInspector({
+      mode: 'substitute',
+      substitute: substitute({ arrangement: 'circle' }),
+      featureAvailability: { board: true },
+      featureVisibility: { board: true },
+    });
+
+    expect(
+      screen.queryByRole('switch', { name: /^(Anzeige vergrößern|Enlarge)/ }),
+    ).toBeNull();
+    expect(headings()).not.toContainEqual(
+      expect.stringMatching(/^(Raumelemente|Room Elements)$/),
+    );
+  });
+
+  it('sets the day of the cover and the room in the header', () => {
+    const onDateChange = vi.fn();
+    const onRoom = vi.fn();
+    renderInspector({
+      mode: 'substitute',
+      substitute: substitute({
+        onDateChange,
+        room: { checked: true, onChange: onRoom },
+      }),
+    });
+
+    const date = screen.getByLabelText(/^(Datum|Date)$/);
+    expect(date).toHaveValue('2026-11-03');
+    fireEvent.change(date, { target: { value: '2026-11-04' } });
+    expect(onDateChange).toHaveBeenCalledWith('2026-11-04');
+
+    fireEvent.click(screen.getByRole('switch', { name: /^(Raum|Room)$/ }));
+    expect(onRoom).toHaveBeenCalledWith(false);
+  });
+
+  it('takes the note when the field is left and says it is not stored', async () => {
+    const onNoteChange = vi.fn();
+    renderInspector({
+      mode: 'substitute',
+      substitute: substitute({ onNoteChange }),
+    });
+
+    const field = screen.getByRole('textbox', {
+      name: /Hinweis für die Vertretung|Note for the substitute/,
+    });
+    fireEvent.change(field, { target: { value: 'Arbeitsblatt Seite 12' } });
+    fireEvent.blur(field);
+
+    expect(onNoteChange).toHaveBeenCalledWith('Arbeitsblatt Seite 12');
+    expect(
+      screen.getByText(/nicht gespeichert|never stored/),
+    ).toBeInTheDocument();
+    await act(async () => {});
+  });
+
+  it('chooses how many lines to write on', () => {
+    const onLinesChange = vi.fn();
+    renderInspector({
+      mode: 'substitute',
+      substitute: substitute({ onLinesChange }),
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: '6' }));
+    fireEvent.click(screen.getByRole('button', { name: /^(Keine|None)$/ }));
+    expect(onLinesChange.mock.calls).toEqual([[6], [0]]);
+  });
+});

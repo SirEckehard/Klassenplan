@@ -36,6 +36,8 @@ import { computeTokenPhotoLayout } from '@/utils/ui/studentTokenLayout';
 import { buildLegendLayout } from '@/utils/ui/classBadgeLegend';
 import { summarizeCircle } from '@/utils/algorithm/circleSummary';
 import ExportLegend from '@/components/scene/ExportLegend';
+import SheetNotesBand from '@/components/scene/SheetNotesBand';
+import { layoutSheetNotes, type SheetNotes } from '@/utils/ui/substituteSheet';
 import { useNameLabels } from '@/hooks/student/useNameLabels';
 
 type ClassMetadataInfo = ExportClassInfo;
@@ -59,6 +61,15 @@ interface CirclePrintViewProps {
   showGenderColors?: boolean;
   /** Badge families the sheet leaves out, on the tokens and in the legend. */
   hiddenBadgeFamilies?: readonly DataFamily[];
+  /**
+   * The header's lines under the title, in place of the ones read from
+   * `classMetadata` (the substitute's sheet, decision 0034).
+   */
+  metadataLines?: readonly string[];
+  /** The header's right-hand date, in place of today's printing date. */
+  dateLabel?: string;
+  /** The note and the ruled lines at the foot of the substitute's sheet. */
+  notes?: SheetNotes;
 }
 
 const CONNECTION_STROKE = '#16a34a';
@@ -79,6 +90,9 @@ export default function CirclePrintView({
   showLegend = false,
   showGenderColors = true,
   hiddenBadgeFamilies,
+  metadataLines: givenMetadataLines,
+  dateLabel,
+  notes,
 }: CirclePrintViewProps) {
   const badgeFilter = createHiddenFamiliesFilter(hiddenBadgeFamilies);
   const { t, i18n } = useTranslation('generator');
@@ -90,7 +104,8 @@ export default function CirclePrintView({
   );
 
   const isPortrait = orientation === 'portrait';
-  const metadataLines = exportMetadataLines(classMetadata);
+  const metadataLines =
+    givenMetadataLines ?? exportMetadataLines(classMetadata);
 
   // Optional legend (badge icons + gender colours) as an un-rotated footer band.
   const legendStudents = layout.students
@@ -117,10 +132,13 @@ export default function CirclePrintView({
           },
         })
       : null;
+  const notesWidth = pageWidth - EXPORT_PAGE_MARGIN * 2;
+  const notesLayout = layoutSheetNotes(notes, notesWidth);
   const page = getExportPageLayout({
     orientation,
     metadataLineCount: metadataLines.length,
     legendHeight: legendLayout?.height ?? 0,
+    notesHeight: notesLayout?.height ?? 0,
   });
 
   // The ring with its places and their photos fills the area the page leaves;
@@ -259,7 +277,7 @@ export default function CirclePrintView({
       <ExportPageHeader
         layout={page}
         title={displayTitle}
-        dateLabel={`${t('circle.date')}: ${currentDate}`}
+        dateLabel={dateLabel ?? `${t('circle.date')}: ${currentDate}`}
         metadataLines={metadataLines}
       />
 
@@ -421,6 +439,14 @@ export default function CirclePrintView({
           title={t('legend.title')}
           fontSize={legendFontSize}
           iconSize={legendIconSize}
+        />
+      )}
+      {notesLayout && (
+        <SheetNotesBand
+          layout={notesLayout}
+          x={page.margin}
+          y={page.notesY}
+          width={notesWidth}
         />
       )}
     </svg>

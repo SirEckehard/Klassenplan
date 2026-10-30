@@ -424,6 +424,10 @@
         "q": "Can I print a class list?",
         "a": "Yes. “Print list” in the class's toolbar opens it straight away, even before the first mix; on the export page it is “List” under “View”. Every name has room to write beside it: ruled lines for observations, or a grid of empty columns to tick off, whose heads you label yourself with a date or a topic. The order can follow the tables as in the plan or the circle, or be alphabetical."
       },
+      "substitute": {
+        "q": "How do I give a substitute the seating plan?",
+        "a": "On the export page, choose “Substitute” under “View” in the toolbar. The sheet shows the seating plan or the circle with the names – without markers and without gender colors, even if you switched them on for your own printout. The header names the class, the room and the day of the lesson, which you set in the inspector. Below the plan you can add a note such as the task and print empty lines for the substitute, for example for who was absent. The note is not stored, and photos only go on the sheet if you switch them on."
+      },
       "names": {
         "q": "The names on the plan are too long and too small – what can I do?",
         "a": "On the seating plan under “View settings › Names”, in presentation mode and under “Names” on the export page you decide how names appear: first name only, first name + last initial, or first and last name. Names that would look the same are told apart automatically – “Frida Ehrmann” and “Frida Emmerich” become “Frida Eh.” and “Frida Em.”. Names also grow when there is less on the seats: hide the markers under “View settings › Markers” on the seating plan, with “Markers” in the bar in presentation mode, and under “Markers on the sheet” in the inspector on the export page. Also keep “Enlarge the plan” switched on, and the tables are fitted to the whole sheet."

@@ -5,6 +5,7 @@ import type { ClassroomScene, SeatingArrangement, Student } from '@/types';
 import type { CircleLayout } from '@/types/Circle';
 import type { FeatureVisibilityFlags } from '@/utils/ui';
 import type { DataFamily, NameDisplayMode } from '@/utils';
+import type { SheetNotes } from '@/utils/ui/substituteSheet';
 import SceneSvg from '@/components/scene/SceneSvg';
 import CirclePrintView from '@/components/circle/CirclePrintView';
 import NoteListSheet, {
@@ -71,6 +72,12 @@ export async function renderSceneSvg(
     showGenderColors?: boolean;
     classMetadata?: ExportClassMetadata;
     hiddenBadgeFamilies?: readonly DataFamily[];
+    /** Header lines in place of `classMetadata`'s (decision 0034). */
+    metadataLines?: readonly string[];
+    /** The header's date in place of today's. */
+    dateLabel?: string;
+    /** The substitute's note and ruled lines at the foot. */
+    notes?: SheetNotes;
   },
 ): Promise<string> {
   return renderMarkup(
@@ -94,6 +101,9 @@ export async function renderSceneSvg(
         showLegend={options?.showLegend}
         showGenderColors={options?.showGenderColors}
         hiddenBadgeFamilies={options?.hiddenBadgeFamilies}
+        metadataLines={options?.metadataLines}
+        dateLabel={options?.dateLabel}
+        notes={options?.notes}
       />
     </div>,
   );
@@ -117,6 +127,12 @@ export async function renderCircleSvg(
     /** Tint the occupied places by gender (default true). */
     showGenderColors?: boolean;
     hiddenBadgeFamilies?: readonly DataFamily[];
+    /** Header lines in place of `classMetadata`'s (decision 0034). */
+    metadataLines?: readonly string[];
+    /** The header's date in place of today's. */
+    dateLabel?: string;
+    /** The substitute's note and ruled lines at the foot. */
+    notes?: SheetNotes;
   },
 ): Promise<string> {
   return renderMarkup(
@@ -134,6 +150,9 @@ export async function renderCircleSvg(
         showLegend={options?.showLegend}
         showGenderColors={options?.showGenderColors}
         hiddenBadgeFamilies={options?.hiddenBadgeFamilies}
+        metadataLines={options?.metadataLines}
+        dateLabel={options?.dateLabel}
+        notes={options?.notes}
       />
     </div>,
   );

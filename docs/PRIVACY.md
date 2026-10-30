@@ -1,6 +1,6 @@
 # Privacy
 
-> **Status:** current · **Last reviewed:** 2026-10-10 · **For:** developers,
+> **Status:** current · **Last reviewed:** 2026-10-30 · **For:** developers,
 > self-hosting operators and schools evaluating Klassenplan
 
 This document describes what personal data Klassenplan handles, where it goes and
@@ -66,7 +66,11 @@ any other class
   learning ([decision 0021](decisions/0021-seat-badges-explained.md)). The
   note list prints names alone until badges or photos are switched on, and
   what a teacher writes on it stays on paper: the app has no note field on a
-  student.
+  student. The substitute's sheet carries names, the class, its room and the
+  day of the cover, and never badges or the gender tint, whatever is switched
+  on elsewhere; photos and the class's school year and notes only when asked
+  for. The note typed for it is printed and never stored
+  ([decision 0034](decisions/0034-substitute-sheet.md)).
 - **Nobody else.** Neither klassenplan.de nor a self-hosting operator receives
   student data.
 

@@ -526,7 +526,8 @@
       "legend": "Legende",
       "classInfo": "Klasseninfos",
       "connections": "Verbindungen",
-      "frameOnTables": "Anzeige vergrößern"
+      "frameOnTables": "Anzeige vergrößern",
+      "room": "Raum"
     },
     "badgeFamilies": "Merkmale auf dem Blatt",
     "legendUnavailable": "Nur wenn Merkmalen oder Geschlechterfarben angezeigt werden.",
@@ -558,6 +559,20 @@
       "errors": {
         "pdfFailed": "Listen-PDF-Export fehlgeschlagen. Bitte versuche es erneut."
       }
+    },
+    "substitute": {
+      "view": "Vertretung",
+      "pdfShortcut": "Vertretungsblatt als PDF exportieren (P)",
+      "defaultTitle": "Vertretung",
+      "dateLabel": "Vertretung am {{date}}",
+      "arrangement": "Anordnung",
+      "date": "Datum",
+      "notes": "Anmerkungen",
+      "note": "Hinweis für die Vertretung",
+      "notePlaceholder": "z. B. Arbeitsauftrag oder Ablauf der Stunde",
+      "noteNotStored": "Steht nur auf diesem Blatt und wird nicht gespeichert.",
+      "lines": "Zeilen zum Ausfüllen",
+      "linesNone": "Keine"
     },
     "backToClass": "Zurück zur Klasse",
     "backToClassShortcut": "Zurück zur Klasse (Alt/⌥+←)"

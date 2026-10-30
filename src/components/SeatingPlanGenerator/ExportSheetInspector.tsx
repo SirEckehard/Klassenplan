@@ -5,7 +5,10 @@ import { useTranslation } from 'react-i18next';
 import {
   ArrowDownIcon,
   ArrowUpIcon,
+  CircleDashedIcon,
   GridFourIcon,
+  GridNineIcon,
+  HouseIcon,
   InfoIcon,
   ListBulletsIcon,
   MagnifyingGlassPlusIcon,
@@ -17,6 +20,7 @@ import {
 import type { ClassroomFeatureType } from '@/types';
 import {
   dataFamilyClass,
+  inputFieldClass,
   type DataFamily,
   type NameDisplayMode,
 } from '@/utils';
@@ -28,6 +32,7 @@ import {
   type FeatureVisibilityFlags,
 } from '@/utils/ui';
 import InspectorTitleField from '@/components/shell/InspectorTitleField';
+import NameField from '@/components/shell/NameField';
 import {
   InspectorBody,
   InspectorChoice,
@@ -50,6 +55,12 @@ import {
   type NoteListOrder,
   type NoteListSettings,
 } from '@/utils/ui/noteList';
+import {
+  SUBSTITUTE_LINE_COUNTS,
+  SUBSTITUTE_NOTE_MAX_LENGTH,
+  type SubstituteArrangement,
+  type SubstituteSheetSettings,
+} from '@/utils/ui/substituteSheet';
 
 type PageOrientation = 'landscape' | 'portrait';
 
@@ -73,6 +84,25 @@ type Props = {
      * plan, round the circle only with a circle; by name always.
      */
     orders: readonly NoteListOrder[];
+  };
+  /**
+   * The substitute's sheet's own rows (decision 0034); read while it is on
+   * the sheet. Its name rule, photos and class info come through the props
+   * every sheet has.
+   */
+  substitute?: {
+    arrangement: SubstituteArrangement;
+    onArrangementChange: (next: SubstituteArrangement) => void;
+    /** The day of the cover, `YYYY-MM-DD`. */
+    date: string;
+    onDateChange: (next: string) => void;
+    /** The room beside the class; absent while the class has none. */
+    room?: Toggle;
+    /** The note for this sheet alone, never stored. */
+    note: string;
+    onNoteChange: (next: string) => void;
+    lines: SubstituteSheetSettings['lines'];
+    onLinesChange: (next: SubstituteSheetSettings['lines']) => void;
   };
   /** How many pages the sheet runs to, where that is more than one. */
   pageCount?: number;
@@ -124,10 +154,16 @@ type Props = {
  * rather than disabled, and so are room elements the room does not have; the
  * legend alone is greyed out while the sheet carries nothing it explains,
  * since one switch further up brings that back.
+ *
+ * The substitute's sheet (decision 0034) reads the same way with rows of its
+ * own: which arrangement, the day of the cover and the room in the header,
+ * a note and lines to write on — and of what a seat may carry, the photos
+ * alone.
  */
 export default function ExportSheetInspector({
   mode,
   noteList,
+  substitute,
   pageCount = 1,
   title,
   onTitleChange,
@@ -150,7 +186,8 @@ export default function ExportSheetInspector({
   onFeatureToggle,
 }: Props) {
   const { t } = useTranslation('generator');
-  const isTable = mode === 'table';
+  const sub = mode === 'substitute' ? substitute : undefined;
+  const isTable = mode === 'table' || sub?.arrangement === 'table';
   const isList = mode === 'list';
   const orientationLabel =
     orientation === 'landscape' ? t('export.landscape') : t('export.portrait');
@@ -222,6 +259,27 @@ export default function ExportSheetInspector({
       />
       <InspectorBody>
         <InspectorSection title={t('export.pageFormat')}>
+          {sub && (
+            <InspectorRow label={t('export.substitute.arrangement')}>
+              <InspectorChoice
+                label={t('export.substitute.arrangement')}
+                value={sub.arrangement}
+                onChange={(next) => next && sub.onArrangementChange(next)}
+                options={[
+                  {
+                    value: 'table',
+                    label: t('shell.layers.plan'),
+                    icon: <GridNineIcon size={14} aria-hidden="true" />,
+                  },
+                  {
+                    value: 'circle',
+                    label: t('shell.layers.circle'),
+                    icon: <CircleDashedIcon size={14} aria-hidden="true" />,
+                  },
+                ]}
+              />
+            </InspectorRow>
+          )}
           <InspectorRow label={t('export.orientation')}>
             <InspectorChoice
               label={t('export.orientation')}
@@ -281,10 +339,63 @@ export default function ExportSheetInspector({
         </InspectorSection>
 
         {/* What the line on top of the sheet says under its title: the
-            class's label and notes. */}
+            class's label and notes — on the substitute's sheet also the
+            day of the cover, in place of the printing date, and the room. */}
         <InspectorSection title={t('export.headerSection')}>
+          {sub && (
+            <InspectorRow label={t('export.substitute.date')}>
+              <input
+                type="date"
+                aria-label={t('export.substitute.date')}
+                value={sub.date}
+                onChange={(event) => sub.onDateChange(event.target.value)}
+                className={`${inputFieldClass} w-auto py-1`}
+              />
+            </InspectorRow>
+          )}
+          {sub?.room &&
+            switchRow(t('export.rows.room'), sub.room, rowIcon(HouseIcon))}
           {switchRow(t('export.rows.classInfo'), classInfo, rowIcon(InfoIcon))}
         </InspectorSection>
+
+        {sub && (
+          <InspectorSection title={t('export.substitute.notes')}>
+            <NameField
+              label={t('export.substitute.note')}
+              value={sub.note}
+              placeholder={t('export.substitute.notePlaceholder')}
+              optional
+              multiline
+              maxLength={SUBSTITUTE_NOTE_MAX_LENGTH}
+              onCommit={(next) => {
+                sub.onNoteChange(next);
+                return null;
+              }}
+            />
+            <p className="text-xs text-(--text-muted)">
+              {t('export.substitute.noteNotStored')}
+            </p>
+            <InspectorRow label={t('export.substitute.lines')}>
+              <InspectorChoice
+                label={t('export.substitute.lines')}
+                value={String(sub.lines)}
+                onChange={(next) =>
+                  next &&
+                  sub.onLinesChange(
+                    Number(next) as SubstituteSheetSettings['lines'],
+                  )
+                }
+                options={SUBSTITUTE_LINE_COUNTS.map((count) => ({
+                  value: String(count),
+                  label:
+                    count === 0
+                      ? t('export.substitute.linesNone')
+                      : String(count),
+                }))}
+              />
+            </InspectorRow>
+          </InspectorSection>
+        )}
 
         {listSettings && noteList && (
           <InspectorSection title={t('export.noteList.section')}>
@@ -385,19 +496,23 @@ export default function ExportSheetInspector({
             photos,
             rowIcon(VIEW_SETTING_ICONS.photos),
           )}
-          {/* After the photos: on the list the colours only frame them. */}
-          {(!isList || photos.checked) &&
+          {/* After the photos: on the list the colours only frame them. The
+              substitute's sheet promises names and no more: no switch could
+              bring the rest back, so none is offered. */}
+          {!sub &&
+            (!isList || photos.checked) &&
             switchRow(
               t('export.rows.genderColors'),
               genderColors,
               rowIcon(PaletteIcon),
             )}
-          {switchRow(
-            t('export.rows.needs'),
-            needs,
-            rowIcon(VIEW_SETTING_ICONS.badges),
-          )}
-          {needs.checked && badgeFamilies.present.length > 0 && (
+          {!sub &&
+            switchRow(
+              t('export.rows.needs'),
+              needs,
+              rowIcon(VIEW_SETTING_ICONS.badges),
+            )}
+          {!sub && needs.checked && badgeFamilies.present.length > 0 && (
             // The families under the switch they belong to, on its name's
             // edge: what a printout on the classroom wall should not say is
             // left out here.
@@ -431,6 +546,7 @@ export default function ExportSheetInspector({
             )}
           {/* Last: it explains the tint and the badges above it. */}
           {!isList &&
+            !sub &&
             switchRow(
               t('export.rows.legend'),
               legend,

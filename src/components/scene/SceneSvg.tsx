@@ -34,6 +34,8 @@ import {
 import { computePlanNameFontSize } from '@/utils/ui/planNameSize';
 import { computePhotoCircles } from '@/utils/math/photoOverlap';
 import ExportLegend from '@/components/scene/ExportLegend';
+import SheetNotesBand from '@/components/scene/SheetNotesBand';
+import { layoutSheetNotes, type SheetNotes } from '@/utils/ui/substituteSheet';
 import {
   EXPORT_PAGE_MARGIN,
   ExportPageHeader,
@@ -105,6 +107,15 @@ type SceneSvgProps = {
    * is drawn with its outline and everything where it stands.
    */
   frameOnTables?: boolean;
+  /**
+   * The header's lines under the title, in place of the ones read from
+   * `classMetadata` (the substitute's sheet, decision 0034).
+   */
+  metadataLines?: readonly string[];
+  /** The header's right-hand date, in place of today's printing date. */
+  dateLabel?: string;
+  /** The note and the ruled lines at the foot of the substitute's sheet. */
+  notes?: SheetNotes;
 };
 
 export default function SceneSvg({
@@ -126,6 +137,9 @@ export default function SceneSvg({
   showGenderColors = true,
   hiddenBadgeFamilies,
   frameOnTables = true,
+  metadataLines: givenMetadataLines,
+  dateLabel,
+  notes,
 }: SceneSvgProps) {
   // Keyed on the families rather than the array, which a caller may rebuild
   // on every render.
@@ -144,7 +158,8 @@ export default function SceneSvg({
   const nameLabels = useNameLabels(allStudents, nameDisplay);
 
   const isPortrait = orientation === 'portrait';
-  const metadataLines = exportMetadataLines(classMetadata);
+  const metadataLines =
+    givenMetadataLines ?? exportMetadataLines(classMetadata);
 
   // Optional legend (badge icons + gender colours) drawn as an un-rotated footer
   // band. Computed first so its height can be reserved below the plan.
@@ -169,10 +184,13 @@ export default function SceneSvg({
           },
         })
       : null;
+  const notesWidth = pageWidth - EXPORT_PAGE_MARGIN * 2;
+  const notesLayout = layoutSheetNotes(notes, notesWidth);
   const page = getExportPageLayout({
     orientation,
     metadataLineCount: metadataLines.length,
     legendHeight: legendLayout?.height ?? 0,
+    notesHeight: notesLayout?.height ?? 0,
   });
 
   // Portrait turns the classroom +90° (Tafel nach unten); the flip adds a
@@ -324,7 +342,7 @@ export default function SceneSvg({
       <ExportPageHeader
         layout={page}
         title={displayTitle}
-        dateLabel={`${t('circle.date')}: ${currentDate}`}
+        dateLabel={dateLabel ?? `${t('circle.date')}: ${currentDate}`}
         metadataLines={metadataLines}
       />
       <g transform={classroomTransform}>
@@ -378,6 +396,14 @@ export default function SceneSvg({
           title={t('legend.title')}
           fontSize={legendFontSize}
           iconSize={legendIconSize}
+        />
+      )}
+      {notesLayout && (
+        <SheetNotesBand
+          layout={notesLayout}
+          x={page.margin}
+          y={page.notesY}
+          width={notesWidth}
         />
       )}
     </svg>

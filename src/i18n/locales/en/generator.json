@@ -526,7 +526,8 @@
       "legend": "Legend",
       "classInfo": "Class info",
       "connections": "Connections",
-      "frameOnTables": "Enlarge the plan"
+      "frameOnTables": "Enlarge the plan",
+      "room": "Room"
     },
     "badgeFamilies": "Markers on the sheet",
     "legendUnavailable": "Only with markers or gender colors on the sheet",
@@ -558,6 +559,20 @@
       "errors": {
         "pdfFailed": "List PDF export failed. Please try again."
       }
+    },
+    "substitute": {
+      "view": "Substitute",
+      "pdfShortcut": "Export the substitute sheet as PDF (P)",
+      "defaultTitle": "Substitute lesson",
+      "dateLabel": "Lesson on {{date}}",
+      "arrangement": "Arrangement",
+      "date": "Date",
+      "notes": "Notes",
+      "note": "Note for the substitute",
+      "notePlaceholder": "e.g. the task or how the lesson runs",
+      "noteNotStored": "Printed on this sheet only and never stored.",
+      "lines": "Lines to fill in",
+      "linesNone": "None"
     },
     "backToClass": "Back to the class",
     "backToClassShortcut": "Back to the class (Alt/⌥+←)"
