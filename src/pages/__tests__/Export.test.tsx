@@ -290,6 +290,51 @@ describe('Export page', () => {
       expect(await needsSwitch()).toHaveAttribute('aria-checked', 'false');
     });
 
+    // A switch on the sheet is made for the sheet: the editor's plan keeps
+    // the room elements it showed.
+    it('keeps its room elements apart from the editor', async () => {
+      localStorage.setItem(
+        LOCAL_STORAGE_KEYS.featureVisibility,
+        JSON.stringify({ door: true }),
+      );
+      seatingState.current = {
+        ...withPlan(),
+        classroomScene: createMockClassroomScene(1, {
+          features: [
+            {
+              id: 'door-1',
+              type: 'door',
+              x: 0,
+              y: 100,
+              width: 10,
+              height: 80,
+              anchor: 'left',
+              movable: false,
+            },
+          ],
+        }),
+      };
+      renderExport();
+
+      const door = within(await sheetPanel()).getByRole('switch', {
+        name: /^(Tür|Door)$/,
+      });
+      expect(door).toHaveAttribute('aria-checked', 'true');
+      await userEvent.click(door);
+
+      await waitFor(() =>
+        expect(
+          JSON.parse(
+            localStorage.getItem(LOCAL_STORAGE_KEYS.exportFeatureVisibility) ??
+              '{}',
+          ),
+        ).toMatchObject({ door: false }),
+      );
+      expect(
+        JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEYS.featureVisibility)!),
+      ).toEqual({ door: true });
+    });
+
     // The legend explains the gender tint and the badges: with neither on
     // the sheet it would be an empty heading.
     it('greys the legend out while it has nothing to explain', async () => {

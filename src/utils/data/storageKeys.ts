@@ -118,6 +118,10 @@ export const STORAGE_KEYS = {
     exportFrameOnTables: 'spg.export.frameOnTables',
     // Whether the sheet tints the occupied seats by gender (decision 0020).
     exportShowGenderColors: 'spg.export.showGenderColors',
+    // The room elements the sheet draws, apart from the editor's
+    // `spg.featureVisibility`: hiding the door on a printout leaves the plan
+    // on screen as it was.
+    exportFeatureVisibility: 'spg.export.featureVisibility',
     // The note list's form, order, orientation and what it shows, in one
     // object (`NoteListSettings`).
     exportNoteList: 'spg.export.noteList',

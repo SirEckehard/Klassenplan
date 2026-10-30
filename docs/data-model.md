@@ -316,6 +316,10 @@ list is `PROJECT_LOCAL_STORAGE_KEYS` in `storageKeys.ts`. Groups:
   whole room instead of being framed on the tables, and
   `spg.export.showGenderColors` is `false` once the sheet leaves the gender
   tint off its seats ([decision 0020](decisions/0020-gender-tint-on-seats.md)).
+  `spg.export.featureVisibility` is the sheet's own record of room elements,
+  seeded once from the editor's `spg.featureVisibility` as `export.nameDisplay`
+  and `export.showPhotos` are from theirs; nothing the export page or the
+  projection switches is written back to the editor's keys.
   `spg.export.noteList` holds the note list's settings in one object
   (`NoteListSettings`: form, lines, columns, order, orientation, photos,
   badges), read field by field (`normalizeNoteListSettings`) so a field added

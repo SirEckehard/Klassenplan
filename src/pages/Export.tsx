@@ -31,9 +31,12 @@ import {
   isChunkLoadError,
   reportChunkLoadFailure,
 } from '@/utils/performance/chunkLoad';
-import { FEATURE_TYPES, type FeatureVisibilityFlags } from '@/utils/ui';
+import {
+  DEFAULT_FEATURE_VISIBILITY,
+  FEATURE_TYPES,
+  type FeatureVisibilityFlags,
+} from '@/utils/ui';
 import { NAME_DISPLAY_MODES } from '@/components/SeatingPlanGenerator/canvas/nameDisplayGroup';
-import { useFeatureVisibility } from '@/hooks/ui/useFeatureVisibility';
 import {
   useSeatingPlanState,
   useSeatingPlanActions,
@@ -63,7 +66,12 @@ import {
 } from '@/utils/ui/substituteSheet';
 import type { ExportClassMetadata } from '@/services/export/sceneRenderer';
 import { buildPhotoDataUrlMap } from '@/services/export/pdfExportFunctions';
-import type { PhotoDisplayMode, SeatingArrangement, Student } from '@/types';
+import type {
+  ClassroomFeatureType,
+  PhotoDisplayMode,
+  SeatingArrangement,
+  Student,
+} from '@/types';
 import usePersistentState from '@/hooks/usePersistentState';
 import type { CircleLayout, SeatingMode } from '@/types/Circle';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
@@ -276,7 +284,21 @@ export default function Export() {
     LOCAL_STORAGE_KEYS.exportShowConnections,
     true,
   );
-  const { featureVisibility, setFeatureVisible } = useFeatureVisibility();
+  // The sheet's own room elements, seeded once from the editor's like the
+  // names and photos below; a switch here never reaches the editor's plan.
+  const [featureVisibility, setFeatureVisibility] =
+    usePersistentState<FeatureVisibilityFlags>(
+      LOCAL_STORAGE_KEYS.exportFeatureVisibility,
+      readPersisted<FeatureVisibilityFlags>(
+        LOCAL_STORAGE_KEYS.featureVisibility,
+        DEFAULT_FEATURE_VISIBILITY,
+      ),
+    );
+  const setFeatureVisible = useCallback(
+    (type: ClassroomFeatureType, visible: boolean) =>
+      setFeatureVisibility((current) => ({ ...current, [type]: visible })),
+    [setFeatureVisibility],
+  );
   const featureAvailability = useMemo(() => {
     const features = classroomScene.features ?? [];
     const availability: FeatureVisibilityFlags = {};
