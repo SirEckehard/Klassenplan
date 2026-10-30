@@ -155,7 +155,7 @@ export default function MemoryGame({
         : 'grid-cols-3';
 
   return (
-    <div className="flex h-full flex-col items-center gap-4 overflow-y-auto px-4 py-6">
+    <div className="flex min-h-full flex-col items-center gap-4">
       <div className="flex flex-wrap items-center justify-center gap-4 text-sm font-semibold text-(--text-muted)">
         {rounds.length > 1 && (
           <span>

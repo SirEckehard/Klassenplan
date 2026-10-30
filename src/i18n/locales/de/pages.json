@@ -541,15 +541,12 @@
   },
   "nameGame": {
     "title": "Namensspiel",
-    "back": "Zurück",
-    "backTitle": "Zurück (Alt/⌥+←)",
     "backToMenuTitle": "Zurück zum Spielmenü",
     "loading": "Fotos werden geladen…",
     "empty": {
       "title": "Noch nicht genug Fotos",
       "description": "Für das Namensspiel brauchst du mindestens {{min}} Schüler mit Foto. Aktuell: {{count}}.",
-      "hint": "Fotos fügst du im Inspektor hinzu: Klicke in der Klassenliste auf einen Schüler und dann auf sein Porträt.",
-      "cta": "Zur Klasse"
+      "hint": "Fotos fügst du im Inspektor hinzu: Klicke in der Klassenliste auf einen Schüler und dann auf sein Porträt."
     },
     "menu": {
       "subtitle": "Lerne die Namen deiner Schüler.",
@@ -596,7 +593,6 @@
       "menu": "Zurück zum Menü"
     },
     "help": {
-      "title": "Namensspiel",
       "item1": "Es werden nur Schüler mit Foto verwendet.",
       "item2": "Foto-Quiz: Wähle den passenden Namen zum Foto oder umgekehrt. Unsichere Namen kommen häufiger dran.",
       "item3": "Memory: Decke Paare aus Foto und Name auf – große Klassen spielen in mehreren Runden.",

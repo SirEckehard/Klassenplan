@@ -106,7 +106,7 @@ export default function QuizGame({
   // Defensive: with duplicate display names everywhere no question can be built.
   if (questions.length === 0) {
     return (
-      <div className="flex h-full flex-col items-center justify-center gap-4 px-4 text-center text-(--text-muted)">
+      <div className="flex min-h-full flex-col items-center justify-center gap-4 text-center text-(--text-muted)">
         <p className="text-lg font-medium">{t('nameGame.quiz.noQuestions')}</p>
       </div>
     );
@@ -142,7 +142,7 @@ export default function QuizGame({
   const correctCount = answers.filter((answer) => answer.correct).length;
 
   return (
-    <div className="flex h-full flex-col items-center gap-4 overflow-y-auto px-4 py-6">
+    <div className="flex min-h-full flex-col items-center gap-4">
       <div className="flex items-center gap-4 text-sm font-semibold text-(--text-muted)">
         <span>
           {t('nameGame.quiz.progress', {

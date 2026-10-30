@@ -17,8 +17,8 @@ import { primaryButtonClass, quietIconButtonClass } from '@/utils';
 /**
  * The frame the classroom tools share: one screen, one job, one thumb.
  *
- * "Wer kommt dran?", "Wo sitzt wer?", "Gruppen bilden" and "Dienste
- * verteilen" are used standing up
+ * "Wer kommt dran?", "Wo sitzt wer?", "Gruppen bilden", "Dienste
+ * verteilen" and the name game are used standing up
  * — in the doorway, between two desks, in front of the class — so each of them
  * is its own page instead of a panel inside the workspace: a phone is held in
  * one hand, and what it shows has to be the whole answer. The action sits at
@@ -29,6 +29,9 @@ export default function ToolPage({
   title,
   subtitle,
   help,
+  faqSection = 'unterricht',
+  onBack,
+  backTitle,
   footer,
   children,
 }: {
@@ -38,6 +41,14 @@ export default function ToolPage({
   /** Which class this is about — the tools act on the one that is open. */
   subtitle?: string;
   help?: React.ReactNode;
+  /** The FAQ section the help leads to. */
+  faqSection?: string;
+  /**
+   * A step back inside the tool (the name game's round back to its choice of
+   * game) for the arrow on top; Alt/⌥+← still leaves the page.
+   */
+  onBack?: () => void;
+  backTitle?: string;
   /** The primary action, pinned above the bottom edge. */
   footer?: React.ReactNode;
   children: React.ReactNode;
@@ -59,7 +70,7 @@ export default function ToolPage({
     navigate('/generator');
   }, [location.key, navigate]);
 
-  // The same shortcut as the export, present and name game pages.
+  // The same shortcut as the export and present pages.
   useKeyboardShortcuts({ 'alt+arrowleft': goBack });
 
   return (
@@ -73,10 +84,10 @@ export default function ToolPage({
       <div className="flex shrink-0 items-center gap-2 border-b border-(--border-card) bg-(--surface-card) px-3 py-2">
         <button
           type="button"
-          onClick={goBack}
+          onClick={onBack ?? goBack}
           className={`${quietIconButtonClass} h-10 w-10 shrink-0`}
           aria-label={t('tools.back')}
-          title={t('tools.backTitle')}
+          title={backTitle ?? t('tools.backTitle')}
         >
           <ArrowLeftIcon size={20} aria-hidden />
         </button>
@@ -101,7 +112,7 @@ export default function ToolPage({
           <HelpButton
             title={title}
             instructions={help}
-            faqSection="unterricht"
+            faqSection={faqSection}
           />
         )}
       </div>

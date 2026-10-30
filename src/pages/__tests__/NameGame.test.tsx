@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import '@testing-library/jest-dom/vitest';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import '@/i18n'; // Initialize i18n for tests
@@ -10,7 +10,7 @@ import { createMockStudent, setupLocalStorageMock } from '@/__tests__/utils';
 import type { Student } from '@/types';
 
 const seatingState = vi.hoisted(() => ({
-  current: { students: [] as Student[] },
+  current: { students: [] as Student[], activeClass: { name: '7b' } },
 }));
 const photoUrls = vi.hoisted(() => ({
   current: new Map<string, string>(),
@@ -51,7 +51,7 @@ function setStudents(withPhoto: number, withoutPhoto = 0) {
       createMockStudent({ id: `n${i + 1}`, name: `No Photo ${i + 1}` }),
     ),
   ];
-  seatingState.current = { students };
+  seatingState.current = { students, activeClass: { name: '7b' } };
   photoUrls.current = new Map(
     students
       .filter((student) => student.hasPhoto)
@@ -70,7 +70,7 @@ function renderNameGame() {
 describe('NameGame', () => {
   beforeEach(() => {
     setupLocalStorageMock();
-    seatingState.current = { students: [] };
+    seatingState.current = { students: [], activeClass: { name: '7b' } };
     photoUrls.current = new Map();
   });
 
@@ -99,14 +99,30 @@ describe('NameGame', () => {
       await screen.findByRole('button', { name: /Foto-Quiz|Photo Quiz/i }),
     ).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Memory/i })).toBeInTheDocument();
-    // Logo link sits top-left, the back button moved into the bottom bar
+    // The frame the classroom tools share: the way back and the class on top.
     expect(screen.getByRole('link')).toBeInTheDocument();
+    expect(screen.getByText('7b')).toBeInTheDocument();
     expect(
       screen.getByRole('button', { name: /^(Zurück|Back)$/i }),
     ).toBeInTheDocument();
     // Students without photos are excluded from the playable count.
     expect(
       screen.getByText(/4 Schüler mit Foto|4 students with a photo/i),
+    ).toBeInTheDocument();
+  });
+
+  it('steps back from a game to the choice of game first', async () => {
+    setStudents(4);
+    renderNameGame();
+
+    fireEvent.click(await screen.findByRole('button', { name: /Memory/i }));
+    expect(
+      screen.queryByRole('button', { name: /Foto-Quiz|Photo Quiz/i }),
+    ).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: /^(Zurück|Back)$/i }));
+    expect(
+      screen.getByRole('button', { name: /Foto-Quiz|Photo Quiz/i }),
     ).toBeInTheDocument();
   });
 

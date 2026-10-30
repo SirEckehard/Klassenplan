@@ -2,17 +2,9 @@
 // Copyright (C) 2026 Eike Schäfer
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeftIcon, CameraIcon } from '@phosphor-icons/react';
-import Seo from '@/components/Seo';
-import { KpLockup } from '@/components/KpLockup';
-import { LocalizedLink } from '@/components/LocalizedLink';
-import { usePageSeo } from '@/hooks/usePageSeo';
-import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
-import { useLocalizedNavigate } from '@/hooks/useLocalizedNavigate';
+import ToolPage, { ToolEmptyState } from '@/components/tools/ToolPage';
 import { useSeatingPlanState } from '@/contexts/SeatingPlanContext';
 import { useStudentPhotoUrls } from '@/hooks/student/useStudentPhoto';
-import HelpButton from '@/components/ui/buttons/HelpButton';
-import AppearanceControls from '@/components/ui/navigation/AppearanceControls';
 import ModeSelect from '@/components/nameGame/ModeSelect';
 import QuizGame from '@/components/nameGame/quiz/QuizGame';
 import MemoryGame from '@/components/nameGame/memory/MemoryGame';
@@ -22,13 +14,7 @@ import {
   recordQuizAnswers,
   type QuizAnswerResult,
 } from '@/repositories/nameGameStatsStore';
-import {
-  cardSurfaceClass,
-  logError,
-  neutralButtonClass,
-  primaryButtonClass,
-  NAME_GAME_MIN_PHOTOS,
-} from '@/utils';
+import { logError, NAME_GAME_MIN_PHOTOS } from '@/utils';
 import type { NameGameData, NameGameStudentStat } from '@/types';
 
 /** A name counts as "known" after a couple of mostly-correct answers. */
@@ -40,10 +26,8 @@ type GameScreen = 'menu' | 'quiz' | 'memory';
 
 export default function NameGame() {
   const { t } = useTranslation('pages');
-  const metadata = usePageSeo('/namensspiel');
-  const navigate = useLocalizedNavigate();
 
-  const { students } = useSeatingPlanState();
+  const { students, activeClass } = useSeatingPlanState();
   const photoUrls = useStudentPhotoUrls(students);
 
   const playable = useMemo(
@@ -76,11 +60,6 @@ export default function NameGame() {
       cancelled = true;
     };
   }, []);
-
-  // Same back shortcut as the export/present pages (Alt+←).
-  useKeyboardShortcuts({
-    'alt+arrowleft': () => navigate('/generator'),
-  });
 
   /** Merge a finished quiz round into local state and persist it. */
   const handleQuizRoundComplete = useCallback((results: QuizAnswerResult[]) => {
@@ -131,138 +110,64 @@ export default function NameGame() {
   const hasEnoughPhotos = playable.length >= NAME_GAME_MIN_PHOTOS;
 
   return (
-    <main
-      id="main"
-      tabIndex={-1}
-      className="fixed inset-0 flex flex-col bg-(--surface-sunken)"
+    <ToolPage
+      route="/namensspiel"
+      title={t('nameGame.title')}
+      subtitle={activeClass.name}
+      faqSection="klassenliste"
+      help={
+        <ul className="list-disc space-y-1 pl-4">
+          <li>{t('nameGame.help.item1')}</li>
+          <li>{t('nameGame.help.item2')}</li>
+          <li>{t('nameGame.help.item3')}</li>
+          <li>{t('nameGame.help.item4')}</li>
+          <li>{t('nameGame.help.item5')}</li>
+        </ul>
+      }
+      // Inside a game the arrow returns to the choice of game first; only
+      // the choice leaves the page (Alt/⌥+← always does).
+      onBack={screen === 'menu' ? undefined : () => setScreen('menu')}
+      backTitle={screen === 'menu' ? undefined : t('nameGame.backToMenuTitle')}
     >
-      <Seo {...metadata} />
-
-      {/* Minimal toolbar */}
-      <div className="flex items-center gap-3 px-4 py-3">
-        <div className="flex flex-1 justify-start">
-          <div className="flex items-center shrink-0">
-            <LocalizedLink
-              to="/"
-              className="kp-lockup focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) focus-visible:ring-offset-2"
-              // On a phone only the mark is left, which is decorative.
-              aria-label={t('header.homeLink')}
-            >
-              <KpLockup size="sm" hideWordmarkOnMobile />
-            </LocalizedLink>
-          </div>
+      {loading ? (
+        <div className="flex h-full items-center justify-center text-sm text-(--text-muted)">
+          <p>{t('nameGame.loading')}</p>
         </div>
-
-        <h1 className="text-lg font-bold text-(--text-page)">
-          {t('nameGame.title')}
-        </h1>
-
-        {/* The footer is hidden on fullscreen surfaces, so theme and language
-            live in the toolbar instead. */}
-        <div className="flex flex-1 items-center justify-end gap-2">
-          <AppearanceControls />
-          <HelpButton
-            faqSection="klassenliste"
-            title={t('nameGame.help.title')}
-            instructions={
-              <ul className="list-disc space-y-1 pl-4">
-                <li>{t('nameGame.help.item1')}</li>
-                <li>{t('nameGame.help.item2')}</li>
-                <li>{t('nameGame.help.item3')}</li>
-                <li>{t('nameGame.help.item4')}</li>
-                <li>{t('nameGame.help.item5')}</li>
-              </ul>
-            }
-          />
-        </div>
-      </div>
-
-      <div className="min-h-0 flex-1">
-        {loading ? (
-          <div className="flex h-full items-center justify-center text-(--text-muted)">
-            <p className="text-lg font-medium">{t('nameGame.loading')}</p>
-          </div>
-        ) : !hasEnoughPhotos ? (
-          <div className="flex h-full flex-col items-center justify-center gap-4 px-4">
-            <div
-              className={`${cardSurfaceClass} flex max-w-md flex-col items-center gap-4 p-8 text-center`}
-            >
-              <CameraIcon
-                size={48}
-                aria-hidden
-                className="text-(--text-badge)"
-              />
-              <h2 className="text-xl font-bold text-(--text-page)">
-                {t('nameGame.empty.title')}
-              </h2>
-              <p className="text-(--text-muted)">
-                {t('nameGame.empty.description', {
-                  min: NAME_GAME_MIN_PHOTOS,
-                  count: playable.length,
-                })}
-              </p>
-              <p className="text-sm text-(--text-muted)">
-                {t('nameGame.empty.hint')}
-              </p>
-              {/* Photos are added in the class list; the game opens from
-                  every layer, so the workspace is told where to land. */}
-              <button
-                type="button"
-                onClick={() => navigate('/generator', { state: { step: 1 } })}
-                className={`${primaryButtonClass} h-10 gap-2 px-4`}
-              >
-                <ArrowLeftIcon size={20} aria-hidden />
-                <span className="text-sm font-semibold">
-                  {t('nameGame.empty.cta')}
-                </span>
-              </button>
-            </div>
-          </div>
-        ) : screen === 'menu' ? (
-          <ModeSelect
-            playableCount={playable.length}
-            knownCount={knownCount}
-            onSelectQuiz={() => setScreen('quiz')}
-            onSelectMemory={() => setScreen('memory')}
-          />
-        ) : screen === 'quiz' ? (
-          <QuizGame
-            students={playable}
-            photoUrls={photoUrls}
-            stats={gameData?.stats ?? {}}
-            onRoundComplete={handleQuizRoundComplete}
-            onExitToMenu={() => setScreen('menu')}
-          />
-        ) : (
-          <MemoryGame
-            students={playable}
-            photoUrls={photoUrls}
-            onRoundFinished={handleMemoryRoundFinished}
-            onExitToMenu={() => setScreen('menu')}
-          />
-        )}
-      </div>
-
-      {/* Bottom bar mirrors the presentation mode: back button pinned left. */}
-      <div className="flex items-center px-4 py-4">
-        <button
-          type="button"
-          // Inside a game the back button returns to the mode select first;
-          // only the menu leaves the page (Alt+← always exits).
-          onClick={() =>
-            screen === 'menu' ? navigate('/generator') : setScreen('menu')
-          }
-          className={`${neutralButtonClass} h-10 shrink-0 gap-2 px-4`}
-          title={
-            screen === 'menu'
-              ? t('nameGame.backTitle')
-              : t('nameGame.backToMenuTitle')
-          }
-        >
-          <ArrowLeftIcon size={20} aria-hidden />
-          <span className="text-sm font-semibold">{t('nameGame.back')}</span>
-        </button>
-      </div>
-    </main>
+      ) : !hasEnoughPhotos ? (
+        // Photos are added in the class list; the game opens from every
+        // layer, so the workspace is told where to land.
+        <ToolEmptyState
+          title={t('nameGame.empty.title')}
+          body={`${t('nameGame.empty.description', {
+            min: NAME_GAME_MIN_PHOTOS,
+            count: playable.length,
+          })} ${t('nameGame.empty.hint')}`}
+          actionLabel={t('generator:tools.toClass')}
+          step={1}
+        />
+      ) : screen === 'menu' ? (
+        <ModeSelect
+          playableCount={playable.length}
+          knownCount={knownCount}
+          onSelectQuiz={() => setScreen('quiz')}
+          onSelectMemory={() => setScreen('memory')}
+        />
+      ) : screen === 'quiz' ? (
+        <QuizGame
+          students={playable}
+          photoUrls={photoUrls}
+          stats={gameData?.stats ?? {}}
+          onRoundComplete={handleQuizRoundComplete}
+          onExitToMenu={() => setScreen('menu')}
+        />
+      ) : (
+        <MemoryGame
+          students={playable}
+          photoUrls={photoUrls}
+          onRoundFinished={handleMemoryRoundFinished}
+          onExitToMenu={() => setScreen('menu')}
+        />
+      )}
+    </ToolPage>
   );
 }

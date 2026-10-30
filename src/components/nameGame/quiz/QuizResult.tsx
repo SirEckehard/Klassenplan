@@ -36,7 +36,7 @@ export default function QuizResult({
   const correctCount = answers.filter((answer) => answer.correct).length;
 
   return (
-    <div className="flex h-full flex-col items-center justify-center gap-6 overflow-y-auto px-4 py-8">
+    <div className="flex min-h-full flex-col items-center justify-center gap-6">
       <h2 className="text-2xl font-bold text-(--text-page)">
         {t('nameGame.quiz.result.title')}
       </h2>
