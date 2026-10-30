@@ -326,7 +326,7 @@ describe('StudentInput', () => {
     );
   });
 
-  it('nutzt importCsv für CSV-Uploads', async () => {
+  it('uses importCsv for a CSV upload', async () => {
     const importCsvMock = vi
       .fn()
       .mockResolvedValue([
@@ -355,7 +355,7 @@ describe('StudentInput', () => {
     });
   });
 
-  it('fragt bei mehrdeutigen Namensspalten nach der Spaltenwahl', async () => {
+  it('asks for the name columns when they are ambiguous', async () => {
     const importCsvMock = vi.fn().mockResolvedValue([]);
     const props = createMockStudentInputProps({
       students: [],

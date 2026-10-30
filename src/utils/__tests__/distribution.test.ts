@@ -4,7 +4,7 @@ import { describe, it, expect } from 'vitest';
 import { evenTargetsFor } from '../distribution';
 
 describe('evenTargetsFor', () => {
-  it('verteilt 27 Schüler auf 6 Tische à 6 Plätze (3x5, 3x4)', () => {
+  it('spreads 27 students over 6 tables of 6 (3 × 5, 3 × 4)', () => {
     const seatCounts = Array(6).fill(6);
     const result = evenTargetsFor(27, seatCounts);
     // Check total is correct
@@ -14,12 +14,12 @@ describe('evenTargetsFor', () => {
     expect(sorted).toEqual([5, 5, 5, 4, 4, 4]);
   });
 
-  it('füllt alle Plätze, wenn genug Schüler vorhanden sind', () => {
+  it('fills every seat when there are enough students', () => {
     const seatCounts = Array(5).fill(6);
     expect(evenTargetsFor(30, seatCounts)).toEqual([6, 6, 6, 6, 6]);
   });
 
-  it('verteilt gleichmäßig, wenn weniger Schüler als Plätze (2x3, 2x2)', () => {
+  it('spreads evenly with fewer students than seats (2 × 3, 2 × 2)', () => {
     const seatCounts = Array(4).fill(6);
     const result = evenTargetsFor(10, seatCounts);
     // Check total is correct
@@ -29,20 +29,20 @@ describe('evenTargetsFor', () => {
     expect(sorted).toEqual([3, 3, 2, 2]);
   });
 
-  it('geht korrekt mit 1 Tisch um', () => {
+  it('handles a single table', () => {
     expect(evenTargetsFor(5, [6])).toEqual([5]);
   });
 
-  it('gibt ein Array voller Nullen zurück, wenn keine Schüler vorhanden sind', () => {
+  it('returns zeros without students', () => {
     const seatCounts = [2, 3];
     expect(evenTargetsFor(0, seatCounts)).toEqual([0, 0]);
   });
 
-  it('gibt ein leeres Array zurück, wenn keine Tische vorhanden sind', () => {
+  it('returns an empty array without tables', () => {
     expect(evenTargetsFor(10, [])).toEqual([]);
   });
 
-  it('überschreitet die Kapazität bei unterschiedlichen seatCounts nicht', () => {
+  it('never puts more students at a table than it has seats, with mixed seat counts', () => {
     const seatCounts = [1, 2, 4];
     expect(evenTargetsFor(10, seatCounts)).toEqual([1, 2, 4]);
     expect(evenTargetsFor(6, seatCounts)).toEqual([1, 2, 3]);

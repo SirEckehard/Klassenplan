@@ -19,7 +19,7 @@ describe('shuffleArray', () => {
   it('returns a new array (no in-place mutation of original input)', () => {
     const arr = [1, 2, 3];
     const out = shuffleArray(arr);
-    // wenn deine Implementierung in-place ist, diesen Test anpassen:
+    // An in-place implementation would need this test changed:
     expect(out).not.toBe(arr);
   });
 });

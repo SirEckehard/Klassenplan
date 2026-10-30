@@ -12,7 +12,7 @@ import type { ClassroomScene, ClassroomTemplate } from '../../../types';
 
 describe('tableMigration', () => {
   describe('migrateClassroomScene', () => {
-    it('migriert 90° rotierte Single-Tische korrekt', () => {
+    it('turns single desks stored at 90° upright', () => {
       const originalScene: ClassroomScene = {
         totalStudents: 2,
         tables: [
@@ -35,14 +35,14 @@ describe('tableMigration', () => {
       expect(migratedScene.tables).toHaveLength(1);
       const migratedTable = migratedScene.tables[0];
 
-      // Neue Dimensionen: 55x65 (einheitlich basierend auf Double)
+      // The upright size: 55 × 65, half a double desk
       expect(migratedTable.width).toBe(55);
       expect(migratedTable.height).toBe(65);
       expect(migratedTable.rotation).toBe(0);
 
-      // Position sollte sich ändern, um zentriert zu bleiben
+      // The table keeps its centre
       // Zentrum war: x=135, y=127.5
-      // Neue Position: x=135-27.5=107.5, y=127.5-32.5=95
+      // Centred as before: x = 135 − 27.5 = 107.5, y = 127.5 − 32.5 = 95
       expect(migratedTable.x).toBeCloseTo(107.5, 1);
       expect(migratedTable.y).toBeCloseTo(95, 1);
 
@@ -53,7 +53,7 @@ describe('tableMigration', () => {
       expect(migratedTable.zIndex).toBe(0);
     });
 
-    it('migriert 90° rotierte Double-Tische korrekt', () => {
+    it('turns double desks stored at 90° upright', () => {
       const originalScene: ClassroomScene = {
         totalStudents: 4,
         tables: [
@@ -76,19 +76,19 @@ describe('tableMigration', () => {
       expect(migratedScene.tables).toHaveLength(1);
       const migratedTable = migratedScene.tables[0];
 
-      // Neue Dimensionen: 55x130 (vertauscht und kein Rotation)
+      // The upright size: 55 × 130, no rotation
       expect(migratedTable.width).toBe(55);
       expect(migratedTable.height).toBe(130);
       expect(migratedTable.rotation).toBe(0);
 
-      // Position sollte sich ändern, um zentriert zu bleiben
+      // The table keeps its centre
       // Zentrum war: x=265, y=227.5
-      // Neue Position: x=265-27.5=237.5, y=227.5-65=162.5
+      // Centred as before: x = 265 − 27.5 = 237.5, y = 227.5 − 65 = 162.5
       expect(migratedTable.x).toBeCloseTo(237.5, 1);
       expect(migratedTable.y).toBeCloseTo(162.5, 1);
     });
 
-    it('lässt Group4-Tische unverändert', () => {
+    it('leaves tables of four as they are', () => {
       const originalScene: ClassroomScene = {
         totalStudents: 4,
         tables: [
@@ -110,7 +110,7 @@ describe('tableMigration', () => {
       expect(migratedScene.tables[0]).toEqual(originalScene.tables[0]);
     });
 
-    it('verhindert negative Positionen', () => {
+    it('keeps a table from moving left of or above the room', () => {
       const originalScene: ClassroomScene = {
         totalStudents: 1,
         tables: [
@@ -131,12 +131,12 @@ describe('tableMigration', () => {
       const migratedScene = migrateClassroomScene(originalScene);
       const migratedTable = migratedScene.tables[0];
 
-      // Position sollte nicht negativ werden
+      // The position never turns negative
       expect(migratedTable.x).toBeGreaterThanOrEqual(0);
       expect(migratedTable.y).toBeGreaterThanOrEqual(0);
     });
 
-    it('migriert mehrere Tische gleichzeitig', () => {
+    it('migrates several tables at once', () => {
       const originalScene: ClassroomScene = {
         totalStudents: 7,
         tables: [
@@ -180,23 +180,23 @@ describe('tableMigration', () => {
 
       expect(migratedScene.tables).toHaveLength(3);
 
-      // Single-Tisch migriert
+      // The single desk is turned
       expect(migratedScene.tables[0].rotation).toBe(0);
       expect(migratedScene.tables[0].width).toBe(55);
       expect(migratedScene.tables[0].height).toBe(65);
 
-      // Double-Tisch migriert
+      // The double desk is turned
       expect(migratedScene.tables[1].rotation).toBe(0);
       expect(migratedScene.tables[1].width).toBe(55);
       expect(migratedScene.tables[1].height).toBe(130);
 
-      // Group4-Tisch unverändert
+      // The table of four stays
       expect(migratedScene.tables[2]).toEqual(originalScene.tables[2]);
     });
   });
 
   describe('migrateClassroomTemplate', () => {
-    it('migriert Template mit 90° rotierten Tischen', () => {
+    it('migrates a template with tables at 90°', () => {
       const originalTemplate: ClassroomTemplate = {
         id: 1,
         name: 'Test Template',
@@ -229,7 +229,7 @@ describe('tableMigration', () => {
   });
 
   describe('needsMigration', () => {
-    it('erkennt Scene mit 90° Single-Tischen als migrations-bedürftig', () => {
+    it('needs it for single desks at 90°', () => {
       const scene: ClassroomScene = {
         totalStudents: 1,
         tables: [
@@ -250,7 +250,7 @@ describe('tableMigration', () => {
       expect(needsMigration(scene)).toBe(true);
     });
 
-    it('erkennt Scene mit 90° Double-Tischen als migrations-bedürftig', () => {
+    it('needs it for double desks at 90°', () => {
       const scene: ClassroomScene = {
         totalStudents: 2,
         tables: [
@@ -271,7 +271,7 @@ describe('tableMigration', () => {
       expect(needsMigration(scene)).toBe(true);
     });
 
-    it('erkennt Scene ohne rotierte Single/Double-Tische als NICHT migrations-bedürftig', () => {
+    it('does not need it without single or double desks at 90°', () => {
       const scene: ClassroomScene = {
         totalStudents: 5,
         tables: [
@@ -303,7 +303,7 @@ describe('tableMigration', () => {
       expect(needsMigration(scene)).toBe(false);
     });
 
-    it('erkennt leere Scene als NICHT migrations-bedürftig', () => {
+    it('does not need it for an empty room', () => {
       const scene: ClassroomScene = {
         totalStudents: 0,
         tables: [],
@@ -314,7 +314,7 @@ describe('tableMigration', () => {
   });
 
   describe('templateNeedsMigration', () => {
-    it('erkennt Template mit 90° Tischen als migrations-bedürftig', () => {
+    it('needs it for a template with tables at 90°', () => {
       const template: ClassroomTemplate = {
         id: 1,
         name: 'Test',
@@ -341,7 +341,7 @@ describe('tableMigration', () => {
   });
 
   describe('getMigrationStats', () => {
-    it('zählt Migrations-Statistiken korrekt', () => {
+    it('counts the tables by kind and the ones it turned', () => {
       const originalScene: ClassroomScene = {
         totalStudents: 7,
         tables: [
@@ -391,7 +391,7 @@ describe('tableMigration', () => {
       expect(stats.group4Tables).toBe(1);
     });
 
-    it('zählt keine Migration bei unveränderten Tischen', () => {
+    it('counts nothing as migrated when no table changed', () => {
       const scene: ClassroomScene = {
         totalStudents: 4,
         tables: [

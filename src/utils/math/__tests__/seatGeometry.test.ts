@@ -9,6 +9,7 @@ import {
   getSeatNeighborhoods,
 } from '../seatGeometry';
 import type { ClassroomScene } from '../../../types';
+import { TABLE_PRESETS } from '../../constants';
 import { createMockClassroomScene } from '../../../__tests__/utils';
 
 describe('seatGeometry', () => {
@@ -112,6 +113,55 @@ describe('seatGeometry', () => {
   });
 
   describe('getSeatPositions', () => {
+    // The templates as the toolbar places them: every seat is 55 × 65.
+    const presetScene = (
+      templateType: keyof typeof TABLE_PRESETS,
+      x = 0,
+      y = 0,
+    ): ClassroomScene => {
+      const preset = TABLE_PRESETS[templateType];
+      return {
+        totalStudents: preset.seatCount,
+        tables: [
+          {
+            x,
+            y,
+            width: preset.width,
+            height: preset.height,
+            seatCount: preset.seatCount,
+            templateType,
+            rotation: 0,
+            locked: false,
+            zIndex: 0,
+          },
+        ],
+      };
+    };
+
+    it('puts the seat of a single desk in its middle', () => {
+      const positions = getSeatPositions(presetScene('single', 100, 100));
+
+      expect(positions.get('0-0')).toEqual({ x: 127.5, y: 132.5 });
+    });
+
+    it('stacks the two seats of a double desk', () => {
+      const positions = getSeatPositions(presetScene('double'));
+
+      expect(positions.get('0-0')).toEqual({ x: 27.5, y: 32.5 });
+      expect(positions.get('0-1')).toEqual({ x: 27.5, y: 97.5 });
+    });
+
+    it('seats a table of four two by two', () => {
+      const positions = getSeatPositions(presetScene('group4'));
+
+      expect([0, 1, 2, 3].map((seat) => positions.get(`0-${seat}`))).toEqual([
+        { x: 27.5, y: 32.5 },
+        { x: 82.5, y: 32.5 },
+        { x: 27.5, y: 97.5 },
+        { x: 82.5, y: 97.5 },
+      ]);
+    });
+
     let scene: ClassroomScene;
 
     beforeEach(() => {

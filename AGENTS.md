@@ -397,34 +397,24 @@ looping 20 times over a probabilistic expectation — see
 ```typescript
 // ❌ Fragile - breaks with UI text changes
 screen.getByText('Erfolgreich gespeichert');
-screen.getByText('Mischen ist komplett zufällig!');
 
-// ✅ Robust - uses ARIA roles and helpers
-import { getButton, getAlert, getField, getHeading } from '@/__tests__/utils';
+// ✅ Robust - ARIA roles, through the shared helpers or Testing Library
+import { getButton, getDialog, getHeading } from '@/__tests__/utils';
 
-getButton(/Speichern/i); // Find button by accessible name
-getAlert(/Warnung/i); // Find alert by aria-label
-getField(/Tafel anzeigen/i); // Find form field by label
-getHeading(/Klassenliste/i, 2); // Find h2 by text
+getButton(/Speichern|Save/i); // Button by accessible name
+getDialog(/Backup/i); // Dialog by its title
+getHeading(/Klassenliste|Class list/i, 2); // h2 by text
+screen.getByRole('checkbox', { name: /Unruhig|Restless/i });
 ```
 
-**Toast testing:**
+**Toasts:** `expectErrorToast(/Speichern fehlgeschlagen|Saving failed/)` from
+`@/__tests__/utils` finds the toast region and the text in it.
 
-```typescript
-// ❌ Old pattern
-expect(screen.getByText('Erfolgreich gespeichert')).toBeInTheDocument();
-
-// ✅ New pattern with toast matchers
-import { expectSuccessToast, expectErrorToast } from '@/__tests__/utils';
-
-expectSuccessToast('Erfolgreich gespeichert');
-expectErrorToast(); // Just check toast exists
-```
-
-**Available test helpers:**
-
-- `toastMatchers.ts` - `expectSuccessToast()`, `expectErrorToast()`, `waitForToast()`
-- `accessibilityHelpers.ts` - `getButton()`, `getAlert()`, `getField()`, `getDialog()`, etc.
+**Shared helpers** (`src/__tests__/utils/`): `getButton`, `getHeading`,
+`getDialog` (`accessibilityHelpers.ts`), `expectErrorToast`
+(`toastMatchers.ts`), `setupLocalStorageMock` (`mockHandlers.ts`), the mock
+factories in `testHelpers.ts`, `createMemoryIdbKeyval` and
+`resetSeatingRepository`/`unmountAndSettle`. A helper nobody calls does not stay.
 
 **When to use:**
 

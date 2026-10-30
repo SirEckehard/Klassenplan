@@ -30,7 +30,7 @@ describe('migrationService', () => {
     // boots can skip the IndexedDB lookup. jsdom shares localStorage across
     // tests, so the mirror has to be dropped or it short-circuits every run.
     localStorage.clear();
-    // Default: Migration noch nicht ausgeführt
+    // By default the migration has not run yet
     mockIdbGet.mockImplementation((key) => {
       if (key === 'spg.migrationVersion') return Promise.resolve(0);
       return Promise.resolve(undefined);
@@ -42,8 +42,8 @@ describe('migrationService', () => {
   });
 
   describe('runMigration', () => {
-    it('führt keine Migration aus, wenn bereits aktuell', async () => {
-      // Migration Version ist bereits 1
+    it('does nothing when already up to date', async () => {
+      // The migration version is 1 already
       mockIdbGet.mockImplementation((key) => {
         if (key === 'spg.migrationVersion') return Promise.resolve(1);
         return Promise.resolve(undefined);
@@ -56,11 +56,11 @@ describe('migrationService', () => {
       expect(result.stats.savedPlans).toBe(0);
       expect(result.errors).toHaveLength(0);
 
-      // Keine Set-Aufrufe außer der Versions-Prüfung
+      // No writes besides the version check
       expect(mockIdbSet).not.toHaveBeenCalled();
     });
 
-    it('spiegelt die Migrations-Version nach localStorage, wenn IndexedDB bereits aktuell ist', async () => {
+    it('mirrors the version to localStorage when IndexedDB is already up to date', async () => {
       mockIdbGet.mockImplementation((key) => {
         if (key === 'spg.migrationVersion') return Promise.resolve(1);
         return Promise.resolve(undefined);
@@ -71,7 +71,7 @@ describe('migrationService', () => {
       expect(localStorage.getItem('spg.migrationVersion')).toBe('1');
     });
 
-    it('überspringt den IndexedDB-Zugriff, wenn der localStorage-Spiegel aktuell ist', async () => {
+    it('skips IndexedDB when the localStorage mirror is up to date', async () => {
       localStorage.setItem('spg.migrationVersion', '1');
 
       const result = await runMigration();
@@ -81,7 +81,7 @@ describe('migrationService', () => {
       expect(mockIdbSet).not.toHaveBeenCalled();
     });
 
-    it('liest IndexedDB, wenn der localStorage-Spiegel veraltet ist', async () => {
+    it('reads IndexedDB when the localStorage mirror is behind', async () => {
       localStorage.setItem('spg.migrationVersion', '0');
 
       await runMigration();
@@ -89,7 +89,7 @@ describe('migrationService', () => {
       expect(mockIdbGet).toHaveBeenCalledWith('spg.migrationVersion');
     });
 
-    it('migriert ClassroomScene mit 90° Tischen', async () => {
+    it('migrates the classroom scene with tables at 90°', async () => {
       const sceneWith90DegreeTable: ClassroomScene = {
         totalStudents: 1,
         tables: [
@@ -120,7 +120,7 @@ describe('migrationService', () => {
       expect(result.stats.classroomScene).toBeDefined();
       expect(result.stats.classroomScene?.migratedTables).toBe(1);
 
-      // Prüfe dass migrierte Scene gespeichert wurde
+      // The migrated scene was stored
       expect(mockIdbSet).toHaveBeenCalledWith(
         DB_KEYS.classroomScene,
         expect.objectContaining({
@@ -134,11 +134,11 @@ describe('migrationService', () => {
         }),
       );
 
-      // Migration Version wurde gesetzt
+      // The migration version was set
       expect(mockIdbSet).toHaveBeenCalledWith('spg.migrationVersion', 1);
     });
 
-    it('migriert ClassroomTemplates mit 90° Tischen', async () => {
+    it('migrates the room templates with tables at 90°', async () => {
       const templatesWithRotation: ClassroomTemplate[] = [
         {
           id: 1,
@@ -194,7 +194,7 @@ describe('migrationService', () => {
       expect(result.success).toBe(true);
       expect(result.stats.templates).toBe(1); // Nur 1 Template benötigte Migration
 
-      // Prüfe dass Templates gespeichert wurden
+      // The templates were stored
       expect(mockIdbSet).toHaveBeenCalledWith(
         DB_KEYS.classroomTemplates,
         expect.arrayContaining([
@@ -210,13 +210,13 @@ describe('migrationService', () => {
           expect.objectContaining({
             id: 2,
             name: 'Already Migrated',
-            // Sollte unverändert bleiben
+            // Stays as it is
           }),
         ]),
       );
     });
 
-    it('migriert SeatingHistory mit 90° Tischen', async () => {
+    it('migrates the saved plans with tables at 90°', async () => {
       const historyWithRotation: SavedPlan[] = [
         {
           id: '1',
@@ -254,7 +254,7 @@ describe('migrationService', () => {
       expect(result.success).toBe(true);
       expect(result.stats.savedPlans).toBe(1);
 
-      // Prüfe dass History gespeichert wurde
+      // The history was stored
       expect(mockIdbSet).toHaveBeenCalledWith(
         DB_KEYS.seatingHistory,
         expect.arrayContaining([
@@ -275,8 +275,8 @@ describe('migrationService', () => {
       );
     });
 
-    it('handhabt Fehler graceful', async () => {
-      // Simuliere Fehler beim Laden der ClassroomScene
+    it('reports an error and keeps the version unset', async () => {
+      // Reading the classroom scene fails
       mockIdbGet.mockImplementation((key) => {
         if (key === 'spg.migrationVersion') return Promise.resolve(0);
         if (key === DB_KEYS.classroomScene)
@@ -290,11 +290,11 @@ describe('migrationService', () => {
       expect(result.errors.length).toBeGreaterThan(0);
       expect(result.errors[0]).toContain('ClassroomScene');
 
-      // Migration Version sollte nicht gesetzt werden bei Fehlern
+      // After an error the migration version stays unset
       expect(mockIdbSet).not.toHaveBeenCalledWith('spg.migrationVersion', 1);
     });
 
-    it('handhabt leere Datenstrukturen', async () => {
+    it('handles empty stores', async () => {
       mockIdbGet.mockImplementation((key) => {
         if (key === 'spg.migrationVersion') return Promise.resolve(0);
         if (key === DB_KEYS.classroomScene) return Promise.resolve(undefined);
@@ -310,13 +310,13 @@ describe('migrationService', () => {
       expect(result.stats.savedPlans).toBe(0);
       expect(result.stats.classroomScene).toBeUndefined();
 
-      // Migration Version sollte trotzdem gesetzt werden
+      // The migration version is set all the same
       expect(mockIdbSet).toHaveBeenCalledWith('spg.migrationVersion', 1);
     });
   });
 
   describe('resetMigrationVersion', () => {
-    it('setzt Migration Version auf 0 zurück', async () => {
+    it('resets the version to 0', async () => {
       await resetMigrationVersion();
 
       expect(mockIdbSet).toHaveBeenCalledWith('spg.migrationVersion', 0);
@@ -324,7 +324,7 @@ describe('migrationService', () => {
   });
 
   describe('getCurrentMigrationVersion', () => {
-    it('gibt aktuelle Migration Version zurück', async () => {
+    it('returns the stored version', async () => {
       mockIdbGet.mockResolvedValue(1);
 
       const version = await getCurrentMigrationVersion();
@@ -333,7 +333,7 @@ describe('migrationService', () => {
       expect(mockIdbGet).toHaveBeenCalledWith('spg.migrationVersion');
     });
 
-    it('gibt 0 zurück wenn keine Version gespeichert', async () => {
+    it('returns 0 when no version is stored', async () => {
       mockIdbGet.mockResolvedValue(undefined);
 
       const version = await getCurrentMigrationVersion();
@@ -341,7 +341,7 @@ describe('migrationService', () => {
       expect(version).toBe(0);
     });
 
-    it('handhabt Fehler und gibt 0 zurück', async () => {
+    it('returns 0 when reading fails', async () => {
       mockIdbGet.mockRejectedValue(new Error('Storage error'));
 
       const version = await getCurrentMigrationVersion();

@@ -46,12 +46,12 @@ const dave: Student = {
 };
 
 describe('buildPreviousPairs', () => {
-  it('gibt eine leere Map zurück, wenn keine Historie vorhanden ist', () => {
+  it('returns an empty map without a history', () => {
     expect(buildPreviousPairs([]).size).toBe(0);
     expect(buildPreviousPairs(undefined).size).toBe(0);
   });
 
-  it('erfasst Paare eindeutig über mehrere Pläne', () => {
+  it('records each pair once across several plans', () => {
     const history: SavedPlan[] = [
       {
         id: '1',
@@ -82,7 +82,7 @@ describe('buildPreviousPairs', () => {
     expect(result.get('3::4')).toBe(1);
   });
 
-  it('gewichtet einen Plan nach seinem Rang, nicht nach der Zahl der Pläne', () => {
+  it('weighs a plan by its rank, not by the number of plans', () => {
     const plan = (id: string, seating: SavedPlan['seating']): SavedPlan => ({
       id,
       name: id,
@@ -100,7 +100,7 @@ describe('buildPreviousPairs', () => {
     expect(few.get('1::2')).toBeCloseTo(many.get('1::2')!, 10);
   });
 
-  it('lässt häufige Paare schwerer wiegen, bis zur Obergrenze', () => {
+  it('weighs frequent pairs more, up to the cap', () => {
     const history: SavedPlan[] = [1, 2, 3, 4, 5].map((day) => ({
       id: `${day}`,
       name: `Plan${day}`,
@@ -112,7 +112,7 @@ describe('buildPreviousPairs', () => {
     expect(result.get('1::2')).toBe(MAX_PAIR_WEIGHT);
   });
 
-  it('ordnet gespeicherte Pläne nach ihrem Datum, nicht nach der Liste', () => {
+  it('orders saved plans by their date, not by the list', () => {
     const history: SavedPlan[] = [
       {
         id: 'newest',
@@ -134,7 +134,7 @@ describe('buildPreviousPairs', () => {
     expect(result.get('3::4')).toBeCloseTo(0.25 ** (1 / 6), 5);
   });
 
-  it('ignoriert leere Plätze', () => {
+  it('ignores empty seats', () => {
     const history: SavedPlan[] = [
       {
         id: '1',
@@ -170,8 +170,8 @@ const usageOf = (overrides: Partial<PlanUsage> = {}): PlanUsage => ({
 
 // Only plans that were really in use count; a mix is an experiment and has
 // no say (decision 0032).
-describe('buildPreviousPairs: nur genutzte Pläne', () => {
-  it('übergeht die automatische Sicherung', () => {
+describe('buildPreviousPairs: only plans in use', () => {
+  it('passes over the automatic save', () => {
     const result = buildPreviousPairs(
       [
         { ...planOf([[alice, bob]]), id: 'auto', autoSaved: true },
@@ -184,7 +184,7 @@ describe('buildPreviousPairs: nur genutzte Pläne', () => {
     expect(result.get('3::4')).toBe(1);
   });
 
-  it('lässt den gelesenen Plan aus seiner eigenen Aufzeichnung heraus', () => {
+  it('leaves the plan being read out of its own record', () => {
     const plan = [[alice, bob]];
     const pairs = collectSeatingPairKeys(plan);
     const result = buildPreviousPairs([], {
@@ -200,7 +200,7 @@ describe('buildPreviousPairs: nur genutzte Pläne', () => {
     expect(result.get('3::4')).toBe(1);
   });
 
-  it('lässt den gelesenen Plan unter den gespeicherten Plänen heraus', () => {
+  it('leaves the plan being read out of the saved plans', () => {
     const plan = [[alice, bob]];
     const result = buildPreviousPairs(
       [
@@ -215,8 +215,8 @@ describe('buildPreviousPairs: nur genutzte Pläne', () => {
   });
 });
 
-describe('buildPreviousPairs mit Nutzungsaufzeichnung', () => {
-  it('zieht die Aufzeichnung den gespeicherten Plänen vor', () => {
+describe('buildPreviousPairs with a usage record', () => {
+  it('prefers the record to the saved plans', () => {
     const result = buildPreviousPairs([planOf([[carol, dave]])], {
       planUsage: [usageOf()],
       studentCount: 4,
@@ -226,7 +226,7 @@ describe('buildPreviousPairs mit Nutzungsaufzeichnung', () => {
     expect(result.get('3::4')).toBeUndefined();
   });
 
-  it('gewichtet nach Konfidenz des Datensatzes', () => {
+  it('weighs by the confidence of the record', () => {
     const result = buildPreviousPairs([], {
       planUsage: [usageOf({ confidence: 0.8 })],
       studentCount: 4,
@@ -235,7 +235,7 @@ describe('buildPreviousPairs mit Nutzungsaufzeichnung', () => {
     expect(result.get('1::2')).toBeCloseTo(0.8, 5);
   });
 
-  it('ignoriert Pläne, die aus der Wertung genommen wurden', () => {
+  it('ignores plans taken out of the count', () => {
     const result = buildPreviousPairs([planOf([[carol, dave]])], {
       planUsage: [usageOf({ confirmed: false })],
       studentCount: 4,
@@ -246,7 +246,7 @@ describe('buildPreviousPairs mit Nutzungsaufzeichnung', () => {
     expect(result.get('3::4')).toBe(1);
   });
 
-  it('greift von Hand markierend nie auf die gespeicherten Pläne zurück', () => {
+  it('never falls back to the saved plans when marking by hand', () => {
     const result = buildPreviousPairs([planOf([[carol, dave]])], {
       planUsage: [usageOf({ confirmed: false })],
       manual: true,
@@ -257,7 +257,7 @@ describe('buildPreviousPairs mit Nutzungsaufzeichnung', () => {
     expect(result.get('3::4')).toBeUndefined();
   });
 
-  it('wertet von Hand markierend auch ohne jeden Datensatz keinen gespeicherten Plan', () => {
+  it('counts no saved plan when marking by hand, even without any record', () => {
     const result = buildPreviousPairs([planOf([[carol, dave]])], {
       planUsage: [],
       manual: true,
@@ -267,7 +267,7 @@ describe('buildPreviousPairs mit Nutzungsaufzeichnung', () => {
     expect(result.size).toBe(0);
   });
 
-  it('ignoriert reine Handanpassungen ohne Bestätigung', () => {
+  it('ignores hand edits that were never confirmed', () => {
     const result = buildPreviousPairs([], {
       planUsage: [usageOf({ sources: ['edited'], confidence: 0.3 })],
       studentCount: 4,
@@ -276,7 +276,7 @@ describe('buildPreviousPairs mit Nutzungsaufzeichnung', () => {
     expect(result.get('1::2')).toBeUndefined();
   });
 
-  it('ordnet die Aufzeichnung nach Aktualität', () => {
+  it('orders the record by recency', () => {
     const result = buildPreviousPairs([], {
       planUsage: [
         usageOf({
@@ -298,14 +298,14 @@ describe('buildPreviousPairs mit Nutzungsaufzeichnung', () => {
 
 // "Nachbarschaften zurücksetzen": what came before the reset no longer
 // counts — saved plans dated up to that day.
-describe('buildPreviousPairs nach dem Zurücksetzen', () => {
+describe('buildPreviousPairs after a reset', () => {
   // Mid-morning of 3 October wherever the test runs: saved plans carry a
   // local day.
   const resetAt = new Date(2026, 9, 3, 10, 0).toISOString();
   const datedPlan = (date: string, seating: SavedPlan['seating']): SavedPlan =>
     ({ ...planOf(seating), date }) as SavedPlan;
 
-  it('übergeht gespeicherte Pläne bis zum Tag des Zurücksetzens', () => {
+  it('passes over saved plans up to the day of the reset', () => {
     const history = [
       datedPlan('2026-09-01', [[alice, bob]]),
       datedPlan('2026-10-03', [[alice, carol]]),
@@ -322,7 +322,7 @@ describe('buildPreviousPairs nach dem Zurücksetzen', () => {
     expect(result.get('3::4')).toBe(1);
   });
 
-  it('ändert ohne Zurücksetzen nichts', () => {
+  it('changes nothing without a reset', () => {
     const history = [datedPlan('2026-09-01', [[alice, bob]])];
 
     expect(

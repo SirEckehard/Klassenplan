@@ -347,30 +347,6 @@ export { neutralSettings };
 
 // ===== MOCK PROVIDERS =====
 
-/**
- * Mock SeatingPlanProvider that doesn't have circular dependencies
- */
-export const MockSeatingPlanProvider: React.FC<{
-  children: React.ReactNode;
-}> = ({ children }) => {
-  // Create mock context values
-  const mockState = createDefaultMockState();
-  const mockActions = createDefaultMockActions();
-
-  const MockStateContext = React.createContext(mockState);
-  const MockActionsContext = React.createContext(mockActions);
-
-  return React.createElement(
-    MockStateContext.Provider,
-    { value: mockState },
-    React.createElement(
-      MockActionsContext.Provider,
-      { value: mockActions },
-      children,
-    ),
-  );
-};
-
 // ===== MOCK DATA FACTORIES =====
 
 /**
@@ -527,7 +503,7 @@ interface CustomRenderOptions extends Omit<RenderOptions, 'wrapper'> {
 /**
  * Custom render function that wraps components with common providers
  */
-export const renderWithProviders = (
+const renderWithProviders = (
   ui: React.ReactElement,
   options: CustomRenderOptions = {},
 ) => {
@@ -745,16 +721,4 @@ export const createMockCsvFile = (
   filename = 'test.csv',
 ): File => {
   return new File([content], filename, { type: 'text/csv' });
-};
-
-/**
- * Create a test JSON file object for backup import tests
- */
-export const createMockJsonFile = (
-  content: object,
-  filename = 'backup.json',
-): File => {
-  return new File([JSON.stringify(content)], filename, {
-    type: 'application/json',
-  });
 };

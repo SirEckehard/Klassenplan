@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import { describe, it, expect } from 'vitest';
-import type { SeatingArrangement } from '@/types';
+import type { ClassroomScene, SeatingArrangement } from '@/types';
 import { createMockClassroomScene, createMockStudent } from '@/__tests__/utils';
-import { hasPlanForScene } from '../scene';
+import { hasPlanForScene, hasShapeMismatch } from '../scene';
 
 describe('hasPlanForScene', () => {
   const ada = createMockStudent({ id: 'ada' });
@@ -35,5 +35,48 @@ describe('hasPlanForScene', () => {
     ['fewer rows than tables', [[ada, ben]]],
   ])('is no plan for tables it was not made for (%s)', (_, seating) => {
     expect(hasPlanForScene(twoDoubles, seating)).toBe(false);
+  });
+});
+
+describe('hasShapeMismatch', () => {
+  const scene: ClassroomScene = {
+    tables: [
+      {
+        x: 0,
+        y: 0,
+        width: 100,
+        height: 50,
+        rotation: 0,
+        seatCount: 2,
+        locked: false,
+        zIndex: 0,
+        templateType: 'double',
+      },
+      {
+        x: 0,
+        y: 0,
+        width: 100,
+        height: 50,
+        rotation: 0,
+        seatCount: 4,
+        locked: false,
+        zIndex: 1,
+        templateType: 'group4',
+      },
+    ],
+    totalStudents: 6,
+  };
+
+  it('returns false when seating matches table capacities', () => {
+    const seating: SeatingArrangement = [
+      [null, null],
+      [null, null, null, null],
+    ];
+    expect(hasShapeMismatch(scene, seating)).toBe(false);
+  });
+
+  it('returns true when seating lengths differ from table capacities', () => {
+    const seating: SeatingArrangement = [[null], [null, null]];
+    expect(hasShapeMismatch(scene, seating)).toBe(true);
   });
 });

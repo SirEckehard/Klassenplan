@@ -332,7 +332,7 @@ describe('useSeatingGenerator', () => {
     mockedUseSeatingStatisticsUpdater.mockImplementation(() => undefined);
   });
 
-  it('bietet gruppierte state- und action-Objekte für den Kontext', async () => {
+  it('offers grouped state and action objects for the context', async () => {
     const { result } = renderHook(() => useSeatingGenerator());
 
     expect(result.current.state).toBeDefined();
@@ -355,7 +355,7 @@ describe('useSeatingGenerator', () => {
     });
   });
 
-  it('plant einen Circle-Refresh nach manuellem Verschieben mit Kreislayout', async () => {
+  it('schedules a circle refresh after a manual move with a circle layout', async () => {
     const { result } = renderHook(() => useSeatingGenerator());
 
     act(() => {
@@ -371,7 +371,7 @@ describe('useSeatingGenerator', () => {
     });
   });
 
-  it('fordert keinen Circle-Refresh an, wenn das Verschieben blockiert wird', async () => {
+  it('requests no circle refresh when the move is blocked', async () => {
     mockMoveStudent.mockReturnValueOnce(false);
     const { result } = renderHook(() => useSeatingGenerator());
 
@@ -387,7 +387,7 @@ describe('useSeatingGenerator', () => {
     });
   });
 
-  it('löst ohne Kreislayout keinen Circle-Refresh aus', async () => {
+  it('triggers no circle refresh without a circle layout', async () => {
     mockedUseSeatingState.mockReturnValueOnce(
       createSeatingStateMock({ sceneState: { circleLayout: null } }),
     );
@@ -406,7 +406,7 @@ describe('useSeatingGenerator', () => {
     });
   });
 
-  it('zeichnet nach dem Mischen nur den Sitzkreis neu, ohne nachzuverfeinern', async () => {
+  it('only redraws the circle after a mix, without refining again', async () => {
     const { result } = renderHook(() => useSeatingGenerator());
 
     act(() => {
@@ -424,7 +424,7 @@ describe('useSeatingGenerator', () => {
     });
   });
 
-  it('setzt Pending-Updates nicht bei reiner Namensänderung', async () => {
+  it('sets no pending updates for a mere rename', async () => {
     const { result, rerender } = renderHook(() => useSeatingGenerator());
 
     expect(result.current.hasPendingStudentUpdates).toBe(false);

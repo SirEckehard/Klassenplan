@@ -33,10 +33,10 @@ const rootDir = path.resolve(
  * Lower it whenever a cleanup drops the real count — that is what makes the
  * ratchet tighten. Raising it needs a reason in the same commit.
  *
- * 26 (2026-10-29): the cleanup removed what nothing called (the dead modules
+ * 25 (2026-10-29): the cleanup removed what nothing called (the dead modules
  * `useIndexedDBState` and `responsiveViewBox`, functions only their tests
- * called, unused re-exports and defaults) and the `export` of names only their
- * own file uses.
+ * called, unused re-exports and defaults, the shared test helpers no test
+ * used) and the `export` of names only their own file uses.
  *
  * 50 (2026-10-18): the scorers of `utils/algorithm/scoring/` and their unused
  * helpers (`getLanguageSkillDifference`, `hasPositiveSocialRole`, …) went with
@@ -60,7 +60,7 @@ const rootDir = path.resolve(
  * import to leave the initial bundle, and the tool does not follow `import()`;
  * `exportAllAsJson` is the one export of it no test imports statically.
  */
-const BASELINE = 26;
+const BASELINE = 25;
 
 const IGNORE_FILES = 'vite-env.d.ts|index.tsx|App.tsx';
 

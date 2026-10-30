@@ -162,7 +162,7 @@ describe('csvImportService.importStudentsFromCsv', () => {
     parseSpy.mockRestore();
   });
 
-  test('parst CSV-Dateien immer ohne Worker für bessere Kompatibilität', async () => {
+  test('parses a CSV file without the worker', async () => {
     const parseSpy = vi
       .spyOn(csvUtils, 'parseCsvFlexible')
       .mockResolvedValue([createMockStudent({ id: 's-1', name: 'Student 1' })]);

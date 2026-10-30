@@ -19,7 +19,7 @@ afterEach(() => {
 });
 
 describe('useClickOutside', () => {
-  it('callt das Callback bei Klick außerhalb', async () => {
+  it('calls back on a click outside', async () => {
     const callback = vi.fn();
     const { result, unmount } = renderHook(() => {
       const ref = useRef<HTMLDivElement>(null);
@@ -39,7 +39,7 @@ describe('useClickOutside', () => {
     unmount();
   });
 
-  it('callt das Callback nicht bei Klick innerhalb', async () => {
+  it('does not call back on a click inside', async () => {
     const callback = vi.fn();
     const { result, unmount } = renderHook(() => {
       const ref = useRef<HTMLDivElement>(null);
@@ -57,7 +57,7 @@ describe('useClickOutside', () => {
     unmount();
   });
 
-  it('unterstützt mehrere Referenzen', async () => {
+  it('supports several refs', async () => {
     const callback = vi.fn();
     const { result, unmount } = renderHook(() => {
       const ref1 = useRef<HTMLDivElement>(null);

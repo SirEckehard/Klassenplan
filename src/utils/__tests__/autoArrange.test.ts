@@ -120,15 +120,14 @@ describe('arrangeTables', () => {
     });
   });
 
-  // Edge Case Tests für neue Template-Dimensionen
-  describe('Edge Cases mit neuen Template-Dimensionen', () => {
-    it('Single-Tische passen korrekt in kleines Klassenzimmer', () => {
+  describe('edge cases of the template sizes', () => {
+    it('fits single desks into a small room', () => {
       const tables = arrangeTables('single', 10);
       expect(tables).toHaveLength(10);
 
       const preset = getTablePresets().single;
 
-      // Alle Tische müssen in Klassenzimmer-Grenzen liegen
+      // Every table lies within the room
       tables.forEach((table) => {
         expect(table.x).toBeGreaterThanOrEqual(0);
         expect(table.y).toBeGreaterThanOrEqual(MARGIN);
@@ -139,26 +138,26 @@ describe('arrangeTables', () => {
           CLASSROOM_HEIGHT - MARGIN,
         );
 
-        // Neue Dimensionen und 0° Rotation
+        // Template size, upright
         expect(table.width).toBe(preset.width);
         expect(table.height).toBe(preset.height);
         expect(table.rotation).toBe(0);
       });
     });
 
-    it('Double-Tische mit neuen Dimensionen (55x130) funktionieren korrekt', () => {
+    it('arranges double desks of 55 × 130', () => {
       const tables = arrangeTables('double', 8);
       expect(tables).toHaveLength(8);
 
       const DOUBLE_TABLE_MARGIN = 35;
       tables.forEach((table) => {
-        // Neue Double-Dimensionen: 55x130 (optimiert für 0° Rotation)
+        // Double desks are 55 × 130, upright
         expect(table.width).toBe(55);
         expect(table.height).toBe(130);
         expect(table.rotation).toBe(0);
         expect(table.seatCount).toBe(2);
 
-        // Boundary-Check mit korrekten Margins für Double-Tische
+        // Within the room, margins included
         expect(table.x + table.width).toBeLessThanOrEqual(
           CLASSROOM_WIDTH - BOARD_WIDTH,
         );
@@ -168,7 +167,7 @@ describe('arrangeTables', () => {
       });
     });
 
-    it('Group4-Tische haben einheitliche Dimensionen', () => {
+    it('gives tables of four the same size', () => {
       const tables = arrangeTables('group4', 4);
       expect(tables).toHaveLength(4);
 
@@ -181,7 +180,7 @@ describe('arrangeTables', () => {
       });
     });
 
-    it('Group6-Tische haben "|=" Layout (165x130)', () => {
+    it('gives tables of six their 165 × 130 shape', () => {
       const tables = arrangeTables('group6', 3);
       expect(tables).toHaveLength(3);
 
@@ -205,7 +204,7 @@ describe('arrangeTables', () => {
       });
     });
 
-    it('Group6-Tische haben korrekte Platzierungslogik (3 pro Reihe)', () => {
+    it('places tables of six three to a row', () => {
       const tables = arrangeTables('group6', 6);
       expect(tables).toHaveLength(6);
 
@@ -304,8 +303,8 @@ describe('arrangeTables', () => {
       );
     });
 
-    it('Angemessene Anzahl Tische passt in Klassenzimmer', () => {
-      // Test mit realistischer Anzahl Tische
+    it('fits a sensible number of tables into the room', () => {
+      // A realistic number of tables
       const reasonableTables = arrangeTables('single', 20);
 
       reasonableTables.forEach((table, index) => {
@@ -318,7 +317,7 @@ describe('arrangeTables', () => {
           CLASSROOM_HEIGHT - MARGIN,
         );
 
-        // Keine Überlappungen prüfen
+        // No two tables overlap
         for (let i = index + 1; i < reasonableTables.length; i++) {
           const otherTable = reasonableTables[i];
           const noOverlap =
@@ -331,11 +330,11 @@ describe('arrangeTables', () => {
       });
     });
 
-    it('autoArrange respektiert Klassenzimmer-Grenzen auch bei Überlauf', () => {
+    it('keeps within the room when there are too many tables', () => {
       // Test mit mehr Tischen als reinpassen um Boundary-Verhalten zu testen
       const overflowTables = arrangeTables('single', 36);
 
-      // autoArrange sollte versuchen, alle Tische zu platzieren, auch wenn sie überlaufen
+      // Every table is placed, even when they overflow
       expect(overflowTables).toHaveLength(36);
 
       // All tables should be within canvas bounds (new centered system uses CANVAS_MARGIN = 30)
