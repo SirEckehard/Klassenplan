@@ -265,6 +265,7 @@ export const PROJECT_LOCAL_STORAGE_KEYS = [
   STORAGE_KEYS.localStorage.exportHiddenBadgeFamilies,
   STORAGE_KEYS.localStorage.exportFrameOnTables,
   STORAGE_KEYS.localStorage.exportShowGenderColors,
+  STORAGE_KEYS.localStorage.exportFeatureVisibility,
   STORAGE_KEYS.localStorage.exportNoteList,
   STORAGE_KEYS.localStorage.exportSubstitute,
   LEGACY_EXPORT_KEYS.showFullNames,
