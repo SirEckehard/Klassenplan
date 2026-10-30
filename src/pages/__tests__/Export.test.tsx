@@ -251,11 +251,10 @@ describe('Export page', () => {
     it('reads the inspector column as the sheet', async () => {
       renderExport();
 
-      // The sheet goes by its title; what kind of sheet it is stands under
-      // it.
+      // The sheet goes by its title; the format is the status bar's alone.
       const panel = await sheetPanel();
       expect(within(panel).getByRole('heading', { level: 2 })).toBeVisible();
-      expect(within(panel).getByText(/^Blatt · A4/)).toBeInTheDocument();
+      expect(within(panel).queryByText(/A4 ·/)).not.toBeInTheDocument();
     });
 
     it('starts with needs shown', async () => {

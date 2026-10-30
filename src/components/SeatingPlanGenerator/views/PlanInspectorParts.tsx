@@ -1,7 +1,12 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import { useTranslation } from 'react-i18next';
-import { CopyIcon, FloppyDiskIcon } from '@phosphor-icons/react';
+import {
+  CheckIcon,
+  CopyIcon,
+  FloppyDiskIcon,
+  HouseIcon,
+} from '@phosphor-icons/react';
 import {
   useSeatingPlanState,
   useSeatingPlanActions,
@@ -19,8 +24,23 @@ import {
   formatStoredDate,
   hasPlanForScene,
   MAX_NAME_LENGTH,
+  toIsoDate,
   uniqueName,
 } from '@/utils';
+
+/** The day a plan was saved, "heute" and "gestern" by name. */
+function savedOn(
+  stored: string,
+  t: ReturnType<typeof useTranslation>['t'],
+): string {
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  if (stored === toIsoDate()) return t('planSave.state.savedToday');
+  if (stored === toIsoDate(yesterday)) {
+    return t('planSave.state.savedYesterday');
+  }
+  return t('planSave.state.saved', { date: formatStoredDate(stored) });
+}
 
 /**
  * Saving the plan on the stage, shared by the inspector's heading (Ctrl/⌘+S
@@ -91,17 +111,32 @@ export function PlanInspectorHeader() {
   const { hasUnsavedChanges } = usePlanSaveState();
   const { openPlan, canSave, nameTaken, save } = usePlanSave();
 
-  const state = !hasPlanForScene(classroomScene, currentSeating)
-    ? t('shell.status.noPlan')
+  // What the stage is against what was saved: a check once it is saved, a
+  // dot while it has changed — the mark an editor puts on an unsaved
+  // document —, a ring while it never was. Nothing mixed yet takes no mark.
+  const mark = (className: string) => (
+    <span
+      aria-hidden="true"
+      className={`size-1.5 shrink-0 rounded-full ${className}`}
+    />
+  );
+  const check = (
+    <CheckIcon
+      size={12}
+      weight="bold"
+      aria-hidden="true"
+      className="shrink-0 text-(--status-ok)"
+    />
+  );
+  const [stateIcon, state] = !hasPlanForScene(classroomScene, currentSeating)
+    ? [null, t('shell.status.noPlan')]
     : !openPlan
-      ? t('planSave.state.new')
+      ? [mark('border border-current'), t('planSave.state.new')]
       : hasUnsavedChanges()
-        ? t('planSave.state.changed')
+        ? [mark('bg-(--text-page)'), t('planSave.state.changed')]
         : openPlan.autoSaved
-          ? t('planSave.state.autoSaved')
-          : t('planSave.state.saved', {
-              date: formatStoredDate(openPlan.date),
-            });
+          ? [check, t('planSave.state.autoSaved')]
+          : [check, savedOn(openPlan.date, t)];
   // Once the class has more than one room, the heading says which one the
   // plan belongs to (decision 0024).
   const roomName =
@@ -130,9 +165,22 @@ export function PlanInspectorHeader() {
           onSaveShortcut={save}
         />
       }
-      subtitle={[state, roomName && t('planSave.room', { name: roomName })]
-        .filter(Boolean)
-        .join(' · ')}
+      subtitle={
+        // Two marks side by side, each kept whole where they wrap.
+        <span className="flex flex-wrap items-center gap-x-3 gap-y-0.5">
+          <span className="inline-flex items-center gap-1.5">
+            {stateIcon}
+            {state}
+          </span>
+          {roomName && (
+            <span className="inline-flex min-w-0 items-center gap-1">
+              <HouseIcon size={12} aria-hidden="true" className="shrink-0" />
+              <span className="sr-only">{t('shell.layers.room')}:</span>
+              <span className="truncate">{roomName}</span>
+            </span>
+          )}
+        </span>
+      }
     />
   );
 }

@@ -1037,14 +1037,15 @@
     "nameTaken": "Diesen Namen trägt schon ein anderer Plan.",
     "save": "Plan speichern",
     "saveAsNew": "Als neuen Plan speichern",
-    "room": "Im Raum „{{name}}“",
     "untitled": "Neuer Plan",
     "open": "Plan öffnen …",
     "plans": "Pläne dieser Klasse",
     "state": {
       "saved": "Gespeichert am {{date}}",
+      "savedToday": "Heute gespeichert",
+      "savedYesterday": "Gestern gespeichert",
       "autoSaved": "Automatisch gesichert",
-      "changed": "Änderungen noch nicht gespeichert",
+      "changed": "Geändert, nicht gespeichert",
       "new": "Noch nicht gespeichert"
     }
   },

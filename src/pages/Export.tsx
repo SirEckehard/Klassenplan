@@ -1354,7 +1354,6 @@ export default function Export() {
         lines: substituteSettings.lines,
         onLinesChange: (lines) => updateSubstitute({ lines }),
       }}
-      pageCount={pageCount}
       title={isSubstitute ? substituteTitle : title}
       onTitleChange={isSubstitute ? setSubstituteTitle : setTitle}
       orientation={activeOrientation}

@@ -272,10 +272,12 @@ describe('ExportSheetInspector note list', () => {
     }
   });
 
-  it('counts the pages in its heading', () => {
-    renderInspector({ mode: 'list', noteList: noteList(), pageCount: 3 });
+  // The format stands in the status bar and the orientation in the first
+  // row; the heading does not repeat them.
+  it('does not repeat the format under its heading', () => {
+    renderInspector();
 
-    expect(screen.getByText(/3 (Seiten|pages)/)).toBeInTheDocument();
+    expect(screen.queryByText(/A4 ·/)).not.toBeInTheDocument();
   });
 });
 

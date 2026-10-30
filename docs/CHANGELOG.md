@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - On a phone and a tablet, the seating plan and the circle fit between the header and the status bar, so the page no longer scrolls a little way where the plan fits: on a tablet held upright, with a note above the plan, and in Safari on an iPhone. Only on a phone held sideways, where the plan would otherwise get too small, does the page still scroll
 - The three entries at the foot of the toolbar are told apart at a glance: "Library" shows a row of books, "Backup" a file with a lock — what a backup is, an encrypted file — and "Class tools" keeps its toolbox. The backup reminder shows the same file with a lock
 - The name game looks like the other class tools: the way back and the class on top, the progress and the two games as calm cards. Inside a game the arrow leads back to the choice of game, and Alt/⌥+← returns to where the name game was opened
+- Under the plan's name, its inspector says in a word whether it is saved — "Saved today", a check once it is, a dot while it has changed — and names the room with a house beside it instead of a sentence. The export sheet's inspector no longer repeats "A4 · Portrait" under its title, which the status bar and the first row already show
 
 ### Fixed
 

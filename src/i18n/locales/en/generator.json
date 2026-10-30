@@ -1037,14 +1037,15 @@
     "nameTaken": "Another plan already has this name.",
     "save": "Save plan",
     "saveAsNew": "Save as new plan",
-    "room": "In the room “{{name}}”",
     "untitled": "New plan",
     "open": "Open a plan …",
     "plans": "Plans of this class",
     "state": {
       "saved": "Saved on {{date}}",
+      "savedToday": "Saved today",
+      "savedYesterday": "Saved yesterday",
       "autoSaved": "Saved automatically",
-      "changed": "Changes not saved yet",
+      "changed": "Changed, not saved",
       "new": "Not saved yet"
     }
   },

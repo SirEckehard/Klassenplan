@@ -104,8 +104,6 @@ type Props = {
     lines: SubstituteSheetSettings['lines'];
     onLinesChange: (next: SubstituteSheetSettings['lines']) => void;
   };
-  /** How many pages the sheet runs to, where that is more than one. */
-  pageCount?: number;
   title: string;
   onTitleChange: (title: string) => void;
   orientation: PageOrientation;
@@ -164,7 +162,6 @@ export default function ExportSheetInspector({
   mode,
   noteList,
   substitute,
-  pageCount = 1,
   title,
   onTitleChange,
   orientation,
@@ -189,15 +186,6 @@ export default function ExportSheetInspector({
   const sub = mode === 'substitute' ? substitute : undefined;
   const isTable = mode === 'table' || sub?.arrangement === 'table';
   const isList = mode === 'list';
-  const orientationLabel =
-    orientation === 'landscape' ? t('export.landscape') : t('export.portrait');
-  const sheetSubtitle =
-    pageCount > 1
-      ? `${t('export.sheetFormat', { orientation: orientationLabel })} · ${t(
-          'export.noteList.pages',
-          { count: pageCount },
-        )}`
-      : t('export.sheetFormat', { orientation: orientationLabel });
   const listSettings = isList ? noteList?.settings : undefined;
   const orderOptions: readonly NoteListOrder[] = noteList?.orders ?? [
     'alphabetical',
@@ -241,7 +229,8 @@ export default function ExportSheetInspector({
   return (
     <>
       {/* The sheet goes by its title, renamed in the header as a plan's name
-          is; what kind of sheet it is stands under it. */}
+          is. Nothing stands under it: the format and the page count are the
+          status bar's, and the orientation is the first row below. */}
       <InspectorHeader
         title={
           <InspectorTitleField
@@ -255,7 +244,6 @@ export default function ExportSheetInspector({
             }}
           />
         }
-        subtitle={`${t('export.sheet')} · ${sheetSubtitle}`}
       />
       <InspectorBody>
         <InspectorSection title={t('export.pageFormat')}>

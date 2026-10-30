@@ -16,6 +16,7 @@ import {
   PlanSection,
 } from '@/components/SeatingPlanGenerator/views/PlanInspectorParts';
 import { getButton } from '@/__tests__/utils';
+import { toIsoDate } from '@/utils';
 import type { RoomRecord, SavedPlan, SeatingArrangement } from '@/types';
 
 const SEATED = [[{ id: 'anna', name: 'Anna' }]] as SeatingArrangement;
@@ -363,7 +364,7 @@ describe('PlanInspectorHeader', () => {
     render(<PlanInspectorHeader />);
 
     expect(subtitle()).toHaveTextContent(
-      /Änderungen noch nicht gespeichert|Changes not saved yet/,
+      /Geändert, nicht gespeichert|Changed, not saved/,
     );
   });
 
@@ -404,5 +405,21 @@ describe('PlanInspectorHeader', () => {
     render(<PlanInspectorHeader />);
 
     expect(subtitle()).toHaveTextContent(/Chemie-Fachraum/);
+  });
+
+  // The day of the save reads as a day, not a date, while it is recent.
+  it('calls a save of today and of yesterday by name', () => {
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    mocks.seatingHistory = [savedPlan('Deutsch', { date: toIsoDate() })];
+    render(<PlanInspectorHeader />);
+    expect(subtitle()).toHaveTextContent(/Heute gespeichert|Saved today/);
+    cleanup();
+
+    mocks.seatingHistory = [
+      savedPlan('Deutsch', { date: toIsoDate(yesterday) }),
+    ];
+    render(<PlanInspectorHeader />);
+    expect(subtitle()).toHaveTextContent(/Gestern gespeichert|Saved yesterday/);
   });
 });
