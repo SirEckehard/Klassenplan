@@ -7,8 +7,9 @@ import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import '@/i18n/i18n';
 import HelpButton from '../buttons/HelpButton';
+import { InspectorProvider, useInspector } from '@/contexts/InspectorContext';
 
-// The dialog links to the FAQ, so it needs a router around it.
+// The help links to the FAQ, so it needs a router around it.
 const render = (ui: React.ReactElement) =>
   rtlRender(ui, { wrapper: MemoryRouter });
 
@@ -23,7 +24,7 @@ describe('HelpButton', () => {
     expect(screen.queryByText('Help Content')).not.toBeInTheDocument();
   });
 
-  it('shows shortcuts when selecting the shortcuts tab', async () => {
+  it('unfolds the keyboard shortcuts on request', async () => {
     render(
       <HelpButton
         title="Test"
@@ -33,18 +34,67 @@ describe('HelpButton', () => {
     );
 
     await userEvent.click(screen.getByRole('button', { name: /hilfe|help/i }));
-    expect(
-      screen.getByRole('tab', { name: /Anleitung|Instructions/i }),
-    ).toHaveAttribute('aria-selected', 'true');
+    const toggle = screen.getByRole('button', {
+      name: /Tastenkürzel|Shortcuts/i,
+    });
+    expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.queryByText(/Allgemein|General/i)).not.toBeInTheDocument();
+
+    await userEvent.click(toggle);
+    expect(toggle).toHaveAttribute('aria-expanded', 'true');
+    expect(screen.getByText(/Allgemein|General/i)).toBeInTheDocument();
+  });
+
+  it('shows the shortcuts at once where there are no instructions', async () => {
+    render(<HelpButton title="Test" shortcutContexts={['students']} />);
+
+    await userEvent.click(screen.getByRole('button', { name: /hilfe|help/i }));
+    expect(screen.getByText(/Allgemein|General/i)).toBeInTheDocument();
+  });
+
+  it('closes from its own button and hands the focus back', async () => {
+    render(<HelpButton title="Test" instructions={<div>Help Content</div>} />);
+
+    const trigger = screen.getByRole('button', { name: /^(hilfe|help)$/i });
+    await userEvent.click(trigger);
+    expect(trigger).toHaveAttribute('aria-expanded', 'true');
 
     await userEvent.click(
-      screen.getByRole('tab', { name: /Tastenkürzel|Shortcuts/i }),
+      screen.getByRole('button', { name: /Hilfe schließen|Close help/i }),
     );
-    expect(
-      screen.getByRole('tab', { name: /Tastenkürzel|Shortcuts/i }),
-    ).toHaveAttribute('aria-selected', 'true');
-    expect(screen.getByText(/Allgemein|General/i)).toBeInTheDocument();
-    expect(screen.getAllByText(/Schüler|Students/i).length).toBeGreaterThan(0);
+    expect(screen.queryByText('Help Content')).not.toBeInTheDocument();
+    expect(trigger).toHaveFocus();
+  });
+
+  it('takes the place of the inspector in the shell', async () => {
+    const Shell = () => {
+      const { setHelpSlotNode, helpOpen, selectStudent } = useInspector();
+      return (
+        <>
+          <HelpButton title="Test" instructions={<div>Help Content</div>} />
+          {helpOpen && <div ref={setHelpSlotNode} data-testid="help-slot" />}
+          <button type="button" onClick={() => selectStudent('s1')}>
+            open student
+          </button>
+        </>
+      );
+    };
+    render(
+      <InspectorProvider>
+        <Shell />
+      </InspectorProvider>,
+    );
+
+    await userEvent.click(
+      screen.getByRole('button', { name: /^(hilfe|help)$/i }),
+    );
+    expect(screen.getByTestId('help-slot')).toContainElement(
+      screen.getByText('Help Content'),
+    );
+
+    // Opening a student puts the help away.
+    await userEvent.click(screen.getByRole('button', { name: 'open student' }));
+    expect(screen.queryByText('Help Content')).not.toBeInTheDocument();
   });
 
   it('opens on ? shortcut', async () => {

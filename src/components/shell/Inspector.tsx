@@ -72,7 +72,7 @@ const phoneSheetClass =
  * student nor set a criterion.
  */
 export default function Inspector() {
-  const { t } = useTranslation(['students', 'generator']);
+  const { t } = useTranslation(['students', 'generator', 'common']);
   const { step, students } = useSeatingPlanState();
   const { updateStudent, removeStudent } = useSeatingPlanActions();
   const {
@@ -88,13 +88,16 @@ export default function Inspector() {
     folded,
     drawerOpen,
     setDrawerOpen,
+    helpOpen,
+    setHelpSlotNode,
   } = useInspector();
   const layoutMode = useLayoutMode();
   const isPhone = layoutMode === 'phone';
   const isDesktop = layoutMode === 'desktop';
   // From `lg` up every layer's column can be folded away, so the stage takes
-  // the width; the switch sits at the right end of the status bar.
-  const columnFolded = isDesktop && folded;
+  // the width; the switch sits at the right end of the status bar. The help
+  // unfolds it, and the switch puts the help away with it.
+  const columnFolded = isDesktop && folded && !helpOpen;
 
   const student = React.useMemo(
     () =>
@@ -123,9 +126,15 @@ export default function Inspector() {
   // The class layer's ticked students take the phone's sheet rather than the
   // drawer, so they are edited where an opened student is.
   const portalSheet = isPhone && hasPortal && portalPresentation.sheet === true;
-  const showsSheet = portalSheet && drawerOpen;
-  const showsDrawer = !isDesktop && hasPortal && drawerOpen && !portalSheet;
-  const sheetOpen = isPhone && (hasPortal ? showsSheet : isOpen);
+  const showsSheet = portalSheet && drawerOpen && !helpOpen;
+  // The help takes the drawer below `lg`, never the phone's sheet: it is read
+  // beside the stage, as the room's and the plan's panels are.
+  const showsDrawer =
+    !isDesktop && hasPortal && ((drawerOpen && !portalSheet) || helpOpen);
+  // The drawer with the layer's own panel, not the help in its place, which
+  // looks after its focus, Escape and the tap beside it itself (`HelpButton`).
+  const showsLayerDrawer = showsDrawer && !helpOpen;
+  const sheetOpen = isPhone && (hasPortal ? showsSheet : isOpen && !helpOpen);
   const sheetRef = useDialogA11y<HTMLDivElement>({ open: sheetOpen });
   const sheetLayer = useDialogLayer(sheetOpen);
 
@@ -157,7 +166,7 @@ export default function Inspector() {
   useOutsideTap(
     studentPanelRef,
     clear,
-    isOpen && !isDesktop && !hasPortal && !suspended,
+    isOpen && !isDesktop && !hasPortal && !suspended && !helpOpen,
     {
       ignoreSelector: student
         ? `[data-row-part="open"][data-student-id="${student.id.replace(/["\\]/g, '\\$&')}"]`
@@ -180,7 +189,7 @@ export default function Inspector() {
   // status bar, and hands it back when Escape closes it.
   const drawerRef = React.useRef<HTMLElement | null>(null);
   React.useEffect(() => {
-    if (!showsDrawer) return undefined;
+    if (!showsLayerDrawer) return undefined;
     const opener =
       document.activeElement instanceof HTMLElement
         ? document.activeElement
@@ -198,7 +207,7 @@ export default function Inspector() {
     };
     window.addEventListener('keydown', handleKeyDown, true);
     return () => window.removeEventListener('keydown', handleKeyDown, true);
-  }, [setDrawerOpen, showsDrawer]);
+  }, [setDrawerOpen, showsLayerDrawer]);
 
   // A tap beside the drawer closes it as well; the switch that opens it keeps
   // its own tap, and so does the class list while its ticked students fill
@@ -207,7 +216,7 @@ export default function Inspector() {
     () => setDrawerOpen(false),
     [setDrawerOpen],
   );
-  useOutsideTap(drawerRef, closeDrawer, showsDrawer, {
+  useOutsideTap(drawerRef, closeDrawer, showsLayerDrawer, {
     ignoreSelector: `[aria-controls="${INSPECTOR_DRAWER_ID}"], [data-student-list]`,
   });
   // The sheet covers the list, so a tap on the list above it closes it, the
@@ -227,8 +236,17 @@ export default function Inspector() {
   );
   usePanelMotion(
     studentPanelRef,
-    isOpen && !isDesktop && !hasPortal && !suspended,
+    isOpen && !isDesktop && !hasPortal && !suspended && !helpOpen,
     isPhone ? 'bottom' : 'right',
+    layoutMode,
+  );
+  // The help in the class layer's place below `lg`, where no layer portals a
+  // panel in: a drawer of its own, from the same edge.
+  const helpDrawerRef = React.useRef<HTMLElement | null>(null);
+  usePanelMotion(
+    helpDrawerRef,
+    helpOpen && !isDesktop && !hasPortal,
+    'right',
     layoutMode,
   );
   // From `lg` up the column slides over the window's edge as it folds, and
@@ -242,12 +260,20 @@ export default function Inspector() {
   }, []);
   usePanelMotion(
     columnRef,
-    isDesktop && !columnFolded && !suspended,
+    isDesktop && !columnFolded && (!suspended || helpOpen),
     'column',
     layoutMode,
   );
 
-  if (suspended) return null;
+  // A view that wants the width still leaves the help its place.
+  if (suspended && !helpOpen) return null;
+
+  const helpLabel = t('common:help.title');
+  // While the help is open it stands where the panel stood; what the layer
+  // portalled in stays mounted underneath, only out of sight.
+  const helpSlot = helpOpen ? (
+    <div ref={setHelpSlotNode} className="flex min-h-0 flex-1 flex-col" />
+  ) : null;
 
   // The room and plan layers fill the panel themselves, and so does the class
   // layer's selection from `lg` up.
@@ -257,12 +283,14 @@ export default function Inspector() {
         id={INSPECTOR_DRAWER_ID}
         ref={setPortalPanel}
         data-tour={TOUR_ANCHORS.inspector}
-        tabIndex={showsDrawer ? -1 : undefined}
+        tabIndex={showsLayerDrawer ? -1 : undefined}
         aria-label={
-          portalLabel ??
-          (step === 2
-            ? t('generator:sceneInspector.title')
-            : t('generator:planSave.section'))
+          helpOpen
+            ? helpLabel
+            : (portalLabel ??
+              (step === 2
+                ? t('generator:sceneInspector.title')
+                : t('generator:planSave.section')))
         }
         // Folded, the column stays in the page as the portal's slot, only
         // out of sight.
@@ -283,10 +311,12 @@ export default function Inspector() {
           ref={sheetRef}
           role={showsSheet ? 'dialog' : undefined}
           aria-label={showsSheet ? (portalLabel ?? undefined) : undefined}
+          hidden={helpOpen}
           className="flex min-h-0 flex-1 flex-col"
         >
           <div ref={setSlotNode} className="flex min-h-0 flex-1 flex-col" />
         </div>
+        {helpSlot}
       </aside>
     );
   }
@@ -317,6 +347,29 @@ export default function Inspector() {
       </p>
     </div>
   );
+
+  if (helpOpen) {
+    // The same element as the student's column from `lg` up, so the help
+    // takes the column's place without it folding and unfolding.
+    return isDesktop ? (
+      <aside
+        ref={columnRef}
+        id={INSPECTOR_DRAWER_ID}
+        aria-label={helpLabel}
+        className={columnClass}
+      >
+        {helpSlot}
+      </aside>
+    ) : (
+      <aside
+        ref={helpDrawerRef}
+        aria-label={helpLabel}
+        className={inspectorDrawerClass}
+      >
+        {helpSlot}
+      </aside>
+    );
+  }
 
   if (isPhone) {
     if (!isOpen) return null;

@@ -151,8 +151,8 @@
     "instructions": "Anleitung",
     "shortcuts": "Tastenkürzel",
     "faq": "Häufige Fragen",
-    "more": "Ausführliche Antworten stehen in den häufigen Fragen.",
-    "moreWithTour": "Die Tour zeigt dir die wichtigsten Stellen der Seite, die häufigen Fragen versuchen den Rest zu beantworten."
+    "moreSection": "Mehr Hilfe",
+    "close": "Hilfe schließen"
   },
   "pwa": {
     "updateAvailable": "Neue Version verfügbar",

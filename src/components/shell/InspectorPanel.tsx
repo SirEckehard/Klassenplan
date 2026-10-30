@@ -451,6 +451,7 @@ export function InspectorActionRow({
   title,
   onClick,
   to,
+  state,
   expanded,
   disabled = false,
 }: {
@@ -465,6 +466,8 @@ export function InspectorActionRow({
   disabled?: boolean;
   /** A page to go to instead — the row is then a link. */
   to?: string;
+  /** The link's history state — the way back into the app. */
+  state?: unknown;
 }) {
   const content = (
     <>
@@ -484,7 +487,12 @@ export function InspectorActionRow({
   return (
     <div className="-mx-3 flex flex-col">
       {to ? (
-        <LocalizedLink to={to} title={title ?? label} className={className}>
+        <LocalizedLink
+          to={to}
+          state={state}
+          title={title ?? label}
+          className={className}
+        >
           {content}
         </LocalizedLink>
       ) : (

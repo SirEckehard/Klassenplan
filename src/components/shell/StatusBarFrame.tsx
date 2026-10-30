@@ -116,6 +116,8 @@ export default function StatusBarFrame({
     setDrawerOpen,
     folded,
     setFolded,
+    helpOpen,
+    setHelpOpen,
   } = useInspector();
   const { setFloatNode } = useStatusBarSlot();
   const isOnline = useOnlineStatus();
@@ -128,7 +130,8 @@ export default function StatusBarFrame({
     inShell &&
     !suspended &&
     (isDesktop || (portalMounted && portalLabel !== null));
-  const inspectorShown = isDesktop ? !folded : drawerOpen;
+  // The help stands in the inspector's place, so the switch puts it away.
+  const inspectorShown = helpOpen || (isDesktop ? !folded : drawerOpen);
   const inspectorName = inspectorShown
     ? t('shell.inspectorHide')
     : portalLabel
@@ -136,7 +139,13 @@ export default function StatusBarFrame({
       : t('shell.inspectorShow');
   const toggleInspector = () => {
     if (isDesktop) {
-      setFolded(!folded);
+      // Folding closes the help as well.
+      setFolded(helpOpen || !folded);
+      return;
+    }
+    if (helpOpen) {
+      setHelpOpen(false);
+      setDrawerOpen(false);
       return;
     }
     if (!drawerOpen) toolRail?.setSheetOpen(false);
@@ -170,7 +179,10 @@ export default function StatusBarFrame({
               <button
                 type="button"
                 onClick={() => {
-                  if (!toolRail.sheetOpen) setDrawerOpen(false);
+                  if (!toolRail.sheetOpen) {
+                    setDrawerOpen(false);
+                    setHelpOpen(false);
+                  }
                   toolRail.setSheetOpen(!toolRail.sheetOpen);
                 }}
                 aria-expanded={toolRail.sheetOpen}

@@ -151,8 +151,8 @@
     "instructions": "Instructions",
     "shortcuts": "Shortcuts",
     "faq": "FAQ",
-    "more": "Detailed answers are in the FAQ.",
-    "moreWithTour": "The tour shows you the most important places on this page; the FAQ tries to answer the rest."
+    "moreSection": "More help",
+    "close": "Close help"
   },
   "pwa": {
     "updateAvailable": "New version available",
