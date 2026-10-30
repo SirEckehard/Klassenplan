@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [3.2.3] - 2026-10-30
+
 ### Added
 
 - A sheet for the substitute: "Substitute" under "View" on the export page prints the seating plan or the circle with the names, the class, the room and the day of the lesson — never markers or gender colors, whatever your own printout shows. A note such as the task and empty lines to fill in go at the foot of the sheet; the note is printed, never stored, and photos only appear when switched on

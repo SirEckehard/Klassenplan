@@ -18,6 +18,36 @@ export interface ChangelogVersion {
 
 export const changelogVersions: ChangelogVersion[] = [
   {
+    version: '3.2.3',
+    date: '2026-10-30',
+    changes: [
+      { textKey: 'v3_2_3.0', type: 'feature' },
+      { textKey: 'v3_2_3.1', type: 'improvement' },
+      { textKey: 'v3_2_3.2', type: 'improvement' },
+      { textKey: 'v3_2_3.3', type: 'improvement' },
+      { textKey: 'v3_2_3.4', type: 'improvement' },
+      { textKey: 'v3_2_3.5', type: 'improvement' },
+      { textKey: 'v3_2_3.6', type: 'improvement' },
+      { textKey: 'v3_2_3.7', type: 'improvement' },
+      { textKey: 'v3_2_3.8', type: 'improvement' },
+      { textKey: 'v3_2_3.9', type: 'improvement' },
+      { textKey: 'v3_2_3.10', type: 'bugfix' },
+      { textKey: 'v3_2_3.11', type: 'bugfix' },
+      { textKey: 'v3_2_3.12', type: 'bugfix' },
+      { textKey: 'v3_2_3.13', type: 'bugfix' },
+      { textKey: 'v3_2_3.14', type: 'bugfix' },
+      { textKey: 'v3_2_3.15', type: 'bugfix' },
+      { textKey: 'v3_2_3.16', type: 'bugfix' },
+      { textKey: 'v3_2_3.17', type: 'bugfix' },
+      { textKey: 'v3_2_3.18', type: 'bugfix' },
+      { textKey: 'v3_2_3.19', type: 'bugfix' },
+      { textKey: 'v3_2_3.20', type: 'bugfix' },
+      { textKey: 'v3_2_3.21', type: 'bugfix' },
+      { textKey: 'v3_2_3.22', type: 'bugfix' },
+      { textKey: 'v3_2_3.23', type: 'bugfix' },
+    ],
+  },
+  {
     version: '3.2.2',
     date: '2026-10-28',
     changes: [
