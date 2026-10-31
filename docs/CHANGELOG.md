@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 
+- On a phone in Chrome, the seating plan and the circle are drawn again: since they fit between the header and the status bar, the plan layer showed an empty stage there
 - On a phone and a tablet held upright, swiping in an open drawer — the inspector, the toolbar, the help — or in a student's sheet no longer scrolls the class list or the page under it as well; the drawer scrolls as far as it goes and stops there
 
 ## [3.2.3] - 2026-10-30

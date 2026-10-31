@@ -47,8 +47,9 @@ async function boxOf(locator: Locator) {
 /**
  * The room or the plan fills its stage and starts in sight. Below `lg` both
  * once went wrong without a role or a name changing: the toolbar stacked
- * above the stage pushed an iPad's room under the status bar, and the plan's
- * frame shrank to the 300px an SVG falls back to.
+ * above the stage pushed an iPad's room under the status bar, the plan's
+ * frame shrank to the 300px an SVG falls back to, and on a phone it shrank
+ * to nothing when the stage's height did not count for its `cqh`.
  */
 async function expectCanvasInSight(page: Page): Promise<void> {
   const frame = page.getByTestId('classroom-canvas');
@@ -56,7 +57,14 @@ async function expectCanvasInSight(page: Page): Promise<void> {
   const frameBox = await boxOf(frame);
   const stageBox = await boxOf(frame.locator('..'));
   const barBox = await boxOf(statusBar(page));
-  expect(frameBox.width).toBeGreaterThanOrEqual(stageBox.width * 0.95);
+  // The plan fits its stage, so whichever dimension binds it fills: the
+  // width, or — a plan turned upright on a phone — the height.
+  expect(
+    Math.max(
+      frameBox.width / stageBox.width,
+      frameBox.height / stageBox.height,
+    ),
+  ).toBeGreaterThanOrEqual(0.95);
   expect(frameBox.y + 100).toBeLessThan(barBox.y);
 }
 
@@ -255,10 +263,23 @@ test(
       // The tap above left its pointer id behind, and the paste menu tried to
       // release that long-lifted finger: the browser threw, and the room gave
       // way to the error boundary on every touch screen.
-      const room = await boxOf(canvas.locator('svg[viewBox^="0 0 900"]'));
+      // An iPad in portrait draws the room turned a quarter (600 × 900,
+      // `data-turn`); the floor at (200, 300) of the stored room is found
+      // where the turn draws it.
+      const roomSvg = canvas.locator(
+        'svg[viewBox="0 0 900 600"], svg[viewBox="0 0 600 900"]',
+      );
+      const room = await boxOf(roomSvg);
+      const turn = await roomSvg.getAttribute('data-turn');
+      const drawn =
+        turn === '90'
+          ? { x: (600 - 300) / 600, y: 200 / 900 }
+          : turn === '270'
+            ? { x: 300 / 600, y: (900 - 200) / 900 }
+            : { x: 200 / 900, y: 300 / 600 };
       const floor = {
-        x: room.x + room.width * (200 / 900),
-        y: room.y + room.height * (300 / 600),
+        x: room.x + room.width * drawn.x,
+        y: room.y + room.height * drawn.y,
         id: 1,
         radiusX: 8,
         radiusY: 8,

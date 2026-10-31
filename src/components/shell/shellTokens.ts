@@ -36,8 +36,14 @@ export const workspaceLayerClass =
  * (`canvasFillClass`), so it scrolls only where the plan would otherwise get
  * too small. Below `md` the stage keeps clear of the layer's actions, which
  * hang from the status bar over its bottom edge (`AppStatusBar`).
+ *
+ * Below `md` the root is a row as well, though the stage is all it holds
+ * there (a phone's toolbar is a drawer): a column under the page's
+ * `min-h-dvh` gives the stage a height Chromium does not count as definite,
+ * so its `100cqh` came to 0 and the plan's frame to nothing. Stretched across
+ * a row, as on a tablet, the height counts.
  */
-export const workspaceFitLayerClass = 'max-lg:flex-1';
+export const workspaceFitLayerClass = 'max-lg:flex-1 max-md:flex-row';
 export const workspaceFitStageClass =
   'max-lg:flex max-lg:flex-col max-lg:self-stretch max-md:pb-12';
 
