@@ -1154,7 +1154,6 @@
     "backTitle": "Back (Alt/⌥+←)"
   },
   "drag": {
-    "swapWith": "swaps with {{name}}",
     "announce": {
       "swapped": "{{name}} and {{other}} swapped places.",
       "moved": "{{name}} now sits at table {{table}}, seat {{seat}}."

@@ -85,3 +85,41 @@ A preview of what a swap would do to the criteria was proposed and left out.
   work as before.
 - Keyboard users can reach every token of the editable circle, which adds a tab
   stop per student and one per lock, as in the table plan.
+
+## Addendum of 2026-10-31: the plan shows the swap
+
+The preview of point 3 said one swap three times — the ring on the target, the
+origin faded with the partner's name, "tauscht mit …" in a card over the
+pointer — and the card was the widest of them: on a phone it covered a whole
+row of tables, the very neighbours a teacher chooses a seat by. The seat in it
+had a size of its own and a name in a fixed size that ran over its edge. The
+origin showed the partner's name with the dragged student's photo and badges,
+in the plan and in the circle alike.
+
+- **The plan is the preview** (maintainer, from three proposals). Once a drag
+  rests on a free seat or place, the dragged student is drawn there, under the
+  blue ring, and the student it displaces on the seat left behind — in full,
+  with tint, name, badges and photo; an empty target leaves the origin empty.
+  Until then the origin fades as before. Only the drawing follows
+  (`SwapPreview`, `previewStudentAt` in `hooks/ui/useDragDropState.ts`;
+  `TableSeat`'s `previewStudent`): the seat's name for the screen reader, its
+  lock and its flight stay its own student's, and the fulfilment, the status
+  bar and saving see nothing of it.
+- **No mark on the origin** (maintainer): it shows the result like the target,
+  without a dashed outline or other hint.
+- **A dwell** (maintainer): the ring follows the pointer at once, the students
+  only after 70 ms on one seat (`useDwellKey`, `SWAP_PREVIEW_DWELL_MS`), so a
+  drag across the room does not flicker every name it passes.
+- **A name chip instead of the card** (maintainer, also on the desktop, where
+  the plan alone did not show at once whom one holds): `DragGhost` is the
+  student's name in the seat's tint, with a lock over a held place, above a
+  finger — beside it in the top row of the window — and below and right of a
+  mouse pointer's tip, so the seat under the tip stays in sight. "tauscht mit
+  …" is gone. The seat a drag holds shows the `grabbing` cursor.
+- **A shown drop does not fly.** Both students already stand where they land,
+  so both seats are held still (`holdStill`) when the drop matches the preview;
+  a drop before the dwell lands as before.
+
+Alternatives were a tidied card (an exact copy of the seat, no text) and a
+loupe over the finger on top of this; the first kept the swap in two places,
+the second is left until the chip proves too little on a phone.

@@ -45,8 +45,11 @@ export interface SeatConfig {
   highlightPercentage?: number;
   /** No verdict: a badge points here (`focus`), a student just landed (`confirm`). */
   highlightTone?: SeatHighlightTone;
-  /** On the seat a drag started from: who would take the dragged student's place. */
-  swapPreviewStudent?: Student | null;
+  /**
+   * Who the seat is drawn with while a drag rests on a target: the dragged
+   * student on the target, the one it displaces (or nobody) on the origin.
+   */
+  previewStudent?: Student | null;
 }
 
 interface SeatGridProps {
@@ -160,7 +163,7 @@ function SeatGrid({
             highlightMode={config.highlightMode}
             highlightPercentage={config.highlightPercentage}
             highlightTone={config.highlightTone}
-            swapPreviewStudent={config.swapPreviewStudent}
+            previewStudent={config.previewStudent}
             showSpecialNeeds={showSpecialNeeds}
             badgeView={badgeView}
             nameDisplay={nameDisplay}
@@ -186,7 +189,12 @@ function SeatGrid({
           seatConfigs.map((config) => (
             <TableSeatBadgeOverlay
               key={`badge-${config.seatIndex}`}
-              student={config.student}
+              // The badges are drawn with the student the seat shows.
+              student={
+                config.previewStudent !== undefined
+                  ? config.previewStudent
+                  : config.student
+              }
               flightKey={seatFlightKey(tableIndex, config.seatIndex)}
               col={config.col}
               row={config.row}
@@ -196,7 +204,9 @@ function SeatGrid({
               showSpecialNeeds={showSpecialNeeds}
               badgeView={badgeView}
               isDark={isDark}
-              isOriginSeat={config.isOriginSeat}
+              lifted={
+                config.isOriginSeat && config.previewStudent === undefined
+              }
               lockSeatLabelOrientation={lockSeatLabelOrientation}
               seatTextRotation={seatTextRotation}
             />

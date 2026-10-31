@@ -57,6 +57,7 @@ import { useCircleKeyboardMove } from '@/hooks/circle/useCircleKeyboardMove';
 import { useHasHoverPointer } from '@/hooks/ui/useHasHoverPointer';
 import { useTouchScrollLock } from '@/hooks/ui/useTouchScrollLock';
 import { useTapGesture } from '@/hooks/ui/useDragGesture';
+import { useDwellKey } from '@/hooks/ui/useDragDropState';
 import DragGhost from '@/components/scene/DragGhost';
 import CircleSpotlight from '@/components/circle/CircleSpotlight';
 import { useLayoutMode } from '@/hooks/ui/useLayoutMode';
@@ -386,11 +387,15 @@ function SimpleCircleView({
     const timeout = window.setTimeout(() => setDropConfirm(null), 900);
     return () => window.clearTimeout(timeout);
   }, [dropConfirm]);
-  const handleMoved = useCallback(
-    (from: number, to: number) =>
-      setDropConfirm({ id: Date.now(), positions: [from, to] }),
-    [],
+  // A drop the circle already showed lands without a flight: both students
+  // stand where they are drawn. Set below, once the preview is known.
+  const holdPreviewedRef = React.useRef<(from: number, to: number) => void>(
+    () => {},
   );
+  const handleMoved = useCallback((from: number, to: number) => {
+    holdPreviewedRef.current(from, to);
+    setDropConfirm({ id: Date.now(), positions: [from, to] });
+  }, []);
 
   const keyboard = useCircleKeyboardMove({
     layout,
@@ -454,6 +459,26 @@ function SimpleCircleView({
     : keyboard.keyboardTarget;
   const targetBlocked =
     targetPosition !== null && isPositionLocked(targetPosition);
+  // Once the drag rests on a free place, the circle shows the swap a drop
+  // would make: the dragged student there, the one it displaces on the place
+  // it came from. The ring follows the pointer at once; the students wait.
+  const settledKey = useDwellKey(
+    originPosition !== null &&
+      targetPosition !== null &&
+      targetPosition !== originPosition &&
+      !targetBlocked
+      ? `${originPosition}>${targetPosition}`
+      : null,
+  );
+  const previewing = settledKey !== null;
+  React.useLayoutEffect(() => {
+    holdPreviewedRef.current = (from, to) => {
+      if (settledKey === `${from}>${to}`) {
+        holdStill(String(from));
+        holdStill(String(to));
+      }
+    };
+  }, [settledKey, holdStill]);
 
   const hasHoverPointer = useHasHoverPointer();
   const [hoveredToken, setHoveredToken] = useState<number | null>(null);
@@ -569,19 +594,21 @@ function SimpleCircleView({
     studentPositionMap.set(index, studentPos);
   });
 
-  // The dragged student, for the preview above the pointer.
+  // The student in hand, by pointer or keyboard.
   const draggedStudent =
-    dragState.draggedPosition !== null
-      ? (layout.students[dragState.draggedPosition]?.student ?? null)
+    originPosition !== null
+      ? (layout.students[originPosition]?.student ?? null)
       : null;
-  const previewAppearance = draggedStudent
-    ? getCircleAppearance(draggedStudent)
-    : null;
-  // Over another place the drag is a swap: who would come here instead.
-  const swapStudent =
-    originPosition !== null && targetPosition !== null && !targetBlocked
-      ? (layout.students[targetPosition]?.student ?? null)
-      : null;
+  // Who a place is drawn with: its own student, or the one the previewed
+  // swap would bring there.
+  const shownStudentAt = (position: number, student: Student | null) => {
+    if (!previewing || targetPosition === null) return student;
+    if (position === originPosition) {
+      return layout.students[targetPosition]?.student ?? null;
+    }
+    if (position === targetPosition) return draggedStudent;
+    return student;
+  };
   const circleName = (student: Student) =>
     getDisplayNameForMode(student.name, 'circle', nameDisplay, nameLabels);
 
@@ -725,14 +752,22 @@ function SimpleCircleView({
           const student = studentPosition?.student ?? null;
           const isOrigin = originPosition === slot.position;
           const isTarget = targetPosition === slot.position;
-          // Over a taken place the origin shows who would come here instead.
-          const labelStudent = isOrigin && swapStudent ? swapStudent : student;
-          const appearance = getCircleAppearance(student);
-          const studentDisplayName = labelStudent
-            ? circleName(labelStudent)
+          // The drawing follows the previewed swap; the place's name for the
+          // screen reader, its lock and its flight stay its own student's.
+          const shownStudent = shownStudentAt(slot.position, student);
+          const appearance = getCircleAppearance(shownStudent);
+          const ariaFlags =
+            shownStudent === student
+              ? appearance.flags
+              : getCircleAppearance(student).flags;
+          const studentDisplayName = shownStudent
+            ? circleName(shownStudent)
             : '';
-          const studentTooltip = student ? getTooltipName(student.name) : '';
-          const seatOpacity = isOrigin ? (swapStudent ? 0.6 : 0.3) : 1;
+          const studentTooltip = shownStudent
+            ? getTooltipName(shownStudent.name)
+            : '';
+          // The place the student was lifted from fades until the drag rests.
+          const seatOpacity = isOrigin && !previewing ? 0.3 : 1;
           const locked = student ? lockedIds.has(student.id) : false;
           const badgeFit = fitTokenBadges(appearance.flags);
           const nameFit = fitNameInCircle(
@@ -768,9 +803,9 @@ function SimpleCircleView({
                   position: slot.position + 1,
                 }),
                 locked ? t('seat.ariaLocked') : null,
-                appearance.flags.length > 0
+                ariaFlags.length > 0
                   ? t('seat.ariaBadges', {
-                      list: appearance.flags
+                      list: ariaFlags
                         .map((flag) => describeBadge(flag).heading)
                         .join(', '),
                     })
@@ -864,7 +899,14 @@ function SimpleCircleView({
                         : undefined
                     }
                     style={{
-                      cursor: editable && !locked ? 'grab' : 'default',
+                      // The place a drag holds keeps the pointer captured,
+                      // so its cursor is the one shown across the circle.
+                      cursor:
+                        editable && isOrigin
+                          ? 'grabbing'
+                          : editable && !locked
+                            ? 'grab'
+                            : 'default',
                       touchAction: 'none',
                       outline: 'none',
                     }}
@@ -947,8 +989,8 @@ function SimpleCircleView({
                       (photoMode === 'hover' &&
                         hoveredPhotoPosition === slot.position);
                     if (!photoVisible) return null;
-                    const photoUrl = student.hasPhoto
-                      ? photoUrls.get(student.id)
+                    const photoUrl = shownStudent?.hasPhoto
+                      ? photoUrls.get(shownStudent.id)
                       : undefined;
                     if (!photoUrl) return null;
                     const { avatar } = computeTokenPhotoLayout({
@@ -1015,7 +1057,7 @@ function SimpleCircleView({
                     <g style={{ pointerEvents: 'none' }}>
                       <SeatBadgePill
                         fit={badgeFit}
-                        studentId={student.id}
+                        studentId={(shownStudent ?? student).id}
                         isDark={isDark}
                         x={slot.x - badgeFit.layout.width / 2}
                         y={slot.y + badgeOffset}
@@ -1163,24 +1205,18 @@ function SimpleCircleView({
         showTooltip={showBadgeTooltip}
         onFocusChange={onBadgeFocusChange}
       />
-      {dragState.isDragging &&
-        dragState.pointer &&
-        draggedStudent &&
-        previewAppearance && (
-          <DragGhost
-            x={dragState.pointer.x}
-            y={dragState.pointer.y}
-            shape="token"
-            width={seatDiameter}
-            height={seatDiameter}
-            viewportScale={dragState.viewportScale}
-            name={circleName(draggedStudent)}
-            appearance={previewAppearance}
-            badges={previewAppearance.flags}
-            swapWith={swapStudent ? circleName(swapStudent) : null}
-            isDark={isDark}
-          />
-        )}
+      {/* The circle shows where the student would land; the chip says
+          who is in hand. */}
+      {dragState.isDragging && dragState.pointer && draggedStudent && (
+        <DragGhost
+          x={dragState.pointer.x}
+          y={dragState.pointer.y}
+          pointerType={dragState.pointerType ?? ''}
+          name={circleName(draggedStudent)}
+          appearance={getCircleAppearance(draggedStudent)}
+          blocked={dragState.hoverBlocked}
+        />
+      )}
       {editable && (
         <span role="status" aria-live="polite" className="sr-only">
           {keyboard.announcement}

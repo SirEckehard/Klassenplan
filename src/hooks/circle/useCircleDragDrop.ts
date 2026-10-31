@@ -38,10 +38,10 @@ export interface CircleDragState {
   hoverPosition: number | null;
   /** The place under the pointer is held and refuses the drop. */
   hoverBlocked: boolean;
-  /** The pointer in client coordinates, for the preview. */
+  /** The pointer in client coordinates, for the name chip beside it. */
   pointer: { x: number; y: number } | null;
-  /** Screen pixels per view-box unit, measured when the drag began. */
-  viewportScale: number;
+  /** `touch` puts the chip above the finger, else beside the pointer. */
+  pointerType: string | null;
 }
 
 export interface CircleDragDropHook {
@@ -60,7 +60,7 @@ const IDLE: CircleDragState = {
   hoverPosition: null,
   hoverBlocked: false,
   pointer: null,
-  viewportScale: 1,
+  pointerType: null,
 };
 
 /**
@@ -120,19 +120,18 @@ export function useCircleDragDrop({
 
       let target: number | null = null;
       let blocked = false;
+      const pointerType = e.pointerType;
       const reset = () => setDragState(IDLE);
 
       gesture.begin(e, {
         onStart: (point) => {
           triggerHapticFeedback('dragStart');
-          const rect = svgRef.current?.getBoundingClientRect();
           setDragState({
             ...IDLE,
             isDragging: true,
             draggedPosition: position,
             pointer: point,
-            viewportScale:
-              rect && rect.width > 0 ? rect.width / viewBox.width : 1,
+            pointerType,
           });
         },
         onMove: (point) => {
@@ -172,7 +171,6 @@ export function useCircleDragDrop({
       isPositionLocked,
       gesture,
       findTarget,
-      viewBox.width,
       onStudentMove,
       onMoved,
     ],

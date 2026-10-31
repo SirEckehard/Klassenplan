@@ -20,7 +20,8 @@ import { useTouchScrollLock } from '@/hooks/ui/useTouchScrollLock';
 import type { FeatureVisibilityFlags } from '@/utils/ui';
 import type { TemplateDragPreview } from '@/types/templateDrag';
 import {
-  getSwapPartner,
+  getSwapPreview,
+  useDwellKey,
   type DragOrigin,
   type DragHover,
   type LockedDropTarget,
@@ -179,6 +180,13 @@ const SeatingPlanCanvas = React.memo(
       ],
     );
 
+    // A drop the plan already showed lands without a flight: both students
+    // stand where they are drawn. The drag's handlers were bound when it
+    // began, so they read the preview through a ref.
+    const holdPreviewedRef = React.useRef<
+      (from: DragOrigin, to: DragOrigin) => void
+    >(() => {});
+
     // Keyboard alternative to the pointer seat drag (P2.10): Enter/Space picks
     // a student up, the arrow keys move to the target seat, Enter/Space drops,
     // Escape cancels. Reuses the existing dragOrigin/dragHover visuals.
@@ -194,13 +202,16 @@ const SeatingPlanCanvas = React.memo(
       onHoverChange: onSeatHoverChange,
       onDropRejected: onLockedSeatDrop,
       onMoved: React.useCallback(
-        (from: DragOrigin, to: DragOrigin) =>
-          onSeatDropped?.(from, to, 'keyboard'),
+        (from: DragOrigin, to: DragOrigin) => {
+          holdPreviewedRef.current(from, to);
+          onSeatDropped?.(from, to, 'keyboard');
+        },
         [onSeatDropped],
       ),
     });
     // Whoever changed seats glides there; the student a finger put down is
-    // already where it belongs, so only the one it displaced flies.
+    // already where it belongs, so only the one it displaced flies — and
+    // neither where the plan already showed the swap before the drop.
     const flightLayerRef = React.useRef<SVGGElement | null>(null);
     const seatGeometry = React.useMemo(
       () =>
@@ -222,6 +233,7 @@ const SeatingPlanCanvas = React.memo(
     const handlePointerDrop = React.useCallback(
       (from: DragOrigin, to: DragOrigin) => {
         holdStill(seatFlightKey(to.tableIndex, to.seatIndex));
+        holdPreviewedRef.current(from, to);
         onSeatDropped?.(from, to, 'pointer');
       },
       [holdStill, onSeatDropped],
@@ -235,12 +247,33 @@ const SeatingPlanCanvas = React.memo(
     }, [dragOrigin, cancelKeyboardMove]);
 
     const effectiveDragOrigin = dragOrigin ?? keyboardMoveOrigin;
-    // Over a taken seat the drag is a swap: the origin shows who would come.
-    const dragSwapStudent = getSwapPartner(
-      currentSeating,
-      effectiveDragOrigin,
-      dragHover,
+    // Once the drag rests on a free seat, the plan shows the swap a drop would
+    // make: the dragged student there, whoever sat there on the seat it came
+    // from. The ring follows the pointer at once; the students wait.
+    const candidatePreview = React.useMemo(
+      () => getSwapPreview(currentSeating, effectiveDragOrigin, dragHover),
+      [currentSeating, effectiveDragOrigin, dragHover],
     );
+    const settledKey = useDwellKey(
+      candidatePreview
+        ? `${seatFlightKey(candidatePreview.origin.tableIndex, candidatePreview.origin.seatIndex)}>${seatFlightKey(candidatePreview.target.tableIndex, candidatePreview.target.seatIndex)}`
+        : null,
+    );
+    const swapPreview = settledKey ? candidatePreview : null;
+    React.useLayoutEffect(() => {
+      holdPreviewedRef.current = (from, to) => {
+        if (
+          swapPreview &&
+          swapPreview.origin.tableIndex === from.tableIndex &&
+          swapPreview.origin.seatIndex === from.seatIndex &&
+          swapPreview.target.tableIndex === to.tableIndex &&
+          swapPreview.target.seatIndex === to.seatIndex
+        ) {
+          holdStill(seatFlightKey(to.tableIndex, to.seatIndex));
+          holdStill(seatFlightKey(from.tableIndex, from.seatIndex));
+        }
+      };
+    }, [swapPreview, holdStill]);
 
     const applySelectionForTable = React.useCallback(
       (tableIndex: number, multi: boolean) => {
@@ -389,7 +422,7 @@ const SeatingPlanCanvas = React.memo(
                 onSeatHoverChange={onSeatHoverChange}
                 onSeatDropRejected={onLockedSeatDrop}
                 onSeatDropped={handlePointerDrop}
-                dragSwapStudent={dragSwapStudent}
+                swapPreview={swapPreview}
                 onSeatKeyDown={handleSeatKeyDown}
                 onSeatFocus={handleSeatFocus}
                 onSeatBlur={handleSeatBlur}

@@ -9,7 +9,6 @@ import type { StatisticHighlightMode, StatisticStatus, Student } from '@/types';
 import {
   describeBadge,
   getStudentAppearance,
-  type StudentBadge,
 } from '@/utils/ui/studentAppearance';
 import {
   getSeatBadges,
@@ -119,19 +118,19 @@ interface TableSeatProps {
   /** No verdict: a badge points here (`focus`), a student just landed (`confirm`). */
   highlightTone?: SeatHighlightTone;
   /**
-   * On the seat a drag started from: the student who would take the dragged
-   * student's place, shown faintly while the drag points at them.
+   * While a drag rests on a seat, the plan shows the swap it would make: the
+   * dragged student on the target, whoever sat there — or nobody (null) — on
+   * the seat it came from. Undefined: the seat shows its own student. Only
+   * the drawing follows it; the seat's name for the screen reader, its lock
+   * and its flight stay its own student's.
    */
-  swapPreviewStudent?: Student | null;
+  previewStudent?: Student | null;
   onSeatPointerDown?: (
     e: React.PointerEvent<SVGElement>,
     seatIndex: number,
     locked: boolean,
     hasStudent: boolean,
-    seatWidth: number,
-    seatHeight: number,
     appearance: ReturnType<typeof getStudentAppearance>,
-    flags: StudentBadge[],
   ) => void;
   onSeatPointerUp?: (
     e: React.PointerEvent<SVGElement>,
@@ -275,7 +274,7 @@ function TableSeat({
   highlightMode,
   highlightPercentage,
   highlightTone,
-  swapPreviewStudent = null,
+  previewStudent,
   toggleLock,
   lockRevealOnHover = false,
   isSeatHovered = false,
@@ -287,19 +286,47 @@ function TableSeat({
   onSeatFocus,
   onSeatBlur,
 }: TableSeatProps) {
+  // Who the seat is drawn with: its own student, or the one a resting drag
+  // would bring here.
+  const previewing = previewStudent !== undefined;
+  const shownStudent = previewing ? previewStudent : student;
   // Memoize appearance calculation - only recompute when dependencies change
   const appearance = React.useMemo(
     () =>
-      getStudentAppearance(student, isDark, locked, contrast, showGenderColors),
-    [student, isDark, locked, contrast, showGenderColors],
+      getStudentAppearance(
+        shownStudent,
+        isDark,
+        locked,
+        contrast,
+        showGenderColors,
+      ),
+    [shownStudent, isDark, locked, contrast, showGenderColors],
   );
 
-  // The badges the seat shows: they ride along with a drag and are read out
-  // with the seat's name.
+  // The badges the seat is read out with, and the ones it is drawn with.
   const badgeFilter = badgeView?.filter;
   const flags = React.useMemo(
     () => getSeatBadges(student, allStudents, showSpecialNeeds, badgeFilter),
     [student, allStudents, showSpecialNeeds, badgeFilter],
+  );
+  const shownFlags = React.useMemo(
+    () =>
+      previewing
+        ? getSeatBadges(
+            shownStudent,
+            allStudents,
+            showSpecialNeeds,
+            badgeFilter,
+          )
+        : flags,
+    [
+      previewing,
+      shownStudent,
+      flags,
+      allStudents,
+      showSpecialNeeds,
+      badgeFilter,
+    ],
   );
 
   const seatFill = appearance.fill;
@@ -342,10 +369,10 @@ function TableSeat({
         ? 'target'
         : null;
 
-  // The seat a drag started from fades; while the drag points at a taken
-  // seat, it shows who would come here instead.
-  const showsSwapPreview = isOriginSeat && swapPreviewStudent !== null;
-  const seatGroupOpacity = isOriginSeat ? (showsSwapPreview ? 0.6 : 0.35) : 1;
+  // The seat a drag started from fades while the student is in hand; once
+  // the drag rests on a target it shows, at full strength, who would sit here.
+  const lifted = isOriginSeat && !previewing;
+  const seatGroupOpacity = lifted ? 0.35 : 1;
   const dividerStroke = isDark
     ? 'rgba(226, 232, 240, 0.18)'
     : 'rgba(30, 41, 59, 0.12)';
@@ -367,10 +394,9 @@ function TableSeat({
   const seatStrokeWidth = contrast ? 1.5 : 0.75;
   const seatStrokeValue = contrast ? seatStroke : dividerStroke;
   const showsEdgeLine = locked && !contrast;
-  const seatTextOpacity = isOriginSeat ? 0.35 : 1;
-  const labelStudent = showsSwapPreview ? swapPreviewStudent : student;
-  const displayName = labelStudent
-    ? getDisplayNameForMode(labelStudent.name, 'table', nameDisplay, nameLabels)
+  const seatTextOpacity = lifted ? 0.35 : 1;
+  const displayName = shownStudent
+    ? getDisplayNameForMode(shownStudent.name, 'table', nameDisplay, nameLabels)
     : '';
   // The name stands upright in the seat, between its lock and its badges, on
   // one line or two, at the plan's shared size where it fits.
@@ -386,7 +412,7 @@ function TableSeat({
         locked,
       ),
     };
-    const pill = layoutSeatBadgePill(flags, shape, badgeView);
+    const pill = layoutSeatBadgePill(shownFlags, shape, badgeView);
     return fitNameOnSeat(displayName, shape, pill?.rect ?? null, {
       weight: contrast ? 700 : 400,
       maxFont: Math.min(
@@ -400,7 +426,7 @@ function TableSeat({
     seatWidth,
     seatHeight,
     labelRotation,
-    flags,
+    shownFlags,
     badgeView,
     toggleLock,
     lockRevealOnHover,
@@ -514,16 +540,7 @@ function TableSeat({
             aria-label={keyboardEnabled ? seatAriaLabel : undefined}
             aria-pressed={keyboardEnabled ? isOriginSeat : undefined}
             onPointerDown={(e) =>
-              onSeatPointerDown?.(
-                e,
-                seatIndex,
-                locked,
-                !!student,
-                seatWidth,
-                seatHeight,
-                appearance,
-                flags,
-              )
+              onSeatPointerDown?.(e, seatIndex, locked, !!student, appearance)
             }
             onPointerUp={(e) => onSeatPointerUp?.(e, seatIndex, locked)}
             onKeyDown={
@@ -546,7 +563,13 @@ function TableSeat({
                 : undefined
             }
             style={{
-              cursor: !locked && student ? 'grab' : 'default',
+              // The seat a drag holds keeps the pointer captured, so its
+              // cursor is the one shown across the plan.
+              cursor: isOriginSeat
+                ? 'grabbing'
+                : !locked && student
+                  ? 'grab'
+                  : 'default',
               touchAction: 'none',
               outline: 'none',
             }}
@@ -647,13 +670,13 @@ function TableSeat({
             />
           </>
         )}
-        {student && showSeatLabels && (
+        {shownStudent && showSeatLabels && (
           <>
             <SeatNameText
               x={seatWidth / 2}
               y={seatHeight / 2}
               fit={nameFit}
-              title={getTooltipName(student.name)}
+              title={getTooltipName(shownStudent.name)}
               fontWeight={contrast ? 700 : 400}
               transform={seatLabelTransform}
               fill={textColor}
@@ -665,7 +688,7 @@ function TableSeat({
             />
           </>
         )}
-        {student && showSeatLabels && (
+        {student && shownStudent && showSeatLabels && (
           <>
             {toggleLock && (
               <g
@@ -707,10 +730,7 @@ function TableSeat({
                     seatIndex,
                     locked,
                     true,
-                    seatWidth,
-                    seatHeight,
                     appearance,
-                    flags,
                   );
                 }}
                 onKeyDown={(event) => {
@@ -815,7 +835,8 @@ interface TableSeatBadgeOverlayProps {
   showSpecialNeeds: boolean;
   badgeView?: SeatBadgeView;
   isDark: boolean;
-  isOriginSeat: boolean;
+  /** The student is in hand: the badges fade with the seat they left. */
+  lifted: boolean;
   lockSeatLabelOrientation: boolean;
   seatTextRotation: number;
 }
@@ -831,7 +852,7 @@ export const TableSeatBadgeOverlay = React.memo(function TableSeatBadgeOverlay({
   showSpecialNeeds,
   badgeView,
   isDark,
-  isOriginSeat,
+  lifted,
   lockSeatLabelOrientation,
   seatTextRotation,
 }: TableSeatBadgeOverlayProps) {
@@ -870,7 +891,7 @@ export const TableSeatBadgeOverlay = React.memo(function TableSeatBadgeOverlay({
   const seatLabelTransform = lockSeatLabelOrientation
     ? `rotate(${seatTextRotation} ${seatWidth / 2} ${seatHeight / 2})`
     : undefined;
-  const seatTextOpacity = isOriginSeat ? 0.35 : 1;
+  const seatTextOpacity = lifted ? 0.35 : 1;
 
   return (
     <g
@@ -913,8 +934,7 @@ const MemoizedTableSeat = React.memo(TableSeat, (prevProps, nextProps) => {
   if (prevProps.highlightPercentage !== nextProps.highlightPercentage)
     return false;
   if (prevProps.highlightTone !== nextProps.highlightTone) return false;
-  if (prevProps.swapPreviewStudent !== nextProps.swapPreviewStudent)
-    return false;
+  if (prevProps.previewStudent !== nextProps.previewStudent) return false;
 
   // Lock hover-reveal state
   if (prevProps.isSeatHovered !== nextProps.isSeatHovered) return false;

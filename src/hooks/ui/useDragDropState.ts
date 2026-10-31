@@ -1,34 +1,25 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
-import type { Icon } from '@phosphor-icons/react';
 import type { Student } from '@/types';
 import { triggerHapticFeedback } from '@/utils/touch/hapticFeedback';
-import type { DataFamily, NameDisplayMode, NameLabels } from '@/utils';
+import type { NameDisplayMode, NameLabels } from '@/utils';
 
+/** The student in hand while a pointer drags one, for the chip beside it. */
 export interface DragPreview {
   student: Student;
+  /** The pointer, in client coordinates. */
   x: number;
   y: number;
-  seatWidth: number;
-  seatHeight: number;
+  /** `touch` puts the chip above the finger, a mouse or a pen beside the tip. */
+  pointerType: string;
   appearance: {
     fill: string;
     stroke: string;
     text: string;
   };
-  flags: SeatBadge[];
   nameDisplay?: NameDisplayMode;
   nameLabels?: NameLabels;
-}
-
-interface SeatBadge {
-  key: string;
-  label: string;
-  icon: Icon;
-  tooltip: string;
-  /** Colours the icon in the drag preview, as on the seat. */
-  family: DataFamily;
 }
 
 interface DragDropStateHook {
@@ -61,16 +52,14 @@ export interface LockedDropTarget extends DragHover {
 export interface DragSeatConfig {
   x: number;
   y: number;
+  pointerType: string;
   tableIndex: number;
   seatIndex: number;
-  seatWidth: number;
-  seatHeight: number;
   appearance: {
     fill: string;
     stroke: string;
     text: string;
   };
-  flags: SeatBadge[];
   nameDisplay?: NameDisplayMode;
   nameLabels?: NameLabels;
 }
@@ -96,10 +85,8 @@ export function useDragDropState(): DragDropStateHook {
         student,
         x: config.x,
         y: config.y,
-        seatWidth: config.seatWidth,
-        seatHeight: config.seatHeight,
+        pointerType: config.pointerType,
         appearance: config.appearance,
-        flags: config.flags,
         nameDisplay: config.nameDisplay,
         nameLabels: config.nameLabels,
       });
@@ -179,15 +166,51 @@ export function useDragDropState(): DragDropStateHook {
 }
 
 /**
- * The student who would take the dragged student's place: whoever sits on
- * the target seat, while it is a free target that is not the origin itself.
- * Null for an empty seat, a held seat or no target at all.
+ * How long a drag rests on a seat before the plan shows the swap there. The
+ * ring follows the pointer at once; the students wait this long, so a drag
+ * across the room does not flicker every name it passes.
  */
-export function getSwapPartner(
+export const SWAP_PREVIEW_DWELL_MS = 70;
+
+/**
+ * `key` once it has stayed the same for `delay` ms, null until then and
+ * whenever it is null. A key that comes back starts its wait anew.
+ */
+export function useDwellKey(
+  key: string | null,
+  delay: number = SWAP_PREVIEW_DWELL_MS,
+): string | null {
+  const [settled, setSettled] = React.useState<string | null>(null);
+  React.useEffect(() => {
+    const timeout = window.setTimeout(
+      () => setSettled(key),
+      key === null ? 0 : delay,
+    );
+    return () => window.clearTimeout(timeout);
+  }, [key, delay]);
+  return key !== null && settled === key ? key : null;
+}
+
+/** A swap the plan shows while a drag rests on a seat: who would sit where. */
+export interface SwapPreview {
+  origin: DragOrigin;
+  target: DragOrigin;
+  /** The dragged student, drawn on the target. */
+  student: Student;
+  /** Whoever sits on the target, drawn on the origin; null leaves it empty. */
+  partner: Student | null;
+}
+
+/**
+ * The swap a drop on `hover` would make: the dragged student on the target,
+ * the target's student — or nobody — on the origin. Null without a target,
+ * on a held seat or the origin itself.
+ */
+export function getSwapPreview(
   arrangement: ReadonlyArray<ReadonlyArray<Student | null>>,
   origin: DragOrigin | null,
   hover: DragHover | null,
-): Student | null {
+): SwapPreview | null {
   if (!origin || !hover || hover.locked) return null;
   if (
     origin.tableIndex === hover.tableIndex &&
@@ -195,5 +218,33 @@ export function getSwapPartner(
   ) {
     return null;
   }
-  return arrangement[hover.tableIndex]?.[hover.seatIndex] ?? null;
+  const student = arrangement[origin.tableIndex]?.[origin.seatIndex];
+  if (!student) return null;
+  return {
+    origin,
+    target: { tableIndex: hover.tableIndex, seatIndex: hover.seatIndex },
+    student,
+    partner: arrangement[hover.tableIndex]?.[hover.seatIndex] ?? null,
+  };
+}
+
+/**
+ * What a seat shows while a swap is previewed: the partner on the origin, the
+ * dragged student on the target; undefined on every other seat, which shows
+ * whoever sits there.
+ */
+export function previewStudentAt(
+  preview: SwapPreview | null,
+  tableIndex: number,
+  seatIndex: number,
+): Student | null | undefined {
+  if (!preview) return undefined;
+  const { origin, target } = preview;
+  if (origin.tableIndex === tableIndex && origin.seatIndex === seatIndex) {
+    return preview.partner;
+  }
+  if (target.tableIndex === tableIndex && target.seatIndex === seatIndex) {
+    return preview.student;
+  }
+  return undefined;
 }

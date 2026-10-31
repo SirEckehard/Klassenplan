@@ -2,172 +2,111 @@
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
 import { createPortal } from 'react-dom';
-import { useTranslation } from 'react-i18next';
-import { ArrowsLeftRightIcon, type Icon } from '@phosphor-icons/react';
-import {
-  cardSurfaceClass,
-  TABLE_CORNER_RADIUS,
-  type DataFamily,
-} from '@/utils';
-import {
-  BADGE_PILL_COLORS,
-  calculateBadgePillLayout,
-  getBadgeColor,
-} from '@/utils/ui/studentAppearance';
+import { LockIcon } from '@phosphor-icons/react';
 
-type GhostBadge = {
-  key: string;
-  icon: Icon;
-  tooltip: string;
-  family: DataFamily;
-};
+/** Between the touch point and the chip: the fingertip lies in between. */
+const FINGER_CLEARANCE = 40;
+/** The chip's height, for deciding whether it fits above the finger. */
+const CHIP_HEIGHT = 32;
+/** The chip's widest, for deciding which side of the finger it fits on. */
+const CHIP_MAX_WIDTH = 176;
+/** Kept clear of the window's edges. */
+const EDGE_MARGIN = 8;
+/** From a mouse pointer's tip to the chip, beside and below the arrow. */
+const CURSOR_OFFSET = { x: 14, y: 18 };
 
 export type DragGhostProps = {
   /** The pointer, in client coordinates. */
   x: number;
   y: number;
-  /** A seat of the table plan or a token of the circle. */
-  shape: 'seat' | 'token';
-  /** The seat or token as drawn, in plan units; the ghost keeps its shape. */
-  width: number;
-  height: number;
-  /** Screen pixels per plan unit. */
-  viewportScale: number;
+  /** `touch` puts the chip above the finger; a mouse or a pen beside the tip. */
+  pointerType: string;
   name: string;
+  /** The seat's gender tint, so the chip reads as the student it carries. */
   appearance: { fill: string; stroke: string; text: string };
-  badges: GhostBadge[];
-  /** Who would take the dragged student's place, while that is a swap. */
-  swapWith?: string | null;
-  isDark: boolean;
+  /** The place under the finger is held: the drop would be refused. */
+  blocked?: boolean;
 };
 
+/** Where the chip goes for a finger: above it, beside it at the top. */
+function fingerTransform(x: number, y: number): string {
+  if (y - FINGER_CLEARANCE - CHIP_HEIGHT >= EDGE_MARGIN) {
+    return `translate(-50%, calc(-100% - ${FINGER_CLEARANCE}px))`;
+  }
+  const width = typeof window === 'undefined' ? Infinity : window.innerWidth;
+  return x + FINGER_CLEARANCE + CHIP_MAX_WIDTH <= width - EDGE_MARGIN
+    ? `translate(${FINGER_CLEARANCE}px, -50%)`
+    : `translate(calc(-100% - ${FINGER_CLEARANCE}px), -50%)`;
+}
+
 /**
- * The student being dragged, in the plan and in the circle alike.
- *
- * It floats above the pointer rather than on it: the seat under the pointer
- * is where the student lands, and its ring has to stay in sight — under a
- * fingertip, too. Over a taken place it says whom the student would swap with.
+ * Where the chip goes for a mouse or a pen: below and right of the tip, as a
+ * system labels what it drags, so the seat under the tip stays in sight —
+ * turned to the left or upwards where the window ends.
  */
-export default function DragGhost(props: DragGhostProps) {
+function cursorTransform(x: number, y: number): string {
+  const width = typeof window === 'undefined' ? Infinity : window.innerWidth;
+  const height = typeof window === 'undefined' ? Infinity : window.innerHeight;
+  const dx =
+    x + CURSOR_OFFSET.x + CHIP_MAX_WIDTH <= width - EDGE_MARGIN
+      ? `${CURSOR_OFFSET.x}px`
+      : `calc(-100% - ${CURSOR_OFFSET.x / 2}px)`;
+  const dy =
+    y + CURSOR_OFFSET.y + CHIP_HEIGHT <= height - EDGE_MARGIN
+      ? `${CURSOR_OFFSET.y}px`
+      : `calc(-100% - ${CURSOR_OFFSET.y / 2}px)`;
+  return `translate(${dx}, ${dy})`;
+}
+
+/**
+ * The name of the student being dragged, in the plan and in the circle alike.
+ *
+ * The plan itself shows where the student would land — the student on the
+ * target, the one displaced on the seat left behind — so this only says who
+ * is in hand. Above a finger, which hides the seat underneath (beside it in
+ * the top row of the window); below and right of a mouse pointer's tip.
+ */
+export default function DragGhost({
+  x,
+  y,
+  pointerType,
+  name,
+  appearance,
+  blocked = false,
+}: DragGhostProps) {
   if (typeof document === 'undefined') return null;
   return createPortal(
     <div
       className="pointer-events-none fixed z-50"
       style={{
-        left: props.x,
-        top: props.y,
-        transform: 'translate(-50%, calc(-100% - 12px))',
+        left: x,
+        top: y,
+        transform:
+          pointerType === 'touch'
+            ? fingerTransform(x, y)
+            : cursorTransform(x, y),
       }}
     >
-      <GhostCard {...props} />
-    </div>,
-    document.body,
-  );
-}
-
-function GhostCard({
-  shape,
-  width: plannedWidth,
-  height: plannedHeight,
-  viewportScale,
-  name,
-  appearance,
-  badges,
-  swapWith,
-  isDark,
-}: DragGhostProps) {
-  const { t } = useTranslation('generator');
-  const pillMode = isDark ? 'dark' : 'light';
-  const clampedViewportScale = Math.max(0.3, Math.min(1, viewportScale * 0.92));
-  const targetSize = Math.max(24, Math.min(68, 60 * clampedViewportScale));
-  const sizeScale = targetSize / Math.max(plannedWidth, plannedHeight, 1);
-  const width = Math.max(24, plannedWidth * sizeScale);
-  const height = Math.max(24, plannedHeight * sizeScale);
-  const badgeLayout =
-    badges.length > 0
-      ? calculateBadgePillLayout({
-          availableWidth: Math.max(width - 14, 30),
-          iconCount: badges.length,
-          baseIconSize: Math.max(7, Math.min(10, width * 0.18)),
-          minIconSize: 6,
-          horizontalPadding: 6,
-          verticalPadding: 1,
-          rowGap: 2,
-          minIconsForWrap: 5,
-        })
-      : null;
-
-  return (
-    <div
-      className={`${cardSurfaceClass} pointer-events-none flex flex-col items-center gap-1.5 bg-(--surface-card) px-2 py-2 shadow-lg backdrop-blur-sm`}
-    >
       <div
-        className={`relative flex items-center justify-center ${
-          shape === 'token' ? 'rounded-full' : ''
-        }`}
+        data-drag-ghost=""
+        className="flex max-w-44 items-center gap-1.5 rounded-full border-2 px-3 py-1 text-sm font-semibold shadow-lg"
         style={{
-          width,
-          height,
-          // A seat on its own: the table's radius all round, at the ghost's
-          // scale, as a table's corners are drawn at the plan's.
-          borderRadius:
-            shape === 'token' ? undefined : TABLE_CORNER_RADIUS * sizeScale,
           backgroundColor: appearance.fill,
-          border: `2px solid ${appearance.stroke}`,
+          borderColor: appearance.stroke,
+          color: appearance.text,
         }}
       >
-        <span
-          className="text-xs font-semibold"
-          style={{ color: appearance.text }}
-        >
-          {name}
-        </span>
-        {badgeLayout && (
-          <div
-            className="pointer-events-none absolute bottom-1 left-1/2 -translate-x-1/2 rounded-full border"
-            style={{
-              width: badgeLayout.width,
-              height: badgeLayout.height,
-              backgroundColor: BADGE_PILL_COLORS.fill[pillMode],
-              borderColor: BADGE_PILL_COLORS.stroke[pillMode],
-            }}
-          >
-            <div className="relative h-full w-full">
-              {badges.map((badge, index) => {
-                const position = badgeLayout.iconPositions[index];
-                if (!position) return null;
-                const BadgeIcon = badge.icon;
-                return (
-                  <span
-                    key={badge.key}
-                    className="absolute flex items-center justify-center"
-                    style={{
-                      left: position.x,
-                      top: position.y,
-                      width: badgeLayout.iconSize,
-                      height: badgeLayout.iconSize,
-                    }}
-                  >
-                    <BadgeIcon
-                      size={badgeLayout.iconSize}
-                      color={getBadgeColor(badge, isDark)}
-                      aria-hidden="true"
-                    />
-                  </span>
-                );
-              })}
-            </div>
-          </div>
+        {blocked && (
+          <LockIcon
+            size={14}
+            weight="bold"
+            className="shrink-0 text-(--status-alert)"
+            aria-hidden="true"
+          />
         )}
+        <span className="truncate">{name}</span>
       </div>
-      {swapWith && (
-        <span className="flex max-w-40 items-center gap-1 text-xs text-(--text-muted)">
-          <ArrowsLeftRightIcon size={12} aria-hidden="true" />
-          <span className="truncate">
-            {t('drag.swapWith', { name: swapWith })}
-          </span>
-        </span>
-      )}
-    </div>
+    </div>,
+    document.body,
   );
 }

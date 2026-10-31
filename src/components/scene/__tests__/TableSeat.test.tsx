@@ -215,9 +215,6 @@ describe('TableSeat component', () => {
       0,
       false,
       true,
-      55,
-      65,
-      expect.anything(),
       expect.anything(),
     );
     fireEvent.pointerMove(lockButton, {
@@ -393,7 +390,7 @@ describe('TableSeat component', () => {
           seatHeight={65}
           isDark={false}
           showSpecialNeeds={true}
-          isOriginSeat={false}
+          lifted={false}
           lockSeatLabelOrientation={true}
           seatTextRotation={0}
         />
@@ -475,7 +472,7 @@ describe('TableSeat component', () => {
             isDark={false}
             showSpecialNeeds={true}
             badgeView={{ collapse }}
-            isOriginSeat={false}
+            lifted={false}
             lockSeatLabelOrientation={true}
             seatTextRotation={0}
           />
@@ -551,7 +548,7 @@ describe('TableSeat component', () => {
     expect(focus?.querySelector('title')).toBeNull();
   });
 
-  it('shows who would come to the seat a drag started from, and rings a landing green', () => {
+  it('draws the swap a resting drag would make, and rings a landing green', () => {
     const seat = (props: Partial<React.ComponentProps<typeof TableSeat>>) =>
       render(
         <svg>
@@ -578,17 +575,48 @@ describe('TableSeat component', () => {
         </svg>,
       ).container;
 
+    const grace: Student = {
+      ...baseStudent,
+      id: 's2',
+      name: 'Grace Hopper',
+      gender: 'boy',
+    };
+    const lines = (container: Element) =>
+      Array.from(
+        container.querySelectorAll('text tspan'),
+        (line) => line.textContent,
+      );
+    const shapeFill = (container: Element) =>
+      container.querySelector('[data-seat-shape]')?.getAttribute('fill');
+
+    // Lifted, the seat fades.
+    const lifted = seat({ isOriginSeat: true });
+    expect(lifted.querySelector('g[style*="opacity: 0.35"]')).not.toBeNull();
+
+    // Resting on a target, the seat left behind shows who would come, in
+    // full and in that student's tint — but is still named for its own.
     const origin = seat({
       isOriginSeat: true,
-      swapPreviewStudent: { ...baseStudent, id: 's2', name: 'Grace Hopper' },
+      previewStudent: grace,
+      onSeatKeyDown: vi.fn(),
     });
     // A full name on a 55-unit seat breaks into two lines.
+    expect(lines(origin)).toEqual(['Grace', 'Hopper']);
+    expect(origin.querySelector('g[style*="opacity: 0.35"]')).toBeNull();
+    expect(shapeFill(origin)).toBe(shapeFill(seat({ student: grace })));
     expect(
-      Array.from(
-        origin.querySelectorAll('text tspan'),
-        (line) => line.textContent,
-      ),
-    ).toEqual(['Grace', 'Hopper']);
+      origin.querySelector('rect[data-seat-index]')?.getAttribute('aria-label'),
+    ).toMatch(/Ada/);
+    expect(
+      origin
+        .querySelector('[data-seat-student]')
+        ?.getAttribute('data-seat-student'),
+    ).toBe('s1');
+
+    // The origin of a drag onto an empty seat shows an empty seat.
+    const emptied = seat({ isOriginSeat: true, previewStudent: null });
+    expect(lines(emptied)).toEqual([]);
+    expect(emptied.querySelector('text')).toBeNull();
 
     const landed = seat({
       highlightStatus: 'ok',
@@ -640,8 +668,7 @@ describe('TableSeat component', () => {
     expect(args[1]).toBe(0); // seatIndex
     expect(args[2]).toBe(false); // locked
     expect(args[3]).toBe(true); // hasStudent
-    expect(args[4]).toBe(55); // seatWidth
-    expect(args[5]).toBe(65); // seatHeight
+    expect(args[4]).toMatchObject({ fill: expect.any(String) }); // appearance
   });
 
   it('calls onSeatPointerUp with correct parameters', () => {

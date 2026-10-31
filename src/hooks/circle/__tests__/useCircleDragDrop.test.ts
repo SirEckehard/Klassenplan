@@ -159,7 +159,7 @@ describe('useCircleDragDrop', () => {
     pointer('pointermove', 150, 150);
     expect(result.current.dragState).toMatchObject({
       hoverPosition: 1,
-      viewportScale: 0.5,
+      pointerType: 'mouse',
     });
 
     pointer('pointerup', 150, 150);

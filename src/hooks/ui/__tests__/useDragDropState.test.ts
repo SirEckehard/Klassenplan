@@ -4,8 +4,11 @@ import '@testing-library/jest-dom/vitest';
 import { act, renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi, afterEach } from 'vitest';
 import {
-  getSwapPartner,
+  getSwapPreview,
+  previewStudentAt,
+  SWAP_PREVIEW_DWELL_MS,
   useDragDropState,
+  useDwellKey,
 } from '../../../hooks/ui/useDragDropState';
 import type { DragSeatConfig } from '../../../hooks/ui/useDragDropState';
 import type { Student } from '../../../types';
@@ -15,16 +18,14 @@ const createBaseConfig = (
 ): DragSeatConfig => ({
   x: 100,
   y: 200,
+  pointerType: 'touch',
   tableIndex: 0,
   seatIndex: 0,
-  seatWidth: 60,
-  seatHeight: 60,
   appearance: {
     fill: '#ffffff',
     stroke: '#000000',
     text: '#111827',
   },
-  flags: [],
   nameDisplay: 'firstNameInitial',
   ...overrides,
 });
@@ -85,10 +86,8 @@ describe('useDragDropState', () => {
       student: mockStudent,
       x: baseConfig.x,
       y: baseConfig.y,
-      seatWidth: baseConfig.seatWidth,
-      seatHeight: baseConfig.seatHeight,
+      pointerType: 'touch',
       appearance: baseConfig.appearance,
-      flags: baseConfig.flags,
     });
     expect(result.current.dragOrigin).toEqual({
       tableIndex: baseConfig.tableIndex,
@@ -208,40 +207,109 @@ describe('useDragDropState', () => {
   });
 });
 
-describe('getSwapPartner', () => {
+describe('getSwapPreview', () => {
   const anna = { id: 'a', name: 'Anna' } as Student;
   const ben = { id: 'b', name: 'Ben' } as Student;
   const seating = [[anna, ben], [null]];
   const origin = { tableIndex: 0, seatIndex: 0 };
 
-  it('names whoever sits on a free target seat', () => {
-    expect(
-      getSwapPartner(seating, origin, {
-        tableIndex: 0,
-        seatIndex: 1,
-        locked: false,
-      }),
-    ).toBe(ben);
+  it('puts the dragged student on the target and its student on the origin', () => {
+    const preview = getSwapPreview(seating, origin, {
+      tableIndex: 0,
+      seatIndex: 1,
+      locked: false,
+    });
+    expect(preview).toEqual({
+      origin,
+      target: { tableIndex: 0, seatIndex: 1 },
+      student: anna,
+      partner: ben,
+    });
+    expect(previewStudentAt(preview, 0, 0)).toBe(ben);
+    expect(previewStudentAt(preview, 0, 1)).toBe(anna);
+    // Every other seat shows whoever sits there.
+    expect(previewStudentAt(preview, 1, 0)).toBeUndefined();
+    expect(previewStudentAt(null, 0, 0)).toBeUndefined();
   });
 
-  it('has nobody for an empty or held seat, the origin or no target', () => {
+  it('leaves the origin empty when the target is', () => {
+    const preview = getSwapPreview(seating, origin, {
+      tableIndex: 1,
+      seatIndex: 0,
+      locked: false,
+    });
+    expect(preview?.partner).toBeNull();
+    expect(previewStudentAt(preview, 0, 0)).toBeNull();
+    expect(previewStudentAt(preview, 1, 0)).toBe(anna);
+  });
+
+  it('shows nothing for a held seat, the origin or no target', () => {
     expect(
-      getSwapPartner(seating, origin, {
-        tableIndex: 1,
-        seatIndex: 0,
-        locked: false,
-      }),
-    ).toBeNull();
-    expect(
-      getSwapPartner(seating, origin, {
+      getSwapPreview(seating, origin, {
         tableIndex: 0,
         seatIndex: 1,
         locked: true,
       }),
     ).toBeNull();
     expect(
-      getSwapPartner(seating, origin, { ...origin, locked: false }),
+      getSwapPreview(seating, origin, { ...origin, locked: false }),
     ).toBeNull();
-    expect(getSwapPartner(seating, origin, null)).toBeNull();
+    expect(getSwapPreview(seating, origin, null)).toBeNull();
+    expect(getSwapPreview(seating, null, null)).toBeNull();
+  });
+});
+
+describe('useDwellKey', () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('settles on a key only after it has rested there', () => {
+    vi.useFakeTimers();
+    const { result, rerender } = renderHook(
+      ({ key }: { key: string | null }) => useDwellKey(key),
+      { initialProps: { key: null as string | null } },
+    );
+
+    rerender({ key: 'a' });
+    expect(result.current).toBeNull();
+    act(() => {
+      vi.advanceTimersByTime(SWAP_PREVIEW_DWELL_MS - 1);
+    });
+    expect(result.current).toBeNull();
+    act(() => {
+      vi.advanceTimersByTime(1);
+    });
+    expect(result.current).toBe('a');
+
+    // Passing on to the next seat lets go at once and waits again.
+    rerender({ key: 'b' });
+    expect(result.current).toBeNull();
+    act(() => {
+      vi.advanceTimersByTime(SWAP_PREVIEW_DWELL_MS);
+    });
+    expect(result.current).toBe('b');
+
+    rerender({ key: null });
+    expect(result.current).toBeNull();
+  });
+
+  it('makes a key that comes back wait anew', () => {
+    vi.useFakeTimers();
+    const { result, rerender } = renderHook(
+      ({ key }: { key: string | null }) => useDwellKey(key),
+      { initialProps: { key: 'a' as string | null } },
+    );
+    act(() => {
+      vi.advanceTimersByTime(SWAP_PREVIEW_DWELL_MS);
+    });
+    expect(result.current).toBe('a');
+
+    rerender({ key: null });
+    act(() => {
+      vi.advanceTimersByTime(0);
+    });
+    rerender({ key: 'a' });
+    expect(result.current).toBeNull();
   });
 });

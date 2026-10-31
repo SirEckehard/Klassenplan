@@ -416,7 +416,7 @@ describe('SimpleCircleView', () => {
     fireEvent.pointerDown(aliceLock, { pointerId: 2, clientX: 5, clientY: 5 });
     const before = screen.getAllByText('Alice').length;
     fireEvent.pointerMove(aliceLock, { pointerId: 2, clientX: 60, clientY: 5 });
-    // The drag ghost carries her name above the pointer.
+    // The chip beside the pointer carries her name.
     expect(screen.getAllByText('Alice').length).toBeGreaterThan(before);
     fireEvent.pointerUp(aliceLock, { pointerId: 2, clientX: 60, clientY: 5 });
     expect(onToggleLock).not.toHaveBeenCalled();

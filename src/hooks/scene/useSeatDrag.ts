@@ -27,10 +27,7 @@ type SeatPointerDownHandler = (
   seatIndex: number,
   locked: boolean,
   hasStudent: boolean,
-  seatWidth: number,
-  seatHeight: number,
   appearance: DragSeatConfig['appearance'],
-  flags: DragSeatConfig['flags'],
 ) => void;
 
 type SeatPointerUpHandler = (
@@ -124,16 +121,7 @@ export function useSeatDrag({
   );
 
   const handleSeatPointerDown = React.useCallback<SeatPointerDownHandler>(
-    (
-      e,
-      fromSeat,
-      locked,
-      hasStudent,
-      seatWidthValue,
-      seatHeightValue,
-      appearanceValue,
-      flagsValue,
-    ) => {
+    (e, fromSeat, locked, hasStudent, appearanceValue) => {
       const student = students[fromSeat];
       if (!draggable || !moveStudent || locked || !hasStudent || !student) {
         return;
@@ -143,6 +131,7 @@ export function useSeatDrag({
         e.currentTarget.setPointerCapture(e.pointerId);
       }
 
+      const pointerType = e.pointerType;
       const origin: DragOrigin = { tableIndex: index, seatIndex: fromSeat };
       const isOrigin = (target: DragHover | null) =>
         target?.tableIndex === origin.tableIndex &&
@@ -169,12 +158,10 @@ export function useSeatDrag({
           onSeatDragStart?.(student, {
             x: point.x,
             y: point.y,
+            pointerType,
             tableIndex: index,
             seatIndex: fromSeat,
-            seatWidth: seatWidthValue,
-            seatHeight: seatHeightValue,
             appearance: appearanceValue,
-            flags: flagsValue,
             nameDisplay,
             nameLabels,
           });

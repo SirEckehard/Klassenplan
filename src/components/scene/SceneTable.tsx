@@ -16,11 +16,13 @@ import {
   determineSeatEdge,
 } from '@/utils/math/positionCalculations';
 import { getPhotoRadius } from '@/utils/math/photoOverlap';
-import type {
-  DragHover,
-  DragOrigin,
-  LockedDropTarget,
-  DragSeatConfig,
+import {
+  previewStudentAt,
+  type DragHover,
+  type DragOrigin,
+  type LockedDropTarget,
+  type DragSeatConfig,
+  type SwapPreview,
 } from '@/hooks/ui/useDragDropState';
 import SeatGrid, { type SeatConfig } from '@/components/scene/SeatGrid';
 import { seatTableCorners, seatTableEdges } from '@/utils/ui/seatMark';
@@ -70,8 +72,8 @@ type TableProps = {
   onSeatDropRejected?: (target: DragHover) => void;
   /** A student landed: where from, where to. */
   onSeatDropped?: (from: DragOrigin, to: DragOrigin) => void;
-  /** Who would take the dragged student's place, shown on the origin seat. */
-  dragSwapStudent?: Student | null;
+  /** The swap a resting drag would make, drawn on its two seats. */
+  swapPreview?: SwapPreview | null;
   /** Keyboard alternative to the pointer seat drag (grab/drop via Enter). */
   onSeatKeyDown?: React.ComponentProps<typeof SeatGrid>['onSeatKeyDown'];
   onSeatFocus?: React.ComponentProps<typeof SeatGrid>['onSeatFocus'];
@@ -130,7 +132,7 @@ function SceneTable({
   onSeatHoverChange,
   onSeatDropRejected,
   onSeatDropped,
-  dragSwapStudent = null,
+  swapPreview = null,
   onSeatKeyDown,
   onSeatFocus,
   onSeatBlur,
@@ -315,7 +317,7 @@ function SceneTable({
       highlightMode: highlight?.mode,
       highlightPercentage: highlight?.percentage,
       highlightTone: highlight?.tone,
-      swapPreviewStudent: isOriginSeat ? dragSwapStudent : null,
+      previewStudent: previewStudentAt(swapPreview, index, seatIndex),
     };
   });
 
@@ -425,7 +427,18 @@ function SceneTable({
         }
       />
       {chairDots.map((dot) => {
-        const seatStudent = students[dot.key] ?? null;
+        // The photo belongs to the student the seat shows: the one a resting
+        // drag would bring here, and none where it would leave the seat empty.
+        const previewStudent = previewStudentAt(swapPreview, index, dot.key);
+        const seatStudent =
+          previewStudent !== undefined
+            ? previewStudent
+            : (students[dot.key] ?? null);
+        // The student in hand leaves a faded photo behind, as the seat fades.
+        const lifted =
+          previewStudent === undefined &&
+          dragOrigin?.tableIndex === index &&
+          dragOrigin.seatIndex === dot.key;
         const photoUrl =
           seatMarkerMode === 'full' && seatStudent?.hasPhoto
             ? photoUrls?.get(seatStudent.id)
@@ -473,6 +486,7 @@ function SceneTable({
             key={`chair-${dot.key}`}
             transform={uprightTransform}
             pointerEvents="none"
+            opacity={lifted ? 0.35 : undefined}
             {...{ [SEAT_FLIGHT_PART_ATTR]: seatFlightKey(index, dot.key) }}
           >
             {/* Inner group carries the entrance animation (hover mode only) so

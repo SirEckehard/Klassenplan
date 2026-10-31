@@ -88,13 +88,12 @@ import { useTurnAnimation } from '@/hooks/ui/useTurnAnimation';
 import { turnPlanScene } from '@/utils/ui/portraitPlan';
 import { createSuspendedWeights } from '@/hooks/ui/useMixCriteria';
 import { buildCriterionHighlightEntries } from '@/utils/algorithm/criterionHighlights';
-import {
-  getSwapPartner,
-  type DragPreview,
-  type DragOrigin,
-  type DragHover,
-  type LockedDropTarget,
-  type DragSeatConfig,
+import type {
+  DragPreview,
+  DragOrigin,
+  DragHover,
+  LockedDropTarget,
+  DragSeatConfig,
 } from '@/hooks/ui/useDragDropState';
 import DragGhost from '@/components/scene/DragGhost';
 import { useHasHoverPointer } from '@/hooks/ui/useHasHoverPointer';
@@ -436,8 +435,6 @@ export default function SeatingPlanEditorView({
       t,
     ],
   );
-  const canvasContainerRef = React.useRef<HTMLDivElement | null>(null);
-  const [previewViewportScale, setPreviewViewportScale] = React.useState(1);
   const [viewportOffset, setViewportOffset] = React.useState({
     left: 0,
     top: 0,
@@ -515,11 +512,6 @@ export default function SeatingPlanEditorView({
       );
     },
     [effectiveSeating, t],
-  );
-  const dragSwapStudent = getSwapPartner(
-    effectiveSeating,
-    dragOrigin,
-    dragHover,
   );
 
   const canvasSeatHighlights =
@@ -734,44 +726,6 @@ export default function SeatingPlanEditorView({
     statisticsHighlight,
     setStatisticsHighlight,
   ]);
-
-  React.useEffect(() => {
-    const node = canvasContainerRef.current;
-    if (!node) {
-      return;
-    }
-
-    const calculateScale = () => {
-      const rect = node.getBoundingClientRect();
-      const width =
-        rect.width || (typeof window !== 'undefined' ? window.innerWidth : 0);
-      if (width <= 0 || shownPlan.width <= 0) {
-        setPreviewViewportScale(1);
-        return;
-      }
-      setPreviewViewportScale(width / shownPlan.width);
-    };
-
-    calculateScale();
-
-    let observer: ResizeObserver | null = null;
-    if (typeof ResizeObserver !== 'undefined') {
-      observer = new ResizeObserver(() => {
-        calculateScale();
-      });
-      observer.observe(node);
-    } else if (typeof window !== 'undefined') {
-      window.addEventListener('resize', calculateScale);
-    }
-
-    return () => {
-      if (observer) {
-        observer.disconnect();
-      } else if (typeof window !== 'undefined') {
-        window.removeEventListener('resize', calculateScale);
-      }
-    };
-  }, [shownPlan.width]);
 
   React.useEffect(() => {
     if (typeof window === 'undefined') {
@@ -1090,7 +1044,6 @@ export default function SeatingPlanEditorView({
                   )}
 
                 <div
-                  ref={canvasContainerRef}
                   style={{
                     backgroundColor,
                     backgroundImage: showGrid
@@ -1152,14 +1105,13 @@ export default function SeatingPlanEditorView({
                     </div>
                   )}
                 </div>
+                {/* The plan shows where the student would land; the chip
+                    says who is in hand. */}
                 {dragPreview && (
                   <DragGhost
                     x={dragPreview.x + viewportOffset.left}
                     y={dragPreview.y + viewportOffset.top}
-                    shape="seat"
-                    width={dragPreview.seatWidth}
-                    height={dragPreview.seatHeight}
-                    viewportScale={previewViewportScale}
+                    pointerType={dragPreview.pointerType}
                     name={getDisplayNameForMode(
                       dragPreview.student.name,
                       'table',
@@ -1167,17 +1119,7 @@ export default function SeatingPlanEditorView({
                       dragPreview.nameLabels,
                     )}
                     appearance={dragPreview.appearance}
-                    badges={dragPreview.flags}
-                    swapWith={
-                      dragSwapStudent
-                        ? getDisplayNameForMode(
-                            dragSwapStudent.name,
-                            'table',
-                            nameDisplay,
-                          )
-                        : null
-                    }
-                    isDark={isDark}
+                    blocked={Boolean(dragHover?.locked)}
                   />
                 )}
               </div>
