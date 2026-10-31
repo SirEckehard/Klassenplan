@@ -53,7 +53,8 @@
     "check:i18n": "node scripts/check-i18n.mjs",
     "check:licenses": "node scripts/check-licenses.mjs",
     "check:live-seo": "node scripts/check-live-seo.mjs",
-    "check:unused": "node scripts/check-unused-exports.mjs"
+    "check:unused": "node scripts/check-unused-exports.mjs",
+    "check:ci": "npm run lint && npm run typecheck:all && npm run check:i18n && npm run check:unused && npm run check:docs && npm run check:licenses && vitest run && npm run test:e2e && npm run build:static"
   },
   "overrides": {
     "serialize-javascript": "^7.0.5"

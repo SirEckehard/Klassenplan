@@ -17,6 +17,9 @@ it for Antigravity — edit this file, never those two.
 
 ## Tests & Quality Checks
 
+- **After every change**, before it is committed: the unit tests, `npx eslint` and Prettier on the changed files, `npm run typecheck:all` and the E2E specs (`npm run test:e2e`, about half a minute) — the specs are what notices a layout that breaks on a tablet or a phone, which no unit test renders. A spec that fails is fixed or its expectation brought up to date in the same change, never left for CI
+- **What CI runs, locally in one go:** `npm run check:ci` — lint, typecheck, i18n, unused exports, docs, licences, unit tests, E2E, `build:static` (with the bundle budgets), in the order of `.github/workflows/ci.yml`, which it must keep in step with. Run it before a push of several commits and before a release
+- **After a push**, check that CI went green (`gh run list --limit 3`, `gh run watch <id>`); a red run is fixed before the next change goes on top
 - Run unit tests with `npm test -- --run` (or `npx vitest run`)
 - Coverage report: `npm run test:coverage` (v8 provider, HTML report in `coverage/`)
 - Check modified files with `npx eslint <files>`
@@ -56,10 +59,9 @@ the image for both architectures, pushes the multi-arch manifest to GHCR as
 `X.Y.Z`, `X.Y` and `latest`, and only then creates the GitHub release. A push to
 `main` alone triggers `ci.yml` and nothing else.
 
-1. Run the gates on `update`: `npm test -- --run`, `npm run lint`,
-   `npm run typecheck:all`, `npm run check:i18n`, `npm run check:unused`,
-   `npm run check:docs`, `npm run check:licenses`, `npm run build` followed by
-   `npm run check:bundle`.
+1. Run the gates on `update`: `npm run check:ci` — every check CI runs, the
+   E2E specs and `build:static` with the bundle budgets included — and make
+   sure the last CI run on `update` is green (`gh run list --limit 3`).
    Bring the docs up to date for what the release changed — the affected
    `docs/` pages with their **Last reviewed** date, and a decision record in
    `docs/decisions/` where one is needed (see its README)
@@ -77,7 +79,8 @@ the image for both architectures, pushes the multi-arch manifest to GHCR as
    notable first, since the notice shows the first three.
    `src/data/__tests__/changelogParity.test.ts` fails on any drift
 3. `git checkout main && git merge --ff-only update`
-4. `git push origin main` and `git push origin update`
+4. `git push origin main` and `git push origin update`, then wait for CI on
+   the bump commit to go green (`gh run watch <id>`) before tagging
 5. `git tag -a vX.Y.Z -m vX.Y.Z <bump-commit>` — annotated, on the bump commit,
    matching the existing tags
 6. `git push origin vX.Y.Z`
@@ -244,6 +247,7 @@ import { generateId, logError, errorHandlers } from '@/utils';
 - `npm run generate:preview-images` - Full-size and downscaled (`-480/-960/-1440`) AVIF/WebP start page screenshots from the PNG masters in `assets/preview/` into `public/preview/`, then stamps a hash of them into `src/data/previewImages.json` as `version`, which the carousel appends to every image URL (`?v=…`) — the file names never change, and nginx and the service worker cache them as immutable; run after replacing a screenshot and commit the JSON with the images (needs libwebp and libavif)
 - `npm run generate:glyph-widths` - Measures the advance widths of Atkinson Hyperlegible Next (weights 400 and 700) in Chromium and writes `src/data/nameGlyphWidths.json`, which lays out the names on the seats; run after updating `@fontsource-variable/atkinson-hyperlegible-next` (needs `npx playwright install chromium`)
 - `python3 scripts/generate-wordmark.py` - Sets "Klassenplan" in Onest Bold as outlines and rewrites `public/brand/wordmark`, `public/brand/lockup` and `src/components/kpWordmarkPaths.ts`; by hand, only when the wordmark changes (needs fonttools, brotli, uharfbuzz, rsvg-convert; usage at the top of the script)
+- `npm run check:ci` - Every check CI runs, in its order: lint, typecheck, i18n, unused exports, docs, licences, unit tests, E2E, `build:static` (needs `npx playwright install chromium`)
 - `npm run check:i18n` - DE/EN key parity + no inline defaults + no unused keys
 - `npm run check:bundle` - Enforce bundle size budgets against `dist/` (run after a build)
 - `npm run check:unused` - Unused-export ratchet (baseline in `scripts/check-unused-exports.mjs`)
