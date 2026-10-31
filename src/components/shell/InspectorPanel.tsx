@@ -105,7 +105,7 @@ export function InspectorMediaTile({
 /** Everything between the header and the footer, scrolling on its own. */
 export function InspectorBody({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-4 py-3">
+    <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain px-4 py-3">
       {children}
     </div>
   );

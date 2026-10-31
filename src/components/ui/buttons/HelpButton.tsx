@@ -33,6 +33,7 @@ import { isAnyDialogOpen } from '@/hooks/ui/useDialogLayer';
 import { useLayoutMode } from '@/hooks/ui/useLayoutMode';
 import { useOutsideTap } from '@/hooks/ui/useOutsideTap';
 import { usePanelMotion } from '@/hooks/ui/usePanelMotion';
+import { useContainedTouchScroll } from '@/hooks/ui/useContainedTouchScroll';
 import { TOUR_ANCHORS } from '@/components/onboarding/tours';
 
 /** Marks the button, so the tap that opened the help does not also close it. */
@@ -175,6 +176,7 @@ function StandaloneDrawer({
   const layoutMode = useLayoutMode();
   const ref = React.useRef<HTMLElement | null>(null);
   usePanelMotion(ref, open, 'right', layoutMode);
+  useContainedTouchScroll(ref, open);
   if (!open) return null;
   return createPortal(
     <aside ref={ref} aria-label={label} className={standaloneDrawerClass}>

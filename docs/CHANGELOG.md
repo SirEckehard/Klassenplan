@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Fixed
+
+- On a phone and a tablet held upright, swiping in an open drawer — the inspector, the toolbar, the help — or in a student's sheet no longer scrolls the class list or the page under it as well; the drawer scrolls as far as it goes and stops there
+
 ## [3.2.3] - 2026-10-30
 
 ### Added

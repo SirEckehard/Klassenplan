@@ -19,6 +19,7 @@ import { useAdaptiveViewportHeight } from '@/hooks/ui/useAdaptiveViewportHeight'
 import { isAnyDialogOpen } from '@/hooks/ui/useDialogLayer';
 import { useOutsideTap } from '@/hooks/ui/useOutsideTap';
 import { usePanelMotion, useWidthMotion } from '@/hooks/ui/usePanelMotion';
+import { useContainedTouchScroll } from '@/hooks/ui/useContainedTouchScroll';
 import { TOUR_ANCHORS } from '@/components/onboarding/tours';
 import { SHELL_STATUS_BAR_HEIGHT } from '@/components/shell/shellTokens';
 
@@ -108,6 +109,8 @@ export default function SmartSidebar({
 
   // On a phone the toolbar comes in from the left and goes back there.
   usePanelMotion(drawerRef, showsDrawer, 'left', layoutMode);
+  // A swipe on it scrolls the toolbar or nothing, never the page under it.
+  useContainedTouchScroll(drawerRef, showsDrawer);
 
   // An action taken in the drawer — a view switched, an export started —
   // closes it, so the stage shows what it did. An entry that opens a panel or
@@ -237,7 +240,7 @@ export default function SmartSidebar({
             className={toolRailDrawerClass}
             onClick={handleDrawerClick}
           >
-            <div className="min-h-0 flex-1 overflow-y-auto px-2 py-3">
+            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-2 py-3">
               <div className="flex min-h-full flex-col">{renderedChildren}</div>
             </div>
           </aside>

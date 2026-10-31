@@ -12,6 +12,7 @@ import { useLayoutMode } from '@/hooks/ui/useLayoutMode';
 import { useDialogA11y } from '@/hooks/ui/useDialogA11y';
 import { useOutsideTap } from '@/hooks/ui/useOutsideTap';
 import { usePanelMotion } from '@/hooks/ui/usePanelMotion';
+import { useContainedTouchScroll } from '@/hooks/ui/useContainedTouchScroll';
 import {
   isAnyDialogOpen,
   isTopDialogLayer,
@@ -240,6 +241,13 @@ export default function Inspector() {
     isPhone ? 'bottom' : 'right',
     layoutMode,
   );
+  // Below `lg` the page under a drawer or the sheet scrolls; a swipe on them
+  // stays theirs.
+  useContainedTouchScroll(drawerRef, showsDrawer || showsSheet);
+  useContainedTouchScroll(
+    studentPanelRef,
+    isOpen && !isDesktop && !hasPortal && !suspended && !helpOpen,
+  );
   // The help in the class layer's place below `lg`, where no layer portals a
   // panel in: a drawer of its own, from the same edge.
   const helpDrawerRef = React.useRef<HTMLElement | null>(null);
@@ -249,6 +257,7 @@ export default function Inspector() {
     'right',
     layoutMode,
   );
+  useContainedTouchScroll(helpDrawerRef, helpOpen && !isDesktop && !hasPortal);
   // From `lg` up the column slides over the window's edge as it folds, and
   // the stage beside it grows into the room.
   // One column, whichever of the two panels fills it: opening a student on

@@ -143,7 +143,7 @@ export function ToolRail({
               ring. */}
           <div
             ref={scrollerRef}
-            className={`-mx-2 -mt-3 min-h-0 flex-1 overflow-x-hidden overflow-y-auto px-2 pt-3 pb-1 ${
+            className={`-mx-2 -mt-3 min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain px-2 pt-3 pb-1 ${
               isCompact
                 ? 'flex flex-col items-center gap-1'
                 : 'flex flex-col gap-2'
