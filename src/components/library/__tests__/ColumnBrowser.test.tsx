@@ -2,7 +2,7 @@
 // Copyright (C) 2026 Eike Schäfer
 import '@testing-library/jest-dom/vitest';
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import ColumnBrowser, { type BrowserColumn } from '../ColumnBrowser';
@@ -12,11 +12,13 @@ function Harness({
   onOpen = vi.fn(),
   onRename = vi.fn(),
   onDelete = vi.fn(),
+  onContextMenu,
   single = false,
 }: {
   onOpen?: (column: number, key: string) => void;
   onRename?: (column: number, key: string) => void;
   onDelete?: (column: number, key: string) => void;
+  onContextMenu?: React.ComponentProps<typeof ColumnBrowser>['onContextMenu'];
   single?: boolean;
 }) {
   const [path, setPath] = React.useState<string[]>(['7a']);
@@ -92,6 +94,7 @@ function Harness({
       onOpen={onOpen}
       onRename={onRename}
       onDelete={onDelete}
+      onContextMenu={onContextMenu}
       single={single}
     />
   );
@@ -150,6 +153,78 @@ describe('ColumnBrowser', () => {
     await user.keyboard('{ArrowRight}');
     expect(option('7b')).not.toHaveAttribute('data-quiet-focus');
     expect(option('Klassenraum')).toHaveAttribute('data-quiet-focus');
+  });
+
+  it('asks for the menu of an entry by a right-click, Shift+F10 and a long press, after choosing it', async () => {
+    const onContextMenu = vi.fn();
+    const user = userEvent.setup();
+    render(<Harness onContextMenu={onContextMenu} />);
+
+    fireEvent.contextMenu(option('7b'), { clientX: 40, clientY: 60 });
+    expect(option('7b')).toHaveAttribute('aria-selected', 'true');
+    expect(option('7b')).toHaveFocus();
+    expect(onContextMenu).toHaveBeenLastCalledWith(
+      0,
+      '7b',
+      { x: 40, y: 60, pointer: 'mouse' },
+      option('7b'),
+    );
+
+    await user.keyboard('{Shift>}{F10}{/Shift}');
+    expect(onContextMenu).toHaveBeenLastCalledWith(
+      0,
+      '7b',
+      expect.objectContaining({ pointer: 'keyboard' }),
+      option('7b'),
+    );
+
+    vi.useFakeTimers();
+    try {
+      fireEvent.pointerDown(option('Labor'), {
+        pointerType: 'touch',
+        pointerId: 3,
+        clientX: 100,
+        clientY: 120,
+      });
+      act(() => {
+        vi.advanceTimersByTime(500);
+      });
+    } finally {
+      vi.useRealTimers();
+    }
+    expect(option('Labor')).toHaveAttribute('aria-selected', 'true');
+    expect(onContextMenu).toHaveBeenLastCalledWith(
+      1,
+      '7b-lab',
+      { x: 100, y: 120, pointer: 'touch' },
+      option('Labor'),
+    );
+  });
+
+  it('leaves a finger that moves to the scroll, not to a menu', () => {
+    const onContextMenu = vi.fn();
+    render(<Harness onContextMenu={onContextMenu} />);
+    vi.useFakeTimers();
+    try {
+      fireEvent.pointerDown(option('Labor'), {
+        pointerType: 'touch',
+        pointerId: 4,
+        clientX: 100,
+        clientY: 120,
+      });
+      fireEvent.pointerMove(option('Labor'), {
+        pointerType: 'touch',
+        pointerId: 4,
+        clientX: 100,
+        clientY: 150,
+      });
+      act(() => {
+        vi.advanceTimersByTime(600);
+      });
+    } finally {
+      vi.useRealTimers();
+    }
+    expect(onContextMenu).not.toHaveBeenCalled();
   });
 
   it('jumps to the ends of a column', async () => {

@@ -31,24 +31,13 @@ export type FeatureContextMenuState = {
   trigger?: MenuTrigger;
 };
 
-type ContextMenuPosition = {
-  left: number;
-  top: number;
-} | null;
-
 export function useContextMenus() {
   const [tableContextMenu, setTableContextMenu] =
     React.useState<TableContextMenuState | null>(null);
-  const [tableContextMenuPosition, setTableContextMenuPosition] =
-    React.useState<ContextMenuPosition>(null);
   const [canvasContextMenu, setCanvasContextMenu] =
     React.useState<CanvasContextMenuState | null>(null);
-  const [canvasContextMenuPosition, setCanvasContextMenuPosition] =
-    React.useState<ContextMenuPosition>(null);
   const [featureContextMenu, setFeatureContextMenu] =
     React.useState<FeatureContextMenuState | null>(null);
-  const [featureContextMenuPosition, setFeatureContextMenuPosition] =
-    React.useState<ContextMenuPosition>(null);
 
   const tableContextMenuSetter = React.useRef<React.Dispatch<
     React.SetStateAction<TableContextMenuState | null>
@@ -106,59 +95,47 @@ export function useContextMenus() {
 
   const closeTableContextMenu = React.useCallback(() => {
     setTableContextMenu(null);
-    setTableContextMenuPosition(null);
     tableContextMenuSetter.current?.(null);
   }, []);
 
   const closeCanvasContextMenu = React.useCallback(() => {
     setCanvasContextMenu(null);
-    setCanvasContextMenuPosition(null);
     canvasContextMenuSetter.current?.(null);
   }, []);
 
   const closeFeatureContextMenu = React.useCallback(() => {
     setFeatureContextMenu(null);
-    setFeatureContextMenuPosition(null);
     featureContextMenuSetter.current?.(null);
   }, []);
 
   const openTableContextMenu = React.useCallback(
-    (menu: TableContextMenuState, position?: ContextMenuPosition) => {
+    (menu: TableContextMenuState) => {
       closeCanvasContextMenu();
       closeFeatureContextMenu();
       guardReleaseClick(menu.trigger);
       setTableContextMenu(menu);
-      if (position) {
-        setTableContextMenuPosition(position);
-      }
       tableContextMenuSetter.current?.(menu);
     },
     [closeCanvasContextMenu, closeFeatureContextMenu, guardReleaseClick],
   );
 
   const openCanvasContextMenu = React.useCallback(
-    (menu: CanvasContextMenuState, position?: ContextMenuPosition) => {
+    (menu: CanvasContextMenuState) => {
       closeTableContextMenu();
       closeFeatureContextMenu();
       guardReleaseClick(menu.trigger);
       setCanvasContextMenu(menu);
-      if (position) {
-        setCanvasContextMenuPosition(position);
-      }
       canvasContextMenuSetter.current?.(menu);
     },
     [closeFeatureContextMenu, closeTableContextMenu, guardReleaseClick],
   );
 
   const openFeatureContextMenu = React.useCallback(
-    (menu: FeatureContextMenuState, position?: ContextMenuPosition) => {
+    (menu: FeatureContextMenuState) => {
       closeTableContextMenu();
       closeCanvasContextMenu();
       guardReleaseClick(menu.trigger);
       setFeatureContextMenu(menu);
-      if (position) {
-        setFeatureContextMenuPosition(position);
-      }
       featureContextMenuSetter.current?.(menu);
     },
     [closeCanvasContextMenu, closeTableContextMenu, guardReleaseClick],
@@ -170,7 +147,7 @@ export function useContextMenus() {
       // acting, and the padding or a disabled entry leaves it open.
       if (
         event.target instanceof Element &&
-        event.target.closest('[data-context-action-menu]')
+        event.target.closest('[data-context-menu]')
       ) {
         return;
       }
@@ -210,16 +187,10 @@ export function useContextMenus() {
   return {
     tableContextMenu,
     setTableContextMenu,
-    tableContextMenuPosition,
-    setTableContextMenuPosition,
     canvasContextMenu,
     setCanvasContextMenu,
-    canvasContextMenuPosition,
-    setCanvasContextMenuPosition,
     featureContextMenu,
     setFeatureContextMenu,
-    featureContextMenuPosition,
-    setFeatureContextMenuPosition,
     registerTableContextMenuSetter,
     registerCanvasContextMenuSetter,
     registerFeatureContextMenuSetter,

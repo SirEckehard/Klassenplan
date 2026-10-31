@@ -378,7 +378,6 @@ export {
   pillTabActiveClass,
   pillTabInactiveClass,
   menuSurfaceClass,
-  touchMenuSurfaceClass,
   menuItemClass,
   menuItemDangerClass,
   floatingStatusClass,

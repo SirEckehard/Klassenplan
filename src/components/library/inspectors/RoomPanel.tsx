@@ -35,6 +35,7 @@ export default function RoomPanel({
   onDelete,
   deleteBlockedHint,
   renameRequest,
+  templateRequest = 0,
 }: {
   room: LibraryRoom;
   /** The names of the class's other rooms, which this one may not take. */
@@ -51,9 +52,20 @@ export default function RoomPanel({
   onDelete: () => void;
   deleteBlockedHint: string | null;
   renameRequest: number;
+  /** Counts up whenever the row naming the template is asked for (its menu). */
+  templateRequest?: number;
 }) {
   const { t } = useTranslation('generator');
-  const [savingTemplate, setSavingTemplate] = React.useState(false);
+  const [savingTemplate, setSavingTemplate] = React.useState(
+    templateRequest > 0,
+  );
+  // A new request opens the row, as a click on its action does.
+  const [seenTemplateRequest, setSeenTemplateRequest] =
+    React.useState(templateRequest);
+  if (templateRequest !== seenTemplateRequest) {
+    setSeenTemplateRequest(templateRequest);
+    if (templateRequest > 0) setSavingTemplate(true);
+  }
   const seats = room.scene.tables.reduce(
     (sum, table) => sum + table.seatCount,
     0,

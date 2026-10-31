@@ -271,8 +271,8 @@ test(
       });
       await expect(
         page
-          .locator('[data-context-action-menu]')
-          .getByRole('button', { name: 'Einfügen' }),
+          .locator('[data-context-menu]')
+          .getByRole('menuitem', { name: 'Einfügen' }),
       ).toBeVisible();
       await cdp.send('Input.dispatchTouchEvent', {
         type: 'touchEnd',
@@ -289,8 +289,8 @@ test(
       // Lifting the finger must not close the menu, or no entry could ever be
       // tapped.
       const paste = page
-        .locator('[data-context-action-menu]')
-        .getByRole('button', { name: 'Einfügen' });
+        .locator('[data-context-menu]')
+        .getByRole('menuitem', { name: 'Einfügen' });
       await expect(paste).toBeVisible();
       await paste.tap();
 
@@ -393,9 +393,9 @@ test(
         type: 'touchStart',
         touchPoints: [finger],
       });
-      const menu = page.locator('[data-context-action-menu]');
+      const menu = page.locator('[data-context-menu]');
       await expect(
-        menu.getByRole('button', { name: 'Kopieren' }),
+        menu.getByRole('menuitem', { name: 'Kopieren' }),
       ).toBeVisible();
       await cdp.send('Input.dispatchTouchEvent', {
         type: 'touchEnd',
@@ -405,7 +405,7 @@ test(
       // It outlives the finger, lies clear of where it lifted — the lift
       // would pick the entry under it — and took no table with it.
       await expect(
-        menu.getByRole('button', { name: 'Kopieren' }),
+        menu.getByRole('menuitem', { name: 'Kopieren' }),
       ).toBeVisible();
       const menuBox = await boxOf(menu);
       const clearOfFinger =

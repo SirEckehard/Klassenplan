@@ -3,6 +3,8 @@
 import React from 'react';
 import { CaretRightIcon } from '@phosphor-icons/react';
 import { quietFocusRing } from '@/utils';
+import type { ContextMenuRequest } from '@/components/ui/navigation/ContextMenu';
+import { isTouchContextMenu, useLongPress } from '@/hooks/ui/useLongPress';
 
 /** One entry of a column: a folder, which opens the next column, or a leaf. */
 export interface BrowserItem {
@@ -49,6 +51,17 @@ interface ColumnBrowserProps {
   onRename?: (columnIndex: number, key: string) => void;
   /** Delete or Backspace. */
   onDelete?: (columnIndex: number, key: string) => void;
+  /**
+   * A right-click, a long press, Shift+F10 or the menu key, after the
+   * selection: the entry's menu is asked for at `request`, its focus to go
+   * back to `row`.
+   */
+  onContextMenu?: (
+    columnIndex: number,
+    key: string,
+    request: ContextMenuRequest,
+    row: HTMLElement,
+  ) => void;
   /** Only the last column, the full width (a phone). */
   single?: boolean;
   className?: string;
@@ -77,6 +90,7 @@ export default function ColumnBrowser({
   onOpen,
   onRename,
   onDelete,
+  onContextMenu,
   single = false,
   className = '',
 }: ColumnBrowserProps) {
@@ -113,12 +127,47 @@ export default function ColumnBrowser({
     element?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
   };
 
+  // The menu is the entry's: it is selected first, as a click selects it.
+  const askForMenu = (
+    columnIndex: number,
+    key: string,
+    request: ContextMenuRequest,
+  ) => {
+    const row = optionRefs.current.get(key);
+    if (!onContextMenu || !row) return;
+    onSelect(columnIndex, key);
+    focusItem(key);
+    onContextMenu(columnIndex, key, request, row);
+  };
+  const columnOf = (key: string) =>
+    columns.findIndex((column) =>
+      itemsOf(column).some((item) => item.key === key),
+    );
+  const longPress = useLongPress<HTMLDivElement>((point, row) => {
+    const key = row.dataset.optionKey;
+    if (!key) return;
+    askForMenu(columnOf(key), key, { ...point, pointer: 'touch' });
+  });
+
   const handleKeyDown = (
     event: React.KeyboardEvent<HTMLDivElement>,
     columnIndex: number,
     key: string,
   ) => {
     if (event.altKey || event.ctrlKey || event.metaKey) return;
+    if (
+      onContextMenu &&
+      (event.key === 'ContextMenu' || (event.key === 'F10' && event.shiftKey))
+    ) {
+      event.preventDefault();
+      const box = event.currentTarget.getBoundingClientRect();
+      askForMenu(columnIndex, key, {
+        x: box.left + 16,
+        y: box.bottom,
+        pointer: 'keyboard',
+      });
+      return;
+    }
     const column = columns[columnIndex];
     const items = itemsOf(column);
     const position = items.findIndex((item) => item.key === key);
@@ -262,10 +311,23 @@ export default function ColumnBrowser({
                             onItemClick?.(columnIndex, item.key);
                           }}
                           onDoubleClick={() => onOpen?.(columnIndex, item.key)}
+                          data-option-key={item.key}
+                          onContextMenu={(event) => {
+                            if (!onContextMenu) return;
+                            event.preventDefault();
+                            // A finger's is the long press's to answer.
+                            if (isTouchContextMenu(event)) return;
+                            askForMenu(columnIndex, item.key, {
+                              x: event.clientX,
+                              y: event.clientY,
+                              pointer: 'mouse',
+                            });
+                          }}
+                          {...(onContextMenu ? longPress : {})}
                           onKeyDown={(event) =>
                             handleKeyDown(event, columnIndex, item.key)
                           }
-                          className={`relative mx-1 flex min-h-9 cursor-pointer items-center gap-2.5 rounded-md px-3 py-1.5 text-sm outline-none select-none hover:bg-(--surface-sunken) focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-(--focus-ring-primary) data-quiet-focus:focus-visible:ring-0 pointer-coarse:min-h-11 ${
+                          className={`relative mx-1 flex min-h-9 cursor-pointer items-center gap-2.5 rounded-md px-3 py-1.5 text-sm outline-none select-none [-webkit-touch-callout:none] hover:bg-(--surface-sunken) focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-(--focus-ring-primary) data-quiet-focus:focus-visible:ring-0 pointer-coarse:min-h-11 ${
                             selected ? 'bg-(--surface-sunken)' : ''
                           }`}
                         >

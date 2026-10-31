@@ -710,6 +710,7 @@
       "layout_pasteTables": "Paste what was copied",
       "layout_rotateLeftRight": "Rotate the selection (Q = counter-clockwise, E = clockwise)",
       "layout_rotate90": "Rotate the selection in 90° steps",
+      "layout_menu": "Open the menu of the selection",
       "layout_undo": "Undo last change",
       "plan_toClassroom": "Return to Room",
       "plan_shuffle": "Mix seating plan again",
@@ -734,6 +735,7 @@
       "library_open": "Open the choice",
       "library_rename": "Rename the choice",
       "library_delete": "Delete the choice",
+      "library_menu": "Open the menu of the entry",
       "library_back": "Back to where you came from"
     },
     "keys": {
@@ -755,6 +757,7 @@
       "layout_pasteTables": "Ctrl/⌘+V",
       "layout_rotateLeftRight": "Q / E",
       "layout_rotate90": "Shift+Q / Shift+E",
+      "layout_menu": "Shift+F10",
       "layout_undo": "Ctrl/⌘+Z",
       "plan_toClassroom": "Alt/⌥+←",
       "plan_shuffle": "Ctrl/⌘+Enter",
@@ -779,6 +782,7 @@
       "library_open": "Enter",
       "library_rename": "F2",
       "library_delete": "Del / Backspace",
+      "library_menu": "Shift+F10",
       "library_back": "Alt/⌥+←"
     }
   },
@@ -1246,6 +1250,20 @@
       "section": "Template",
       "hint": "“Open as a room” at the bottom right adds this template as a new room of the open class.",
       "delete": "Delete template"
+    }
+  },
+  "contextMenu": {
+    "label": "Actions for “{{name}}”",
+    "roomLabel": "Actions in the room",
+    "rename": "Rename",
+    "saveAsTemplate": "Save as template …",
+    "keys": {
+      "open": "Enter",
+      "rename": "F2",
+      "delete": "Del",
+      "copy": "Ctrl/⌘+C",
+      "cut": "Ctrl/⌘+X",
+      "paste": "Ctrl/⌘+V"
     }
   }
 }

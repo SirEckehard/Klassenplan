@@ -4,9 +4,14 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
 import {
+  ArrowSquareOutIcon,
   ClockCounterClockwiseIcon,
+  CopySimpleIcon,
+  FloppyDiskIcon,
   FolderOpenIcon,
+  PencilSimpleIcon,
   SquaresFourIcon,
+  TrashIcon,
   UserIcon,
 } from '@phosphor-icons/react';
 import AppShell, { ShellProviders } from '@/components/shell/AppShell';
@@ -19,6 +24,10 @@ import SeatingPlanHeader from '@/components/SeatingPlanGenerator/SeatingPlanHead
 import SmartSidebar from '@/components/ui/panels/SmartSidebar';
 import Seo from '@/components/Seo';
 import ColumnBrowser from '@/components/library/ColumnBrowser';
+import ContextMenu, {
+  type ContextMenuItem,
+  type ContextMenuRequest,
+} from '@/components/ui/navigation/ContextMenu';
 import LibraryStatusBar from '@/components/library/LibraryStatusBar';
 import LibraryToolPanel from '@/components/library/LibraryToolPanel';
 import { TOUR_ANCHORS } from '@/components/onboarding/tours';
@@ -180,25 +189,36 @@ function PlanLibraryPage() {
   );
 
   // The state and actions after an await — a class opened meanwhile.
-  const latestRef = React.useRef({ state, actions });
+  const latestRef = React.useRef({ state, actions, path: [] as string[] });
+  // The path too: an entry's menu chose it in the same event, so a removal
+  // the menu started leaves the path as it stands after that choice.
   React.useLayoutEffect(() => {
-    latestRef.current = { state, actions };
+    latestRef.current = { state, actions, path };
   });
 
-  // The entry whose name is asked for (F2, a class or room just added), so
-  // only its panel opens the name — not every panel shown after it. Choosing
-  // another entry lets the request go.
+  // The entry whose name is asked for (F2, a class or room just added), or
+  // whose row for keeping it as a template (its menu), so only its panel
+  // opens it — not every panel shown after it. Choosing another entry lets
+  // the request go.
   const [renameRequest, setRenameRequest] = React.useState<{
     key: string;
+    kind: 'rename' | 'template';
     count: number;
   } | null>(null);
-  const requestRenameOf = (key: string) =>
+  const requestPanelPart = (key: string, kind: 'rename' | 'template') =>
     setRenameRequest((previous) => ({
       key,
+      kind,
       count: (previous?.count ?? 0) + 1,
     }));
-  const renameRequestCount =
-    renameRequest && renameRequest.key === currentKey ? renameRequest.count : 0;
+  const requestRenameOf = (key: string) => requestPanelPart(key, 'rename');
+  const requestCountFor = (kind: 'rename' | 'template') =>
+    renameRequest &&
+    renameRequest.key === currentKey &&
+    renameRequest.kind === kind
+      ? renameRequest.count
+      : 0;
+  const renameRequestCount = requestCountFor('rename');
 
   const choose = (columnIndex: number, key: string) => {
     setRenameRequest(null);
@@ -411,7 +431,7 @@ function PlanLibraryPage() {
         });
         if (outcome.ok) {
           showToast('success', t('storage.planDeleted', { name: plan.name }));
-          setChosenPath(path.slice(0, -1));
+          setChosenPath(latestRef.current.path.slice(0, -1));
         }
         return;
       }
@@ -436,7 +456,7 @@ function PlanLibraryPage() {
         });
         if (outcome.ok) {
           showToast('success', t('storage.mixDeleted'));
-          setChosenPath(path.slice(0, -1));
+          setChosenPath(latestRef.current.path.slice(0, -1));
         }
         return;
       }
@@ -469,7 +489,7 @@ function PlanLibraryPage() {
         });
         if (outcome.ok) {
           showToast('success', t('library.room.deleted', { name: room.name }));
-          setChosenPath(path.slice(0, -1));
+          setChosenPath(latestRef.current.path.slice(0, -1));
         }
         return;
       }
@@ -492,7 +512,7 @@ function PlanLibraryPage() {
         }
         showToast('success', TOAST_MESSAGES.DELETE_TEMPLATE_SUCCESS);
         setTemplatesRevision((count) => count + 1);
-        setChosenPath(path.slice(0, -1));
+        setChosenPath(latestRef.current.path.slice(0, -1));
         return;
       }
       default:
@@ -507,6 +527,96 @@ function PlanLibraryPage() {
     }
     if (classLibrary.rooms.length <= 1) return t('library.room.deleteLastHint');
     return null;
+  };
+
+  // The menu of an entry (a right-click, a long press, Shift+F10): what its
+  // inspector, the status bar's button and the keys do, in one place.
+  // Its rows are taken when it opens; it closes before anything changes them.
+  const [contextMenu, setContextMenu] = React.useState<{
+    label: string;
+    items: ContextMenuItem[];
+    request: ContextMenuRequest;
+  } | null>(null);
+  const contextMenuRowRef = React.useRef<HTMLElement | null>(null);
+  const closeContextMenu = () => setContextMenu(null);
+
+  const menuItemsFor = (node: LibraryNode | undefined): ContextMenuItem[] => {
+    if (!node) return [];
+    const open = (label = t('library.open'), hint?: string) => ({
+      label,
+      icon: ArrowSquareOutIcon,
+      shortcut: t('contextMenu.keys.open'),
+      disabled: hint !== undefined,
+      hint,
+      onSelect: () => void openNode(node),
+    });
+    const rename = {
+      label: t('contextMenu.rename'),
+      icon: PencilSimpleIcon,
+      shortcut: t('contextMenu.keys.rename'),
+      onSelect: () => requestRename(node),
+    };
+    const remove = (hint?: string | null) => ({
+      label: t('common.delete'),
+      icon: TrashIcon,
+      shortcut: t('contextMenu.keys.delete'),
+      danger: true,
+      disabled: !!hint,
+      hint: hint ?? undefined,
+      onSelect: () => void requestRemoval(node),
+    });
+    switch (node.kind) {
+      case 'class':
+        return [open(), rename, remove()];
+      case 'room':
+        return [
+          open(),
+          rename,
+          {
+            label: t('contextMenu.saveAsTemplate'),
+            icon: FloppyDiskIcon,
+            onSelect: () => {
+              showInspector();
+              requestPanelPart(libraryKey(node), 'template');
+            },
+          },
+          remove(roomRemovalHint(node)),
+        ];
+      case 'plan':
+        return [
+          open(),
+          rename,
+          {
+            label: t('sceneInspector.duplicate'),
+            icon: CopySimpleIcon,
+            onSelect: () =>
+              void edit(node.classId, {
+                kind: 'duplicatePlan',
+                planId: node.planId,
+              }),
+          },
+          remove(),
+        ];
+      case 'mix':
+        return [
+          open(
+            undefined,
+            mixFits(node) ? undefined : t('toast:mix.doesNotFit'),
+          ),
+          remove(),
+        ];
+      case 'template':
+        return [
+          open(
+            t('library.openAsRoom'),
+            state.activeClass.id ? undefined : t('library.openHintNoClass'),
+          ),
+          rename,
+          remove(),
+        ];
+      default:
+        return [];
+    }
   };
 
   // As a room is added: under a free name, without opening it, chosen in
@@ -661,6 +771,7 @@ function PlanLibraryPage() {
             onDelete={() => void requestRemoval(current)}
             deleteBlockedHint={roomRemovalHint(current)}
             renameRequest={renameRequestCount}
+            templateRequest={requestCountFor('template')}
           />
         );
       }
@@ -888,7 +999,28 @@ function PlanLibraryPage() {
               onDelete={(_columnIndex, key) =>
                 void requestRemoval(built.nodes.get(key))
               }
+              onContextMenu={(_columnIndex, key, request, row) => {
+                const items = menuItemsFor(built.nodes.get(key));
+                if (items.length === 0) return;
+                contextMenuRowRef.current = row;
+                setContextMenu({
+                  label: t('contextMenu.label', {
+                    name: built.labels.get(key) ?? '',
+                  }),
+                  items,
+                  request,
+                });
+              }}
             />
+            {contextMenu && (
+              <ContextMenu
+                request={contextMenu.request}
+                items={contextMenu.items}
+                label={contextMenu.label}
+                onClose={closeContextMenu}
+                returnFocusRef={contextMenuRowRef}
+              />
+            )}
           </div>
         </div>
 

@@ -99,8 +99,6 @@ export const pillTabInactiveClass = 'pill-tab-inactive';
 
 export const menuSurfaceClass = 'menu-surface';
 
-export const touchMenuSurfaceClass = 'touch-menu-surface';
-
 export const menuItemClass = 'menu-item';
 
 export const menuItemDangerClass = 'menu-item-danger';

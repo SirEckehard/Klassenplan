@@ -109,6 +109,10 @@ export const shortcutMap: Record<ShortcutContext, Shortcut[]> = {
       descriptionKey: 'shortcuts.descriptions.layout_rotate90',
     },
     {
+      keysKey: 'shortcuts.keys.layout_menu',
+      descriptionKey: 'shortcuts.descriptions.layout_menu',
+    },
+    {
       keysKey: 'shortcuts.keys.layout_undo',
       descriptionKey: 'shortcuts.descriptions.layout_undo',
     },
@@ -207,6 +211,10 @@ export const shortcutMap: Record<ShortcutContext, Shortcut[]> = {
     {
       keysKey: 'shortcuts.keys.library_delete',
       descriptionKey: 'shortcuts.descriptions.library_delete',
+    },
+    {
+      keysKey: 'shortcuts.keys.library_menu',
+      descriptionKey: 'shortcuts.descriptions.library_menu',
     },
     {
       keysKey: 'shortcuts.keys.library_back',

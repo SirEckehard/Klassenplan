@@ -8,16 +8,7 @@ import {
   type FeatureContextMenuState,
 } from '@/hooks/useContextMenus';
 
-type ContextMenuPosition = {
-  left: number;
-  top: number;
-};
-
 interface UseCanvasContextMenusOptions {
-  /**
-   * Container ref for position calculations
-   */
-  containerRef: React.RefObject<HTMLElement | null>;
   /**
    * Table menu ref for click-outside detection
    */
@@ -70,31 +61,23 @@ interface UseCanvasContextMenusReturn {
   closeCanvasContextMenu: () => void;
   closeFeatureContextMenu: () => void;
 
-  // Calculated positions
-  tableContextMenuPosition: ContextMenuPosition | null;
-  canvasContextMenuPosition: ContextMenuPosition | null;
-  featureContextMenuPosition: ContextMenuPosition | null;
-
   // Handlers
   handleCloseTableMenu: () => void;
   handleCloseCanvasMenu: () => void;
   handleCloseFeatureMenu: () => void;
   handleEscapeKey: () => void;
-  openFeatureContextMenu: (
-    state: FeatureContextMenuState,
-    position?: ContextMenuPosition,
-  ) => void;
+  openFeatureContextMenu: (state: FeatureContextMenuState) => void;
 }
 
 /**
- * Manages context menu state and positioning for the classroom canvas.
- * Handles click-outside detection, position calculation, and keyboard shortcuts.
+ * Manages context menu state for the classroom canvas: click-outside
+ * detection and the Escape key. The shared menu places itself
+ * (`ContextMenu`).
  */
 export function useCanvasContextMenus(
   options: UseCanvasContextMenusOptions,
 ): UseCanvasContextMenusReturn {
   const {
-    containerRef,
     tableMenuRef,
     canvasMenuRef,
     featureMenuRef,
@@ -108,60 +91,15 @@ export function useCanvasContextMenus(
   const {
     tableContextMenu,
     setTableContextMenu,
-    tableContextMenuPosition,
-    setTableContextMenuPosition,
     canvasContextMenu,
     setCanvasContextMenu,
-    canvasContextMenuPosition,
-    setCanvasContextMenuPosition,
     featureContextMenu,
     setFeatureContextMenu,
-    featureContextMenuPosition,
-    setFeatureContextMenuPosition,
     closeTableContextMenu,
     closeCanvasContextMenu,
     closeFeatureContextMenu,
     openFeatureContextMenu,
   } = useContextMenus();
-
-  // Calculate table context menu position
-  useEffect(() => {
-    if (tableContextMenu && containerRef.current) {
-      const rect = containerRef.current.getBoundingClientRect();
-      setTableContextMenuPosition({
-        left: tableContextMenu.clientX - rect.left,
-        top: tableContextMenu.clientY - rect.top,
-      });
-    } else {
-      setTableContextMenuPosition(null);
-    }
-  }, [tableContextMenu, containerRef, setTableContextMenuPosition]);
-
-  // Calculate canvas context menu position
-  useEffect(() => {
-    if (canvasContextMenu && containerRef.current) {
-      const rect = containerRef.current.getBoundingClientRect();
-      setCanvasContextMenuPosition({
-        left: canvasContextMenu.clientX - rect.left,
-        top: canvasContextMenu.clientY - rect.top,
-      });
-    } else {
-      setCanvasContextMenuPosition(null);
-    }
-  }, [canvasContextMenu, containerRef, setCanvasContextMenuPosition]);
-
-  // Calculate feature context menu position
-  useEffect(() => {
-    if (featureContextMenu && containerRef.current) {
-      const rect = containerRef.current.getBoundingClientRect();
-      setFeatureContextMenuPosition({
-        left: featureContextMenu.clientX - rect.left,
-        top: featureContextMenu.clientY - rect.top,
-      });
-    } else {
-      setFeatureContextMenuPosition(null);
-    }
-  }, [featureContextMenu, containerRef, setFeatureContextMenuPosition]);
 
   // Close table menu handler
   const handleCloseTableMenu = useCallback(() => {
@@ -274,9 +212,6 @@ export function useCanvasContextMenus(
     closeTableContextMenu,
     closeCanvasContextMenu,
     closeFeatureContextMenu,
-    tableContextMenuPosition,
-    canvasContextMenuPosition,
-    featureContextMenuPosition,
     handleCloseTableMenu,
     handleCloseCanvasMenu,
     handleCloseFeatureMenu,

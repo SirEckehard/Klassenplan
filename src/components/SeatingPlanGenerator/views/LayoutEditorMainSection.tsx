@@ -2,9 +2,10 @@
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import ContextActionMenu, {
-  type ContextAction,
-} from '@/components/SeatingPlanGenerator/ContextActionMenu';
+import ContextMenu, {
+  type ContextMenuItem,
+  type ContextMenuRequest,
+} from '@/components/ui/navigation/ContextMenu';
 import ClassroomCanvas from '@/components/SeatingPlanGenerator/canvas/ClassroomCanvas';
 import CanvasToolbar from '@/components/SeatingPlanGenerator/canvas/CanvasToolbar';
 import StatusBarPortal from '@/components/shell/StatusBarPortal';
@@ -15,6 +16,8 @@ import type {
   TableContextMenuState,
   CanvasContextMenuState,
   FeatureContextMenuState,
+  PointerKind,
+  MenuTrigger,
 } from '@/hooks/useContextMenus';
 import { canvasFrameClass, canvasStageClass, canvasFitClass } from '@/utils';
 import {
@@ -29,11 +32,31 @@ import type { PlanTurn } from '@/utils/canvas/turn';
 
 export type LayoutEditorContextMenuProps<T> = {
   state: T | null;
-  position: { left: number; top: number } | null;
   menuRef: React.RefObject<HTMLDivElement | null>;
-  actions: ContextAction[];
+  actions: ContextMenuItem[];
   onCloseMenu: () => void;
 };
+
+type MenuOrigin = {
+  clientX: number;
+  clientY: number;
+  pointerType?: PointerKind;
+  trigger?: MenuTrigger;
+};
+
+/** Where the canvas asked for a menu, as the shared menu takes it. */
+const menuRequestOf = (state: MenuOrigin): ContextMenuRequest => ({
+  x: state.clientX,
+  y: state.clientY,
+  pointer:
+    state.trigger === 'longpress' ||
+    state.pointerType === 'touch' ||
+    state.pointerType === 'pen'
+      ? 'touch'
+      : state.trigger === 'keyboard' || state.pointerType === 'keyboard'
+        ? 'keyboard'
+        : 'mouse',
+});
 
 type LayoutEditorMainSectionProps = {
   isPhone: boolean;
@@ -128,41 +151,20 @@ const LayoutEditorMainSection = React.memo(function LayoutEditorMainSection({
             </p>
           )}
 
-        {tableMenu.state && tableMenu.position && (
-          <div ref={tableMenu.menuRef}>
-            <ContextActionMenu
-              x={tableMenu.position.left}
-              y={tableMenu.position.top}
-              actions={tableMenu.actions}
-              onCloseMenu={tableMenu.onCloseMenu}
-              pointerType={tableMenu.state.pointerType}
-              trigger={tableMenu.state.trigger}
+        {/* One menu at a time: a table's, a room element's or the empty
+            floor's — the shared shape, portalled over the page. */}
+        {[tableMenu, canvasMenu, featureMenu].map((menu, index) =>
+          menu.state && menu.actions.length > 0 ? (
+            <ContextMenu
+              key={index}
+              request={menuRequestOf(menu.state)}
+              items={menu.actions}
+              label={t('contextMenu.roomLabel')}
+              onClose={menu.onCloseMenu}
+              returnFocusRef={containerRef}
+              menuRef={menu.menuRef}
             />
-          </div>
-        )}
-        {canvasMenu.state && canvasMenu.position && (
-          <div ref={canvasMenu.menuRef}>
-            <ContextActionMenu
-              x={canvasMenu.position.left}
-              y={canvasMenu.position.top}
-              actions={canvasMenu.actions}
-              onCloseMenu={canvasMenu.onCloseMenu}
-              pointerType={canvasMenu.state.pointerType}
-              trigger={canvasMenu.state.trigger}
-            />
-          </div>
-        )}
-        {featureMenu.state && featureMenu.position && (
-          <div ref={featureMenu.menuRef}>
-            <ContextActionMenu
-              x={featureMenu.position.left}
-              y={featureMenu.position.top}
-              actions={featureMenu.actions}
-              onCloseMenu={featureMenu.onCloseMenu}
-              pointerType={featureMenu.state.pointerType}
-              trigger={featureMenu.state.trigger}
-            />
-          </div>
+          ) : null,
         )}
       </div>
 

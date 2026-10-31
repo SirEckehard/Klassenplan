@@ -7,7 +7,13 @@
  */
 import '@testing-library/jest-dom/vitest';
 import type React from 'react';
-import { render, screen, waitFor, within } from '@testing-library/react';
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -302,6 +308,58 @@ describe('PlanLibrary', () => {
       }),
     );
     expect(mocks.confirmDialog).toHaveBeenCalled();
+  });
+
+  it('deletes and duplicates a plan from its menu, chosen by the right-click', async () => {
+    const user = userEvent.setup();
+    renderPage();
+
+    fireEvent.contextMenu(
+      await screen.findByRole('option', { name: /^September/ }),
+    );
+    expect(screen.getByRole('option', { name: /^September/ })).toHaveAttribute(
+      'aria-selected',
+      'true',
+    );
+    await user.click(
+      screen.getByRole('menuitem', { name: /^(Duplizieren|Duplicate)$/ }),
+    );
+    expect(mocks.edit).toHaveBeenCalledWith('7b', {
+      kind: 'duplicatePlan',
+      planId: 'sept',
+    });
+    expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+
+    fireEvent.contextMenu(screen.getByRole('option', { name: /^September/ }));
+    await user.click(
+      screen.getByRole('menuitem', { name: /^(Löschen|Delete)$/ }),
+    );
+    await waitFor(() =>
+      expect(mocks.edit).toHaveBeenCalledWith('7b', {
+        kind: 'deletePlan',
+        planId: 'sept',
+      }),
+    );
+  });
+
+  it('greys out removing the open room in its menu and says why', async () => {
+    renderPage();
+
+    fireEvent.contextMenu(
+      await screen.findByRole('option', { name: /^Klassenraum/ }),
+    );
+    const remove = screen.getByRole('menuitem', { name: /^(Löschen|Delete)$/ });
+    expect(remove).toHaveAttribute('aria-disabled', 'true');
+    expect(remove).toHaveAccessibleDescription(/offenen Raum|open room/);
+  });
+
+  it('opens no menu on a folder that has nothing to act on', async () => {
+    renderPage();
+
+    fireEvent.contextMenu(
+      await screen.findByRole('option', { name: /^Letzte Mischungen/ }),
+    );
+    expect(screen.queryByRole('menu')).not.toBeInTheDocument();
   });
 
   it('keeps the open room from being deleted and says why', async () => {

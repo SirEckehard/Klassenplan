@@ -129,7 +129,7 @@ describe('useContextMenus', () => {
         });
       });
       const menu = document.createElement('div');
-      menu.setAttribute('data-context-action-menu', '');
+      menu.setAttribute('data-context-menu', '');
       document.body.append(menu);
 
       act(() => {

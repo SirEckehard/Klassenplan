@@ -4,8 +4,11 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   AlignCenterVerticalSimpleIcon,
+  ArrowArcLeftIcon,
+  ArrowArcRightIcon,
   ClipboardTextIcon,
   CopyIcon,
+  CopySimpleIcon,
   GridNineIcon,
   IntersectIcon,
   MagnetIcon,
@@ -51,9 +54,15 @@ import {
   convertClientPointToScene,
   convertScenePointToClient,
   createClientToSceneConverter,
+  collectRotationTargets,
+  DEFAULT_ROTATION_SNAP_STEP,
+  hasRotationTargets,
+  rotateTargets,
+  rotationsChangeTargets,
   showToast,
   type AlignmentGuide,
 } from '@/utils';
+import type { ContextMenuItem } from '@/components/ui/navigation/ContextMenu';
 import { usePortraitTurn } from '@/hooks/ui/usePortraitTurn';
 import { type FeatureVisibilityFlags } from '@/utils/ui';
 import {
@@ -285,16 +294,12 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
     closeTableContextMenu,
     closeCanvasContextMenu,
     closeFeatureContextMenu,
-    tableContextMenuPosition,
-    canvasContextMenuPosition,
-    featureContextMenuPosition,
     handleCloseTableMenu,
     handleCloseCanvasMenu,
     handleCloseFeatureMenu,
     handleEscapeKey,
     openFeatureContextMenu,
   } = useCanvasContextMenus({
-    containerRef,
     tableMenuRef,
     canvasMenuRef,
     featureMenuRef,
@@ -496,9 +501,58 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
     return () => onFeatureContextMenuSetterChange?.(null);
   }, [onFeatureContextMenuSetterChange, setFeatureContextMenu]);
 
+  // Shift+F10 and the menu key open the selection's menu, as a right-click
+  // on it does: beside the first selected table or room element. Only while
+  // the focus is on the canvas or nowhere — a field keeps its own keys.
+  const openSelectionMenu = React.useCallback(() => {
+    if (isAnyDialogOpen()) return;
+    const container = containerRef.current;
+    const active = document.activeElement;
+    if (
+      !container ||
+      (active && active !== document.body && !container.contains(active))
+    ) {
+      return;
+    }
+    const tableIndex = selectedTableIds[0];
+    const featureId = selectedFeatureIds[0];
+    const element =
+      tableIndex !== undefined
+        ? container.querySelector(`[data-table-index="${tableIndex}"]`)
+        : featureId !== undefined
+          ? container.querySelector(`[data-feature-id="${featureId}"]`)
+          : null;
+    if (!element) return;
+    const box = element.getBoundingClientRect();
+    const origin = {
+      clientX: box.left + box.width / 2,
+      clientY: box.top + box.height / 2,
+      pointerType: 'keyboard' as const,
+      trigger: 'keyboard' as const,
+    };
+    closeCanvasContextMenu();
+    if (tableIndex !== undefined) {
+      closeFeatureContextMenu();
+      setTableContextMenu({ tableIndex, ...origin });
+    } else if (featureId !== undefined) {
+      closeTableContextMenu();
+      openFeatureContextMenu({ featureId, ...origin });
+    }
+  }, [
+    closeCanvasContextMenu,
+    closeFeatureContextMenu,
+    closeTableContextMenu,
+    openFeatureContextMenu,
+    selectedFeatureIds,
+    selectedTableIds,
+    setTableContextMenu,
+  ]);
+
   // Keyboard shortcuts
   useKeyboardShortcuts({
     escape: handleEscape,
+    'shift+f10': openSelectionMenu,
+    contextmenu: openSelectionMenu,
     'ctrl+z': undo,
     'cmd+z': undo,
     'ctrl+y': redo,
@@ -795,25 +849,98 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
     [closeTableContextMenu, closeFeatureContextMenu],
   );
 
-  const selectionMenuActions = React.useMemo(
+  // The menu holds what the inspector's "Bearbeiten" does, with the
+  // canvas's keys beside it: turning (Q/E) where the selection turns, then
+  // duplicating, copying, cutting, and removing last.
+  const rotateSelectionBy = React.useCallback(
+    (delta: number) => {
+      const targets = collectRotationTargets(
+        sceneTables,
+        sceneFeatures,
+        selectedTableIds,
+        selectedFeatureIds,
+      );
+      const rotations = rotateTargets(targets, (rotation) => rotation + delta);
+      if (!rotationsChangeTargets(targets, rotations)) return;
+      snapshot();
+      commitRotations(rotations);
+    },
+    [
+      commitRotations,
+      sceneFeatures,
+      sceneTables,
+      selectedFeatureIds,
+      selectedTableIds,
+      snapshot,
+    ],
+  );
+  const canRotateSelection = hasRotationTargets(
+    collectRotationTargets(
+      sceneTables,
+      sceneFeatures,
+      selectedTableIds,
+      selectedFeatureIds,
+    ),
+  );
+
+  const selectionMenuActions = React.useMemo<ContextMenuItem[]>(
     () => [
+      ...(canRotateSelection
+        ? [
+            {
+              label: t('sceneInspector.rotateLeft'),
+              icon: ArrowArcLeftIcon,
+              shortcut: 'Q',
+              onSelect: withMenuClose(() =>
+                rotateSelectionBy(-DEFAULT_ROTATION_SNAP_STEP),
+              ),
+            },
+            {
+              label: t('sceneInspector.rotateRight'),
+              icon: ArrowArcRightIcon,
+              shortcut: 'E',
+              onSelect: withMenuClose(() =>
+                rotateSelectionBy(DEFAULT_ROTATION_SNAP_STEP),
+              ),
+            },
+          ]
+        : []),
+      {
+        label: t('sceneInspector.duplicate'),
+        icon: CopySimpleIcon,
+        separatorBefore: canRotateSelection,
+        onSelect: withMenuClose(duplicateSelection),
+      },
       {
         label: t('common.copy'),
         icon: CopyIcon,
+        shortcut: t('contextMenu.keys.copy'),
         onSelect: withMenuClose(copySelection),
       },
       {
         label: t('common.cut'),
         icon: ScissorsIcon,
+        shortcut: t('contextMenu.keys.cut'),
         onSelect: withMenuClose(cutSelection),
       },
       {
         label: t('common.delete'),
         icon: TrashIcon,
+        shortcut: t('contextMenu.keys.delete'),
+        danger: true,
         onSelect: withMenuClose(deleteSelection),
       },
     ],
-    [copySelection, cutSelection, deleteSelection, withMenuClose, t],
+    [
+      canRotateSelection,
+      copySelection,
+      cutSelection,
+      deleteSelection,
+      duplicateSelection,
+      rotateSelectionBy,
+      withMenuClose,
+      t,
+    ],
   );
   const tableMenuActions = selectionMenuActions;
   const featureMenuActions = React.useMemo(() => {
@@ -829,7 +956,7 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
     return selectionMenuActions;
   }, [featureContextMenu, sceneFeatures, selectionMenuActions]);
 
-  const canvasMenuActions = React.useMemo(() => {
+  const canvasMenuActions = React.useMemo<ContextMenuItem[]>(() => {
     if (!canvasContextMenu || !canPaste) return [];
 
     const menuState = canvasContextMenu;
@@ -837,6 +964,7 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
       {
         label: t('canvas.paste'),
         icon: ClipboardTextIcon,
+        shortcut: t('contextMenu.keys.paste'),
         onSelect: () => handleCanvasMenuPaste(menuState),
       },
     ];
@@ -872,7 +1000,6 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
 
   const tableMenuConfig = {
     state: tableContextMenu,
-    position: tableContextMenuPosition,
     menuRef: tableMenuRef,
     actions: tableMenuActions,
     onCloseMenu: handleCloseTableMenu,
@@ -880,7 +1007,6 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
 
   const canvasMenuConfig = {
     state: canvasContextMenu,
-    position: canvasContextMenuPosition,
     menuRef: canvasMenuRef,
     actions: canvasMenuActions,
     onCloseMenu: handleCloseCanvasMenu,
@@ -888,7 +1014,6 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
 
   const featureMenuConfig = {
     state: featureContextMenu,
-    position: featureContextMenuPosition,
     menuRef: featureMenuRef,
     actions: featureMenuActions,
     onCloseMenu: handleCloseFeatureMenu,

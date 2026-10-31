@@ -710,6 +710,7 @@
       "layout_pasteTables": "Kopiertes einfügen",
       "layout_rotateLeftRight": "Auswahl drehen (Q = gegen den Uhrzeigersinn, E = im Uhrzeigersinn)",
       "layout_rotate90": "Auswahl in 90°-Schritten drehen",
+      "layout_menu": "Menü der Auswahl öffnen",
       "layout_undo": "Letzte Änderung rückgängig machen",
       "plan_toClassroom": "Zum Raum zurückkehren",
       "plan_shuffle": "Sitzplan neu mischen",
@@ -734,6 +735,7 @@
       "library_open": "Auswahl öffnen",
       "library_rename": "Auswahl umbenennen",
       "library_delete": "Auswahl löschen",
+      "library_menu": "Menü des Eintrags öffnen",
       "library_back": "Zurück, wo du herkamst"
     },
     "keys": {
@@ -755,6 +757,7 @@
       "layout_pasteTables": "Strg/⌘+V",
       "layout_rotateLeftRight": "Q / E",
       "layout_rotate90": "Umschalt+Q / Umschalt+E",
+      "layout_menu": "Umschalt+F10",
       "layout_undo": "Strg/⌘+Z",
       "plan_toClassroom": "Alt/⌥+←",
       "plan_shuffle": "Strg/⌘+Eingabetaste",
@@ -779,6 +782,7 @@
       "library_open": "Eingabetaste",
       "library_rename": "F2",
       "library_delete": "Entf / Rücktaste",
+      "library_menu": "Umschalt+F10",
       "library_back": "Alt/⌥+←"
     }
   },
@@ -1246,6 +1250,20 @@
       "section": "Vorlage",
       "hint": "„Als Raum öffnen“ unten rechts legt diese Vorlage als neuen Raum der offenen Klasse an.",
       "delete": "Vorlage löschen"
+    }
+  },
+  "contextMenu": {
+    "label": "Aktionen für „{{name}}“",
+    "roomLabel": "Aktionen im Raum",
+    "rename": "Umbenennen",
+    "saveAsTemplate": "Als Vorlage speichern …",
+    "keys": {
+      "open": "Eingabetaste",
+      "rename": "F2",
+      "delete": "Entf",
+      "copy": "Strg/⌘+C",
+      "cut": "Strg/⌘+X",
+      "paste": "Strg/⌘+V"
     }
   }
 }

@@ -163,6 +163,12 @@ This flow does not use a state machine.
    - Otherwise (clipboard content available) → canvas context menu.
 3. Selection, menu states, and coordinates are synchronized accordingly.
 4. This path doesn't use long-press refs but sets identical menu states.
+5. Shift+F10 and the menu key open the same menu for the selection
+   (`openSelectionMenu`, `trigger: 'keyboard'`), beside the first selected
+   table or room element, while the focus is on the canvas or nowhere.
+6. Every menu state is drawn by the shared `ContextMenu`
+   (`components/ui/navigation/ContextMenu.tsx`), placed in the window from the
+   state's client coordinates — for a finger by `placeTouchMenu`.
 
 ### 9. Cancellation paths
 

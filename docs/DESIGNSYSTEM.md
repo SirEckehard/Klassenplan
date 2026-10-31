@@ -48,7 +48,6 @@ The look is called **Papier & Werkzeug**: the interface is a passepartout in war
 | `pillTabActiveClass`     | `pill-tab-active`     | Active pill states                                      |
 | `pillTabInactiveClass`   | `pill-tab-inactive`   | Inactive pill states                                    |
 | `menuSurfaceClass`       | `menu-surface`        | Desktop menus                                           |
-| `touchMenuSurfaceClass`  | `touch-menu-surface`  | Touch-optimized menus                                   |
 | `floatingStatusClass`    | `floating-status`     | Floating badges                                         |
 | `canvasFrameClass`       | `canvas-frame`        | Canvas frame                                            |
 | `toastSurfaceClass`      | `toast-surface`       | Toast, stacked top right under the header (§ 6f)        |
@@ -269,8 +268,16 @@ photo collision is `--canvas-alert`. The drawing has no blue of its own.
 On a touch screen the handles and the seat's lock keep their painted size but
 take a larger transparent hit area (`useIsCoarsePointer`), and a long press —
 the touch screen's right-click — opens its menu above, beside or below the
-finger, never under it (`placeTouchMenu`), as a list with words
-(`touchMenuSurfaceClass`).
+finger, never under it (`placeTouchMenu`).
+
+A context menu has one shape wherever it opens — a table or a room element,
+the room's floor, an entry of "Bibliothek" (`ContextMenu`): rows of icon and
+word on `menuSurfaceClass`, the key that does the same quiet at the row's end,
+the removal last behind a hairline and rose only under the pointer. A
+right-click, a long press, Shift+F10 and the menu key open it; it chooses its
+thing first, so the inspector shows what the menu acts on. It holds only what
+the inspector or a key does too, never a command of its own; a row that cannot
+be chosen stays in its place, greyed out, and says why under its word.
 
 "Bibliothek" puts folders on its stage instead of a room: one card
 (`cardSurfaceClass`) holding columns of 16rem (`ColumnBrowser`), each divided
@@ -281,7 +288,8 @@ one quiet word ("geöffnet", "automatisch gesichert") and a caret for a folder.
 Hover is `--surface-sunken`; the rows on the selected path are sunken, and the
 deepest one — the entry the inspector shows — carries the blue bar at its edge,
 as an opened student does, and no focus ring when the arrows or a click put it
-there. Groups within a column ("Räume", "Verlauf") are
+there. A right-click or a long press opens the entry's menu — open, rename,
+duplicate a plan, keep a room as a template, delete. Groups within a column ("Räume", "Verlauf") are
 titled in small caps and set off by a hairline. On a phone only the last column
 shows, the full width.
 
