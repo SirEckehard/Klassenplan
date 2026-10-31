@@ -2,6 +2,7 @@
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
 import { CaretRightIcon } from '@phosphor-icons/react';
+import { quietFocusRing } from '@/utils';
 
 /** One entry of a column: a folder, which opens the next column, or a leaf. */
 export interface BrowserItem {
@@ -102,8 +103,12 @@ export default function ColumnBrowser({
     scroller.scrollTo?.({ left: scroller.scrollWidth, behavior: 'smooth' });
   }, [columnCount, single]);
 
+  // Every way here selects the row first, so it carries the blue bar that
+  // already says where the focus is; the ring would say it twice, as in the
+  // class list. It comes back when the focus arrives by Tab.
   const focusItem = (key: string) => {
     const element = optionRefs.current.get(key);
+    if (element) quietFocusRing(element);
     element?.focus();
     element?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
   };
@@ -260,7 +265,7 @@ export default function ColumnBrowser({
                           onKeyDown={(event) =>
                             handleKeyDown(event, columnIndex, item.key)
                           }
-                          className={`relative mx-1 flex min-h-9 cursor-pointer items-center gap-2.5 rounded-md px-3 py-1.5 text-sm outline-none select-none hover:bg-(--surface-sunken) focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-(--focus-ring-primary) pointer-coarse:min-h-11 ${
+                          className={`relative mx-1 flex min-h-9 cursor-pointer items-center gap-2.5 rounded-md px-3 py-1.5 text-sm outline-none select-none hover:bg-(--surface-sunken) focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-(--focus-ring-primary) data-quiet-focus:focus-visible:ring-0 pointer-coarse:min-h-11 ${
                             selected ? 'bg-(--surface-sunken)' : ''
                           }`}
                         >

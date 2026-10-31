@@ -205,6 +205,7 @@ projector rather than for a screen.
 **Focus and hover**
 
 - A focus ring is a solid 2 px contour in `--focus-ring-primary` (danger and success variants exist), never a soft glow.
+- A row whose selection follows the focus — the class list's rows under the arrows, the columns of "Bibliothek" — carries no ring while the blue bar already marks it (`quietFocusRing`, `data-quiet-focus:focus-visible:ring-0`); the ring comes back when the focus arrives by Tab or moves without selecting.
 - Buttons and icon buttons have defined hover states (e.g. `--button-primary-bg-hover`). These apply in dark mode too, because `@layer base` overrides the variables rather than the utilities.
 - A `secondary-button` that switches something on carries `aria-pressed`, and while it is `true` the button wears the selection colours (`--surface-option-selected`, `--border-option-selected`, `--text-badge`) — hovered or not. The state a screen reader hears is the state on screen; no call site paints its own.
 
@@ -279,7 +280,8 @@ view. A row is a list option, not a card: an icon or a room's thumbnail
 one quiet word ("geöffnet", "automatisch gesichert") and a caret for a folder.
 Hover is `--surface-sunken`; the rows on the selected path are sunken, and the
 deepest one — the entry the inspector shows — carries the blue bar at its edge,
-as an opened student does. Groups within a column ("Räume", "Verlauf") are
+as an opened student does, and no focus ring when the arrows or a click put it
+there. Groups within a column ("Räume", "Verlauf") are
 titled in small caps and set off by a hairline. On a phone only the last column
 shows, the full width.
 

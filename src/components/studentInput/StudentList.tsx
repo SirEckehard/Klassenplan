@@ -6,7 +6,7 @@ import { useIsPhone } from '@/hooks/ui/useLayoutMode';
 import StudentRow from '@/components/students/StudentRow';
 import StudentListHeader from '@/components/students/StudentListHeader';
 import StudentListNarrowedCount from '@/components/studentInput/StudentListNarrowedCount';
-import { listContainerClass } from '@/utils';
+import { listContainerClass, quietFocusRing } from '@/utils';
 import type { Student } from '@/types';
 
 type StudentListProps = {
@@ -33,18 +33,6 @@ type StudentListProps = {
    * shows everybody.
    */
   narrowing?: { totalCount: number; onClear: () => void };
-};
-
-/** Hides the focus ring (`data-quiet-focus`) until the element loses focus. */
-const quietFocusRing = (element: HTMLElement) => {
-  element.dataset.quietFocus = '';
-  element.addEventListener(
-    'blur',
-    () => {
-      delete element.dataset.quietFocus;
-    },
-    { once: true },
-  );
 };
 
 /**

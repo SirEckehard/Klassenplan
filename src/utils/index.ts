@@ -243,7 +243,7 @@ export {
 
 // ===== Touch & Input Handling =====
 export { triggerHapticFeedback } from './touch/hapticFeedback';
-export { isFormElementFocused } from './focus';
+export { isFormElementFocused, quietFocusRing } from './focus';
 export {
   characterKeyShortcutsEnabled,
   isSilencedCharacterKey,

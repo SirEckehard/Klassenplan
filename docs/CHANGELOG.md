@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ### Improved
 
 - Dragging a student in the seating plan or the circle shows the result before you let go: once the pointer rests on a seat, the student already sits there and the classmate who would swap sits on the seat left behind, with name, color, markers and photo. A small chip beside the pointer — above the finger on a touch screen — names who you are holding; the card that covered the neighbouring seats and said "swaps with …" is gone, and so is the seat left behind that showed one student's name with another's photo and markers
+- In "Library", choosing an entry with the arrow keys or a click no longer draws a blue frame round it on top of its marking: the bar at its edge already shows where you are, as in the class list. Reached with Tab, the entry keeps its frame
 
 ### Fixed
 

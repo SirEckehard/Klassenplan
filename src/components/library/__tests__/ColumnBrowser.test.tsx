@@ -137,6 +137,21 @@ describe('ColumnBrowser', () => {
     expect(option('Oktober')).toBeInTheDocument();
   });
 
+  it('quiets the focus ring of a row the arrows chose until it loses focus, not one reached by Tab', async () => {
+    const user = userEvent.setup();
+    render(<Harness />);
+
+    await user.tab();
+    expect(option('7a')).toHaveFocus();
+    expect(option('7a')).not.toHaveAttribute('data-quiet-focus');
+
+    await user.keyboard('{ArrowDown}');
+    expect(option('7b')).toHaveAttribute('data-quiet-focus');
+    await user.keyboard('{ArrowRight}');
+    expect(option('7b')).not.toHaveAttribute('data-quiet-focus');
+    expect(option('Klassenraum')).toHaveAttribute('data-quiet-focus');
+  });
+
   it('jumps to the ends of a column', async () => {
     const user = userEvent.setup();
     render(<Harness />);
