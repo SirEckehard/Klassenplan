@@ -97,6 +97,7 @@ Further details in the [`docs/`](docs/) folder:
 - [ARCHITECTURE.md](docs/ARCHITECTURE.md) – Goals, non-goals, scenarios and how the parts fit together (start here)
 - [ALGORITHM.md](docs/ALGORITHM.md) – Shuffle algorithm & constraint system
 - [PEDAGOGY.md](docs/PEDAGOGY.md) – Pedagogical background of the criteria
+- [UI.md](docs/UI.md) – The interface: shell, layers, inspector, status bar and their rules
 - [DESIGNSYSTEM.md](docs/DESIGNSYSTEM.md) – Design tokens & component guidelines
 - [MODULE_BOUNDARIES.md](docs/MODULE_BOUNDARIES.md) – Module API & import guidelines
 - [ERROR-HANDLING.md](docs/ERROR-HANDLING.md) – Error handling & result pattern

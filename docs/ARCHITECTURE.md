@@ -495,5 +495,6 @@ this list once answered; the decision record or the changelog keeps the answer.
 - [canvas-interactions.md](canvas-interactions.md) – pointer and keyboard state machines
 - [SEO.md](SEO.md) – prerendering, canonical URLs, languages
 - [PERFORMANCE.md](PERFORMANCE.md) – Web Vitals, bundle budgets
+- [UI.md](UI.md) – the interface: shell, layers, inspector, status bar and their rules
 - [DESIGNSYSTEM.md](DESIGNSYSTEM.md) – design tokens
 - [CHANGELOG.md](CHANGELOG.md) – release history
