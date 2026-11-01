@@ -16,8 +16,10 @@ import { createMockStudent } from '@/__tests__/utils';
 
 vi.mock('@/utils/ui/toast', () => ({
   showToast: vi.fn(),
+  announce: vi.fn(),
   TOAST_MESSAGES: { SEAT_LOCKED_DROP: 'toast:seatLocked' },
 }));
+import { announce, showToast } from '@/utils/ui/toast';
 
 const position = (id: string, x: number): CircleStudentPosition => ({
   student: createMockStudent({ id, name: `Student ${id}` }),
@@ -183,6 +185,10 @@ describe('useCircleDragDrop', () => {
     });
     pointer('pointerup', 295);
     expect(params.onStudentMove).not.toHaveBeenCalled();
+    // The place showed it was locked while the student hung over it; a
+    // screen reader hears it, no card says it (decision 0037).
+    expect(announce).toHaveBeenCalledWith('toast:seatLocked');
+    expect(showToast).not.toHaveBeenCalled();
   });
 
   it('lets go on Escape and on a cancelled pointer', () => {

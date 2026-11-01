@@ -12,15 +12,17 @@ import { createMockStudent } from '@/__tests__/utils/testHelpers';
 
 vi.mock('@/utils/ui/toast', () => ({
   showToast: vi.fn(),
+  announce: vi.fn(),
   TOAST_MESSAGES: {
     CSV_PARSE_ERROR: 'CSV_PARSE_ERROR',
     STUDENT_MAX_REACHED: 'STUDENT_MAX_REACHED',
     CSV_READ_ERROR: 'CSV_READ_ERROR',
   },
 }));
-import { showToast, TOAST_MESSAGES } from '@/utils/ui/toast';
+import { announce, showToast, TOAST_MESSAGES } from '@/utils/ui/toast';
 
 const mockedShowToast = vi.mocked(showToast);
+const mockedAnnounce = vi.mocked(announce);
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -167,7 +169,7 @@ describe('csvImportService.importStudentsFromCsv', () => {
       .spyOn(csvUtils, 'parseCsvFlexible')
       .mockResolvedValue([createMockStudent({ id: 's-1', name: 'Student 1' })]);
 
-    await importStudentsFromCsv({
+    const result = await importStudentsFromCsv({
       file: createCsvFile(),
       currentStudentCount: 0,
     });
@@ -177,5 +179,10 @@ describe('csvImportService.importStudentsFromCsv', () => {
       undefined,
       expect.objectContaining({ useWorker: false }),
     );
+    // The import succeeds: the list shows the student, a screen reader hears
+    // how many came, and no card says anything (decision 0037).
+    expect(result).toHaveLength(1);
+    expect(errorMessages()).toEqual([]);
+    expect(mockedAnnounce).toHaveBeenCalledWith(expect.stringMatching(/1/));
   });
 });

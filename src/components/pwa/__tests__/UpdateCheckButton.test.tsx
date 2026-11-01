@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import '@testing-library/jest-dom/vitest';
-import { act, render, screen } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import '@/i18n'; // Initialize i18n for tests
@@ -102,6 +102,9 @@ describe('UpdateCheckButton', () => {
     const reload = await screen.findByRole('button', {
       name: /^(Aktualisieren|Update)$/i,
     });
+    // The check ends a moment after it found the version; until then the
+    // button is busy.
+    await waitFor(() => expect(reload).toBeEnabled());
     expect(screen.queryByTestId('toast-item')).toBeNull();
     await user.click(reload);
     expect(applyUpdate).toHaveBeenCalledOnce();
