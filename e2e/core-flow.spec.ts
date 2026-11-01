@@ -104,6 +104,32 @@ test('a teacher can go from an empty app to an exportable seating plan', async (
     ).toContainText('4 Plätze für 4 Schüler');
   });
 
+  await test.step('step 2 — a right-click on a table keeps a mixed selection', async () => {
+    const tables = page.locator('[data-table-index]');
+    const features = page.locator('[data-feature-id]');
+    const featureCount = await features.count();
+
+    // A click on the entry places the cabinet and selects it; Shift adds a
+    // table, and the right-click on that table must keep both.
+    await page.getByRole('button', { name: /^Schrank$/ }).click();
+    await expect(features).toHaveCount(featureCount + 1);
+    await tables.first().click({ modifiers: ['Shift'] });
+    await tables.first().click({ button: 'right' });
+    await page
+      .locator('[data-context-menu]')
+      .getByRole('menuitem', { name: 'Duplizieren' })
+      .click();
+
+    await expect(tables).toHaveCount(3);
+    await expect(features).toHaveCount(featureCount + 2);
+
+    // The room goes back to how the class needs it.
+    await page.keyboard.press('Control+z');
+    await page.keyboard.press('Control+z');
+    await expect(tables).toHaveCount(2);
+    await expect(features).toHaveCount(featureCount);
+  });
+
   await test.step('step 3 — the algorithm seats every student', async () => {
     await page.getByRole('button', { name: 'Weiter zum Sitzplan' }).click();
 

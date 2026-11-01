@@ -600,7 +600,13 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
         }
         return;
       }
-      clearFeatureSelection();
+      // A right-click leaves the selection to the contextmenu that follows
+      // (`handleSvgContextMenu`): a table's pointerdown does not stop it
+      // for button 2, so clearing here dropped the room elements of a
+      // mixed selection right-clicked on one of its tables.
+      if (e.button !== 2) {
+        clearFeatureSelection();
+      }
       beginSelectionWithLongPress(e);
     },
     [
