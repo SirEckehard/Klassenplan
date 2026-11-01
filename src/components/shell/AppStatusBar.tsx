@@ -5,9 +5,10 @@ import { useTranslation } from 'react-i18next';
 import {
   ArrowLeftIcon,
   ArrowRightIcon,
-  CheckCircleIcon,
+  ChairIcon,
   HeartIcon,
-  XCircleIcon,
+  UsersThreeIcon,
+  XIcon,
 } from '@phosphor-icons/react';
 import {
   useSeatingPlanState,
@@ -17,6 +18,8 @@ import { useStatusBarSlot } from '@/contexts/StatusBarSlotContext';
 import StudentHistoryToolbar from '@/components/studentInput/StudentHistoryToolbar';
 import SeatingHistoryToolbar from '@/components/SeatingPlanGenerator/canvas/SeatingHistoryToolbar';
 import StatusBarFrame, {
+  StatusCheckIcon,
+  StatusFigures,
   statusBarBackButtonClass,
   statusBarHistoryButtonClass,
   statusBarHistoryGroupClass,
@@ -71,15 +74,20 @@ export default function AppStatusBar() {
   );
   /**
    * The status line, as segments joined by a middot, and the verdict on it.
-   * The verdict is a green check or a red cross with its words for the screen
+   * The verdict is a green tick or a red cross with its words for the screen
    * reader and the tooltip, never a segment of its own: "alle Namen gesetzt"
    * beside "24 Schüler" only repeated what the check already says. A layer
    * with nothing on it yet has nothing to judge and shows no icon.
    *
    * `short` is what the line says below `xl`, where the bar shares a tablet's
    * width with "Zurück" and the way on: "24 Plätze für 24 Schüler" came out
-   * cut off, and on a phone "24 Schüler" did too — the bare number. The full line stays in the tooltip, and the verdict says the
-   * rest.
+   * cut off, and on a phone "24 Schüler" did too — the bare number, which
+   * the icon before it says the meaning of. The full line stays in the
+   * tooltip, and the verdict says the rest.
+   *
+   * The line wears the plan layer's fulfilment's look: an icon first, the
+   * figures in the page's ink and semibold (`StatusFigures`), the words
+   * muted, and the tick the plan's inspector puts before "Heute gespeichert".
    */
   const { segments, short, verdict } = React.useMemo((): {
     segments: string[];
@@ -165,7 +173,9 @@ export default function AppStatusBar() {
     t,
     tableCount,
   ]);
-  const VerdictIcon = verdict?.fits ? CheckCircleIcon : XCircleIcon;
+  // What the line counts, before it as the chart icon stands before the plan
+  // layer's fulfilment: the class's students, the room's seats.
+  const LineIcon = step === 1 ? UsersThreeIcon : ChairIcon;
 
   /** The way back to the previous layer; the class list is the first. */
   const back = React.useMemo(() => {
@@ -260,11 +270,14 @@ export default function AppStatusBar() {
               data-tour={step === 2 ? TOUR_ANCHORS.layoutStatus : undefined}
               className="flex min-w-0 items-center gap-1.5 text-xs tabular-nums text-(--text-muted) peer-not-empty:hidden sm:text-sm"
             >
+              <LineIcon size={16} aria-hidden="true" className="shrink-0" />
               {short ? (
                 <span className="min-w-0 truncate" title={segments.join(' · ')}>
-                  <span className="xl:hidden">{short}</span>
+                  <span className="xl:hidden">
+                    <StatusFigures text={short} />
+                  </span>
                   <span className="hidden xl:inline">
-                    {segments.join(' · ')}
+                    <StatusFigures text={segments.join(' · ')} />
                   </span>
                 </span>
               ) : (
@@ -272,16 +285,16 @@ export default function AppStatusBar() {
               )}
               {verdict && (
                 <span className="inline-flex shrink-0" title={verdict.label}>
-                  <VerdictIcon
-                    size={16}
-                    weight="fill"
-                    aria-hidden="true"
-                    className={
-                      verdict.fits
-                        ? 'text-(--status-ok)'
-                        : 'text-(--status-alert)'
-                    }
-                  />
+                  {verdict.fits ? (
+                    <StatusCheckIcon />
+                  ) : (
+                    <XIcon
+                      size={14}
+                      weight="bold"
+                      aria-hidden="true"
+                      className="text-(--status-alert)"
+                    />
+                  )}
                   <span className="sr-only">{verdict.label}</span>
                 </span>
               )}

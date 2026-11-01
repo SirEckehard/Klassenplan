@@ -14,9 +14,6 @@ import {
 
 type Props = {
   hasPlan: boolean;
-  /** "A4 · Hochformat" — the sheet as it will come out of the printer. */
-  sheetLabel: string;
-  studentCount: number;
   /** Set while the circle is being built for the first time. */
   circleGeneration: {
     message: string;
@@ -37,19 +34,19 @@ type Props = {
 };
 
 /**
- * The export page's status bar: what the sheet is, and printing it.
+ * The export page's status bar: printing the sheet.
  *
  * The frame is the workspace's, so the settings and the toolbar's switch stay
- * where they were a click ago. The line says what will come out of the printer
- * — or, while the circle is still being built, how far that has got, with the
- * way to stop it beside it. Printing is the
+ * where they were a click ago. The line says something only when the sheet
+ * cannot: that there is no plan yet, or, while the circle is still being
+ * built, how far that has got, with the way to stop it beside it. It said
+ * "A4 · Hochformat · 24 Schüler" before, which the sheet on the stage, its
+ * orientation in the inspector and the class all show already. Printing is the
  * page's one primary action, with the way back to the plan beside it as on
  * every layer; the files to save sit in the toolbar.
  */
 export default function ExportStatusBar({
   hasPlan,
-  sheetLabel,
-  studentCount,
   circleGeneration,
   onPrint,
   onBack,
@@ -59,29 +56,29 @@ export default function ExportStatusBar({
 
   const line = !hasPlan
     ? t('shell.status.noPlan')
-    : circleGeneration
-      ? circleGeneration.progress === null
+    : !circleGeneration
+      ? null
+      : circleGeneration.progress === null
         ? circleGeneration.message
-        : `${circleGeneration.message} ${formatPercent(circleGeneration.progress)}`
-      : [sheetLabel, t('shell.status.students', { count: studentCount })].join(
-          ' · ',
-        );
+        : `${circleGeneration.message} ${formatPercent(circleGeneration.progress)}`;
 
   return (
     <StatusBarFrame
       start={
-        <p className="flex min-w-0 items-center gap-2 text-xs tabular-nums text-(--text-muted) sm:text-sm">
-          <span className="min-w-0 truncate">{line}</span>
-          {circleGeneration && (
-            <button
-              type="button"
-              onClick={circleGeneration.onCancel}
-              className={`${secondaryButtonClass} h-8 shrink-0 px-2.5 text-xs`}
-            >
-              {t('export.cancelCircleGeneration')}
-            </button>
-          )}
-        </p>
+        line && (
+          <p className="flex min-w-0 items-center gap-2 text-xs tabular-nums text-(--text-muted) sm:text-sm">
+            <span className="min-w-0 truncate">{line}</span>
+            {circleGeneration && (
+              <button
+                type="button"
+                onClick={circleGeneration.onCancel}
+                className={`${secondaryButtonClass} h-8 shrink-0 px-2.5 text-xs`}
+              >
+                {t('export.cancelCircleGeneration')}
+              </button>
+            )}
+          </p>
+        )
       }
       end={
         <>

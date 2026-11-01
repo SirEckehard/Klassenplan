@@ -6,7 +6,7 @@ import {
   ArrowClockwiseIcon,
   ArrowLineLeftIcon,
   ArrowLineRightIcon,
-  CheckCircleIcon,
+  CheckIcon,
   CloudSlashIcon,
   SlidersHorizontalIcon,
   WarningCircleIcon,
@@ -75,6 +75,47 @@ export const statusBarBackButtonClass = `${secondaryButtonClass} h-9 shrink-0 ga
  * accessible name either way.
  */
 export const statusBarWordClass = 'hidden lg:pointer-fine:inline xl:inline';
+
+/**
+ * A status line's text with its figures set as the plan's fulfilment sets
+ * its percentage: in the page's ink and semibold, the words around them
+ * muted. Every figure in the line is a count, so the digits are found in the
+ * translated text itself and the sentence stays one string for both
+ * languages and the tooltip.
+ */
+export function StatusFigures({ text }: { text: string }) {
+  return (
+    <>
+      {text.split(/(\d+)/).map((part, index) =>
+        // The split puts the figures at the odd places.
+        index % 2 === 1 ? (
+          <span key={index} className="font-semibold text-(--text-page)">
+            {part}
+          </span>
+        ) : (
+          part
+        ),
+      )}
+    </>
+  );
+}
+
+/**
+ * The check a status line ends with when what it states is in order — the
+ * one the plan's inspector puts before "Heute gespeichert": a bare tick in
+ * the confirmation's green, no filled disc, so it reads as quietly as the
+ * words beside it.
+ */
+export function StatusCheckIcon() {
+  return (
+    <CheckIcon
+      size={14}
+      weight="bold"
+      aria-hidden="true"
+      className="shrink-0 text-(--status-ok)"
+    />
+  );
+}
 
 /**
  * The bar at the bottom of the shell, without what a surface says in it.
@@ -312,12 +353,7 @@ export default function StatusBarFrame({
           </span>
           {shownNotice && (
             <p className="flex min-w-0 items-center gap-1.5 text-xs text-(--text-page) sm:text-sm">
-              <CheckCircleIcon
-                size={16}
-                weight="fill"
-                aria-hidden="true"
-                className="shrink-0 text-(--status-ok)"
-              />
+              <StatusCheckIcon />
               <span className="min-w-0 truncate">
                 {t(NOTICE_TEXT[shownNotice.kind])}
               </span>

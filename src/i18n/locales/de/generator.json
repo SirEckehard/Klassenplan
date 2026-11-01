@@ -516,7 +516,6 @@
     "saveAs": "Speichern als",
     "pdfButton": "PDF-Dokument",
     "sheet": "Blatt",
-    "sheetFormat": "A4 · {{orientation}}",
     "orientation": "Ausrichtung",
     "content": "Auf dem Blatt",
     "rows": {
@@ -554,8 +553,6 @@
         "notes": "Notizen"
       },
       "pageOf": "Seite {{page}} von {{count}}",
-      "pages_one": "{{count}} Seite",
-      "pages_other": "{{count}} Seiten",
       "errors": {
         "pdfFailed": "Listen-PDF-Export fehlgeschlagen. Bitte versuche es erneut."
       }

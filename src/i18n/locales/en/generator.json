@@ -516,7 +516,6 @@
     "saveAs": "Save as",
     "pdfButton": "PDF document",
     "sheet": "Sheet",
-    "sheetFormat": "A4 · {{orientation}}",
     "orientation": "Orientation",
     "content": "On the sheet",
     "rows": {
@@ -554,8 +553,6 @@
         "notes": "Notes"
       },
       "pageOf": "Page {{page}} of {{count}}",
-      "pages_one": "{{count}} page",
-      "pages_other": "{{count}} pages",
       "errors": {
         "pdfFailed": "List PDF export failed. Please try again."
       }

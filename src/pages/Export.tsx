@@ -1290,17 +1290,6 @@ export default function Export() {
     { condition: () => !isAnyDialogOpen() },
   );
 
-  const pageCount = previewMode === 'list' ? previewPages.length : 1;
-  const sheetFormat = t('export.sheetFormat', {
-    orientation:
-      activeOrientation === 'landscape'
-        ? t('export.landscape')
-        : t('export.portrait'),
-  });
-  const sheetLabel =
-    pageCount > 1
-      ? `${sheetFormat} · ${t('export.noteList.pages', { count: pageCount })}`
-      : sheetFormat;
   const isList = previewMode === 'list';
 
   const sheetInspector = (
@@ -1416,8 +1405,6 @@ export default function Export() {
       statusBar={
         <ExportStatusBar
           hasPlan={hasSheet}
-          sheetLabel={sheetLabel}
-          studentCount={students.length}
           circleGeneration={
             circleGenerationInProgress
               ? {

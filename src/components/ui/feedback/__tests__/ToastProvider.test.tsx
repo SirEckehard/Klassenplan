@@ -112,9 +112,11 @@ describe('ToastProvider', () => {
       Object.defineProperty(card, 'offsetWidth', { value: 368 });
       Object.defineProperty(card, 'offsetHeight', { value: 56 });
 
+      // 20px: a swipe has begun, but it stays short of the distance and of
+      // the least a flick needs, however fast the events come.
       fireEvent.pointerDown(card, { pointerId: 1, button: 0, clientX: 100 });
-      fireEvent.pointerMove(card, { pointerId: 1, clientX: 130 });
-      fireEvent.pointerUp(card, { pointerId: 1, clientX: 130 });
+      fireEvent.pointerMove(card, { pointerId: 1, clientX: 120 });
+      fireEvent.pointerUp(card, { pointerId: 1, clientX: 120 });
       fireEvent.click(card);
 
       expect(screen.getByText('Fehler beim Import')).toBeVisible();
