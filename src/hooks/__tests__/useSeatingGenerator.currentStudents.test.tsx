@@ -204,9 +204,40 @@ describe('useSeatingGenerator puts back seating as the class is now', () => {
       expect(current().state.currentSeating[1][0]?.id).toBe('anna'),
     );
     expect(await savedLocks(current, 'Mischung')).toEqual({
-      dana: { table: 1, seat: 1 },
+      dana: expect.objectContaining({ table: 1, seat: 1 }),
     });
   });
+
+  // What deleting the first table does: the scene and the seating lose it in
+  // one transaction, and removeTables moves the locks.
+  const removeFirstTable = (current: () => Snapshot) => {
+    const scene = current().state.classroomScene;
+    act(() => {
+      current().actions.updateClassroomScene({
+        ...scene,
+        tables: scene.tables.slice(1),
+      });
+      current().actions.setCurrentSeating((seating) => seating.slice(1));
+      current().actions.removeTables([0], { skipSeatingUpdate: true });
+    });
+    return scene;
+  };
+
+  // The room's undo puts the tables and the seating back as they were.
+  const undoRemoval = (
+    current: () => Snapshot,
+    scene: Snapshot['state']['classroomScene'],
+  ) => {
+    const restored = [
+      [students[0], students[1]],
+      [students[2], students[3]],
+    ];
+    act(() => {
+      current().actions.updateClassroomScene(scene);
+      current().actions.setCurrentSeating(restored);
+      current().actions.followLockedStudents(restored, scene.tables);
+    });
+  };
 
   it('moves the locks to where their students sit after a room undo', async () => {
     const current = await renderGenerator();
@@ -215,27 +246,47 @@ describe('useSeatingGenerator puts back seating as the class is now', () => {
       expect(current().actions.isSeatLocked(1, 1)).toBe(true),
     );
 
-    // Removing the first table shifts Dana's lock to table 0; the undo puts
+    // Removing the first table moves Dana's lock to table 0; the undo puts
     // the table and the seating back, and the lock follows Dana.
-    act(() => current().actions.removeTables([0]));
+    const scene = removeFirstTable(current);
     await waitFor(() =>
       expect(current().actions.isSeatLocked(0, 1)).toBe(true),
     );
-    const restored = [
-      [students[0], students[1]],
-      [students[2], students[3]],
-    ];
-    act(() => {
-      current().actions.setCurrentSeating(restored);
-      current().actions.followLockedStudents(restored);
-    });
+    undoRemoval(current, scene);
 
     await waitFor(() =>
       expect(current().actions.isSeatLocked(1, 1)).toBe(true),
     );
     expect(await savedLocks(current, 'Raum')).toEqual({
-      dana: { table: 1, seat: 1 },
+      dana: { table: 1, seat: 1, tableId: scene.tables[1].id },
     });
+  });
+
+  // Decision 0036: the lock of a student at the removed table rests with the
+  // table's id and comes back when the undo brings the table back — it was
+  // dropped for good, and the undo left the student unlocked.
+  it('brings back the locks at a removed table when its removal is undone', async () => {
+    const current = await renderGenerator();
+    act(() => current().actions.toggleLock('ben', 0, 1));
+    await waitFor(() =>
+      expect(current().actions.isSeatLocked(0, 1)).toBe(true),
+    );
+    await waitFor(() =>
+      expect(current().state.lockedPositions.ben?.tableId).toBeDefined(),
+    );
+
+    const scene = removeFirstTable(current);
+    await waitFor(() =>
+      expect(current().state.lockedPositions.ben?.table).toBe(-1),
+    );
+    // Resting, it binds no seat of the tables that are left.
+    expect(current().actions.isSeatLocked(0, 1)).toBe(false);
+
+    undoRemoval(current, scene);
+
+    await waitFor(() =>
+      expect(current().actions.isSeatLocked(0, 1)).toBe(true),
+    );
   });
 
   // K13: the swap's answer was set inside the state updater, which React runs

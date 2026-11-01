@@ -199,11 +199,13 @@ export function useSeatingPlanViewLogic({
   const followLockedStudents = seatingPlanActions?.followLockedStudents;
   const undo = React.useCallback(() => {
     undoScene();
-    followLockedStudents?.(getCommittedSceneState().seating);
+    const { seating, scene } = getCommittedSceneState();
+    followLockedStudents?.(seating, scene.tables);
   }, [undoScene, followLockedStudents, getCommittedSceneState]);
   const redo = React.useCallback(() => {
     redoScene();
-    followLockedStudents?.(getCommittedSceneState().seating);
+    const { seating, scene } = getCommittedSceneState();
+    followLockedStudents?.(seating, scene.tables);
   }, [redoScene, followLockedStudents, getCommittedSceneState]);
 
   // The canvas view toggles live in their own context, so the editor views read

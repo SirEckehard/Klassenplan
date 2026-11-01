@@ -7,6 +7,7 @@ import type {
   ClassroomFeature,
   SeatingArrangement,
 } from '@/types';
+import { withSceneTableIds, withTableIds } from '@/utils/data/tableIds';
 
 export interface SceneManagerHook {
   sceneTables: ClassroomTable[];
@@ -109,7 +110,9 @@ export function useSceneManager({
   const commitScene = React.useCallback(() => {
     const nextScene = {
       ...classroomSceneRef.current,
-      tables: sceneTablesRef.current.map((table) => ({ ...table })),
+      tables: withTableIds(
+        sceneTablesRef.current.map((table) => ({ ...table })),
+      ),
       features: sceneFeaturesRef.current.map((feature) => ({ ...feature })),
     };
     classroomSceneRef.current = nextScene;
@@ -151,16 +154,21 @@ export function useSceneManager({
       };
 
       const result = mutator(baseState) ?? {};
-      const nextTables = result.tables ?? baseState.tables;
+      // A new table gets its id here, and a copy one of its own, before
+      // anything holds the tables (decision 0036); the scene and the canvas
+      // take the same ones.
+      const nextTables = withTableIds(result.tables ?? baseState.tables);
       const nextFeatures = result.features ?? baseState.features;
       const nextSeating = result.seating ?? baseState.seating;
-      const nextScene =
-        result.scene ??
-        ({
-          ...baseState.scene,
-          tables: nextTables,
-          features: nextFeatures,
-        } as ClassroomScene);
+      const nextScene = result.scene
+        ? result.scene.tables === result.tables
+          ? { ...result.scene, tables: nextTables }
+          : withSceneTableIds(result.scene)
+        : ({
+            ...baseState.scene,
+            tables: nextTables,
+            features: nextFeatures,
+          } as ClassroomScene);
 
       const tablesForState = nextTables.map((table) => ({ ...table }));
       const featuresForState = nextFeatures.map((feature) => ({ ...feature }));

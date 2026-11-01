@@ -145,6 +145,33 @@ describe('backup round trip', () => {
     ).toEqual(first);
   });
 
+  // Decision 0036: tables carry ids, and a lock whose table is gone rests
+  // with the table's id until an undo brings it back.
+  it("keeps the tables' ids and a lock resting while its table is gone", async () => {
+    const entry = busyClass(0, 1024);
+    const student = entry.students[0].id;
+    entry.classroomScene = {
+      ...entry.classroomScene!,
+      tables: entry.classroomScene!.tables.map((table, index) => ({
+        ...table,
+        id: `table-${index}`,
+      })),
+    };
+    entry.lockedPositions = {
+      [student]: { table: -1, seat: 0, tableId: 'table-gone' },
+    };
+
+    const restored = parseExportBundle(await exportClasses([entry]));
+
+    const record = restored.classCollection?.classes[0] as ClassRecord;
+    expect(record.classroomScene?.tables[0].id).toBe('table-0');
+    expect(record.lockedPositions[student]).toEqual({
+      table: -1,
+      seat: 0,
+      tableId: 'table-gone',
+    });
+  });
+
   it('refuses a backup too large for the import, with its size', async () => {
     // Photos as large as the import allows each one, far more than a class
     // list's: the content outgrows what the import takes.

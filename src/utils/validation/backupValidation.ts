@@ -316,6 +316,16 @@ function validateClassroomTable(value: unknown): void {
     throw new BackupValidationError(BACKUP_ERROR_MESSAGES.invalidData);
   }
   const record = value as Record<string, unknown>;
+  // A table's id (decision 0036); absent in backups written before.
+  if (
+    record.id !== undefined &&
+    !assertString(record.id, {
+      allowEmpty: false,
+      maxLength: BACKUP_LIMITS.maxIdLength,
+    })
+  ) {
+    throw new BackupValidationError(BACKUP_ERROR_MESSAGES.invalidData);
+  }
   if (
     !ensureNumberInRange(
       record.x,
@@ -463,10 +473,22 @@ function validateLockedPositions(
     if (!isObject(position)) {
       throw new BackupValidationError(BACKUP_ERROR_MESSAGES.invalidData);
     }
+    // -1 is a lock resting while its table is gone, which only a lock that
+    // names its table by id can be (decision 0036).
+    const hasTableId = 'tableId' in position && position.tableId !== undefined;
+    if (
+      hasTableId &&
+      !assertString(position.tableId, {
+        allowEmpty: false,
+        maxLength: BACKUP_LIMITS.maxIdLength,
+      })
+    ) {
+      throw new BackupValidationError(BACKUP_ERROR_MESSAGES.invalidData);
+    }
     if (
       !ensureIntegerInRange(
         position.table,
-        0,
+        hasTableId ? -1 : 0,
         BACKUP_LIMITS.maxTablesPerScene - 1,
       )
     ) {

@@ -18,13 +18,17 @@ import type {
 } from './featureStores';
 import { createFeatureStoreLogger } from './featureStores';
 import { evaluateStateUpdater } from './storeUtils';
+import { withSceneTableIds } from '@/utils/data/tableIds';
 import type { CircleLayout, CircleGenerationStatus } from '@/types/Circle';
 
 const createLayoutStore = (
   initialState?: Partial<LayoutStoreState>,
 ): LayoutStore => {
   const logger = createFeatureStoreLogger('layoutStore');
-  const initialScene = initialState?.classroomScene ?? DEFAULT_CLASSROOM_SCENE;
+  // Every table in the live state has an id (decision 0036).
+  const initialScene = withSceneTableIds(
+    initialState?.classroomScene ?? DEFAULT_CLASSROOM_SCENE,
+  );
   const initialSeatingMode = initialState?.seatingMode ?? readSeatingMode();
   const baseState: LayoutStoreState = {
     classroomScene: initialScene,
@@ -40,7 +44,7 @@ const createLayoutStore = (
     ...baseState,
     setClassroomScene: (next) => {
       const current = get().classroomScene;
-      const updated = evaluateStateUpdater(current, next);
+      const updated = withSceneTableIds(evaluateStateUpdater(current, next));
       if (deepEqual(updated, current)) {
         return;
       }
@@ -53,7 +57,7 @@ const createLayoutStore = (
     },
     resetClassroomScene: () => {
       set({
-        classroomScene: DEFAULT_CLASSROOM_SCENE,
+        classroomScene: withSceneTableIds(DEFAULT_CLASSROOM_SCENE),
         classroomEdited: false,
       });
       logger.debug('Classroom scene reset to default');

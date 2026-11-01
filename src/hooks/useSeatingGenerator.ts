@@ -30,12 +30,14 @@ import { useStudentHistory } from './student/useStudentHistory';
 import type {
   ClassRecord,
   ClassroomScene as ClassroomSceneT,
+  ClassroomTable,
   LockedPositions,
   SeatingArrangement,
   Student,
 } from '@/types';
 import { hasPlanForScene, logError, syncSeatingWithStudents } from '@/utils';
 import { heldLocks, locksFollowingStudents } from '@/utils/data/classRooms';
+import { anchorLocks } from '@/utils/data/tableIds';
 
 /**
  * Composes seating state, persistence, algorithm utilities, and UI orchestration into a single generator hook.
@@ -183,13 +185,26 @@ export function useSeatingGenerator() {
   );
 
   // An undo or redo of the room puts back the tables and the seating, not the
-  // locks that removing a table shifted; they follow their students instead.
+  // locks that removing a table shifted; they find their tables by id, rest
+  // where a table is gone (decision 0036), and the rest follow their students.
   const followLockedStudents = useCallback(
-    (seating: SeatingArrangement) => {
-      setLockedPositions((prev) => locksFollowingStudents(prev, seating));
+    (seating: SeatingArrangement, tables?: readonly ClassroomTable[]) => {
+      setLockedPositions((prev) =>
+        locksFollowingStudents(
+          tables ? anchorLocks(prev, tables) : prev,
+          seating,
+        ),
+      );
     },
     [setLockedPositions],
   );
+
+  // A lock names its table by id (decision 0036): wherever the room moves a
+  // table in the list its locks go along, while it is gone they rest, and a
+  // lock just set takes the id of its table.
+  useEffect(() => {
+    setLockedPositions((prev) => anchorLocks(prev, classroomScene.tables));
+  }, [classroomScene.tables, lockedPositions, setLockedPositions]);
 
   // Setting the room up anew lets every lock go: its table and seat numbers
   // name places of tables that are gone, and the next mix would put the

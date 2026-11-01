@@ -145,7 +145,7 @@ describe('useSeatingGenerator releaseOpenPlan', () => {
     act(() => current().actions.toggleLock('s-0', 0, 0));
     await waitFor(() =>
       expect(current().state.lockedPositions).toEqual({
-        's-0': { table: 0, seat: 0 },
+        's-0': expect.objectContaining({ table: 0, seat: 0 }),
       }),
     );
 
@@ -153,14 +153,16 @@ describe('useSeatingGenerator releaseOpenPlan', () => {
     act(() => {
       released = current().actions.releaseLocks();
     });
-    expect(released).toEqual({ 's-0': { table: 0, seat: 0 } });
+    expect(released).toEqual({
+      's-0': expect.objectContaining({ table: 0, seat: 0 }),
+    });
     await waitFor(() => expect(current().state.lockedPositions).toEqual({}));
 
     act(() => current().actions.restoreLocks(released));
 
     await waitFor(() =>
       expect(current().state.lockedPositions).toEqual({
-        's-0': { table: 0, seat: 0 },
+        's-0': expect.objectContaining({ table: 0, seat: 0 }),
       }),
     );
   });

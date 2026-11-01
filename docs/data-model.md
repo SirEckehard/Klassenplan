@@ -159,7 +159,13 @@ recommended 8 once. `neighborWeights` is still stored but no longer read.
 - **`mixHistory`** keeps the last `MIX_HISTORY_LIMIT` (20) shuffle results, each
   as the arrangement after refinement
   ([decision 0014](decisions/0014-mix-history-records-refined-plan.md)).
-- **`lockedPositions`** maps a student id to `{ table, seat }`.
+- **`lockedPositions`** maps a student id to `{ table, seat, tableId }`. Tables
+  carry an `id` and a lock names its table by it
+  ([decision 0036](decisions/0036-tables-carry-ids.md)): `table` is derived
+  from the id wherever the table stands (`anchorLocks`), and is `-1` while the
+  table is gone — a resting lock binds nothing and comes back with the table
+  when the room's undo restores it. Locks and tables written before carry no
+  id and get one as they enter the live state.
 - **`classroomScene`** is the open room: its tables and room elements. A table
   with `inactive: true` stays out of the mix, and `fillFromFront: true` fills
   the room from the board backwards

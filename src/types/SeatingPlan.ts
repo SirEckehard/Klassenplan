@@ -65,8 +65,16 @@ export interface MixResult {
   roomId?: string;
 }
 
-// Map of studentId -> fixed position
-export type LockedPositions = Record<string, { table: number; seat: number }>;
+/**
+ * Map of studentId -> fixed position. `tableId` names the table the lock
+ * belongs to (decision 0036): `table` follows it wherever the room moves it in
+ * the list, and is -1 while the table is gone — the lock rests until an undo
+ * brings the table back. Locks written before the ids carry the index alone.
+ */
+export type LockedPositions = Record<
+  string,
+  { table: number; seat: number; tableId?: string }
+>;
 
 export interface SavedPlan {
   id: string;

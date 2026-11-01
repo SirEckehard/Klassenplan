@@ -44,6 +44,13 @@ export interface ClassroomFeature {
  * Represents a table in the classroom layout
  */
 export interface ClassroomTable {
+  /**
+   * Unique within its scene, kept for the table's life (decision 0036): a lock
+   * names its table by it. Given where a scene enters the live state
+   * (`withTableIds`); a copy of a table gets an id of its own there. Absent in
+   * data written before.
+   */
+  id?: string;
   /** X coordinate in pixels */
   x: number;
   /** Y coordinate in pixels */

@@ -38,7 +38,13 @@ describe('layoutStore', () => {
       layoutStore.getState().setClassroomScene(scene);
 
       const state = layoutStore.getState();
-      expect(state.classroomScene).toEqual(scene);
+      // Every table takes an id on its way in (decision 0036).
+      expect(state.classroomScene).toEqual({
+        ...scene,
+        tables: scene.tables.map((table) =>
+          expect.objectContaining({ ...table, id: expect.any(String) }),
+        ),
+      });
       expect(state.classroomEdited).toBe(true);
     });
 

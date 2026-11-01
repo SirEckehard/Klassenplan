@@ -27,6 +27,7 @@ import type {
   SeatingArrangement,
 } from '@/types';
 import i18n from '@/i18n';
+import { RESTING_LOCK_TABLE } from './tableIds';
 
 /**
  * The room a class gets when it has none, named in the language the app runs
@@ -290,7 +291,11 @@ export function heldLocks(
   const held: LockedPositions = {};
   let changed = false;
   for (const [studentId, position] of Object.entries(locks)) {
-    if (seating[position.table]?.[position.seat]?.id === studentId) {
+    // A resting lock binds nothing and waits for its table (decision 0036).
+    if (
+      position.table === RESTING_LOCK_TABLE ||
+      seating[position.table]?.[position.seat]?.id === studentId
+    ) {
       held[studentId] = position;
     } else {
       changed = true;
@@ -319,7 +324,13 @@ export function locksFollowingStudents(
     });
   });
   const next: LockedPositions = {};
-  for (const studentId of Object.keys(locks)) {
+  for (const [studentId, lock] of Object.entries(locks)) {
+    // A lock whose table is gone rests until the table comes back
+    // (decision 0036); where its student sits meanwhile does not move it.
+    if (lock.table === RESTING_LOCK_TABLE) {
+      next[studentId] = lock;
+      continue;
+    }
     const seat = seats.get(studentId);
     if (seat) next[studentId] = seat;
   }

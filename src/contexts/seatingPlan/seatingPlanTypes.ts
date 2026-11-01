@@ -4,6 +4,7 @@ import type React from 'react';
 import type {
   Student,
   ClassroomScene,
+  ClassroomTable,
   SeatingArrangement,
   LockedPositions,
   MixSettings,
@@ -240,8 +241,15 @@ export interface SeatingPlanActions {
   ) => Promise<boolean>;
   deleteClass: (classId: string) => Promise<boolean>;
   setCurrentSeating: React.Dispatch<React.SetStateAction<SeatingArrangement>>;
-  /** Moves each lock to where its student sits in `seating` (room undo). */
-  followLockedStudents: (seating: SeatingArrangement) => void;
+  /**
+   * After a room undo or redo: each lock finds its table among `tables` by id
+   * (resting while it is gone), the rest move to where their students sit in
+   * `seating`.
+   */
+  followLockedStudents: (
+    seating: SeatingArrangement,
+    tables?: readonly ClassroomTable[],
+  ) => void;
   /** Lets every lock go and returns them — the room set up anew. */
   releaseLocks: () => LockedPositions;
   /** Puts locks let go of back — the room's setup undone. */

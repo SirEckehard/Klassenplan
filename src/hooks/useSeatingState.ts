@@ -38,6 +38,7 @@ import { DEFAULT_ACTIVE_CLASS } from '@/types';
 import type { CircleLayout, CircleGenerationStatus } from '@/types/Circle';
 import type { CriterionFulfillment } from '@/utils/algorithm/seatingStatistics';
 import type { CsvImportSelection } from '@/utils/data/csvUtils';
+import { RESTING_LOCK_TABLE } from '@/utils/data/tableIds';
 
 export type SeatingPlanStore<TSnapshot> = {
   getSnapshot: () => TSnapshot;
@@ -350,7 +351,10 @@ export function useSeatingState(): SeatingState {
   );
 
   /**
-   * Remove tables and adjust locked positions accordingly.
+   * Remove tables and adjust locked positions accordingly: the locks behind
+   * them move up with their tables, and the locks at a removed table rest
+   * (`RESTING_LOCK_TABLE`) with its id, so the room's undo, which brings the
+   * table back, brings them back too (decision 0036).
    * @param indices Array of table indices to remove
    * @param options Optional flags (skipSeatingUpdate avoids triggering setCurrentSeating)
    */
@@ -370,10 +374,18 @@ export function useSeatingState(): SeatingState {
       setLockedPositions((prev) => {
         const next: LockedPositions = {};
         Object.entries(prev).forEach(([sid, pos]) => {
-          const { table, seat } = pos;
-          if (sorted.includes(table)) return;
+          const { table } = pos;
+          if (table === RESTING_LOCK_TABLE) {
+            next[sid] = pos;
+            return;
+          }
+          if (sorted.includes(table)) {
+            // Without an id it cannot come back: written before the ids.
+            if (pos.tableId) next[sid] = { ...pos, table: RESTING_LOCK_TABLE };
+            return;
+          }
           const shift = sorted.filter((i) => i < table).length;
-          next[sid] = { table: table - shift, seat };
+          next[sid] = { ...pos, table: table - shift };
         });
         return next;
       });
