@@ -2,7 +2,7 @@
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { CaretLeftIcon, CaretRightIcon, XIcon } from '@phosphor-icons/react';
+import { CaretDownIcon, CaretUpIcon, XIcon } from '@phosphor-icons/react';
 import type { Student } from '@/types';
 import { useStudentRowState } from '@/hooks/ui/useStudentRowState';
 import { quietIconButtonClass } from '@/utils';
@@ -12,6 +12,7 @@ import {
   InspectorHeader,
   InspectorSection,
 } from '@/components/shell/InspectorPanel';
+import { ENTITY_ICONS } from '@/components/shell/entityIcons';
 import StudentNameEditor from './StudentNameEditor';
 import StudentPhotoButton from './StudentPhotoButton';
 import GenderSelector from './GenderSelector';
@@ -105,52 +106,61 @@ export default function StudentInspector({
             autoFocus={autoFocusName}
           />
         }
-        // The arrows step through the list, so they sit with the position in
-        // it rather than beside the name — which needs the width more: three
-        // buttons beside it cut "Lina Schneider" to "Lina Schneid…".
-        subtitle={
-          <span className="flex items-center gap-1 text-control">
-            {t('inspector.position', {
+        meta={[
+          {
+            icon: ENTITY_ICONS.students,
+            label: t('inspector.position', {
               index: position.index,
               total: position.total,
-            })}
-            <button
-              type="button"
-              onClick={onPrevious}
-              disabled={!onPrevious}
-              className={`${quietIconButtonClass} ml-1 h-8 w-8 pointer-coarse:h-10 pointer-coarse:w-10`}
-              aria-label={t('inspector.previousStudent')}
-              title={t('inspector.previousStudentHint')}
-            >
-              <CaretLeftIcon size={16} aria-hidden="true" />
-            </button>
-            <button
-              type="button"
-              onClick={onNext}
-              disabled={!onNext}
-              className={`${quietIconButtonClass} h-8 w-8 pointer-coarse:h-10 pointer-coarse:w-10`}
-              aria-label={t('inspector.nextStudent')}
-              title={t('inspector.nextStudentHint')}
-            >
-              <CaretRightIcon size={16} aria-hidden="true" />
-            </button>
-          </span>
-        }
-        // Only the phone's sheet and the tablet's drawer close from here: a
-        // finger needs a way out it can see. From `lg` up putting the student
-        // away would only leave the column's empty notice — the column folds
-        // from the status bar, and its width goes to the name.
+            }),
+          },
+        ]}
+        // The arrows step up and down the class list, as Alt/⌥+↑ and ↓ do,
+        // at the far end of the strip rather than in the line under the name,
+        // so the header stands at the others' height: stacked under a mouse
+        // (2 × 28px within the strip), side by side as 44px targets under a
+        // finger.
         actions={
-          onClose && (
-            <button
-              type="button"
-              onClick={onClose}
-              className={`${quietIconButtonClass} h-8 w-8 pointer-coarse:h-10 pointer-coarse:w-10 lg:hidden`}
-              aria-label={t('inspector.close')}
-            >
-              <XIcon size={16} aria-hidden="true" />
-            </button>
-          )
+          <>
+            <div className="flex flex-col pointer-coarse:flex-row pointer-coarse:gap-1">
+              <button
+                type="button"
+                onClick={onPrevious}
+                disabled={!onPrevious}
+                className={`${quietIconButtonClass} h-7 w-7 pointer-coarse:h-11 pointer-coarse:w-11`}
+                aria-label={t('inspector.previousStudent')}
+                aria-keyshortcuts="Alt+ArrowUp"
+                title={t('inspector.previousStudentHint')}
+              >
+                <CaretUpIcon size={16} aria-hidden="true" />
+              </button>
+              <button
+                type="button"
+                onClick={onNext}
+                disabled={!onNext}
+                className={`${quietIconButtonClass} h-7 w-7 pointer-coarse:h-11 pointer-coarse:w-11`}
+                aria-label={t('inspector.nextStudent')}
+                aria-keyshortcuts="Alt+ArrowDown"
+                title={t('inspector.nextStudentHint')}
+              >
+                <CaretDownIcon size={16} aria-hidden="true" />
+              </button>
+            </div>
+            {/* Only the phone's sheet and the tablet's drawer close from
+                here: a finger needs a way out it can see. From `lg` up
+                putting the student away would only leave the column's empty
+                notice — the column folds from the status bar. */}
+            {onClose && (
+              <button
+                type="button"
+                onClick={onClose}
+                className={`${quietIconButtonClass} h-8 w-8 pointer-coarse:h-11 pointer-coarse:w-11 lg:hidden`}
+                aria-label={t('inspector.close')}
+              >
+                <XIcon size={16} aria-hidden="true" />
+              </button>
+            )}
+          </>
         }
       />
       <InspectorBody>

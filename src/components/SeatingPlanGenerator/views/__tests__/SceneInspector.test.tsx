@@ -807,12 +807,13 @@ describe('SceneInspector', () => {
   it('summarises a multi-selection instead of editing one of them', () => {
     renderInspector({ selectedTableIds: [0, 1], selectedFeatureIds: ['f1'] });
 
-    // One line under the heading, each count in its own plural.
+    // Two facts under the heading, each count in its own plural: the tables
+    // and the room elements of a mixed selection — the seats give way.
+    expect(screen.getByText(/^(2 Tische|2 tables)$/)).toBeInTheDocument();
     expect(
-      screen.getByText(
-        /^(2 Tische · 1 Raumelement · 6 Plätze|2 tables · 1 room element · 6 seats)$/,
-      ),
+      screen.getByText(/^(1 Raumelement|1 room element)$/),
     ).toBeInTheDocument();
+    expect(screen.queryByText(/^(6 Plätze|6 seats)$/)).not.toBeInTheDocument();
     // What acts on the whole selection: the clipboard and removing it.
     expect(
       screen.getByRole('button', { name: /Kopieren|Copy/i }),

@@ -256,7 +256,7 @@ function HelpPanel({
       <InspectorHeader
         media={<InspectorMediaTile icon={QuestionIcon} />}
         title={title}
-        subtitle={t('help.title')}
+        meta={[{ icon: BookOpenIcon, label: t('help.title') }]}
         actions={
           <button
             type="button"

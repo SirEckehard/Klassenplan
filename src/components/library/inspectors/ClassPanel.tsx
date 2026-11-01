@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import { useTranslation } from 'react-i18next';
-import { GraduationCapIcon } from '@phosphor-icons/react';
 import {
   InspectorBody,
   InspectorDeleteFooter,
@@ -10,6 +9,7 @@ import {
   InspectorSection,
 } from '@/components/shell/InspectorPanel';
 import InspectorTitleField from '@/components/shell/InspectorTitleField';
+import { ENTITY_ICONS } from '@/components/shell/entityIcons';
 import ClassMetadataFields from '@/components/students/ClassMetadataFields';
 import type { UpdateClassMetadataPayload } from '@/types';
 import { checkName, formatStoredDate, MAX_NAME_LENGTH } from '@/utils';
@@ -18,9 +18,10 @@ import { ValueRow } from './panelParts';
 /**
  * A class: what it is called and what it holds — in "Bibliothek", and in the
  * class layer's inspector while no student is open there. The name is
- * changed in the header, as a student's is, the school year and the notes in
- * the panel — the header does not repeat the school year under the name; a name another class
- * carries is refused as it is typed. The class goes with everything in it
+ * changed in the header, as a student's is, and under it how many students
+ * and rooms it holds; the school year, the notes, its plans and when it was
+ * last opened are the panel's. A name another class carries is refused as
+ * it is typed. The class goes with everything in it
  * only after the question the delete asks.
  */
 export default function ClassPanel({
@@ -55,7 +56,7 @@ export default function ClassPanel({
   return (
     <>
       <InspectorHeader
-        media={<InspectorMediaTile icon={GraduationCapIcon} />}
+        media={<InspectorMediaTile icon={ENTITY_ICONS.class} />}
         title={
           <InspectorTitleField
             label={t('classPanel.name')}
@@ -73,6 +74,16 @@ export default function ClassPanel({
             focusRequest={renameRequest}
           />
         }
+        meta={[
+          {
+            icon: ENTITY_ICONS.students,
+            label: t('shell.status.students', { count: studentCount }),
+          },
+          {
+            icon: ENTITY_ICONS.room,
+            label: t('library.roomsCount', { count: roomCount }),
+          },
+        ]}
       />
       <InspectorBody>
         <InspectorSection title={t('library.class.section')}>
@@ -81,12 +92,6 @@ export default function ClassPanel({
             notes={notes}
             onCommit={onCommit}
           />
-        </InspectorSection>
-        <InspectorSection title={t('library.contents')}>
-          <ValueRow label={t('library.class.students')}>
-            {studentCount}
-          </ValueRow>
-          <ValueRow label={t('library.rooms')}>{roomCount}</ValueRow>
           <ValueRow label={t('library.class.plans')}>{planCount}</ValueRow>
           {lastUsedAt && (
             <ValueRow label={t('library.class.lastUsed')}>

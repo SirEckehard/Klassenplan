@@ -6,6 +6,7 @@ import {
   InspectorBody,
   InspectorHeader,
   InspectorMediaTile,
+  type InspectorMeta,
 } from '@/components/shell/InspectorPanel';
 
 /**
@@ -15,13 +16,13 @@ import {
 export default function FolderPanel({
   icon,
   title,
-  subtitle,
+  meta,
   hint,
   media,
 }: {
   icon: Icon;
   title: string;
-  subtitle?: string;
+  meta: InspectorMeta;
   hint: string;
   /** What stands for the entry in place of the icon: a student's photo. */
   media?: React.ReactNode;
@@ -31,7 +32,7 @@ export default function FolderPanel({
       <InspectorHeader
         media={media ?? <InspectorMediaTile icon={icon} />}
         title={title}
-        subtitle={subtitle}
+        meta={meta}
       />
       <InspectorBody>
         <p className="text-control leading-relaxed text-(--text-muted)">

@@ -2,12 +2,7 @@
 // Copyright (C) 2026 Eike Schäfer
 import { useCallback, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  AddressBookTabsIcon,
-  HouseIcon,
-  GridNineIcon,
-  CircleDashedIcon,
-} from '@phosphor-icons/react';
+import { ENTITY_ICONS } from '@/components/shell/entityIcons';
 import SegmentedControl from '@/components/ui/controls/SegmentedControl';
 import { prefetchGeneratorStep } from '@/utils/performance/generatorPrefetch';
 
@@ -42,17 +37,18 @@ export default function LayerSwitcher({
     () => [
       {
         value: '1' as LayerValue,
-        icon: AddressBookTabsIcon,
+        icon: ENTITY_ICONS.class,
         label: t('shell.layers.class'),
       },
       {
         value: '2' as LayerValue,
-        icon: HouseIcon,
+        icon: ENTITY_ICONS.room,
         label: t('shell.layers.room'),
       },
       {
         value: '3' as LayerValue,
-        icon: seatingMode === 'circle' ? CircleDashedIcon : GridNineIcon,
+        icon:
+          seatingMode === 'circle' ? ENTITY_ICONS.circle : ENTITY_ICONS.plan,
         label:
           seatingMode === 'circle'
             ? t('shell.layers.circle')

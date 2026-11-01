@@ -32,14 +32,17 @@ import {
   type FeatureVisibilityFlags,
 } from '@/utils/ui';
 import InspectorTitleField from '@/components/shell/InspectorTitleField';
+import { ENTITY_ICONS } from '@/components/shell/entityIcons';
 import NameField from '@/components/shell/NameField';
 import {
   InspectorBody,
   InspectorChoice,
   InspectorHeader,
   InspectorIcon,
+  InspectorMediaTile,
   InspectorRow,
   InspectorSection,
+  type InspectorMeta,
 } from '@/components/shell/InspectorPanel';
 import { VIEW_SETTING_ICONS } from '@/components/SeatingPlanGenerator/canvas/viewSettingIcons';
 import ToggleSwitch from '@/components/ui/controls/ToggleSwitch';
@@ -75,6 +78,11 @@ type Toggle = {
 type Props = {
   /** What the sheet shows; some settings only apply to one view. */
   mode: ExportView;
+  /**
+   * The line under the title: the plan the sheet shows, as the plan layer's
+   * heading says it (`usePlanStateMeta`).
+   */
+  planMeta: InspectorMeta;
   /** The note list's own settings; read while the list is on the sheet. */
   noteList?: {
     settings: NoteListSettings;
@@ -160,6 +168,7 @@ type Props = {
  */
 export default function ExportSheetInspector({
   mode,
+  planMeta,
   noteList,
   substitute,
   title,
@@ -186,6 +195,7 @@ export default function ExportSheetInspector({
   const sub = mode === 'substitute' ? substitute : undefined;
   const isTable = mode === 'table' || sub?.arrangement === 'table';
   const isList = mode === 'list';
+  const isCircle = mode === 'circle' || sub?.arrangement === 'circle';
   const listSettings = isList ? noteList?.settings : undefined;
   const orderOptions: readonly NoteListOrder[] = noteList?.orders ?? [
     'alphabetical',
@@ -229,9 +239,14 @@ export default function ExportSheetInspector({
   return (
     <>
       {/* The sheet goes by its title, renamed in the header as a plan's name
-          is. Nothing stands under it: the format and the page count are the
-          status bar's, and the orientation is the first row below. */}
+          is; under it the plan it shows, as the plan layer's heading says it.
+          The format and the orientation are the first rows below. */}
       <InspectorHeader
+        media={
+          <InspectorMediaTile
+            icon={isCircle ? ENTITY_ICONS.circle : ENTITY_ICONS.plan}
+          />
+        }
         title={
           <InspectorTitleField
             label={t('export.title')}
@@ -244,6 +259,7 @@ export default function ExportSheetInspector({
             }}
           />
         }
+        meta={planMeta}
       />
       <InspectorBody>
         <InspectorSection title={t('export.pageFormat')}>

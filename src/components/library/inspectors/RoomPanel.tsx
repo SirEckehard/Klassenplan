@@ -8,14 +8,15 @@ import {
   InspectorBody,
   InspectorDeleteFooter,
   InspectorHeader,
+  InspectorMediaTile,
   InspectorSection,
 } from '@/components/shell/InspectorPanel';
 import type { LibraryRoom } from '@/hooks/library/useClassLibrary';
 import type { ClassroomTemplate } from '@/types';
 import { TemplateSaveRow } from '@/components/SeatingPlanGenerator/views/RoomSetupSections';
 import { checkName, MAX_NAME_LENGTH, type NameProblem } from '@/utils';
-import RoomThumbnail from '../RoomThumbnail';
 import InspectorTitleField from '@/components/shell/InspectorTitleField';
+import { ENTITY_ICONS } from '@/components/shell/entityIcons';
 import { ValueRow } from './panelParts';
 
 /**
@@ -77,9 +78,7 @@ export default function RoomPanel({
   return (
     <>
       <InspectorHeader
-        media={
-          <RoomThumbnail scene={room.scene} className="h-11 w-16.5 shrink-0" />
-        }
+        media={<InspectorMediaTile icon={ENTITY_ICONS.room} />}
         title={
           <InspectorTitleField
             label={t('sceneInspector.roomName')}
@@ -92,7 +91,12 @@ export default function RoomPanel({
             focusRequest={renameRequest}
           />
         }
-        subtitle={t('library.plans', { count: planCount })}
+        meta={[
+          {
+            icon: ENTITY_ICONS.plan,
+            label: t('library.plans', { count: planCount }),
+          },
+        ]}
       />
       <InspectorBody>
         <InspectorSection title={t('library.room.section')}>

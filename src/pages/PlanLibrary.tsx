@@ -10,12 +10,12 @@ import {
   FloppyDiskIcon,
   FolderOpenIcon,
   PencilSimpleIcon,
-  SquaresFourIcon,
   TrashIcon,
   UserIcon,
 } from '@phosphor-icons/react';
 import AppShell, { ShellProviders } from '@/components/shell/AppShell';
 import InspectorPortal from '@/components/shell/InspectorPortal';
+import { ENTITY_ICONS } from '@/components/shell/entityIcons';
 import {
   workspaceLayerClass,
   workspaceStageClass,
@@ -688,6 +688,14 @@ function PlanLibraryPage() {
         <FolderPanel
           icon={FolderOpenIcon}
           title={t('storage.historyTitle')}
+          meta={[
+            {
+              icon: ENTITY_ICONS.class,
+              label: t('library.classesCount', {
+                count: library.classes.length,
+              }),
+            },
+          ]}
           hint={t('library.nothingSelected')}
         />
       );
@@ -863,7 +871,13 @@ function PlanLibraryPage() {
           <FolderPanel
             icon={ClockCounterClockwiseIcon}
             title={t('storage.mixHistory')}
-            subtitle={classLibrary?.name}
+            meta={[
+              {
+                icon: ENTITY_ICONS.class,
+                label: classLibrary?.name,
+                srLabel: `${t('shell.layers.class')}:`,
+              },
+            ]}
             hint={t('library.mixesHint')}
           />
         );
@@ -880,7 +894,12 @@ function PlanLibraryPage() {
           <FolderPanel
             icon={UserIcon}
             title={studentName(current.studentId)}
-            subtitle={t('storage.neighbors.tab')}
+            meta={[
+              {
+                icon: ENTITY_ICONS.students,
+                label: t('storage.neighbors.tab'),
+              },
+            ]}
             media={photoMedia([current.studentId])}
             hint={t('library.neighbourStudentHint', {
               name: studentName(current.studentId),
@@ -903,8 +922,16 @@ function PlanLibraryPage() {
       case 'templates':
         return (
           <FolderPanel
-            icon={SquaresFourIcon}
+            icon={ENTITY_ICONS.template}
             title={t('library.templates')}
+            meta={[
+              {
+                icon: ENTITY_ICONS.template,
+                label: t('library.templatesCount', {
+                  count: templates.length,
+                }),
+              },
+            ]}
             hint={t('library.templatesHint')}
           />
         );

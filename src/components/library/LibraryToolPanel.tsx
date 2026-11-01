@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import { useTranslation } from 'react-i18next';
-import { FolderPlusIcon, GraduationCapIcon } from '@phosphor-icons/react';
+import { FolderPlusIcon } from '@phosphor-icons/react';
+import { ENTITY_ICONS } from '@/components/shell/entityIcons';
 import {
   ToolRail,
   ToolRailButton,
@@ -31,7 +32,7 @@ export default function LibraryToolPanel({
     <ToolRail density={density}>
       <ToolRailGroup title={t('toolRail.add')}>
         <ToolRailButton
-          icon={<GraduationCapIcon size={18} />}
+          icon={<ENTITY_ICONS.class size={18} />}
           label={t('common.newClassName')}
           onClick={onNewClass}
         />

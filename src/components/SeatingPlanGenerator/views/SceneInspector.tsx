@@ -10,6 +10,8 @@ import {
   CopyIcon,
   CopySimpleIcon,
   EyeIcon,
+  EyeSlashIcon,
+  SelectionAllIcon,
   ScissorsIcon,
   ShuffleIcon,
 } from '@phosphor-icons/react';
@@ -29,10 +31,12 @@ import {
   InspectorMediaTile,
   InspectorRow,
   InspectorSection,
+  type InspectorMeta,
 } from '@/components/shell/InspectorPanel';
 import ToggleSwitch from '@/components/ui/controls/ToggleSwitch';
 import TablePreview from '@/components/TablePreview';
 import InspectorTitleField from '@/components/shell/InspectorTitleField';
+import { ENTITY_ICONS } from '@/components/shell/entityIcons';
 import {
   RoomListControls,
   RoomSetupSection,
@@ -477,6 +481,7 @@ export default function SceneInspector({
     return (
       <>
         <InspectorHeader
+          media={<InspectorMediaTile icon={ENTITY_ICONS.room} />}
           title={
             openRoomName !== undefined && activeRoomId && seatingPlanActions ? (
               <InspectorTitleField
@@ -494,11 +499,15 @@ export default function SceneInspector({
               (openRoomName ?? t('sceneInspector.room'))
             )
           }
-          subtitle={
-            tables.length > 0
-              ? t('sceneInspector.tables', { count: tables.length })
-              : t('sceneInspector.noTables')
-          }
+          meta={[
+            {
+              icon: ENTITY_ICONS.tables,
+              label:
+                tables.length > 0
+                  ? t('sceneInspector.tables', { count: tables.length })
+                  : t('sceneInspector.noTables'),
+            },
+          ]}
         />
         <InspectorBody>
           {openRoomName !== undefined && activeRoomId && seatingPlanActions && (
@@ -547,22 +556,30 @@ export default function SceneInspector({
       (sum, entry) => sum + entry.table.seatCount,
       0,
     );
-    // "2 Tische · 1 Raumelement · 8 Plätze": what is not there is not said.
-    const summary = [
-      selectedTables.length > 0 &&
-        t('sceneInspector.tables', { count: selectedTables.length }),
-      selectedFeatures.length > 0 &&
-        t('sceneInspector.features', { count: selectedFeatures.length }),
-      selectedTables.length > 0 &&
-        t('sceneInspector.seats', { count: selectedSeats }),
-    ]
-      .filter(Boolean)
-      .join(' · ');
+    // What is not there is not said, and two facts at most: the tables and
+    // the room elements of a mixed selection, the tables and their seats of
+    // tables alone.
+    const tablesFact = selectedTables.length > 0 && {
+      icon: ENTITY_ICONS.tables,
+      label: t('sceneInspector.tables', { count: selectedTables.length }),
+    };
+    const featuresFact = selectedFeatures.length > 0 && {
+      icon: ENTITY_ICONS.roomElements,
+      label: t('sceneInspector.features', { count: selectedFeatures.length }),
+    };
+    const seatsFact = {
+      icon: ENTITY_ICONS.seats,
+      label: t('sceneInspector.seats', { count: selectedSeats }),
+    };
+    const summary: InspectorMeta = tablesFact
+      ? [tablesFact, featuresFact || seatsFact]
+      : [featuresFact || seatsFact];
     return (
       <>
         <InspectorHeader
+          media={<InspectorMediaTile icon={SelectionAllIcon} />}
           title={t('sceneInspector.selection')}
-          subtitle={summary}
+          meta={summary}
         />
         <InspectorBody>
           {propertiesSection()}
@@ -583,17 +600,28 @@ export default function SceneInspector({
       <>
         <InspectorHeader
           media={
-            table.templateType && (
+            table.templateType ? (
               <InspectorMediaTile>
-                <TablePreview type={table.templateType} iconSize={24} />
+                <TablePreview type={table.templateType} iconSize={20} />
               </InspectorMediaTile>
+            ) : (
+              <InspectorMediaTile icon={ENTITY_ICONS.tables} />
             )
           }
           title={tableTypeLabel(table)}
-          subtitle={`${t('sceneInspector.tablePosition', {
-            index: index + 1,
-            total: tables.length,
-          })} · ${t('sceneInspector.seats', { count: table.seatCount })}`}
+          meta={[
+            {
+              icon: ENTITY_ICONS.tables,
+              label: t('sceneInspector.tablePosition', {
+                index: index + 1,
+                total: tables.length,
+              }),
+            },
+            {
+              icon: ENTITY_ICONS.seats,
+              label: t('sceneInspector.seats', { count: table.seatCount }),
+            },
+          ]}
         />
         <InspectorBody>
           {propertiesSection()}
@@ -619,13 +647,19 @@ export default function SceneInspector({
     <>
       <InspectorHeader
         media={
-          FeatureIcon && (
-            <InspectorMediaTile>
-              <FeatureIcon size={22} />
-            </InspectorMediaTile>
-          )
+          <InspectorMediaTile icon={FeatureIcon ?? ENTITY_ICONS.roomElements} />
         }
         title={featureLabel}
+        meta={[
+          {
+            icon: ENTITY_ICONS.roomElements,
+            label: t('sceneInspector.feature'),
+          },
+          feature.visible === false && {
+            icon: EyeSlashIcon,
+            label: t('sceneInspector.hidden'),
+          },
+        ]}
       />
       <InspectorBody>
         {propertiesSection(

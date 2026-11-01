@@ -305,9 +305,14 @@ the rooms, the templates: one button the panel's width that opens them as a
 menu, shaped as the header's class menu (a check at the chosen entry, a
 pencil and a bin beside it where an entry can be renamed and removed) — shared by the student, the room, the plan and
 every panel of "Bibliothek": the header is a
-strip of 44px media, an `h2` and a subtitle above a hairline — the `h2` wraps
-rather than truncates, and a student's arrows to the neighbours sit in the
-subtitle beside the position, so the name keeps the width. The name in the
+strip of a 44px tile (`InspectorMediaTile`, the thing's icon at 20px; a
+student's photo instead), an `h2` and a line of at most two facts with a 12px
+icon each (`InspectorMeta`), inset so its words start where the title's do,
+above a hairline — every header carries all three, so all stand at one
+height; the `h2` wraps rather than truncates, and a student's arrows up and
+down the class stand at the strip's far end — stacked under a mouse, side by
+side under a finger, within the strip's height either way.
+A title that cannot be renamed stands in the pill's box without its frame. The name in the
 `h2` is where it is renamed — a student's, a class's, a room's, a plan's, a
 template's, the export sheet's title: a bordered pill (`editableTitleClass`)
 that opens as a field when pressed (`InspectorTitleField`,

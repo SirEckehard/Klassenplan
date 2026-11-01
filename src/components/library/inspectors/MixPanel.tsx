@@ -1,7 +1,12 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import { useTranslation } from 'react-i18next';
-import { ShuffleIcon, WarningIcon } from '@phosphor-icons/react';
+import {
+  ClockCounterClockwiseIcon,
+  ShuffleIcon,
+  WarningIcon,
+} from '@phosphor-icons/react';
+import { ENTITY_ICONS } from '@/components/shell/entityIcons';
 import {
   InspectorBody,
   InspectorDeleteFooter,
@@ -55,7 +60,19 @@ export default function MixPanel({
       <InspectorHeader
         media={<InspectorMediaTile icon={ShuffleIcon} />}
         title={formatDateAndTime(mix.timestamp)}
-        subtitle={roomName}
+        // A mix whose room is gone still says where it is kept.
+        meta={[
+          roomName
+            ? {
+                icon: ENTITY_ICONS.room,
+                label: roomName,
+                srLabel: `${t('shell.layers.room')}:`,
+              }
+            : {
+                icon: ClockCounterClockwiseIcon,
+                label: t('storage.mixHistory'),
+              },
+        ]}
       />
       <InspectorBody>
         {!fits && (

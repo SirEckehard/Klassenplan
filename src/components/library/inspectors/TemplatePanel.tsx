@@ -1,16 +1,18 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import { useTranslation } from 'react-i18next';
+import { FolderSimpleIcon } from '@phosphor-icons/react';
 import {
   InspectorBody,
   InspectorDeleteFooter,
   InspectorHeader,
+  InspectorMediaTile,
   InspectorSection,
 } from '@/components/shell/InspectorPanel';
 import type { ClassroomTemplate } from '@/types';
 import type { NameProblem } from '@/utils';
-import RoomThumbnail from '../RoomThumbnail';
 import InspectorTitleField from '@/components/shell/InspectorTitleField';
+import { ENTITY_ICONS } from '@/components/shell/entityIcons';
 import { ValueRow } from './panelParts';
 
 /**
@@ -41,12 +43,7 @@ export default function TemplatePanel({
   return (
     <>
       <InspectorHeader
-        media={
-          <RoomThumbnail
-            scene={template.scene}
-            className="h-11 w-16.5 shrink-0"
-          />
-        }
+        media={<InspectorMediaTile icon={ENTITY_ICONS.template} />}
         title={
           <InspectorTitleField
             label={t('sceneInspector.templateName')}
@@ -67,7 +64,7 @@ export default function TemplatePanel({
             focusRequest={renameRequest}
           />
         }
-        subtitle={t('library.templates')}
+        meta={[{ icon: FolderSimpleIcon, label: t('library.templates') }]}
       />
       <InspectorBody>
         <InspectorSection title={t('library.template.section')}>

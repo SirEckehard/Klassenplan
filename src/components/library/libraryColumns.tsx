@@ -3,7 +3,6 @@
 import type { TFunction } from 'i18next';
 import {
   ClockCounterClockwiseIcon,
-  GraduationCapIcon,
   GridNineIcon,
   ShuffleIcon,
   SquaresFourIcon,
@@ -15,6 +14,7 @@ import type { LibraryClass } from '@/hooks/library/useClassLibrary';
 import { formatDate, formatDateAndTime, formatStoredDate } from '@/utils';
 import { buildNeighborhoodStats, isCountedUsage } from '@/utils/data/planUsage';
 import StudentAvatar from '@/components/students/StudentAvatar';
+import { ENTITY_ICONS } from '@/components/shell/entityIcons';
 import RoomThumbnail from './RoomThumbnail';
 import type { BrowserColumn, BrowserItem } from './ColumnBrowser';
 
@@ -186,7 +186,7 @@ export function buildLibraryColumns({
           t('shell.status.students', {
             count: summary.studentCount,
           }),
-        leading: <GraduationCapIcon size={iconSize} />,
+        leading: <ENTITY_ICONS.class size={iconSize} />,
         badges: summary.id === openClassId ? openChip : undefined,
         isFolder: true,
       },

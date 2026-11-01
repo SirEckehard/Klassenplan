@@ -37,18 +37,57 @@ import {
  * fills them; none of them invents a frame of its own.
  */
 
-/** What is selected: a face or a glyph, its name, and where it sits. */
+/**
+ * One fact in the line under an inspector's title: a small icon and its
+ * words, as the plan's heading says "✓ Heute gespeichert · ⌂ Raum".
+ */
+export interface InspectorMetaItem {
+  /** An icon, or a mark of its own — the plan's check, dot or ring. */
+  icon: Icon | React.ReactElement;
+  label: React.ReactNode;
+  /**
+   * What the icon says that the words do not, for a screen reader alone —
+   * "Raum:" before a room's bare name.
+   */
+  srLabel?: string;
+}
+
+/**
+ * At most two facts: the line stays one line in the column and says what the
+ * selection is, where it stands or how it stands — the rest is the body's.
+ */
+export type InspectorMeta = readonly [
+  InspectorMetaItem,
+  (InspectorMetaItem | false | null | undefined)?,
+];
+
+/**
+ * A title that cannot be renamed — a table's kind, a mix's date — in the box
+ * a renamable one is pressed in, without its frame, so every title starts at
+ * one place and stands at one height.
+ */
+const staticTitleClass = 'block border border-transparent px-3 py-1';
+
+/**
+ * What is selected, in one shape for every inspector: a 44px tile or a face,
+ * the name, and a line of at most two facts with an icon each, whose words
+ * line up with the title's.
+ */
 export function InspectorHeader({
   media,
   title,
-  subtitle,
+  meta,
   actions,
 }: {
-  /** Avatar, swatch or icon — whatever stands for the thing. */
-  media?: React.ReactNode;
+  /** The thing's tile (`InspectorMediaTile`) or a student's photo. */
+  media: React.ReactNode;
+  /** A name as text, or the field it is renamed in. */
   title: React.ReactNode;
-  subtitle?: React.ReactNode;
-  /** Stepping through the selection, at the far end of the strip. */
+  meta: InspectorMeta;
+  /**
+   * At the far end of the strip, within its height: closing the panel, the
+   * student's arrows through the class.
+   */
   actions?: React.ReactNode;
 }) {
   return (
@@ -64,13 +103,21 @@ export function InspectorHeader({
         <h2
           className={`min-w-0 wrap-break-word text-(--text-page) ${inspectorTitleTextClass}`}
         >
-          {title}
+          {typeof title === 'string' ? (
+            <span className={staticTitleClass}>{title}</span>
+          ) : (
+            title
+          )}
         </h2>
-        {subtitle && (
-          <span className="text-xs tabular-nums text-(--text-muted)">
-            {subtitle}
-          </span>
-        )}
+        {/* Inset by the title box's padding and border, so its words start
+            where the title's do. Two facts side by side, each kept whole
+            where they wrap. */}
+        <div className="flex min-h-5 flex-wrap items-center gap-x-3 gap-y-0.5 pl-3.25 text-xs tabular-nums text-(--text-muted)">
+          {meta.map(
+            (item, index) =>
+              item && <InspectorMetaFact key={index} item={item} />,
+          )}
+        </div>
       </div>
       {actions && (
         <div className="ml-auto flex shrink-0 items-center gap-1">
@@ -78,6 +125,21 @@ export function InspectorHeader({
         </div>
       )}
     </div>
+  );
+}
+
+function InspectorMetaFact({ item }: { item: InspectorMetaItem }) {
+  const { icon: ItemIcon, label, srLabel } = item;
+  return (
+    <span className="inline-flex min-w-0 items-center gap-1">
+      {React.isValidElement(ItemIcon) ? (
+        ItemIcon
+      ) : (
+        <ItemIcon size={12} aria-hidden="true" className="shrink-0" />
+      )}
+      {srLabel && <span className="sr-only">{srLabel}</span>}
+      <span className="truncate">{label}</span>
+    </span>
   );
 }
 

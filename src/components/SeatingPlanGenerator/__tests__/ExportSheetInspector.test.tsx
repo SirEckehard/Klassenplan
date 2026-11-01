@@ -12,6 +12,7 @@ import {
 } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import '@/i18n';
+import { GridNineIcon } from '@phosphor-icons/react';
 import ExportSheetInspector from '../ExportSheetInspector';
 import {
   DEFAULT_NOTE_LIST_SETTINGS,
@@ -31,6 +32,7 @@ const renderInspector = (
   render(
     <ExportSheetInspector
       mode="table"
+      planMeta={[{ icon: GridNineIcon, label: 'Heute gespeichert' }]}
       title=""
       onTitleChange={() => {}}
       orientation="portrait"

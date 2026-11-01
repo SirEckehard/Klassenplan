@@ -90,6 +90,7 @@ import ExportToolPanel, {
   type ExportView,
 } from '@/components/SeatingPlanGenerator/ExportToolPanel';
 import ExportSheetInspector from '@/components/SeatingPlanGenerator/ExportSheetInspector';
+import { usePlanStateMeta } from '@/components/SeatingPlanGenerator/views/PlanInspectorParts';
 import SmartSidebar from '@/components/ui/panels/SmartSidebar';
 import { useInspector } from '@/contexts/InspectorContext';
 
@@ -213,6 +214,7 @@ export default function Export() {
     rooms,
     activeRoomId,
   } = useSeatingPlanState();
+  const planMeta = usePlanStateMeta();
   const { generateCircleSeating, cancelCircleGeneration } =
     useSeatingPlanActions();
   const { exportError } = errorHandlers;
@@ -1295,6 +1297,7 @@ export default function Export() {
   const sheetInspector = (
     <ExportSheetInspector
       mode={previewMode}
+      planMeta={planMeta}
       noteList={{
         settings: noteListSettings,
         onChange: updateNoteList,

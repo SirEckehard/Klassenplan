@@ -2,13 +2,15 @@
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { XIcon } from '@phosphor-icons/react';
+import { UserListIcon, XIcon } from '@phosphor-icons/react';
+import { ENTITY_ICONS } from '@/components/shell/entityIcons';
 import type { Student } from '@/types';
 import { quietIconButtonClass } from '@/utils';
 import {
   InspectorBody,
   InspectorDeleteFooter,
   InspectorHeader,
+  InspectorMediaTile,
   InspectorSection,
 } from '@/components/shell/InspectorPanel';
 import GenderSelector from './GenderSelector';
@@ -124,8 +126,11 @@ export default function StudentBulkInspector({
   return (
     <>
       <InspectorHeader
+        media={<InspectorMediaTile icon={UserListIcon} />}
         title={t('bulkEdit.selectedCount', { count: selectedStudents.length })}
-        subtitle={t('bulkEdit.appliesToAll')}
+        meta={[
+          { icon: ENTITY_ICONS.students, label: t('bulkEdit.appliesToAll') },
+        ]}
         actions={
           <button
             type="button"

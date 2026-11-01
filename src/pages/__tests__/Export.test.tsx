@@ -106,6 +106,12 @@ const withPlan = () => ({
   circleGenerationInProgress: false,
   circleGenerationStatus: null,
   activeClass: { id: 'c1', name: 'Klasse 7b' },
+  rooms: [],
+  activeRoomId: null,
+  seatingHistory: [],
+  activePlanId: null,
+  lockedPositions: {},
+  seatingMode: 'table',
 });
 
 const withoutPlan = () => ({

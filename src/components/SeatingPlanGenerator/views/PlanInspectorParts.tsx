@@ -5,7 +5,7 @@ import {
   CheckIcon,
   CopyIcon,
   FloppyDiskIcon,
-  HouseIcon,
+  ShuffleIcon,
 } from '@phosphor-icons/react';
 import {
   useSeatingPlanState,
@@ -15,9 +15,13 @@ import { usePlanSaveState } from '@/hooks/plan/usePlanSaveState';
 import {
   InspectorActionRow,
   InspectorHeader,
+  InspectorMediaTile,
   InspectorMenuButton,
   InspectorSection,
+  type InspectorMeta,
+  type InspectorMetaItem,
 } from '@/components/shell/InspectorPanel';
+import { ENTITY_ICONS } from '@/components/shell/entityIcons';
 import { announce } from '@/utils/ui/toast';
 import InspectorTitleField from '@/components/shell/InspectorTitleField';
 import {
@@ -88,6 +92,60 @@ function usePlanSave() {
 }
 
 /**
+ * The line under the plan's name — on the plan layer and on the export page,
+ * which shows the same plan: whether the stage is what was saved, and once
+ * the class has more than one room, which room the plan belongs to (decision
+ * 0024). A check once it is saved, a dot while it has changed — the mark an
+ * editor puts on an unsaved document —, a ring while it never was.
+ */
+export function usePlanStateMeta(): InspectorMeta {
+  const { t } = useTranslation('generator');
+  const { classroomScene, currentSeating, rooms, activeRoomId } =
+    useSeatingPlanState();
+  const { openPlan, hasUnsavedChanges } = usePlanSaveState();
+
+  const mark = (className: string) => (
+    <span
+      aria-hidden="true"
+      className={`size-1.5 shrink-0 rounded-full ${className}`}
+    />
+  );
+  const check = (
+    <CheckIcon
+      size={12}
+      weight="bold"
+      aria-hidden="true"
+      className="shrink-0 text-(--status-ok)"
+    />
+  );
+  const [icon, label]: [InspectorMetaItem['icon'], string] = !hasPlanForScene(
+    classroomScene,
+    currentSeating,
+  )
+    ? [ShuffleIcon, t('shell.status.noPlan')]
+    : !openPlan
+      ? [mark('border border-current'), t('planSave.state.new')]
+      : hasUnsavedChanges()
+        ? [mark('bg-(--text-page)'), t('planSave.state.changed')]
+        : openPlan.autoSaved
+          ? [check, t('planSave.state.autoSaved')]
+          : [check, savedOn(openPlan.date, t)];
+  const roomName =
+    rooms.length > 1
+      ? rooms.find((room) => room.id === activeRoomId)?.name
+      : undefined;
+
+  return [
+    { icon, label },
+    !!roomName && {
+      icon: ENTITY_ICONS.room,
+      label: roomName,
+      srLabel: `${t('shell.layers.room')}:`,
+    },
+  ];
+}
+
+/**
  * The plan layer's inspector heading: the plan itself, as the room's names
  * the room and the class layer's the class — its name, renamed here as a
  * student's is, and under it whether what is on the stage is what was saved.
@@ -108,47 +166,21 @@ function usePlanSave() {
  */
 export function PlanInspectorHeader() {
   const { t } = useTranslation('generator');
-  const { planName, classroomScene, currentSeating, rooms, activeRoomId } =
-    useSeatingPlanState();
+  const { planName, seatingMode } = useSeatingPlanState();
   const { renameSeatingPlan, setPlanName } = useSeatingPlanActions();
   const { hasUnsavedChanges } = usePlanSaveState();
   const { openPlan, canSave, nameTaken, save } = usePlanSave();
-
-  // What the stage is against what was saved: a check once it is saved, a
-  // dot while it has changed — the mark an editor puts on an unsaved
-  // document —, a ring while it never was. Nothing mixed yet takes no mark.
-  const mark = (className: string) => (
-    <span
-      aria-hidden="true"
-      className={`size-1.5 shrink-0 rounded-full ${className}`}
-    />
-  );
-  const check = (
-    <CheckIcon
-      size={12}
-      weight="bold"
-      aria-hidden="true"
-      className="shrink-0 text-(--status-ok)"
-    />
-  );
-  const [stateIcon, state] = !hasPlanForScene(classroomScene, currentSeating)
-    ? [null, t('shell.status.noPlan')]
-    : !openPlan
-      ? [mark('border border-current'), t('planSave.state.new')]
-      : hasUnsavedChanges()
-        ? [mark('bg-(--text-page)'), t('planSave.state.changed')]
-        : openPlan.autoSaved
-          ? [check, t('planSave.state.autoSaved')]
-          : [check, savedOn(openPlan.date, t)];
-  // Once the class has more than one room, the heading says which one the
-  // plan belongs to (decision 0024).
-  const roomName =
-    rooms.length > 1
-      ? rooms.find((room) => room.id === activeRoomId)?.name
-      : undefined;
+  const meta = usePlanStateMeta();
 
   return (
     <InspectorHeader
+      media={
+        <InspectorMediaTile
+          icon={
+            seatingMode === 'circle' ? ENTITY_ICONS.circle : ENTITY_ICONS.plan
+          }
+        />
+      }
       title={
         <InspectorTitleField
           label={t('planSave.nameLabel')}
@@ -178,22 +210,7 @@ export function PlanInspectorHeader() {
           onSaveShortcut={save}
         />
       }
-      subtitle={
-        // Two marks side by side, each kept whole where they wrap.
-        <span className="flex flex-wrap items-center gap-x-3 gap-y-0.5">
-          <span className="inline-flex items-center gap-1.5">
-            {stateIcon}
-            {state}
-          </span>
-          {roomName && (
-            <span className="inline-flex min-w-0 items-center gap-1">
-              <HouseIcon size={12} aria-hidden="true" className="shrink-0" />
-              <span className="sr-only">{t('shell.layers.room')}:</span>
-              <span className="truncate">{roomName}</span>
-            </span>
-          )}
-        </span>
-      }
+      meta={meta}
     />
   );
 }

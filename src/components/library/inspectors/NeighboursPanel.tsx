@@ -12,6 +12,7 @@ import {
   InspectorMediaTile,
   InspectorSection,
 } from '@/components/shell/InspectorPanel';
+import { ENTITY_ICONS } from '@/components/shell/entityIcons';
 import type { PlanUsageRecordsReturn } from '@/hooks/plan/usePlanUsageRecords';
 import type { PlanUsage } from '@/types';
 import {
@@ -171,7 +172,13 @@ export default function NeighboursPanel({
       <InspectorHeader
         media={<InspectorMediaTile icon={UsersThreeIcon} />}
         title={t('storage.neighbors.tab')}
-        subtitle={className}
+        meta={[
+          {
+            icon: ENTITY_ICONS.class,
+            label: className,
+            srLabel: `${t('shell.layers.class')}:`,
+          },
+        ]}
       />
       <InspectorBody>
         {planUsage.length === 0 ? (

@@ -3,6 +3,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import {
+  CalendarBlankIcon,
   CheckCircleIcon,
   CopyIcon,
   FolderPlusIcon,
@@ -13,6 +14,7 @@ import {
   InspectorBody,
   InspectorDeleteFooter,
   InspectorHeader,
+  InspectorMediaTile,
   InspectorIcon,
   InspectorRow,
   InspectorSection,
@@ -37,9 +39,9 @@ import {
 import ToggleSwitch from '@/components/ui/controls/ToggleSwitch';
 import InspectorSelect from '@/components/students/InspectorSelect';
 import { hasShapeMismatch } from '@/utils/math/scene';
-import RoomThumbnail from '../RoomThumbnail';
 import NameField from '@/components/shell/NameField';
 import InspectorTitleField from '@/components/shell/InspectorTitleField';
+import { ENTITY_ICONS } from '@/components/shell/entityIcons';
 import { ValueRow } from './panelParts';
 
 export type PlanMove = { roomId: string } | { newRoomName: string };
@@ -131,9 +133,7 @@ export default function PlanPanel({
   return (
     <>
       <InspectorHeader
-        media={
-          <RoomThumbnail scene={plan.scene} className="h-11 w-16.5 shrink-0" />
-        }
+        media={<InspectorMediaTile icon={ENTITY_ICONS.plan} />}
         title={
           <InspectorTitleField
             label={t('planSave.nameLabel')}
@@ -144,12 +144,13 @@ export default function PlanPanel({
             focusRequest={renameRequest}
           />
         }
-        subtitle={[
-          formatStoredDate(plan.date),
-          plan.autoSaved ? t('library.chipAutoSaved') : null,
-        ]
-          .filter(Boolean)
-          .join(' · ')}
+        meta={[
+          { icon: CalendarBlankIcon, label: formatStoredDate(plan.date) },
+          plan.autoSaved && {
+            icon: MagicWandIcon,
+            label: t('library.chipAutoSaved'),
+          },
+        ]}
       />
       <InspectorBody>
         <InspectorSection title={t('library.plan.section')}>

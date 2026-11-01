@@ -9,6 +9,7 @@ import {
   InspectorMediaTile,
   InspectorSection,
 } from '@/components/shell/InspectorPanel';
+import { ENTITY_ICONS } from '@/components/shell/entityIcons';
 import type { PlanUsage } from '@/types';
 import { formatDate } from '@/utils';
 import { isCountedUsage, type UsageOrigin } from '@/utils/data/planUsage';
@@ -60,7 +61,9 @@ export default function NeighbourPairPanel({
           a: studentName,
           b: neighbourName,
         })}
-        subtitle={t('storage.neighbors.tab')}
+        meta={[
+          { icon: ENTITY_ICONS.students, label: t('storage.neighbors.tab') },
+        ]}
       />
       <InspectorBody>
         <InspectorSection title={t('storage.neighbors.pairSection')}>
