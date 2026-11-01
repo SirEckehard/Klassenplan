@@ -28,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - A student can no longer be added twice under the same name
 - Large backups can always be restored, and backups are about half the size
 - On a phone in Chrome, the seating plan and the circle show again
+- A student at the seat nearest the window or door counts as fully met
 - Undoing the removal of a table brings back its locks
 - On an iPhone, tall dialogs fit the screen, and downloads in Safari no longer arrive empty
 - Other small fixes

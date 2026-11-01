@@ -19,6 +19,7 @@ import type {
   SeatingArrangement,
   Student,
 } from '@/types';
+import { ADJACENT_GAP } from '@/utils';
 import type { PreviousPairWeights } from '@/utils/pairs';
 import { seatStudentIdentifier } from '@/utils/pairs';
 import { getSeatPositions } from '@/utils/math/seatGeometry';
@@ -74,6 +75,11 @@ export interface ModelContext {
   indexOf: Map<string, number>;
   /** Where every seat is, for the seat terms and the fulfilment */
   places: SeatPlace[];
+  /**
+   * `ADJACENT_GAP` in the scale of `SeatPlace.window` and `.door`: how much
+   * farther than the nearest seats a seat may be and still count as near.
+   */
+  nearSlack: { window: number; door: number };
   /** Pair terms: `kind * n * n + i * n + j` */
   pair: Float64Array;
   /** Seat terms: `student * size + seat` */
@@ -189,6 +195,10 @@ export const buildModelContext = (input: ModelInput): ModelContext => {
     facts,
     indexOf,
     places,
+    nearSlack: {
+      window: ADJACENT_GAP / distances.maxWindowDistance,
+      door: ADJACENT_GAP / distances.maxDoorDistance,
+    },
     pair,
     seat: seatValues,
     hasTableTerms: weights.gender > 0 || weights.roles > 0,

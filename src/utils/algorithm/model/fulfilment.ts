@@ -24,6 +24,7 @@ import {
   relationWeight,
   wishEachOther,
   GENDER_COUNT,
+  type SeatPlace,
 } from './criteria';
 import { frontRowsOf, toleratesRowBehind } from './frontPool';
 import {
@@ -106,6 +107,12 @@ const closestTo = (
   return closest;
 };
 
+/** Whether a seat belongs to a table in the mix. */
+const isSeatInMix = (context: ModelContext, seat: number): boolean => {
+  const table = context.scene.tables[context.layout.tableOf[seat]!];
+  return table ? isTableActive(table) : false;
+};
+
 /**
  * The closest relation the room offers between two seats of tables in the
  * mix, among the kinds `include` accepts: 1 where there are seat partners,
@@ -116,11 +123,8 @@ const closestTheRoomOffers = (
   context: ModelContext,
   include: (kind: number) => boolean,
 ): number => {
-  const { layout, scene } = context;
-  const inMix = (seat: number) => {
-    const table = scene.tables[layout.tableOf[seat]!];
-    return table ? isTableActive(table) : false;
-  };
+  const { layout } = context;
+  const inMix = (seat: number) => isSeatInMix(context, seat);
   let best = 0;
   for (let seat = 0; seat < layout.size; seat++) {
     if (!inMix(seat)) continue;
@@ -130,6 +134,32 @@ const closestTheRoomOffers = (
     }
   }
   return best;
+};
+
+/**
+ * How near a window or a door a seat counts, against what the room allows: as
+ * many students as want one can sit no nearer than the `count` nearest seats
+ * of the tables in the mix, so a seat as near as the last of them — or up to
+ * `slack` farther, the gap that still counts as directly beside — is full
+ * credit, the room's farthest seat none, and linear between.
+ */
+const nearnessCredit = (
+  context: ModelContext,
+  distanceOf: (place: SeatPlace) => number | null,
+  count: number,
+  slack: number,
+): ((distance: number) => number) => {
+  const distances: number[] = [];
+  for (let seat = 0; seat < context.layout.size; seat++) {
+    if (!isSeatInMix(context, seat)) continue;
+    const distance = distanceOf(context.places[seat]!);
+    if (distance !== null) distances.push(distance);
+  }
+  distances.sort((a, b) => a - b);
+  const nearest = distances[Math.min(count, distances.length) - 1] ?? 0;
+  const reach = Math.min(1, nearest + slack);
+  return (distance) =>
+    reach >= 1 ? 1 : Math.min(1, (1 - distance) / (1 - reach));
 };
 
 /**
@@ -161,6 +191,20 @@ export function evaluateCriteria(
   };
 
   const wishReach = closestTheRoomOffers(context, () => true);
+  const countSeated = (test: (fact: (typeof facts)[number]) => boolean) =>
+    seated.filter((student) => test(facts[student]!)).length;
+  const windowCredit = nearnessCredit(
+    context,
+    (place) => place.window,
+    countSeated((fact) => fact.prefersWindow),
+    context.nearSlack.window,
+  );
+  const doorCredit = nearnessCredit(
+    context,
+    (place) => place.door,
+    countSeated((fact) => fact.prefersDoor),
+    context.nearSlack.door,
+  );
   const languageReach = closestTheRoomOffers(context, isCloseKind);
 
   const wish = new CaseCollector();
@@ -232,10 +276,10 @@ export function evaluateCriteria(
     if (fact.height === 'small') height.add(place.depth > 0.5 ? 1 : 0, [seat]);
     if (fact.height === 'tall') height.add(place.depth < 0.5 ? 1 : 0, [seat]);
     if (fact.prefersWindow && place.window !== null) {
-      windowSeats.add(1 - place.window, [seat]);
+      windowSeats.add(windowCredit(place.window), [seat]);
     }
     if (fact.prefersDoor && place.door !== null) {
-      doorSeats.add(1 - place.door, [seat]);
+      doorSeats.add(doorCredit(place.door), [seat]);
     }
     if (fact.languageNeedsSupport && languageReach > 0) {
       language.add(

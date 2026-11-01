@@ -80,6 +80,13 @@ const SINGLES_SIDE_BY_SIDE = room([
   table(600, 290, 'single'),
 ]);
 
+/** Three desks, one behind the other, ever farther from the window. */
+const DESKS_FROM_THE_WINDOW = room([
+  table(100, 100),
+  table(300, 100),
+  table(500, 100),
+]);
+
 const student = (id: string, extra: Partial<Student> = {}): Student =>
   ({
     id,
@@ -507,6 +514,45 @@ describe('seatingStatistics', () => {
         { preferFrontForNeedsFrontSeat: 8 },
       );
       expect(percentage('preferFrontForNeedsFrontSeat')).toBe(0);
+    });
+  });
+
+  describe('window and door seats', () => {
+    const settings = { preferWindowSeats: 5 };
+    const wantsWindow = (id: string) => student(id, { prefersWindow: true });
+
+    it('counts the nearest seat the room has in full', () => {
+      const { percentage } = fulfilment(
+        DESKS_FROM_THE_WINDOW,
+        [[wantsWindow('w'), null], [], []],
+        settings,
+      );
+      expect(percentage('preferWindowSeats')).toBe(100);
+    });
+
+    it('counts as many nearest seats in full as students want one', () => {
+      const { percentage } = fulfilment(
+        DESKS_FROM_THE_WINDOW,
+        [[wantsWindow('a'), wantsWindow('b')], [wantsWindow('c'), null], []],
+        settings,
+      );
+      expect(percentage('preferWindowSeats')).toBe(100);
+    });
+
+    it('counts a seat farther than the room allows in part, the farthest not', () => {
+      const middle = fulfilment(
+        DESKS_FROM_THE_WINDOW,
+        [[], [wantsWindow('w'), null], []],
+        settings,
+      ).percentage('preferWindowSeats');
+      expect(middle).toBeGreaterThan(0);
+      expect(middle).toBeLessThan(100);
+      const farthest = fulfilment(
+        DESKS_FROM_THE_WINDOW,
+        [[], [], [wantsWindow('w'), null]],
+        settings,
+      ).percentage('preferWindowSeats');
+      expect(farthest).toBe(0);
     });
   });
 

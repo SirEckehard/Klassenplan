@@ -1,6 +1,6 @@
 # Algorithm Documentation
 
-> **Status:** current · **Last reviewed:** 2026-10-29
+> **Status:** current · **Last reviewed:** 2026-11-02
 
 This document describes the algorithms used in the Klassenplan seating generator.
 
@@ -221,6 +221,10 @@ plan the mixing could not improve on that criterion:
   tables can hold; at single desks there is none.
 - Gender counts against the tables the class's make-up can balance: with 20
   boys and 8 girls at 14 double desks, 8 mixed desks are all there can be.
+- Window and door seats count against the seats nearest to them: with three
+  students wanting a window, a seat as near as the third-nearest seat of the
+  tables in the mix — or up to `ADJACENT_GAP` farther — is met, the farthest
+  seat of the room not at all, and linear between.
 - A wish the wished classmate answers with a distance wish is the distance
   wish's case while distance wishes count.
 - A plan is no repetition of itself: when it is the newest mix, that mix is no
