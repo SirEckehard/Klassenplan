@@ -169,11 +169,12 @@ test('a teacher can go from an empty app to an exportable seating plan', async (
     await name.press('Enter');
     await inspector.getByRole('button', { name: 'Plan speichern' }).click();
 
-    // Filtered rather than indexed: earlier toasts (class created, plan mixed)
-    // may still be on screen and their order is not this test's business.
+    // The inspector's head says it was saved, where the name stands; no card
+    // says it again over the stage (decision 0037).
+    await expect(inspector.getByText('Heute gespeichert')).toBeVisible();
     await expect(
       page.getByTestId('toast-item').filter({ hasText: 'E2E Plan' }),
-    ).toBeVisible();
+    ).toHaveCount(0);
   });
 
   await test.step('step 4 — the export renders a preview', async () => {

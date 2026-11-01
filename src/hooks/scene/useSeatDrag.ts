@@ -7,7 +7,7 @@ import {
   type NameDisplayMode,
   type NameLabels,
 } from '@/utils';
-import { showToast, TOAST_MESSAGES } from '@/utils/ui/toast';
+import { announce, TOAST_MESSAGES } from '@/utils/ui/toast';
 import type {
   DragHover,
   DragOrigin,
@@ -182,7 +182,9 @@ export function useSeatDrag({
           if (target.locked) {
             onSeatDropRejected?.({ ...target, locked: true });
             triggerHapticFeedback('error');
-            showToast('error', TOAST_MESSAGES.SEAT_LOCKED_DROP);
+            // The seat itself shows it is locked, where the student was let
+            // go (`onSeatDropRejected`); a card said it again far from it.
+            announce(TOAST_MESSAGES.SEAT_LOCKED_DROP);
             return;
           }
           const moved = moveStudent(

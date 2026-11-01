@@ -1,14 +1,16 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import { ToastProvider } from '@/components/ui/feedback/ToastProvider';
 import {
+  announce,
   dismissAllToasts,
   dismissToast,
   quietSuccessToasts,
   showToast,
 } from '@/utils/ui/toast';
+import { registerToastDock } from '@/hooks/ui/toastDock';
 import { getButton } from '@/__tests__/utils';
 
 const cards = () => screen.queryAllByTestId('toast-item');
@@ -24,16 +26,99 @@ describe('ToastProvider', () => {
     act(() => dismissAllToasts());
   });
 
-  // Top right, but under the header: in its corner messages lay over Help
-  // and the gear.
-  it('stacks messages at the top right, under the header', () => {
+  // Top right they lay over the inspector's head, where a teacher was
+  // typing (decision 0037). Without a shell there is nothing to keep clear
+  // of but the window's edge.
+  it('stands at the bottom of the window without a shell', () => {
     render(<ToastProvider>{null}</ToastProvider>);
+    act(() => {
+      showToast('error', 'Fehler beim Import');
+    });
 
-    expect(screen.getByTestId('toast-container')).toHaveClass(
-      'top-18',
-      'items-end',
-      'sm:right-6',
-    );
+    const stack = screen.getByTestId('toast-container');
+    expect(stack).toHaveClass('flex-col-reverse', 'items-center');
+    expect(stack.style.bottom).toMatch(/1rem.*safe-area-inset-bottom/);
+    expect(stack.style.top).toBe('');
+  });
+
+  it('stands over the stage the shell measures, above its status bar', () => {
+    const unregister = registerToastDock(() => ({
+      left: 208,
+      right: 320,
+      bottom: 77,
+    }));
+    try {
+      render(<ToastProvider>{null}</ToastProvider>);
+      act(() => {
+        showToast('error', 'Fehler beim Import');
+      });
+
+      const stack = screen.getByTestId('toast-container');
+      expect(stack.style.left).toMatch(/^calc\(208px/);
+      expect(stack.style.right).toMatch(/^calc\(320px/);
+      expect(stack.style.bottom).toBe('77px');
+    } finally {
+      unregister();
+    }
+  });
+
+  it('says to a screen reader alone what the screen already shows', () => {
+    render(<ToastProvider>{null}</ToastProvider>);
+    act(() => {
+      announce('Plan „Deutsch“ geladen.');
+    });
+
+    expect(cards()).toHaveLength(0);
+    const said = screen.getByText('Plan „Deutsch“ geladen.');
+    expect(said.closest('[role="status"]')).toHaveClass('sr-only');
+  });
+
+  describe('a tap on the message', () => {
+    it('puts it away wherever it lands', () => {
+      const onDismiss = vi.fn();
+      render(<ToastProvider>{null}</ToastProvider>);
+      act(() => {
+        showToast('error', 'Fehler beim Import', { onDismiss });
+      });
+
+      fireEvent.click(screen.getByText('Fehler beim Import'));
+
+      expect(screen.queryByText('Fehler beim Import')).toBeNull();
+      expect(onDismiss).toHaveBeenCalledOnce();
+    });
+
+    it('on its button does what the button says', () => {
+      const undo = vi.fn();
+      render(<ToastProvider>{null}</ToastProvider>);
+      act(() => {
+        showToast('info', 'Dienste neu verteilt.', {
+          action: { label: 'Rückgängig', onClick: undo },
+        });
+      });
+
+      fireEvent.click(getButton(/Rückgängig/));
+
+      expect(undo).toHaveBeenCalledOnce();
+      expect(screen.queryByText('Dienste neu verteilt.')).toBeNull();
+    });
+
+    it('that ends a swipe let go too early leaves it', () => {
+      render(<ToastProvider>{null}</ToastProvider>);
+      act(() => {
+        showToast('error', 'Fehler beim Import');
+      });
+      const [card] = cards();
+      // jsdom lays nothing out; the card's real size decides "far enough".
+      Object.defineProperty(card, 'offsetWidth', { value: 368 });
+      Object.defineProperty(card, 'offsetHeight', { value: 56 });
+
+      fireEvent.pointerDown(card, { pointerId: 1, button: 0, clientX: 100 });
+      fireEvent.pointerMove(card, { pointerId: 1, clientX: 130 });
+      fireEvent.pointerUp(card, { pointerId: 1, clientX: 130 });
+      fireEvent.click(card);
+
+      expect(screen.getByText('Fehler beim Import')).toBeVisible();
+    });
   });
 
   describe('with success messages quieted, as on the projection', () => {
@@ -77,7 +162,7 @@ describe('ToastProvider', () => {
     });
   });
 
-  it('puts the newest message on top, nearest the header', () => {
+  it('puts the newest message first, nearest the status bar', () => {
     render(<ToastProvider>{null}</ToastProvider>);
     act(() => {
       showToast('success', 'Backup exportiert');
@@ -190,7 +275,7 @@ describe('ToastProvider', () => {
     });
   });
 
-  describe('a swipe to the right', () => {
+  describe('a swipe sideways', () => {
     const swipe = (card: HTMLElement, target: Element = card) => {
       fireEvent.pointerDown(target, { pointerId: 1, button: 0, clientX: 100 });
       fireEvent.pointerMove(card, { pointerId: 1, clientX: 160 });
@@ -223,6 +308,41 @@ describe('ToastProvider', () => {
 
       expect(screen.getByText('Nachbarschaften zurückgesetzt')).toBeVisible();
     });
+
+    it('to the left puts it away too', () => {
+      render(<ToastProvider>{null}</ToastProvider>);
+      act(() => {
+        showToast('error', 'Fehler beim Import');
+      });
+      const [card] = cards();
+
+      fireEvent.pointerDown(card, { pointerId: 1, button: 0, clientX: 300 });
+      fireEvent.pointerMove(card, { pointerId: 1, clientX: 240 });
+      fireEvent.pointerMove(card, { pointerId: 1, clientX: 160 });
+      fireEvent.pointerUp(card, { pointerId: 1, clientX: 160 });
+
+      expect(screen.queryByText('Fehler beim Import')).toBeNull();
+    });
+  });
+
+  it('puts a message away with a swipe down, towards the bar', () => {
+    render(<ToastProvider>{null}</ToastProvider>);
+    act(() => {
+      showToast('error', 'Fehler beim Import');
+    });
+    const [card] = cards();
+
+    fireEvent.pointerDown(card, {
+      pointerId: 1,
+      button: 0,
+      clientX: 100,
+      clientY: 100,
+    });
+    fireEvent.pointerMove(card, { pointerId: 1, clientX: 100, clientY: 130 });
+    fireEvent.pointerMove(card, { pointerId: 1, clientX: 102, clientY: 170 });
+    fireEvent.pointerUp(card, { pointerId: 1, clientX: 102, clientY: 170 });
+
+    expect(screen.queryByText('Fehler beim Import')).toBeNull();
   });
 
   it('draws the time left only on a message that goes on its own', () => {
@@ -268,7 +388,9 @@ describe('ToastProvider', () => {
       const [card] = cards();
       expect(card).toHaveAttribute('aria-hidden', 'true');
       expect(card).not.toHaveAttribute('role');
-      expect(screen.queryByRole('status')).toBeNull();
+      expect(
+        within(screen.getByTestId('toast-container')).queryByRole('status'),
+      ).toBeNull();
 
       await act(async () => {
         finish();

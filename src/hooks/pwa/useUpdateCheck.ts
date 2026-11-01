@@ -1,11 +1,10 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { dismissToast, showToast } from '@/utils/ui/toast';
+import { dismissToast } from '@/utils/ui/toast';
 import { logError } from '@/utils';
 import { isOffline } from '@/utils/performance/chunkLoad';
-import { applyPendingUpdate, checkForUpdate } from './swUpdateController';
+import { checkForUpdate, setUpdateReady } from './swUpdateController';
 
 /**
  * Shared toast id for everything update related. The automatic prompt from
@@ -14,17 +13,20 @@ import { applyPendingUpdate, checkForUpdate } from './swUpdateController';
  */
 export const UPDATE_TOAST_ID = 'pwa-update';
 
-/** How long the gear's row says the version is current. */
-const UP_TO_DATE_MS = 3000;
+/** How long the gear's row says what a check found. */
+const ANSWER_MS = 3000;
+
+/** What a check found, said in the gear's row for a few seconds. */
+export type UpdateCheckAnswer = 'upToDate' | 'offline' | 'failed';
 
 interface UseUpdateCheckResult {
   /** True while a check is in flight; drives the spinner on the trigger. */
   checking: boolean;
   /**
-   * True for a few seconds after a check found nothing new. The answer stands
-   * in the gear's row itself: a toast lay over the very menu it came from.
+   * What the last check found, for a few seconds. The answer stands in the
+   * gear's row itself: a toast lay over the very menu it came from.
    */
-  upToDate: boolean;
+  answer: UpdateCheckAnswer | null;
   checkNow: () => void;
 }
 
@@ -36,21 +38,26 @@ interface UseUpdateCheckResult {
  * has been activated. This hook makes that path reachable on demand.
  */
 export function useUpdateCheck(): UseUpdateCheckResult {
-  const { t } = useTranslation('common');
   const [checking, setChecking] = useState(false);
-  const [upToDate, setUpToDate] = useState(false);
-  const upToDateTimer = useRef<number | undefined>(undefined);
+  const [answer, setAnswer] = useState<UpdateCheckAnswer | null>(null);
+  const answerTimer = useRef<number | undefined>(undefined);
 
-  useEffect(() => () => window.clearTimeout(upToDateTimer.current), []);
+  useEffect(() => () => window.clearTimeout(answerTimer.current), []);
+
+  const say = useCallback((next: UpdateCheckAnswer) => {
+    window.clearTimeout(answerTimer.current);
+    setAnswer(next);
+    answerTimer.current = window.setTimeout(() => setAnswer(null), ANSWER_MS);
+  }, []);
 
   const checkNow = useCallback(() => {
-    window.clearTimeout(upToDateTimer.current);
-    setUpToDate(false);
+    window.clearTimeout(answerTimer.current);
+    setAnswer(null);
 
     // Nothing to ask without a connection — and the fallback below, a plain
     // reload, would trade the app for the browser's offline page.
     if (isOffline()) {
-      showToast('info', t('pwa.updateCheckOffline'), { id: UPDATE_TOAST_ID });
+      say('offline');
       return;
     }
 
@@ -66,33 +73,23 @@ export function useUpdateCheck(): UseUpdateCheckResult {
         }
 
         if (result === 'update-ready') {
-          showToast('info', t('pwa.updateAvailable'), {
-            id: UPDATE_TOAST_ID,
-            duration: 0, // Stays until the teacher acts on it
-            action: {
-              label: t('pwa.reload'),
-              onClick: applyPendingUpdate,
-            },
-          });
+          // The row that asked offers it now ("Aktualisieren"), and so does
+          // the status bar where there is one (decision 0037).
+          setUpdateReady(true);
           return;
         }
 
-        // An earlier "offline" or "failed" is answered now.
         dismissToast(UPDATE_TOAST_ID);
-        setUpToDate(true);
-        upToDateTimer.current = window.setTimeout(
-          () => setUpToDate(false),
-          UP_TO_DATE_MS,
-        );
+        say('upToDate');
       })
       .catch((error: unknown) => {
         logError('Manual update check failed', { error }, 'PWA');
-        showToast('error', t('pwa.updateCheckFailed'), { id: UPDATE_TOAST_ID });
+        say('failed');
       })
       .finally(() => {
         setChecking(false);
       });
-  }, [t]);
+  }, [say]);
 
-  return { checking, upToDate, checkNow };
+  return { checking, answer, checkNow };
 }

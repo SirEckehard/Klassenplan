@@ -252,6 +252,8 @@ export default function SmartSidebar({
   return (
     <aside
       ref={containerRef}
+      // The toasts stand beside the column, never over it (`toastDock`).
+      data-shell-toolbar=""
       style={sidebarStyle}
       className={`
         ${isStickyColumn ? 'sticky top-20' : 'relative'} shrink-0 border-0

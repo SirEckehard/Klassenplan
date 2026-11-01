@@ -12,7 +12,6 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import '@/i18n'; // Initialize i18n for tests
 import StudentNameEditor from '../StudentNameEditor';
 import type { Student } from '../../../types';
-import { expectErrorToast } from '../../../__tests__/utils';
 import { ToastProvider } from '../../ui/feedback/ToastProvider';
 import { dismissAllToasts } from '../../../utils/ui/toast';
 
@@ -251,7 +250,9 @@ describe('StudentNameEditor', () => {
     expect(mockSetDraftName).toHaveBeenCalledWith('');
   });
 
-  it('shows error toast for empty name', async () => {
+  // A refusal is said under the field being typed in, not by a card far
+  // from it (decision 0037).
+  it('says under the field that a name is needed', () => {
     renderWithToast({
       student: baseStudent,
       allStudents: [baseStudent],
@@ -265,13 +266,16 @@ describe('StudentNameEditor', () => {
     const saveButton = screen.getByTitle(/Speichern|Save/i);
     fireEvent.click(saveButton);
 
-    await vi.waitFor(() => {
-      expectErrorToast();
-    });
+    const field = screen.getByRole('textbox');
+    expect(field).toHaveAttribute('aria-invalid', 'true');
+    expect(field).toHaveAccessibleDescription(
+      /Name darf nicht leer sein|Name cannot be empty/i,
+    );
+    expect(screen.queryByTestId('toast-item')).toBeNull();
     expect(mockUpdateStudent).not.toHaveBeenCalled();
   });
 
-  it('shows error toast for duplicate name', async () => {
+  it('says under the field that the name is taken, until it changes', () => {
     const otherStudent: Student = { ...baseStudent, id: '2', name: 'Bob' };
 
     renderWithToast({
@@ -287,10 +291,34 @@ describe('StudentNameEditor', () => {
     const saveButton = screen.getByTitle(/Speichern|Save/i);
     fireEvent.click(saveButton);
 
-    await vi.waitFor(() => {
-      expectErrorToast();
-    });
+    const field = screen.getByRole('textbox');
+    expect(field).toHaveAccessibleDescription(
+      /existiert bereits|already exists/i,
+    );
+    expect(screen.queryByTestId('toast-item')).toBeNull();
     expect(mockUpdateStudent).not.toHaveBeenCalled();
+
+    fireEvent.change(field, { target: { value: 'Bobby' } });
+    expect(field).not.toHaveAttribute('aria-invalid');
+  });
+
+  // The placeholders' card said it once over the stage; the field says it
+  // while there is a name to type.
+  it('says that Enter steps on while a student has no name yet', () => {
+    renderWithToast({
+      student: { ...baseStudent, name: '' },
+      allStudents: [baseStudent],
+      updateStudent: mockUpdateStudent,
+      isEditing: true,
+      setIsEditing: mockSetIsEditing,
+      draftName: '',
+      setDraftName: mockSetDraftName,
+      onSubmit: vi.fn(),
+    });
+
+    expect(screen.getByRole('textbox')).toHaveAccessibleDescription(
+      /Eingabetaste speichert|Enter saves/i,
+    );
   });
 
   it('cancels editing on cancel button click', () => {

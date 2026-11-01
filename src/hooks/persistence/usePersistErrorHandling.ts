@@ -6,6 +6,7 @@
  */
 import { useCallback, useEffect, useRef } from 'react';
 import { logError, logWarn, showToast, TOAST_MESSAGES } from '@/utils';
+import { confirmInStatusBar } from '@/utils/ui/statusNotice';
 import {
   RepositoryErrorType,
   type RepositoryError,
@@ -77,7 +78,8 @@ export function usePersistErrorHandling(
   const markSaved = useCallback(() => {
     if (getPersistStatus() !== 'failed') return;
     setPersistStatus('saved');
-    showToast('success', TOAST_MESSAGES.SAVE_RECOVERED);
+    // "Nicht gespeichert" goes from the bar, and the bar says it worked.
+    confirmInStatusBar('saved', TOAST_MESSAGES.SAVE_RECOVERED);
   }, []);
 
   const persistSnapshotResult = useCallback(

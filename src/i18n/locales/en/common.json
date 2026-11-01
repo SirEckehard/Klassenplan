@@ -131,7 +131,9 @@
     "errorTooShort": "The password must be at least {{min}} characters long.",
     "errorMismatch": "The passwords do not match.",
     "submitCreate": "Create backup",
-    "submitUnlock": "Decrypt"
+    "submitUnlock": "Decrypt",
+    "checking": "Decrypting …",
+    "errorWrong": "This password does not open the backup. Check how it is spelled and try again."
   },
   "backupRestore": {
     "title": "Restore backup",
@@ -162,8 +164,10 @@
     "checkForUpdates": "Check for updates",
     "checking": "Checking for updates …",
     "upToDateShort": "Current · v{{version}}",
-    "updateCheckFailed": "Update check failed. Are you online?",
-    "updateCheckOffline": "Checking for updates needs an internet connection.",
+    "updateReadyShort": "New version",
+    "updateReadyTitle": "New version ready – update now",
+    "offlineShort": "Offline · check later",
+    "checkFailedShort": "Check failed",
     "guide": {
       "title": "Install Klassenplan as an app",
       "intro": "As an app, Klassenplan opens in a window of its own from the Start menu, the Dock or the home screen, and works offline.",

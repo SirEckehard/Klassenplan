@@ -45,9 +45,13 @@ type Props = {
   newStudentName: string;
   onNewStudentNameChange: (value: string) => void;
   onAddStudent: () => void;
+  /** Why the last add was refused (an i18n key), said under the name. */
+  addStudentProblem?: string | null;
   isAddStudentDisabled: boolean;
   placeholderCount: string;
   onPlaceholderCountChange: (value: string) => void;
+  /** Why the last count was refused, said under it. */
+  placeholderProblem?: string | null;
   /**
    * Creates the placeholders; true once there are some, which closes the
    * panel — the first of them opens in the inspector to be named.
@@ -91,9 +95,11 @@ export default function ClassToolPanel({
   newStudentName,
   onNewStudentNameChange,
   onAddStudent,
+  addStudentProblem = null,
   isAddStudentDisabled,
   placeholderCount,
   onPlaceholderCountChange,
+  placeholderProblem = null,
   onCreatePlaceholders,
   onImportCsv,
   onExportCsv,
@@ -107,6 +113,16 @@ export default function ClassToolPanel({
   // The file picker is opened from a menu row: a hidden input inside a label
   // could not be reached with the keyboard.
   const csvInputRef = React.useRef<HTMLInputElement | null>(null);
+  const addProblemId = React.useId();
+  const placeholderProblemId = React.useId();
+  // A full class takes nobody more; the panel says so before a name is
+  // typed, rather than after.
+  const addProblem =
+    studentCount >= MAX_STUDENTS
+      ? t('toast:student.maxReached')
+      : addStudentProblem
+        ? t(addStudentProblem)
+        : null;
 
   return (
     <ToolRail density={density}>
@@ -168,6 +184,8 @@ export default function ClassToolPanel({
                     placeholder={t(
                       'students:studentList.addMenu.namePlaceholder',
                     )}
+                    aria-invalid={addProblem ? true : undefined}
+                    aria-describedby={addProblem ? addProblemId : undefined}
                     className={`${inputFieldClass} flex-1`}
                   />
                   {/* Stays open after an add so a whole class can be typed in
@@ -183,6 +201,14 @@ export default function ClassToolPanel({
                     <ArrowRightIcon className="h-4 w-4" aria-hidden="true" />
                   </button>
                 </span>
+                {addProblem && (
+                  <span
+                    id={addProblemId}
+                    className="text-xs text-(--status-alert-text)"
+                  >
+                    {addProblem}
+                  </span>
+                )}
               </label>
             </div>
           )}
@@ -217,6 +243,10 @@ export default function ClassToolPanel({
                     placeholder={t(
                       'students:studentList.placeholderCountPlaceholder',
                     )}
+                    aria-invalid={placeholderProblem ? true : undefined}
+                    aria-describedby={
+                      placeholderProblem ? placeholderProblemId : undefined
+                    }
                     className={`${inputFieldClass} w-20`}
                   />
                   <button
@@ -231,9 +261,18 @@ export default function ClassToolPanel({
                     <ArrowRightIcon className="h-4 w-4" aria-hidden="true" />
                   </button>
                 </span>
-                <span className="text-xs text-(--text-muted)">
-                  {t('students:studentList.addMenu.placeholderHint')}
-                </span>
+                {placeholderProblem ? (
+                  <span
+                    id={placeholderProblemId}
+                    className="text-xs text-(--status-alert-text)"
+                  >
+                    {placeholderProblem}
+                  </span>
+                ) : (
+                  <span className="text-xs text-(--text-muted)">
+                    {t('students:studentList.addMenu.placeholderHint')}
+                  </span>
+                )}
               </label>
             </div>
           )}

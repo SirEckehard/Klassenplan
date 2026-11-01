@@ -9,6 +9,8 @@ interface HintTooltipProps {
   id: string;
   /** Extra positioning classes; defaults to "above, right-aligned". */
   className?: string;
+  /** Shown whatever the pointer does: the control was pressed while blocked. */
+  open?: boolean;
 }
 
 /**
@@ -17,16 +19,21 @@ interface HintTooltipProps {
  * Place inside a `group relative` wrapper around the control. Kept in the
  * accessibility tree (opacity, not `hidden`) so `aria-describedby` still
  * announces it, and out of the layout flow so nothing shifts when it appears.
+ * `open` shows it after a press (`useRefusalHint`), which a finger needs.
  */
 const HintTooltip: React.FC<HintTooltipProps> = ({
   hint,
   id,
   className = 'bottom-full right-0 mb-2',
+  open = false,
 }) => (
   <span
     id={id}
     role="tooltip"
-    className={`pointer-events-none absolute z-20 max-w-64 rounded-xl bg-(--text-page) px-3 py-1.5 text-xs font-semibold text-(--surface-card) opacity-0 shadow-lg transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 ${className}`}
+    data-open={open || undefined}
+    className={`pointer-events-none absolute z-20 max-w-64 rounded-xl bg-(--text-page) px-3 py-1.5 text-xs font-semibold text-(--surface-card) shadow-lg transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 ${
+      open ? 'opacity-100' : 'opacity-0'
+    } ${className}`}
   >
     {hint}
   </span>

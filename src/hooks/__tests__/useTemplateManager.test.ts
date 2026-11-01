@@ -8,6 +8,7 @@ import type { TemplateServiceResult } from '@/hooks/template/useTemplateService'
 
 const {
   showToastMock,
+  announceMock,
   mockLoadTemplates,
   mockSaveTemplate,
   mockUpdateTemplate,
@@ -16,6 +17,7 @@ const {
   logErrorMock,
 } = vi.hoisted(() => ({
   showToastMock: vi.fn(),
+  announceMock: vi.fn(),
   mockLoadTemplates:
     vi.fn<() => Promise<TemplateServiceResult<ClassroomTemplate[]>>>(),
   mockSaveTemplate:
@@ -43,6 +45,7 @@ const {
 
 vi.mock('@/utils/ui/toast', () => ({
   showToast: showToastMock,
+  announce: announceMock,
   TOAST_MESSAGES: {
     SAVE_TEMPLATE_SUCCESS: 'SAVE_TEMPLATE_SUCCESS',
     SAVE_TEMPLATE_ERROR: 'SAVE_TEMPLATE_ERROR',
@@ -121,10 +124,9 @@ describe('useTemplateManager', () => {
     expect(kept).toBe(true);
     expect(mockSaveTemplate).toHaveBeenCalledWith('Raum 104', scene);
     expect(mockUpdateTemplate).not.toHaveBeenCalled();
-    expect(showToastMock).toHaveBeenCalledWith(
-      'success',
-      'SAVE_TEMPLATE_SUCCESS',
-    );
+    // The row that saved answers in its place; a screen reader hears it.
+    expect(announceMock).toHaveBeenCalledWith('SAVE_TEMPLATE_SUCCESS');
+    expect(showToastMock).not.toHaveBeenCalled();
     expect(result.current.selectedTemplateId).toBe(7);
   });
 
@@ -147,10 +149,8 @@ describe('useTemplateManager', () => {
     expect(kept).toBe(true);
     expect(mockUpdateTemplate).toHaveBeenCalledWith(1, scene);
     expect(mockSaveTemplate).not.toHaveBeenCalled();
-    expect(showToastMock).toHaveBeenCalledWith(
-      'success',
-      'TEMPLATE_UPDATE_SUCCESS',
-    );
+    expect(announceMock).toHaveBeenCalledWith('TEMPLATE_UPDATE_SUCCESS');
+    expect(showToastMock).not.toHaveBeenCalled();
   });
 
   test('reports a refused name as not kept', async () => {

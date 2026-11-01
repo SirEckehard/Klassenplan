@@ -28,6 +28,7 @@ import { validateStudentsComplete } from '@/utils/validation';
 import HintTooltip from '@/components/ui/feedback/HintTooltip';
 import { TOUR_ANCHORS } from '@/components/onboarding/tours';
 import { useTeachersDayGreeting } from '@/hooks/ui/useTeachersDayGreeting';
+import { useRefusalHint } from '@/hooks/ui/useRefusalHint';
 
 /**
  * The one place the app states where it stands, and the one place the layer's
@@ -45,8 +46,9 @@ import { useTeachersDayGreeting } from '@/hooks/ui/useTeachersDayGreeting';
  * it back, so it sits in the middle beside undo/redo.
  *
  * The blocked states stay `aria-disabled` rather than `disabled`: the button
- * keeps focus and pointer events, so the hint shows on hover and focus and a
- * click still surfaces the toast that explains the shortfall.
+ * keeps focus and pointer events, so the hint shows on hover and focus, and a
+ * press shows it at the button for a few seconds (`useRefusalHint`) — a card
+ * said it far from the finger (decision 0037).
  */
 export default function AppStatusBar() {
   const { t } = useTranslation(['generator', 'students']);
@@ -223,6 +225,7 @@ export default function AppStatusBar() {
     }
     return null;
   }, [missingNameCount, seatCount, step, studentsCount, t]);
+  const refusal = useRefusalHint(action?.hint);
 
   return (
     <StatusBarFrame
@@ -301,6 +304,7 @@ export default function AppStatusBar() {
         <div className="flex shrink-0 items-center gap-2">
           <span
             ref={setActionNode}
+            data-status-bar-hang=""
             className="flex shrink-0 items-center gap-2 empty:hidden max-md:absolute max-md:bottom-full max-md:left-1/2 max-md:mb-3 max-md:w-max max-md:-translate-x-1/2"
           />
           {step === 1 && (
@@ -347,7 +351,13 @@ export default function AppStatusBar() {
               <button
                 type="button"
                 data-tour={action.anchor}
-                onClick={() => void handleStepChange(action.target)}
+                onClick={() => {
+                  if (action.hint) {
+                    refusal.show();
+                    return;
+                  }
+                  void handleStepChange(action.target);
+                }}
                 // The visible word is "Weiter" on every layer, and on a phone
                 // or a tablet only the arrow; the accessible name says where
                 // it leads, so it is spelled out here once for all widths.
@@ -364,7 +374,13 @@ export default function AppStatusBar() {
                 </span>
                 <ArrowRightIcon className="h-4 w-4" aria-hidden="true" />
               </button>
-              {action.hint && <HintTooltip id={hintId} hint={action.hint} />}
+              {action.hint && (
+                <HintTooltip
+                  id={hintId}
+                  hint={action.hint}
+                  open={refusal.open}
+                />
+              )}
             </div>
           )}
         </>

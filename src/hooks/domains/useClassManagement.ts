@@ -2,7 +2,7 @@
 // Copyright (C) 2026 Eike Schäfer
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { logError, showToast, TOAST_MESSAGES } from '@/utils';
+import { announce, logError, showToast, TOAST_MESSAGES } from '@/utils';
 import type {
   ClassRecord,
   CreateClassPayload,
@@ -89,8 +89,9 @@ export function useClassManagement({
         showToast('error', TOAST_MESSAGES.CLASS_SWITCH_ERROR);
         return false;
       }
-      showToast(
-        'success',
+      // The header names the class that opened; a card said it again over
+      // the layer (decision 0037).
+      announce(
         t('toast:class.activatedName', {
           name: formatClassLabel(result.data.name),
         }),
@@ -154,7 +155,9 @@ export function useClassManagement({
         : t('toast:class.createdName', {
             name: formatClassLabel(result.data.name),
           });
-      showToast('success', message);
+      // Its name stands in the header or the inspector, open to be typed
+      // over — the card lay over that very field (decision 0037).
+      announce(message);
       if (pendingChanges) {
         showToast('info', TOAST_MESSAGES.CLASS_SWITCH_UNSAVED);
       }
@@ -214,8 +217,7 @@ export function useClassManagement({
         return false;
       }
       await applyClassReload();
-      showToast(
-        'success',
+      announce(
         target
           ? t('toast:class.deletedName', {
               name: formatClassLabel(target.name),

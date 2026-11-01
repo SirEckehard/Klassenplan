@@ -213,7 +213,8 @@
     "cancelEdit": "Bearbeitung abbrechen",
     "editName": "Namen bearbeiten: {{name}}",
     "editButton": "Namen bearbeiten",
-    "editTitle": "Klick oder Eingabetaste zum Bearbeiten"
+    "editTitle": "Klick oder Eingabetaste zum Bearbeiten",
+    "enterHint": "Eingabetaste speichert den Namen und springt zum nächsten."
   },
   "quickClass": {
     "invalidCount": "Bitte gib eine Zahl zwischen 1 und {{max}} ein."

@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
+import { useSyncExternalStore } from 'react';
 
 /**
  * Outcome of an explicit "check for updates" run.
@@ -62,4 +63,36 @@ export async function checkForUpdate(): Promise<UpdateCheckResult> {
 /** Activates the waiting worker. No-op while nothing is waiting. */
 export function applyPendingUpdate(): void {
   controller?.applyUpdate();
+}
+
+/**
+ * Whether a new version waits to be taken on — a state, not an event: it
+ * holds until the page reloads into it. The status bar shows it as a quiet
+ * button and the gear's row offers it; only a page without a bar shows it
+ * as a toast (decision 0037). A toast that stayed until it was clicked lay
+ * over the inspector's head for as long as a teacher worked.
+ */
+let updateReady = false;
+const readyListeners = new Set<() => void>();
+
+export function setUpdateReady(next: boolean): void {
+  if (updateReady === next) return;
+  updateReady = next;
+  readyListeners.forEach((listener) => listener());
+}
+
+function subscribeToUpdateReady(listener: () => void): () => void {
+  readyListeners.add(listener);
+  return () => {
+    readyListeners.delete(listener);
+  };
+}
+
+/** True while a new version waits (`setUpdateReady`). */
+export function useUpdateReady(): boolean {
+  return useSyncExternalStore(
+    subscribeToUpdateReady,
+    () => updateReady,
+    () => false,
+  );
 }

@@ -929,6 +929,11 @@
     }
   },
   "shell": {
+    "notice": {
+      "saved": "Gespeichert",
+      "planSaved": "Plan gespeichert",
+      "backupSaved": "Backup gespeichert"
+    },
     "layers": {
       "class": "Klasse",
       "room": "Raum",
@@ -1005,6 +1010,7 @@
     "templates": "Vorlagen",
     "templatesHint": "Speichere diesen Raum als Vorlage, um ihn auch für weitere Klassen zu nutzen.",
     "saveAsTemplate": "Raum als Vorlage speichern",
+    "templateSaved": "Als Vorlage gespeichert",
     "templateName": "Name der Vorlage",
     "replaceTemplate": "Vorlage „{{name}}“ ersetzen",
     "deleteTemplateTitle": "Vorlage löschen",

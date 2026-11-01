@@ -123,4 +123,32 @@ describe('BackupPasswordModal', () => {
     expect(onCancel).toHaveBeenCalled();
     expect(onSubmit).not.toHaveBeenCalled();
   });
+
+  // A wrong password closed the dialog, a toast said so and the file had to
+  // be chosen again (decision 0037).
+  it('stays open on a password that does not open the backup', async () => {
+    const user = userEvent.setup();
+    const check = vi
+      .fn<(password: string) => Promise<string | null>>()
+      .mockResolvedValueOnce(
+        'Mit diesem Passwort lässt sich das Backup nicht öffnen.',
+      )
+      .mockResolvedValueOnce(null);
+    const { onSubmit } = renderModal({ mode: 'unlock', check });
+
+    await user.type(passwordField(), 'falsch');
+    await user.click(submitButton());
+
+    expect(check).toHaveBeenCalledWith('falsch');
+    expect(onSubmit).not.toHaveBeenCalled();
+    expect(passwordField()).toHaveAttribute('aria-invalid', 'true');
+    expect(screen.getByRole('alert')).toHaveTextContent(/nicht öffnen/);
+
+    // Typing again takes the message back; the right one closes it.
+    await user.clear(passwordField());
+    expect(screen.queryByText(/nicht öffnen/)).toBeNull();
+    await user.type(passwordField(), 'richtig');
+    await user.click(submitButton());
+    expect(onSubmit).toHaveBeenCalledWith('richtig');
+  });
 });

@@ -3,8 +3,10 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import {
+  ArrowClockwiseIcon,
   ArrowLineLeftIcon,
   ArrowLineRightIcon,
+  CheckCircleIcon,
   CloudSlashIcon,
   SlidersHorizontalIcon,
   WarningCircleIcon,
@@ -24,7 +26,20 @@ import {
   usePersistStatus,
 } from '@/hooks/persistence/persistStatus';
 import { quietIconButtonClass, secondaryButtonClass } from '@/utils';
+import {
+  applyPendingUpdate,
+  useUpdateReady,
+} from '@/hooks/pwa/swUpdateController';
+import { useStatusNotice } from '@/hooks/ui/useStatusNotice';
+import type { StatusNoticeKind } from '@/utils/ui/statusNotice';
 import { TOUR_ANCHORS } from '@/components/onboarding/tours';
+
+/** What the line says for each confirmation (`noteInStatusBar`). */
+const NOTICE_TEXT: Record<StatusNoticeKind, string> = {
+  saved: 'shell.notice.saved',
+  planSaved: 'shell.notice.planSaved',
+  backupSaved: 'shell.notice.backupSaved',
+};
 
 /** The toolbar's switch: quiet, and small enough for a 44px line. */
 const statusBarIconButtonClass = `${quietIconButtonClass} h-9 w-9`;
@@ -89,6 +104,13 @@ export const statusBarWordClass = 'hidden lg:pointer-fine:inline xl:inline';
  * When writes to storage fail, "Nicht gespeichert" stands in the same place
  * until one succeeds (`persistStatus`): that is a warning, so it is a button
  * in the alert's ink that tries again at once.
+ *
+ * A new version waiting is a state too: "Neue Version", a quiet button that
+ * takes it on (`useUpdateReady`). And what was kept without the screen
+ * showing it — a plan saved while its inspector is out of sight, a backup,
+ * writes that work again — the line says for a few seconds in place of the
+ * surface's status (`noteInStatusBar`). Both were toasts, which lay over the
+ * inspector's head (decision 0037).
  */
 export default function StatusBarFrame({
   start,
@@ -122,6 +144,8 @@ export default function StatusBarFrame({
   const { setFloatNode } = useStatusBarSlot();
   const isOnline = useOnlineStatus();
   const unsaved = usePersistStatus() === 'failed';
+  const updateReady = useUpdateReady();
+  const notice = useStatusNotice();
   useRegisterStatusBar();
   const isDesktop = layoutMode === 'desktop';
   // From `lg` up every layer's column folds; below it there is a drawer only
@@ -132,6 +156,12 @@ export default function StatusBarFrame({
     (isDesktop || (portalMounted && portalLabel !== null));
   // The help stands in the inspector's place, so the switch puts it away.
   const inspectorShown = helpOpen || (isDesktop ? !folded : drawerOpen);
+  // A plan saved while its inspector shows says so there ("Heute
+  // gespeichert"); the line keeps quiet then.
+  const shownNotice =
+    notice && !(notice.kind === 'planSaved' && inspectorShown && !helpOpen)
+      ? notice
+      : null;
   const inspectorName = inspectorShown
     ? t('shell.inspectorHide')
     : portalLabel
@@ -168,6 +198,7 @@ export default function StatusBarFrame({
           jump to its ends — hangs above its right end and moves with it. */}
       <div
         ref={setFloatNode}
+        data-status-bar-hang=""
         className="pointer-events-none absolute right-4 bottom-full mb-3 flex flex-col items-end gap-2 empty:hidden *:pointer-events-auto"
       />
       <div className="flex min-h-11 items-center gap-2 px-3 py-2 sm:gap-4 sm:px-4">
@@ -254,13 +285,48 @@ export default function StatusBarFrame({
               <span className={statusBarWordClass}>{t('shell.unsaved')}</span>
             </button>
           )}
-          {/* A polite status of its own, out of the flow, so going offline is
-              said once while the bar as a whole stays quiet. The failed write
-              announces itself through its toast. */}
+          {updateReady && (
+            <button
+              type="button"
+              onClick={applyPendingUpdate}
+              aria-label={t('common:pwa.updateReadyTitle')}
+              title={t('common:pwa.updateReadyTitle')}
+              className={`${secondaryButtonClass} h-9 shrink-0 gap-2 px-3 max-sm:w-9 max-sm:px-0`}
+            >
+              <ArrowClockwiseIcon size={16} aria-hidden="true" />
+              <span className={statusBarWordClass}>
+                {t('common:pwa.updateReadyShort')}
+              </span>
+            </button>
+          )}
+          {/* A polite status of its own, out of the flow, so going offline or
+              a new version is said once while the bar as a whole stays
+              quiet. The failed write announces itself through its toast. */}
           <span role="status" className="sr-only">
-            {isOnline ? '' : t('common:offline.badge')}
+            {[
+              isOnline ? '' : t('common:offline.badge'),
+              updateReady ? t('common:pwa.updateAvailable') : '',
+            ]
+              .filter(Boolean)
+              .join('. ')}
           </span>
-          {start}
+          {shownNotice && (
+            <p className="flex min-w-0 items-center gap-1.5 text-xs text-(--text-page) sm:text-sm">
+              <CheckCircleIcon
+                size={16}
+                weight="fill"
+                aria-hidden="true"
+                className="shrink-0 text-(--status-ok)"
+              />
+              <span className="min-w-0 truncate">
+                {t(NOTICE_TEXT[shownNotice.kind])}
+              </span>
+            </p>
+          )}
+          {/* Kept mounted under a notice: a view portals into it. */}
+          <div className="contents" hidden={shownNotice !== null}>
+            {start}
+          </div>
         </div>
 
         {middle}

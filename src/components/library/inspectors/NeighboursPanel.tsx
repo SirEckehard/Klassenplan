@@ -21,7 +21,7 @@ import {
   neutralButtonClass,
 } from '@/utils';
 import { isCountedUsage, type UsageOrigin } from '@/utils/data/planUsage';
-import { showToast } from '@/utils/ui/toast';
+import { announce, showToast } from '@/utils/ui/toast';
 
 /**
  * The plans a neighbourhood rests on, each named by its saved plan and room
@@ -145,7 +145,7 @@ export default function NeighboursPanel({
             label: t('toast:planUsage.resetAction'),
             onClick: () => {
               undoReset(snapshot)
-                .then(() => showToast('success', 'toast:planUsage.resetUndone'))
+                .then(() => announce('toast:planUsage.resetUndone'))
                 .catch((error: unknown) => {
                   logError(
                     'Undoing the neighbourhood reset failed',

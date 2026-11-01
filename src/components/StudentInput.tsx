@@ -10,7 +10,7 @@ import { useLocalizedNavigate } from '@/hooks/useLocalizedNavigate';
 import { downloadCsvTemplate } from '@/utils/csv/csvTemplateDownload';
 import { openCsvFormatHelp } from '@/utils/ui/csvFormatHelp';
 import ConfirmDialog from '@/components/ui/modals/ConfirmDialog';
-import { showToast, TOAST_MESSAGES } from '@/utils/ui/toast';
+import { announce, showToast, TOAST_MESSAGES } from '@/utils/ui/toast';
 import {
   cardSurfaceClass,
   isFormElementFocused,
@@ -86,6 +86,13 @@ function StudentInput({
   const { t } = useTranslation('students');
   const navigate = useLocalizedNavigate();
   const [placeholderCount, setPlaceholderCount] = useState('10');
+  const [placeholderProblem, setPlaceholderProblem] = useState<string | null>(
+    null,
+  );
+  const changePlaceholderCount = useCallback((value: string) => {
+    setPlaceholderCount(value);
+    setPlaceholderProblem(null);
+  }, []);
 
   // Below `lg` the list flows in the page scroll and the phone gets a scroll
   // affordance; at `lg+` the list scrolls inside its card (`StudentList`).
@@ -102,6 +109,7 @@ function StudentInput({
     setNewStudentName,
     lastAddedId,
     handleAddStudent,
+    addProblem,
     isAddDisabled,
   } = useStudentManagement({ students, addStudent });
   const {
@@ -159,21 +167,23 @@ function StudentInput({
    * so the toolbar's panel can close.
    */
   const handleCreatePlaceholders = useCallback((): boolean => {
+    // A number that cannot be is said under the field (decision 0037).
     const room = MAX_STUDENTS - students.length;
     if (room <= 0) {
-      showToast('error', TOAST_MESSAGES.STUDENT_MAX_REACHED);
+      setPlaceholderProblem(t(TOAST_MESSAGES.STUDENT_MAX_REACHED));
       return false;
     }
     const requested = parseInt(placeholderCount, 10);
     if (!Number.isFinite(requested) || requested < 1) {
-      showToast('error', t('quickClass.invalidCount', { max: room }));
+      setPlaceholderProblem(t('quickClass.invalidCount', { max: room }));
       return false;
     }
     const placeholders = addBulkPlaceholderStudents(Math.min(requested, room));
     if (placeholders.length === 0) {
-      showToast('error', TOAST_MESSAGES.STUDENT_MAX_REACHED);
+      setPlaceholderProblem(t(TOAST_MESSAGES.STUDENT_MAX_REACHED));
       return false;
     }
+    setPlaceholderProblem(null);
     if (placeholders.length < requested) {
       showToast(
         'warning',
@@ -183,8 +193,9 @@ function StudentInput({
         }),
       );
     } else {
-      showToast(
-        'success',
+      // The list shows them, and the first one's name field says that Enter
+      // steps on to the next (`StudentNameEditor`).
+      announce(
         t('studentInput.placeholdersCreated', { count: placeholders.length }),
       );
     }
@@ -314,12 +325,8 @@ function StudentInput({
     (patch: Partial<Student>) => {
       const ids = [...selection.selectedIds];
       updateStudents(ids, patch);
-      showToast(
-        'success',
-        t('bulkEdit.applied', {
-          count: ids.length,
-        }),
-      );
+      // The rows show what changed.
+      announce(t('bulkEdit.applied', { count: ids.length }));
     },
     [selection.selectedIds, updateStudents, t],
   );
@@ -329,7 +336,7 @@ function StudentInput({
     removeStudents(ids);
     selection.clear();
     setBulkDeleteOpen(false);
-    showToast('success', t('bulkEdit.deleted', { count: ids.length }));
+    announce(t('bulkEdit.deleted', { count: ids.length }));
   }, [selection, removeStudents, setBulkDeleteOpen, t]);
 
   // The note list needs no plan: it opens on the list, and its way back leads
@@ -357,9 +364,11 @@ function StudentInput({
           newStudentName={newStudentName}
           onNewStudentNameChange={setNewStudentName}
           onAddStudent={handleAddStudent}
+          addStudentProblem={addProblem}
           isAddStudentDisabled={isAddDisabled}
           placeholderCount={placeholderCount}
-          onPlaceholderCountChange={setPlaceholderCount}
+          onPlaceholderCountChange={changePlaceholderCount}
+          placeholderProblem={placeholderProblem}
           onCreatePlaceholders={handleCreatePlaceholders}
           onImportCsv={analyzeCsvFile}
           onExportCsv={downloadStudentsCsv}

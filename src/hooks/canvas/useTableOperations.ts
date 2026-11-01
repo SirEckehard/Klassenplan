@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
-import { showToast, TOAST_MESSAGES } from '@/utils/ui/toast';
+import { announce, TOAST_MESSAGES } from '@/utils/ui/toast';
 import type { ClassroomTable } from '@/types';
 import type { CanvasContextMenuState } from '@/hooks/useContextMenus';
 import {
@@ -112,7 +112,9 @@ export function useTableOperations({
     setSelectedTableIds([]);
     const totalSeats = countActiveSeats(updatedTables);
     if (totalSeats < studentsCount) {
-      showToast('error', TOAST_MESSAGES.SEATS_INSUFFICIENT);
+      // The status bar's line says it with its red cross and the seats that
+      // are missing; a card said it again over the room (decision 0037).
+      announce(TOAST_MESSAGES.SEATS_INSUFFICIENT);
     }
   }, [
     selectedTableIds,

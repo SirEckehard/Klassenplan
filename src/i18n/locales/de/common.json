@@ -131,7 +131,9 @@
     "errorTooShort": "Das Passwort muss mindestens {{min}} Zeichen lang sein.",
     "errorMismatch": "Die Passwörter stimmen nicht überein.",
     "submitCreate": "Backup erstellen",
-    "submitUnlock": "Entschlüsseln"
+    "submitUnlock": "Entschlüsseln",
+    "checking": "Wird entschlüsselt …",
+    "errorWrong": "Mit diesem Passwort lässt sich das Backup nicht öffnen. Prüfe die Schreibweise und versuche es noch einmal."
   },
   "backupRestore": {
     "title": "Backup wiederherstellen",
@@ -162,8 +164,10 @@
     "checkForUpdates": "Auf Updates prüfen",
     "checking": "Suche nach Updates …",
     "upToDateShort": "Aktuell · v{{version}}",
-    "updateCheckFailed": "Update-Prüfung fehlgeschlagen. Bist du online?",
-    "updateCheckOffline": "Ohne Internetverbindung lässt sich nicht nach Updates suchen.",
+    "updateReadyShort": "Neue Version",
+    "updateReadyTitle": "Neue Version bereit – jetzt aktualisieren",
+    "offlineShort": "Offline · später prüfen",
+    "checkFailedShort": "Prüfung fehlgeschlagen",
     "guide": {
       "title": "Klassenplan als App installieren",
       "intro": "Als App startet Klassenplan in einem eigenen Fenster aus dem Startmenü, dem Dock oder vom Home-Bildschirm und funktioniert offline.",

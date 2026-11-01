@@ -10,15 +10,17 @@ import { MAX_STUDENTS } from '@/utils';
 
 vi.mock('@/utils/ui/toast', () => ({
   showToast: vi.fn(),
+  announce: vi.fn(),
   TOAST_MESSAGES: {
     CSV_PARSE_ERROR: 'CSV_PARSE_ERROR',
     STUDENT_MAX_REACHED: 'STUDENT_MAX_REACHED',
     CSV_READ_ERROR: 'CSV_READ_ERROR',
   },
 }));
-import { showToast } from '@/utils/ui/toast';
+import { announce, showToast } from '@/utils/ui/toast';
 
 const mockedShowToast = vi.mocked(showToast);
+const mockedAnnounce = vi.mocked(announce);
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -174,6 +176,11 @@ describe('csvImportService feedback', () => {
       .filter(([kind]) => kind === type)
       .map(([, message]) => message);
 
+  // The list shows the students and the status bar counts them, so the
+  // success is said to a screen reader alone (decision 0037).
+  const announced = (): string[] =>
+    mockedAnnounce.mock.calls.map(([message]) => message);
+
   test('names the recognised export format in the success message', async () => {
     const students = await importStudentsFromCsv({
       file: csvFile(
@@ -184,7 +191,8 @@ describe('csvImportService feedback', () => {
     });
 
     expect(students).toHaveLength(1);
-    expect(toastsOfType('success')[0]).toContain('SchILD-NRW');
+    expect(announced()[0]).toContain('SchILD-NRW');
+    expect(toastsOfType('success')).toEqual([]);
   });
 
   test('falls back to the plain success message without a preset', async () => {
@@ -194,7 +202,7 @@ describe('csvImportService feedback', () => {
       mode: 'firstName',
     });
 
-    expect(toastsOfType('success')[0]).not.toContain('SchILD');
+    expect(announced()[0]).not.toContain('SchILD');
   });
 
   test('points out that a file was read as a Windows export', async () => {

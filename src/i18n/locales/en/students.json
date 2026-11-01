@@ -213,7 +213,8 @@
     "cancelEdit": "Cancel editing",
     "editName": "Edit name: {{name}}",
     "editButton": "Edit name",
-    "editTitle": "Click or press Enter to edit"
+    "editTitle": "Click or press Enter to edit",
+    "enterHint": "Enter saves the name and moves on to the next one."
   },
   "quickClass": {
     "invalidCount": "Please enter a number between 1 and {{max}}."

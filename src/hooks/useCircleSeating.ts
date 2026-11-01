@@ -18,7 +18,7 @@ import {
   syncStudentReference,
 } from '@/utils';
 import i18n from '@/i18n';
-import { showToast, TOAST_MESSAGES } from '@/utils/ui/toast';
+import { announce, showToast, TOAST_MESSAGES } from '@/utils/ui/toast';
 import { algorithmWorkerClient } from '@/workers/algorithmWorkerClient';
 import type { WorkerProgressPayload } from '@/workers/algorithmWorker.types';
 import {
@@ -522,7 +522,8 @@ function useCircleSeatingInternal(
     }
     setCircleGenerationInProgress(false);
     setCircleGenerationStatus(null);
-    showToast('info', TOAST_MESSAGES.CIRCLE_GENERATION_CANCELLED);
+    // The teacher's own cancel; the progress going away says it.
+    announce(TOAST_MESSAGES.CIRCLE_GENERATION_CANCELLED);
   }, [
     circleGenerationInProgress,
     setCircleGenerationInProgress,

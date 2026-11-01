@@ -35,15 +35,18 @@ function mountDialog<T>(
 /**
  * Ask for a backup password. Resolves `null` when the user cancels.
  * In `create` mode the dialog validates length and confirmation itself, so the
- * resolved password is always usable.
+ * resolved password is always usable. `check` tries a password before the
+ * dialog closes, which then stays open on one that does not fit.
  */
 export function promptBackupPassword(
   mode: BackupPasswordMode,
+  check?: (password: string) => Promise<string | null>,
 ): Promise<string | null> {
   return mountDialog<string | null>((resolve) => (
     <BackupPasswordModal
       open
       mode={mode}
+      check={check}
       onSubmit={(password) => resolve(password)}
       onCancel={() => resolve(null)}
     />

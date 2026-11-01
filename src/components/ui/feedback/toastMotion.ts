@@ -3,13 +3,17 @@
 import { MOTION_EASE } from '@/utils/ui/motion';
 
 /**
- * How a toast moves: it glides in from the right while the older ones make
- * room, and glides back out before the stack closes up behind it.
+ * How a toast moves: it rises from the status bar while the older ones make
+ * room above it, and sinks back before the stack closes up behind it.
  *
  * The Web Animations API rather than CSS keyframes, because the stack closes
  * up by a measured height, and because `animation.finished` tells the
  * provider when a card may leave the DOM. The curves are the app's own
  * (`utils/ui/motion`), and so is the question whether to move at all.
+ *
+ * The stack grows upwards from the bar (`flex-col-reverse`): a card's top
+ * margin is the side the older cards lie on, so it is the margin that makes
+ * room and gives it back.
  */
 
 const EASE_OUT = MOTION_EASE.arrive;
@@ -17,7 +21,13 @@ const EASE_IN = MOTION_EASE.leave;
 const SETTLE = MOTION_EASE.settle;
 
 /** How far a card travels on its way in and out. */
-const SLIDE_PX = 28;
+const RISE_PX = 12;
+
+/** Where a swipe left a card, in px from its place. */
+export interface SwipeOffset {
+  x: number;
+  y: number;
+}
 
 /** The room a card takes in the stack: its own height and the gap after it. */
 function stackSpace(card: HTMLElement): number {
@@ -27,12 +37,12 @@ function stackSpace(card: HTMLElement): number {
 }
 
 /**
- * A new card starts with a negative bottom margin of its own size, so the
- * cards below begin where they were and glide down as it grows to zero.
+ * A new card starts with a negative top margin of its own size, so the cards
+ * above begin where they were and glide up as it grows to zero.
  */
 export function animateToastIn(card: HTMLElement): void {
   card.animate(
-    [{ marginBottom: `${-stackSpace(card)}px` }, { marginBottom: '0px' }],
+    [{ marginTop: `${-stackSpace(card)}px` }, { marginTop: '0px' }],
     { duration: 380, easing: EASE_OUT },
   );
   card.animate([{ opacity: 0 }, { opacity: 1 }], {
@@ -40,41 +50,48 @@ export function animateToastIn(card: HTMLElement): void {
     easing: 'cubic-bezier(0.2, 0, 0, 1)',
   });
   card.animate(
-    [{ transform: `translateX(${SLIDE_PX}px)` }, { transform: 'none' }],
+    [{ transform: `translateY(${RISE_PX}px)` }, { transform: 'none' }],
     { duration: 380, easing: EASE_OUT },
   );
 }
 
 /**
- * The card glides out — from where the finger left it after a swipe — and
- * the cards below close the gap once it has nearly faded.
+ * The card sinks out — or, after a swipe, goes on the way the finger sent
+ * it — and the cards above close the gap once it has nearly faded.
  */
 export function animateToastOut(
   card: HTMLElement,
-  swipedBy?: number,
+  swipedBy?: SwipeOffset,
 ): Promise<void> {
   const space = stackSpace(card);
   const swiped = swipedBy !== undefined;
-  const leave = swiped
-    ? card.animate(
-        [
-          {
-            transform: `translateX(${swipedBy}px)`,
-            opacity: getComputedStyle(card).opacity,
-          },
-          { transform: `translateX(${card.offsetWidth + 40}px)`, opacity: 0 },
-        ],
-        { duration: 180, easing: EASE_IN, fill: 'forwards' },
-      )
-    : card.animate(
-        [
-          { transform: 'none', opacity: 1 },
-          { transform: `translateX(${SLIDE_PX}px)`, opacity: 0 },
-        ],
-        { duration: 200, easing: EASE_IN, fill: 'forwards' },
-      );
+  let leave: Animation;
+  if (swiped) {
+    const sideways = Math.abs(swipedBy.x) >= swipedBy.y;
+    const away = sideways
+      ? `translateX(${Math.sign(swipedBy.x || 1) * (card.offsetWidth + 40)}px)`
+      : `translateY(${card.offsetHeight + 40}px)`;
+    leave = card.animate(
+      [
+        {
+          transform: `translate(${swipedBy.x}px, ${swipedBy.y}px)`,
+          opacity: getComputedStyle(card).opacity,
+        },
+        { transform: away, opacity: 0 },
+      ],
+      { duration: 180, easing: EASE_IN, fill: 'forwards' },
+    );
+  } else {
+    leave = card.animate(
+      [
+        { transform: 'none', opacity: 1 },
+        { transform: `translateY(${RISE_PX}px)`, opacity: 0 },
+      ],
+      { duration: 200, easing: EASE_IN, fill: 'forwards' },
+    );
+  }
   const collapse = card.animate(
-    [{ marginBottom: '0px' }, { marginBottom: `${-space}px` }],
+    [{ marginTop: '0px' }, { marginTop: `${-space}px` }],
     {
       duration: 280,
       delay: swiped ? 100 : 140,
@@ -88,11 +105,14 @@ export function animateToastOut(
 /** A swipe let go too early: the card settles back into its place. */
 export function animateToastBack(
   card: HTMLElement,
-  from: { offset: number; opacity: string },
+  from: SwipeOffset & { opacity: string },
 ): void {
   card.animate(
     [
-      { transform: `translateX(${from.offset}px)`, opacity: from.opacity },
+      {
+        transform: `translate(${from.x}px, ${from.y}px)`,
+        opacity: from.opacity,
+      },
       { transform: 'none', opacity: 1 },
     ],
     { duration: 260, easing: EASE_OUT },

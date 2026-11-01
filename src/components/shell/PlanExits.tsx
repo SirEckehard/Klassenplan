@@ -6,18 +6,29 @@ import { usePlanExits } from '@/hooks/plan/usePlanExits';
 import { TOUR_ANCHORS } from '@/components/onboarding/tours';
 import { secondaryButtonClass, showToast, TOAST_MESSAGES } from '@/utils';
 import { statusBarWordClass } from '@/components/shell/StatusBarFrame';
+import HintTooltip from '@/components/ui/feedback/HintTooltip';
+import { useRefusalHint } from '@/hooks/ui/useRefusalHint';
+import React from 'react';
 
 /**
  * The two exits as a control calls them: both stay clickable without a plan,
- * because a disabled button would leave a teacher guessing — the toast says
- * what is missing.
+ * because a disabled button would leave a teacher guessing. A control that
+ * stays in view says what is missing at itself (`refuse`, decision 0037);
+ * the toolbar's entry, which closes its sheet, and the shortcut keep the
+ * toast.
  */
 export function useGuardedPlanExits() {
-  const { exportPlan, presentPlan, canExit } = usePlanExits();
+  return guardPlanExits(usePlanExits());
+}
 
+function guardPlanExits(
+  { exportPlan, presentPlan, canExit }: ReturnType<typeof usePlanExits>,
+  refuse?: () => void,
+) {
   const guardExit = (run: () => void) => () => {
     if (!canExit) {
-      showToast('info', TOAST_MESSAGES.PLAN_NONE_YET);
+      if (refuse) refuse();
+      else showToast('info', TOAST_MESSAGES.PLAN_NONE_YET);
       return;
     }
     run();
@@ -50,7 +61,11 @@ export function useGuardedPlanExits() {
  */
 export default function PlanExits() {
   const { t } = useTranslation('generator');
-  const { onExport, onPresent, canExit } = useGuardedPlanExits();
+  const exits = usePlanExits();
+  const hintId = React.useId();
+  const hint = exits.canExit ? null : t('toast:plan.noneYet');
+  const refusal = useRefusalHint(hint);
+  const { onExport, onPresent, canExit } = guardPlanExits(exits, refusal.show);
 
   const buttonClass = `${secondaryButtonClass} h-9 shrink-0 gap-2 px-2.5 text-sm whitespace-nowrap max-sm:w-9 max-sm:px-0 lg:pointer-fine:px-3 xl:px-3 ${
     canExit ? '' : 'opacity-60'
@@ -58,7 +73,7 @@ export default function PlanExits() {
 
   return (
     <div
-      className="flex shrink-0 items-center gap-2"
+      className="group relative flex shrink-0 items-center gap-2"
       data-tour={TOUR_ANCHORS.planExits}
     >
       {/* The accessible names are spelled out once for every width. */}
@@ -68,6 +83,7 @@ export default function PlanExits() {
         title={t('present.buttonTitle')}
         aria-label={t('present.button')}
         aria-disabled={canExit ? undefined : true}
+        aria-describedby={hint ? hintId : undefined}
         className={`${buttonClass} hidden sm:inline-flex`}
       >
         <ChalkboardTeacherIcon className="h-4 w-4" aria-hidden="true" />
@@ -79,11 +95,13 @@ export default function PlanExits() {
         title={t('actions.exportShortcut')}
         aria-label={t('actions.export')}
         aria-disabled={canExit ? undefined : true}
+        aria-describedby={hint ? hintId : undefined}
         className={buttonClass}
       >
         <ExportIcon className="h-4 w-4" aria-hidden="true" />
         <span className={statusBarWordClass}>{t('actions.export')}</span>
       </button>
+      {hint && <HintTooltip id={hintId} hint={hint} open={refusal.open} />}
     </div>
   );
 }

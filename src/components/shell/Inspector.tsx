@@ -289,6 +289,7 @@ export default function Inspector() {
   if (hasPortal) {
     return (
       <aside
+        data-shell-inspector=""
         id={INSPECTOR_DRAWER_ID}
         ref={setPortalPanel}
         data-tour={TOUR_ANCHORS.inspector}
@@ -362,6 +363,7 @@ export default function Inspector() {
     // takes the column's place without it folding and unfolding.
     return isDesktop ? (
       <aside
+        data-shell-inspector=""
         ref={columnRef}
         id={INSPECTOR_DRAWER_ID}
         aria-label={helpLabel}
@@ -371,6 +373,7 @@ export default function Inspector() {
       </aside>
     ) : (
       <aside
+        data-shell-inspector=""
         ref={helpDrawerRef}
         aria-label={helpLabel}
         className={inspectorDrawerClass}
@@ -402,6 +405,7 @@ export default function Inspector() {
     if (!isOpen) return null;
     return (
       <aside
+        data-shell-inspector=""
         ref={setStudentPanel}
         aria-label={t('students:inspector.title')}
         className={inspectorDrawerClass}
@@ -415,6 +419,7 @@ export default function Inspector() {
 
   return (
     <aside
+      data-shell-inspector=""
       ref={columnRef}
       id={INSPECTOR_DRAWER_ID}
       aria-label={t('students:inspector.title')}

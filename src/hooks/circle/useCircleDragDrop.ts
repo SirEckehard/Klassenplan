@@ -3,7 +3,7 @@
 import React, { useState, useCallback, useRef } from 'react';
 import type { CircleLayout } from '@/types/Circle';
 import { triggerHapticFeedback } from '@/utils/touch/hapticFeedback';
-import { showToast, TOAST_MESSAGES } from '@/utils/ui/toast';
+import { announce, TOAST_MESSAGES } from '@/utils/ui/toast';
 import { useDragGesture } from '@/hooks/ui/useDragGesture';
 
 /** The view box the circle is drawn in, unless the view says otherwise. */
@@ -152,7 +152,8 @@ export function useCircleDragDrop({
           }
           if (blocked) {
             triggerHapticFeedback('error');
-            showToast('error', TOAST_MESSAGES.SEAT_LOCKED_DROP);
+            // The place showed it was locked while the student hung over it.
+            announce(TOAST_MESSAGES.SEAT_LOCKED_DROP);
             return;
           }
           onStudentMove?.(studentId, target);

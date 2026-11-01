@@ -13,6 +13,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Improved
 
+- Messages no longer cover what you are working on: they appear centred just above the status bar, beside the toolbar and the inspector instead of over the inspector's head, and a tap anywhere on one puts it away. Messages that only repeated what the screen already shows — a plan opened, a class created, a room deleted — are gone; a screen reader still hears them
+- A name, a number or a password that cannot be used is explained right under its field, and a blocked button such as "Next" says why when you tap it, on a tablet too. The backup's password dialog stays open after a wrong password instead of closing
+- A new version is offered by a quiet "New version" button in the status bar instead of a message that stayed until it was clicked, and the status bar briefly confirms a plan saved while the inspector is folded, a backup saved, and saving that works again after it failed
 - The menu on a table, a room element or the empty floor of the room is now a list with words and keys instead of a row of icons, and it can also turn and duplicate what is selected, as the inspector does. Shift+F10 or the menu key opens it for the selection
 
 - Dragging a student in the seating plan or the circle shows the result before you let go: once the pointer rests on a seat, the student already sits there and the classmate who would swap sits on the seat left behind, with name, color, markers and photo. A small chip beside the pointer — above the finger on a touch screen — names who you are holding; the card that covered the neighbouring seats and said "swaps with …" is gone, and so is the seat left behind that showed one student's name with another's photo and markers

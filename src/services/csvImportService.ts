@@ -26,7 +26,7 @@ import {
   type CsvDiagnosis,
 } from '@/utils/csv/csvImportDiagnostics';
 import { openCsvFormatHelp } from '@/utils/ui/csvFormatHelp';
-import { showToast, TOAST_MESSAGES } from '@/utils/ui/toast';
+import { announce, showToast, TOAST_MESSAGES } from '@/utils/ui/toast';
 import i18n from '@/i18n';
 
 /**
@@ -269,10 +269,8 @@ export async function importStudentsFromCsv({
       return acceptedStudents;
     }
 
-    showToast(
-      'success',
-      buildSuccessMessage(acceptedStudents.length, appliedPreset),
-    );
+    // The list shows them and the status bar counts them (decision 0037).
+    announce(buildSuccessMessage(acceptedStudents.length, appliedPreset));
     return acceptedStudents;
   } catch (error) {
     if (error instanceof CsvImportError) {

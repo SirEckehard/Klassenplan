@@ -7,7 +7,10 @@ import { describe, it, expect, vi, afterEach } from 'vitest';
 import '@/i18n'; // Initialize i18n for tests
 import UpdateCheckButton from '../UpdateCheckButton';
 import { ToastProvider } from '@/components/ui/feedback/ToastProvider';
-import { setUpdateController } from '@/hooks/pwa/swUpdateController';
+import {
+  setUpdateController,
+  setUpdateReady,
+} from '@/hooks/pwa/swUpdateController';
 import { getButton } from '@/__tests__/utils';
 
 const worker = {} as ServiceWorker;
@@ -28,6 +31,10 @@ const registerController = (
   return applyUpdate;
 };
 
+/** The row's own status, beside the toast provider's announcements. */
+const rowStatus = () =>
+  document.querySelector<HTMLElement>('span[role="status"]');
+
 const clickCheck = async () => {
   render(
     <ToastProvider>
@@ -41,6 +48,7 @@ const clickCheck = async () => {
 
 afterEach(() => {
   setUpdateController(null);
+  setUpdateReady(false);
 });
 
 describe('UpdateCheckButton', () => {
@@ -53,9 +61,7 @@ describe('UpdateCheckButton', () => {
     const answer = await screen.findByRole('button', {
       name: /^(Aktuell|Current) · v\d/,
     });
-    expect(screen.getByRole('status')).toHaveTextContent(
-      /^(Aktuell|Current) · v\d/,
-    );
+    expect(rowStatus()).toHaveTextContent(/^(Aktuell|Current) · v\d/);
     expect(screen.queryByTestId('toast-item')).toBeNull();
 
     // Pressing it again checks again.
@@ -81,13 +87,14 @@ describe('UpdateCheckButton', () => {
       expect(
         getButton(/Auf Updates prüfen|Check for updates/i),
       ).toBeInTheDocument();
-      expect(screen.getByRole('status')).toBeEmptyDOMElement();
+      expect(rowStatus()).toBeEmptyDOMElement();
     } finally {
       vi.useRealTimers();
     }
   });
 
-  it('offers the reload action when a worker is waiting', async () => {
+  // The row that asked offers it, and no toast lies over the open menu.
+  it('offers the reload in the row when a worker is waiting', async () => {
     const applyUpdate = registerController({ waiting: worker });
 
     const user = await clickCheck();
@@ -95,6 +102,7 @@ describe('UpdateCheckButton', () => {
     const reload = await screen.findByRole('button', {
       name: /^(Aktualisieren|Update)$/i,
     });
+    expect(screen.queryByTestId('toast-item')).toBeNull();
     await user.click(reload);
     expect(applyUpdate).toHaveBeenCalledOnce();
   });
@@ -121,7 +129,29 @@ describe('UpdateCheckButton', () => {
     await clickCheck();
 
     expect(
-      await screen.findByText(/fehlgeschlagen|Update check failed/i),
+      await screen.findByRole('button', {
+        name: /Prüfung fehlgeschlagen|Check failed/i,
+      }),
     ).toBeInTheDocument();
+    expect(screen.queryByTestId('toast-item')).toBeNull();
+  });
+
+  it('says offline in the row instead of checking', async () => {
+    Object.defineProperty(window.navigator, 'onLine', {
+      configurable: true,
+      get: () => false,
+    });
+    try {
+      registerController({});
+      await clickCheck();
+      expect(
+        await screen.findByRole('button', { name: /^Offline/ }),
+      ).toBeInTheDocument();
+    } finally {
+      Object.defineProperty(window.navigator, 'onLine', {
+        configurable: true,
+        get: () => true,
+      });
+    }
   });
 });

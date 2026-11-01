@@ -133,6 +133,7 @@ export interface ToastInstance {
 
 export type ToastEvent =
   | { action: 'add'; toast: ToastInstance }
+  | { action: 'announce'; id: string; message: string }
   | { action: 'dismiss'; id: string }
   | { action: 'dismissType'; type: ToastType }
   | { action: 'dismissAll' };
@@ -146,7 +147,9 @@ let successQuietCount = 0;
 
 const DEFAULT_DURATION: Record<ToastType, number> = {
   success: 3000,
-  error: 5000,
+  // An error is read twice — what went wrong, then what to do — so it
+  // stands longer than a note (decision 0037).
+  error: 8000,
   info: 4000,
   warning: 4000,
   critical: 0,
@@ -196,6 +199,23 @@ export function showToast(
   });
 
   return id;
+}
+
+/**
+ * Says a message to assistive technology alone, with no card on the screen.
+ *
+ * For what the screen already shows — a plan that opened, a class that was
+ * made, a room that is gone: a card saying so lay over the very place a
+ * teacher was looking at (decision 0037). A screen reader still hears it,
+ * through a polite live region the toast provider keeps. Takes an i18n key or
+ * a text, as `showToast` does.
+ */
+export function announce(message: string): void {
+  emit({
+    action: 'announce',
+    id: generateId(),
+    message: getToastMessage(message),
+  });
 }
 
 export function dismissToast(id: string): void {

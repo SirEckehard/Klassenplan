@@ -10,6 +10,9 @@ import {
 import { showToast } from '@/utils/ui/toast';
 import { logError, logInfo } from '@/utils';
 
+/** How long the offer stands. */
+const INSTALL_TOAST_MS = 12000;
+
 /**
  * Component to handle PWA install prompt via Toast
  */
@@ -19,14 +22,17 @@ export default function InstallPrompt() {
   const hasShown = React.useRef(false);
 
   useEffect(() => {
-    // The toast is offered once. After a dismissal the footer settings menu
-    // stays as the way back in, so nothing becomes unreachable.
+    // The toast is offered once, for a while, and counts as seen once shown:
+    // one that stayed until it was clicked lay over the stage for as long as
+    // a teacher worked (decision 0037). The gear's "Als App installieren"
+    // stays the way in, so nothing becomes unreachable.
     if (isInstallable && !isInstallPromptDismissed() && !hasShown.current) {
       logInfo('Showing install prompt toast', {}, 'PWA');
       hasShown.current = true;
+      dismissInstallPrompt();
 
       showToast('info', t('pwa.installDesc'), {
-        duration: 0,
+        duration: INSTALL_TOAST_MS,
         id: 'pwa-install-prompt',
         action: {
           label: t('pwa.install'),
@@ -40,7 +46,6 @@ export default function InstallPrompt() {
         },
         onDismiss: () => {
           logInfo('User dismissed the install toast', {}, 'PWA');
-          dismissInstallPrompt();
         },
       });
     }

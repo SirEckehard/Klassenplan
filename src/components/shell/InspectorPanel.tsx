@@ -11,6 +11,7 @@ import {
   type Icon,
 } from '@phosphor-icons/react';
 import HintTooltip from '@/components/ui/feedback/HintTooltip';
+import { useRefusalHint } from '@/hooks/ui/useRefusalHint';
 import { LocalizedLink } from '@/components/LocalizedLink';
 import FloatingDropdown from '@/components/students/FloatingDropdown';
 import { useClickOutside } from '@/hooks/ui/useClickOutside';
@@ -514,7 +515,7 @@ export function InspectorActionRow({
 /**
  * The one destructive action, pinned to the inspector's foot — a student, a
  * table, a plan alike. Where it cannot be taken, it stays in its place and
- * says why on hover and focus.
+ * says why on hover and focus, and for a few seconds when it is pressed.
  */
 export function InspectorDeleteFooter({
   label,
@@ -526,12 +527,13 @@ export function InspectorDeleteFooter({
   blockedHint?: string | null;
 }) {
   const hintId = React.useId();
+  const refusal = useRefusalHint(blockedHint);
   return (
     <InspectorFooter>
       <div className="group relative">
         <button
           type="button"
-          onClick={blockedHint ? undefined : onDelete}
+          onClick={blockedHint ? refusal.show : onDelete}
           aria-disabled={blockedHint ? true : undefined}
           aria-describedby={blockedHint ? hintId : undefined}
           className={`${dangerButtonClass} h-8 gap-2 px-3 text-xs ${
@@ -541,7 +543,9 @@ export function InspectorDeleteFooter({
           <TrashIcon size={14} aria-hidden="true" />
           {label}
         </button>
-        {blockedHint && <HintTooltip id={hintId} hint={blockedHint} />}
+        {blockedHint && (
+          <HintTooltip id={hintId} hint={blockedHint} open={refusal.open} />
+        )}
       </div>
     </InspectorFooter>
   );

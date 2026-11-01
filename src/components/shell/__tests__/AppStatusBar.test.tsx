@@ -20,6 +20,11 @@ import {
   registerPersistRetry,
   setPersistStatus,
 } from '@/hooks/persistence/persistStatus';
+import {
+  setUpdateController,
+  setUpdateReady,
+} from '@/hooks/pwa/swUpdateController';
+import { confirmInStatusBar } from '@/utils/ui/statusNotice';
 
 const mocks = vi.hoisted(() => ({
   state: {
@@ -145,6 +150,79 @@ describe('AppStatusBar', () => {
     const tooltip = screen.getByRole('tooltip');
     expect(tooltip).toHaveTextContent(/fehlenden Namen|missing names/i);
     expect(button).toHaveAttribute('aria-describedby', tooltip.id);
+  });
+
+  // A new version was a toast that stayed until clicked, over the
+  // inspector's head; it is a state of the workspace (decision 0037).
+  it('shows a waiting new version as a quiet button that takes it on', async () => {
+    const applyUpdate = vi.fn();
+    setUpdateController({
+      registration: {} as ServiceWorkerRegistration,
+      applyUpdate,
+    });
+    act(() => setUpdateReady(true));
+    try {
+      render(<AppStatusBar />);
+
+      await userEvent
+        .setup()
+        .click(getButton(/Neue Version bereit|New version ready/i));
+      expect(applyUpdate).toHaveBeenCalledOnce();
+    } finally {
+      act(() => setUpdateReady(false));
+      setUpdateController(null);
+    }
+  });
+
+  it('says for a few seconds what was kept where the screen does not show it', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    try {
+      setState({ students: named(3) });
+      render(<AppStatusBar />);
+      const line = screen.getByText(/3 Schüler|3 students/i);
+
+      act(() => {
+        confirmInStatusBar('backupSaved', 'generator:storage.backupExported');
+      });
+      expect(status()).toHaveTextContent(/Backup gespeichert|Backup saved/i);
+      expect(line).not.toBeVisible();
+
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(3000);
+      });
+      expect(status()).not.toHaveTextContent(
+        /Backup gespeichert|Backup saved/i,
+      );
+      expect(line).toBeVisible();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  // A finger has no hover and Safari does not focus a tapped button: the
+  // press shows the hint where it was given, instead of a card far from it
+  // (decision 0037).
+  it('says at the button why, when the blocked way on is pressed', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    try {
+      setState({ students: [createMockStudent({ id: '1', name: '' })] });
+      render(<AppStatusBar />);
+      const tooltip = screen.getByRole('tooltip');
+      expect(tooltip).not.toHaveAttribute('data-open');
+
+      await userEvent.setup().click(proceed());
+
+      expect(mocks.handleStepChange).not.toHaveBeenCalled();
+      expect(tooltip).toHaveAttribute('data-open', 'true');
+      expect(tooltip).toHaveClass('opacity-100');
+
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(4000);
+      });
+      expect(tooltip).not.toHaveAttribute('data-open');
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it('stays quiet about an action while the class is empty', () => {

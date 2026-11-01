@@ -147,7 +147,7 @@ export function handleError(
       break;
 
     case ErrorSeverity.ERROR:
-      showToast('error', appError.message, { duration: 5000 });
+      showToast('error', appError.message, { duration: 8000 });
       break;
 
     case ErrorSeverity.CRITICAL:

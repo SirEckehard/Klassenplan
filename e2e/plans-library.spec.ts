@@ -84,9 +84,8 @@ async function mixAndSave(page: Page, name: string): Promise<void> {
   await field.fill(name);
   await field.press('Enter');
   await inspector.getByRole('button', { name: 'Plan speichern' }).click();
-  await expect(
-    page.getByTestId('toast-item').filter({ hasText: name }),
-  ).toBeVisible();
+  // Its head says it was saved; no card says it over the stage.
+  await expect(inspector.getByText('Heute gespeichert')).toBeVisible();
 }
 
 const statusBar = (page: Page) =>

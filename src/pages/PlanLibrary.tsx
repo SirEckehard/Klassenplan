@@ -79,7 +79,7 @@ import {
 } from '@/utils';
 import { buildUsageOrigins } from '@/utils/data/planUsage';
 import { hasShapeMismatch } from '@/utils/math/scene';
-import { showToast, TOAST_MESSAGES } from '@/utils/ui/toast';
+import { announce, showToast, TOAST_MESSAGES } from '@/utils/ui/toast';
 
 const toProblem = (outcome: LibraryEditOutcome): NameProblem | null =>
   outcome.ok
@@ -329,7 +329,8 @@ function PlanLibraryPage() {
         // The plan on screen opens as it is, changes and all.
         if (plan.id !== latest.state.activePlanId) {
           latest.actions.handleHistoryLoad(plan);
-          showToast('success', t('storage.planLoaded', { name: plan.name }));
+          // What opens is on the stage; a card would only say so over it.
+          announce(t('storage.planLoaded', { name: plan.name }));
         }
         toLayer(3);
         return;
@@ -345,10 +346,7 @@ function PlanLibraryPage() {
           showToast('warning', 'toast:mix.doesNotFit');
           return;
         }
-        showToast(
-          'success',
-          t('storage.mixLoaded', { time: formatTime(mix.timestamp) }),
-        );
+        announce(t('storage.mixLoaded', { time: formatTime(mix.timestamp) }));
         toLayer(3);
         return;
       }
@@ -430,7 +428,8 @@ function PlanLibraryPage() {
           planId: node.planId,
         });
         if (outcome.ok) {
-          showToast('success', t('storage.planDeleted', { name: plan.name }));
+          // The column shows it gone, after the question that asked.
+          announce(t('storage.planDeleted', { name: plan.name }));
           setChosenPath(latestRef.current.path.slice(0, -1));
         }
         return;
@@ -455,7 +454,7 @@ function PlanLibraryPage() {
           mixId: node.mixId,
         });
         if (outcome.ok) {
-          showToast('success', t('storage.mixDeleted'));
+          announce(t('storage.mixDeleted'));
           setChosenPath(latestRef.current.path.slice(0, -1));
         }
         return;
@@ -488,7 +487,7 @@ function PlanLibraryPage() {
           roomId: node.roomId,
         });
         if (outcome.ok) {
-          showToast('success', t('library.room.deleted', { name: room.name }));
+          announce(t('library.room.deleted', { name: room.name }));
           setChosenPath(latestRef.current.path.slice(0, -1));
         }
         return;
@@ -510,7 +509,7 @@ function PlanLibraryPage() {
           showToast('error', TOAST_MESSAGES.DELETE_TEMPLATE_ERROR);
           return;
         }
-        showToast('success', TOAST_MESSAGES.DELETE_TEMPLATE_SUCCESS);
+        announce(TOAST_MESSAGES.DELETE_TEMPLATE_SUCCESS);
         setTemplatesRevision((count) => count + 1);
         setChosenPath(latestRef.current.path.slice(0, -1));
         return;
@@ -750,8 +749,8 @@ function PlanLibraryPage() {
                   showToast('error', TOAST_MESSAGES.SAVE_TEMPLATE_ERROR);
                   return false;
                 }
-                showToast(
-                  'success',
+                // The template stands in its column.
+                announce(
                   overwriteId !== undefined
                     ? TOAST_MESSAGES.TEMPLATE_UPDATE_SUCCESS
                     : TOAST_MESSAGES.SAVE_TEMPLATE_SUCCESS,

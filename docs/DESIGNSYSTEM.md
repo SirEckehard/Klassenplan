@@ -1,6 +1,6 @@
 # Design System – Klassenplan
 
-> **Status:** current · **Last reviewed:** 2026-10-31 · **Maintainer:** Eike
+> **Status:** current · **Last reviewed:** 2026-11-01 · **Maintainer:** Eike
 > Schäfer · **Describes:** Klassenplan 3.1.2
 
 This document describes the binding design tokens for Klassenplan. All values live in `src/index.css` and are reachable from TypeScript through `src/utils/ui/designTokens.ts`.
@@ -50,7 +50,7 @@ The look is called **Papier & Werkzeug**: the interface is a passepartout in war
 | `menuSurfaceClass`       | `menu-surface`        | Desktop menus                                           |
 | `floatingStatusClass`    | `floating-status`     | Floating badges                                         |
 | `canvasFrameClass`       | `canvas-frame`        | Canvas frame                                            |
-| `toastSurfaceClass`      | `toast-surface`       | Toast, stacked top right under the header (§ 6f)        |
+| `toastSurfaceClass`      | `toast-surface`       | Toast, centred over the stage above the bar (§ 6f)      |
 | `toastIconClass`         | `toast-icon`          | Toast icon, the one coloured part of a toast            |
 | `toastActionClass`       | `toast-action`        | The one button a toast may carry                        |
 | `toastTimelineClass`     | `toast-timeline`      | The hairline that shows a toast's time left             |
@@ -411,11 +411,13 @@ A dropdown is reached with the keyboard as well as the pointer (`usePopoverFocus
 
 ## 6f. Messages
 
+A message is a toast only when nothing closer can say it (decision 0037). Four questions, in this order: is the result on the screen — then no card, and a screen reader hears it (`announce`); does it belong to a control — then the control answers, under its field or at the blocked button (`useRefusalHint`); is it a state or a confirmation the screen does not show — then the status bar, a quiet button or three seconds in its line (`confirmInStatusBar`); only what is left is a card. That leaves errors, the offers with a button of their own ("Rückgängig") and notes on something unexpected.
+
 A toast is a card of the app's paper (`toastSurfaceClass`): `--toast-bg` with a `--toast-border` hairline, `--radius-card`, `--toast-shadow`, 23 rem wide and as wide as a phone. Its colour is in its icon alone (`toastIconClass`, `--toast-accent-*`): a check for success, a circle for an error, a triangle for a warning, an "i" for information, a shield for the critical. The one button it may carry (`toastActionClass`) is quiet — a hairline on `--toast-action-bg`, beside the text and under it when the text is long — because blue is the screen's primary button. Text, icon and close button share one centre line, and on a touch screen both buttons take a 44 px target around their 28 px.
 
-They stack at the top right under the header, the newest on top. A new one glides 28 px in from the right and fades in while the older ones move down; one that goes glides out the same way and the stack closes up behind it (`components/ui/feedback/toastMotion.ts`, Web Animations: 380 ms in, 200 ms out). The same id again does not double: the card keeps its place, takes the new text, nudges and starts its time anew. A hairline along the bottom edge (`toastTimelineClass`) shows the time left. Every toast's time stands still while one is pointed at, holds the keyboard focus or is being swiped, and while the page is in the background (WCAG 2.2.1). A swipe to the right puts a toast away as its close button does. With "Reduce motion" set nothing moves: toasts come and go at once and the hairline is not drawn — the global guard in `index.css` reaches CSS only, so `motionEnabled` (`utils/ui/motion`) asks the media query itself.
+They stand centred over the stage, 16 px above the status bar — the part of the window the toolbar, the inspector's column and an open drawer leave, which the shell measures (`hooks/ui/toastDock.ts`), so a card never lies over a column's head. Below `md` they take the window's width and stand above what hangs from the bar, "Mischen" or the list's jump to its ends; without a shell, at the bottom of the window. The newest stands nearest the bar. A new one rises 12 px from below and fades in while the older ones move up; one that goes sinks out the same way and the stack closes up behind it (`components/ui/feedback/toastMotion.ts`, Web Animations: 380 ms in, 200 ms out). The same id again does not double: the card keeps its place, takes the new text, nudges and starts its time anew. A hairline along the bottom edge (`toastTimelineClass`) shows the time left. Every toast's time stands still while one is pointed at, holds the keyboard focus or is being swiped, and while the page is in the background (WCAG 2.2.1). A tap anywhere on a toast puts it away; only its own button does something else, and the close button stays, for the keyboard and as the sign that a card goes. A swipe sideways or down puts it away too. Errors stand 8 s, notes 4 s, an offer with a button 8 s; a critical message stays until it is closed, and no other card stays for good. With "Reduce motion" set nothing moves: toasts come and go at once and the hairline is not drawn — the global guard in `index.css` reaches CSS only, so `motionEnabled` (`utils/ui/motion`) asks the media query itself.
 
-A control that stays in view answers in its own place rather than with a toast over it: the gear's update check says "Aktuell · v3.2.0" in its row for three seconds.
+A control that stays in view answers in its own place rather than with a toast over it: the gear's update check says "Aktuell · v3.2.0", offline or failed in its row for three seconds, and "Aktualisieren" while a new version waits; the room's template row says "Als Vorlage gespeichert".
 
 ## 6g. Motion
 

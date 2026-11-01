@@ -18,7 +18,7 @@ import {
   InspectorMenuButton,
   InspectorSection,
 } from '@/components/shell/InspectorPanel';
-import { showToast } from '@/utils/ui/toast';
+import { announce } from '@/utils/ui/toast';
 import InspectorTitleField from '@/components/shell/InspectorTitleField';
 import {
   formatStoredDate,
@@ -267,10 +267,8 @@ export function PlanSection() {
             onSelect: () => {
               if (plan.id === activePlanId) return;
               handleHistoryLoad(plan);
-              showToast(
-                'success',
-                t('storage.planLoaded', { name: plan.name }),
-              );
+              // The stage shows the plan and the header its name.
+              announce(t('storage.planLoaded', { name: plan.name }));
             },
           }))}
         />

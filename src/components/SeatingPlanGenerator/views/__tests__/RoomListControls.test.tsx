@@ -19,6 +19,7 @@ const mocks = vi.hoisted(() => ({
   seatingHistory: [] as SavedPlan[],
   confirmDialog: vi.fn(),
   showToast: vi.fn(),
+  announce: vi.fn(),
 }));
 
 vi.mock('@/contexts/seatingPlan/seatingPlanSelectors', () => ({
@@ -37,7 +38,10 @@ vi.mock('@/contexts/seatingPlan/seatingPlanSelectors', () => ({
 vi.mock('@/services/ui/dialogs', () => ({
   confirmDialog: mocks.confirmDialog,
 }));
-vi.mock('@/utils/ui/toast', () => ({ showToast: mocks.showToast }));
+vi.mock('@/utils/ui/toast', () => ({
+  showToast: mocks.showToast,
+  announce: mocks.announce,
+}));
 
 const room = (id: string, name: string): RoomRecord => ({
   id,
@@ -170,10 +174,9 @@ describe('RoomListControls', () => {
       expect.anything(),
     );
     expect(mocks.deleteRoom).toHaveBeenCalledWith('b');
-    expect(mocks.showToast).toHaveBeenCalledWith(
-      'success',
-      expect.stringMatching(/Labor/),
-    );
+    // The list shows it gone; a screen reader hears it.
+    expect(mocks.announce).toHaveBeenCalledWith(expect.stringMatching(/Labor/));
+    expect(mocks.showToast).not.toHaveBeenCalled();
   });
 
   it('keeps a room when the question is declined', async () => {

@@ -9,7 +9,7 @@ import {
   getBrowserWindow,
   getBrowserDocument,
 } from '@/utils';
-import { showToast, TOAST_MESSAGES } from '@/utils/ui/toast';
+import { TOAST_MESSAGES } from '@/utils/ui/toast';
 
 export interface UseStudentManagementOptions {
   /**
@@ -47,6 +47,11 @@ export interface UseStudentManagementReturn {
    */
   handleAddStudent: () => void;
   /**
+   * Why the last add was refused, as an i18n key, said under the field that
+   * asked for it; null once the name changes (decision 0037).
+   */
+  addProblem: string | null;
+  /**
    * Check if add button should be disabled
    */
   isAddDisabled: boolean;
@@ -54,7 +59,8 @@ export interface UseStudentManagementReturn {
 
 /**
  * Hook for managing student operations (add, validation).
- * Handles validation, toast notifications, and auto-scroll to new students.
+ * Handles validation, the refusal said under the field, and auto-scroll to
+ * new students.
  */
 export function useStudentManagement(
   options: UseStudentManagementOptions,
@@ -93,11 +99,22 @@ export function useStudentManagement(
     };
   }, [lastAddedId]);
 
+  const [addProblem, setAddProblem] = useState<string | null>(null);
+  const changeNewStudentName = useCallback((name: string) => {
+    setNewStudentName(name);
+    setAddProblem(null);
+  }, []);
+
+  // A refusal is said under the field, where the name was typed — a card
+  // came far from it (decision 0037).
   const handleAddStudent = useCallback(() => {
-    // Validate student name
+    if (!newStudentName.trim()) {
+      setAddProblem(TOAST_MESSAGES.STUDENT_NAME_EMPTY);
+      return;
+    }
     const nameValidation = stringValidation.validateStudentName(newStudentName);
     if (!nameValidation.isValid) {
-      showToast('error', TOAST_MESSAGES.STUDENT_NAME_INVALID);
+      setAddProblem(TOAST_MESSAGES.STUDENT_NAME_INVALID);
       return;
     }
 
@@ -107,13 +124,14 @@ export function useStudentManagement(
       MAX_STUDENTS,
     );
     if (!countValidation.isValid) {
-      showToast('error', TOAST_MESSAGES.STUDENT_MAX_REACHED);
+      setAddProblem(TOAST_MESSAGES.STUDENT_MAX_REACHED);
       return;
     }
 
     const name = newStudentName.trim();
     const student = addStudent(name);
     setLastAddedId(student.id);
+    setAddProblem(null);
 
     // Clear input for next entry
     setNewStudentName('');
@@ -124,9 +142,10 @@ export function useStudentManagement(
 
   return {
     newStudentName,
-    setNewStudentName,
+    setNewStudentName: changeNewStudentName,
     lastAddedId,
     handleAddStudent,
+    addProblem,
     isAddDisabled,
   };
 }

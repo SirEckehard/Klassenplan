@@ -12,6 +12,7 @@ import StatusBarFrame, {
   statusBarWordClass,
 } from '@/components/shell/StatusBarFrame';
 import HintTooltip from '@/components/ui/feedback/HintTooltip';
+import { useRefusalHint } from '@/hooks/ui/useRefusalHint';
 import { TOUR_ANCHORS } from '@/components/onboarding/tours';
 import { primaryButtonClass } from '@/utils';
 
@@ -48,6 +49,7 @@ export default function LibraryStatusBar({
 }) {
   const { t } = useTranslation('generator');
   const hintId = React.useId();
+  const refusal = useRefusalHint(open.hint);
   // A phone's bar keeps the last two steps; the rest are a click up anyway.
   const shortened = crumbs.length > 2;
 
@@ -119,7 +121,7 @@ export default function LibraryStatusBar({
           >
             <button
               type="button"
-              onClick={open.hint ? undefined : open.onOpen}
+              onClick={open.hint ? refusal.show : open.onOpen}
               aria-label={open.label}
               aria-disabled={open.hint ? true : undefined}
               aria-describedby={open.hint ? hintId : undefined}
@@ -131,7 +133,9 @@ export default function LibraryStatusBar({
               <ArrowSquareOutIcon className="h-4 w-4" aria-hidden="true" />
               <span className={statusBarWordClass}>{open.label}</span>
             </button>
-            {open.hint && <HintTooltip id={hintId} hint={open.hint} />}
+            {open.hint && (
+              <HintTooltip id={hintId} hint={open.hint} open={refusal.open} />
+            )}
           </div>
         </>
       }

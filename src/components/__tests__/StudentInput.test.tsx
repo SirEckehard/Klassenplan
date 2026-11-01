@@ -158,12 +158,17 @@ describe('StudentInput', () => {
     return <output data-testid="inspector-selection">{selection?.id}</output>;
   };
 
-  /** The toasts raised while `run` goes, in order. */
+  /**
+   * The toasts raised while `run` goes, in order, with what was said to a
+   * screen reader alone as type `announce`.
+   */
   const collectToasts = async (run: () => void | Promise<void>) => {
     const toasts: Array<{ type: string; message: string }> = [];
     const unsubscribe = subscribeToToasts((event) => {
       if (event.action === 'add') {
         toasts.push({ type: event.toast.type, message: event.toast.message });
+      } else if (event.action === 'announce') {
+        toasts.push({ type: 'announce', message: event.message });
       }
     });
     try {
@@ -183,8 +188,8 @@ describe('StudentInput', () => {
   };
 
   // Naming a class is typing and Enter: the first new placeholder opens in
-  // the inspector with its name field, and one message says how many there
-  // are.
+  // the inspector with its name field. The list shows how many there are, so
+  // no card says it; a screen reader hears it.
   it('creates placeholders and opens the first of them to be named', async () => {
     const props = createMockStudentInputProps({ students: [] });
     renderWithClassContext(
@@ -208,11 +213,33 @@ describe('StudentInput', () => {
     );
     expect(toasts).toEqual([
       {
-        type: 'success',
+        type: 'announce',
         message: expect.stringMatching(/^3 (Platzhalter|placeholders)/),
       },
     ]);
     await waitFor(() => expect(panel).not.toBeInTheDocument());
+  });
+
+  it('says under the field why a count is refused, and keeps the panel', async () => {
+    const props = createMockStudentInputProps({ students: [] });
+    renderWithClassContext(<StudentInput {...props} />);
+
+    const { panel, field } = await openPlaceholderPanel();
+    fireEvent.change(field, { target: { value: '0' } });
+    const toasts = await collectToasts(() => {
+      fireEvent.keyDown(field, { key: 'Enter' });
+    });
+
+    expect(props.addBulkPlaceholderStudents).not.toHaveBeenCalled();
+    expect(toasts).toEqual([]);
+    expect(field).toHaveAccessibleDescription(
+      /Zahl zwischen 1 und 36|number between 1 and 36/,
+    );
+    expect(panel).toBeInTheDocument();
+
+    // Typing another number takes the refusal back.
+    fireEvent.change(field, { target: { value: '4' } });
+    expect(field).not.toHaveAttribute('aria-invalid');
   });
 
   it('creates only what fits and says so in one message', async () => {

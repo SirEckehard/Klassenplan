@@ -929,6 +929,11 @@
     }
   },
   "shell": {
+    "notice": {
+      "saved": "Saved",
+      "planSaved": "Plan saved",
+      "backupSaved": "Backup saved"
+    },
     "layers": {
       "class": "Class",
       "room": "Room",
@@ -1005,6 +1010,7 @@
     "templates": "Templates",
     "templatesHint": "Save this room as a template to use it for other classes as well.",
     "saveAsTemplate": "Save room as a template",
+    "templateSaved": "Saved as a template",
     "templateName": "Template name",
     "replaceTemplate": "Replace template “{{name}}”",
     "deleteTemplateTitle": "Delete template",

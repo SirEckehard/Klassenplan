@@ -9,6 +9,7 @@ import { ClassDialogsProvider } from '@/contexts/ClassDialogsContext';
 import { StatusBarSlotProvider } from '@/contexts/StatusBarSlotContext';
 import { ToolRailProvider } from '@/contexts/ToolRailContext';
 import { SHELL_STATUS_BAR_HEIGHT } from '@/components/shell/shellTokens';
+import { measureShellDock, registerToastDock } from '@/hooks/ui/toastDock';
 
 /** Set by `ShellProviders`, so `AppShell` inside them does not nest a second set. */
 const ShellProvidedContext = React.createContext(false);
@@ -90,6 +91,15 @@ export default function AppShell({
     observer.observe(bar);
     return () => observer.disconnect();
   }, [statusBar]);
+  // The toasts stand over the stage, above the bar: the provider is outside
+  // the frame, so the frame lends it the measure (`toastDock`).
+  React.useEffect(
+    () =>
+      registerToastDock(() =>
+        frameRef.current ? measureShellDock(frameRef.current) : null,
+      ),
+    [],
+  );
   const frame = (
     // The status bar's height, for what stands above it — the drawers, the
     // focus mode's thumb bar, the floating controls

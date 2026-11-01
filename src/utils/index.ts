@@ -331,7 +331,12 @@ export {
 } from './shortcuts';
 
 // ===== Toasts =====
-export { showToast, quietSuccessToasts, TOAST_MESSAGES } from './ui/toast';
+export {
+  announce,
+  showToast,
+  quietSuccessToasts,
+  TOAST_MESSAGES,
+} from './ui/toast';
 export { announcePlanSaved } from './ui/planAnnouncements';
 export {
   getStatisticStatus,

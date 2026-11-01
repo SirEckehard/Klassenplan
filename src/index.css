@@ -1174,15 +1174,16 @@
   display: flex;
   align-items: flex-start;
   gap: 0.625rem;
-  width: min(23rem, calc(100vw - 2rem));
+  /* The stack's width is the stage's (`toastDock`); a card takes 23 rem of it. */
+  width: min(23rem, 100%);
   border-radius: var(--radius-card);
   border: 1px solid var(--toast-border);
   background: var(--toast-bg);
   color: var(--toast-text);
   box-shadow: var(--toast-shadow);
   padding: 0.625rem 0.5625rem 0.625rem 0.875rem;
-  /* A sideways swipe puts it away; an upright one still scrolls the page. */
-  touch-action: pan-y;
+  /* A swipe sideways or down puts it away, so the card keeps the finger. */
+  touch-action: none;
   --toast-accent: var(--toast-accent-info);
 }
 

@@ -382,6 +382,13 @@ describe('SceneInspector', () => {
 
     expect(onSaveTemplate).toHaveBeenCalledWith('Physikraum', undefined);
     await waitFor(() => expect(field).not.toBeInTheDocument());
+    // The row says it kept the room, where a card lay over the stage
+    // (decision 0037).
+    expect(
+      screen.getByRole('button', {
+        name: /^(Als Vorlage gespeichert|Saved as a template)$/,
+      }),
+    ).toBeInTheDocument();
   });
 
   // A taken name is not saved over by Enter: replacing is a step of its own.

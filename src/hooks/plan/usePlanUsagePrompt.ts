@@ -11,7 +11,7 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { PlanUsageSource, SeatingArrangement } from '@/types';
-import { logError, showToast } from '@/utils';
+import { announce, logError, showToast } from '@/utils';
 import {
   recordPlanUsage,
   setPlanUsageConfirmed,
@@ -61,7 +61,7 @@ export function usePlanUsagePrompt(
           onClick: () => {
             setPlanUsageConfirmed(classId, usageId, false)
               .then(() => {
-                showToast('success', 'toast:planUsage.dismissed');
+                announce('toast:planUsage.dismissed');
               })
               .catch((error) => {
                 logError(

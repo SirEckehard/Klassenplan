@@ -77,7 +77,7 @@ describe('errorHandling', () => {
       expect(showToastSpy).toHaveBeenCalledWith(
         'error',
         'toast:errors.export',
-        { duration: 5000 },
+        { duration: 8000 },
       );
     });
 
@@ -120,7 +120,7 @@ describe('errorHandling', () => {
       expect(showToastSpy).toHaveBeenCalledWith(
         'error',
         'toast:errors.network',
-        { duration: 5000 },
+        { duration: 8000 },
       );
     });
 
@@ -135,7 +135,7 @@ describe('errorHandling', () => {
       expect(showToastSpy).toHaveBeenCalledWith(
         'error',
         'Custom error message',
-        { duration: 5000 },
+        { duration: 8000 },
       );
     });
   });
@@ -145,7 +145,7 @@ describe('errorHandling', () => {
       errorHandlers.storageError(new Error('storage'), 'Storage broken');
 
       expect(showToastSpy).toHaveBeenCalledWith('error', 'Storage broken', {
-        duration: 5000,
+        duration: 8000,
       });
     });
 
@@ -155,7 +155,7 @@ describe('errorHandling', () => {
       expect(showToastSpy).toHaveBeenCalledWith(
         'error',
         'toast:errors.export',
-        { duration: 5000 },
+        { duration: 8000 },
       );
     });
 

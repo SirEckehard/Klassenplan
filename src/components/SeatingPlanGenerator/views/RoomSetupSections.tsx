@@ -4,6 +4,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ArrowsClockwiseIcon,
+  CheckIcon,
   FloppyDiskIcon,
   PlusIcon,
 } from '@phosphor-icons/react';
@@ -20,7 +21,7 @@ import {
 import TablePreview from '@/components/TablePreview';
 import { TOUR_ANCHORS } from '@/components/onboarding/tours';
 import { confirmDialog } from '@/services/ui/dialogs';
-import { showToast } from '@/utils/ui/toast';
+import { announce } from '@/utils/ui/toast';
 import {
   checkName,
   getTablePresets,
@@ -331,6 +332,9 @@ export function TemplateSaveRow({
   );
 }
 
+/** How long the row says the template was kept. */
+const SAVED_NOTE_MS = 3000;
+
 /**
  * Rooms kept for other classes: this one saved as a template — named in the
  * panel, after the room — and the kept ones in a menu shaped as the header's
@@ -361,6 +365,19 @@ export function RoomTemplatesSection({
   const state = useOptionalSeatingPlanState();
   const [renamingId, setRenamingId] = React.useState<number | null>(null);
   const [saving, setSaving] = React.useState(false);
+  // The row that saved says so for a few seconds, as the gear's update check
+  // says "Aktuell": a card lay over the stage beside it (decision 0037).
+  const [savedAt, setSavedAt] = React.useState(0);
+  React.useEffect(() => {
+    if (savedAt === 0) return undefined;
+    const timer = window.setTimeout(() => setSavedAt(0), SAVED_NOTE_MS);
+    return () => window.clearTimeout(timer);
+  }, [savedAt]);
+  const save = async (name: string, overwriteId?: number) => {
+    const kept = await onSave(name, overwriteId);
+    if (kept) setSavedAt(Date.now());
+    return kept;
+  };
   const renaming = templates.find((template) => template.id === renamingId);
   // A room opened from a template carries its name, so saving it again
   // offers to replace that template.
@@ -388,8 +405,12 @@ export function RoomTemplatesSection({
         </p>
       )}
       <InspectorActionRow
-        icon={FloppyDiskIcon}
-        label={t('sceneInspector.saveAsTemplate')}
+        icon={savedAt ? CheckIcon : FloppyDiskIcon}
+        label={
+          savedAt
+            ? t('sceneInspector.templateSaved')
+            : t('sceneInspector.saveAsTemplate')
+        }
         expanded={saving}
         onClick={() => {
           setRenamingId(null);
@@ -401,7 +422,7 @@ export function RoomTemplatesSection({
           <TemplateSaveRow
             initialName={roomName}
             templates={templates}
-            onSave={onSave}
+            onSave={save}
             onDone={() => setSaving(false)}
           />
         </div>
@@ -572,7 +593,7 @@ export function RoomListControls() {
     );
     if (!confirmed) return;
     if (actions.deleteRoom(room.id) === null) {
-      showToast('success', t('library.room.deleted', { name: room.name }));
+      announce(t('library.room.deleted', { name: room.name }));
     }
   };
 

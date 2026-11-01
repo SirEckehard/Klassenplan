@@ -28,6 +28,13 @@ type BackupPasswordModalProps = {
   mode: BackupPasswordMode;
   onSubmit: (password: string) => void;
   onCancel: () => void;
+  /**
+   * Tries the password before the dialog closes; resolves with why it does
+   * not open the backup, or null when it does. A wrong password is said under
+   * the field and the dialog stays — it closed, a toast said so, and the file
+   * had to be chosen again (decision 0037).
+   */
+  check?: (password: string) => Promise<string | null>;
 };
 
 const STRENGTH_BAR_CLASS: Record<PasswordStrength, string> = {
@@ -52,6 +59,7 @@ export default function BackupPasswordModal({
   mode,
   onSubmit,
   onCancel,
+  check,
 }: BackupPasswordModalProps) {
   const { t } = useTranslation('common');
   const isCreate = mode === 'create';
@@ -59,6 +67,8 @@ export default function BackupPasswordModal({
   const [confirmation, setConfirmation] = useState('');
   const [revealed, setRevealed] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [checking, setChecking] = useState(false);
+  const [checkProblem, setCheckProblem] = useState<string | null>(null);
   const passwordRef = useRef<HTMLInputElement | null>(null);
   const passwordId = useId();
   const confirmationId = useId();
@@ -91,17 +101,27 @@ export default function BackupPasswordModal({
     return null;
   })();
 
-  const handleSubmit = (event: React.FormEvent) => {
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setSubmitted(true);
-    if (error) {
+    if (error || checking) {
       return;
+    }
+    if (check) {
+      setChecking(true);
+      const problem = await check(password);
+      setChecking(false);
+      if (problem) {
+        setCheckProblem(problem);
+        passwordRef.current?.select();
+        return;
+      }
     }
     onSubmit(password);
   };
 
   const inputType = revealed ? 'text' : 'password';
-  const visibleError = submitted ? error : null;
+  const visibleError = checkProblem ?? (submitted ? error : null);
 
   return (
     <Modal
@@ -143,7 +163,10 @@ export default function BackupPasswordModal({
               type={inputType}
               value={password}
               autoComplete={isCreate ? 'new-password' : 'current-password'}
-              onChange={(event) => setPassword(event.target.value)}
+              onChange={(event) => {
+                setPassword(event.target.value);
+                setCheckProblem(null);
+              }}
               className={`${inputFieldClass} pr-12`}
               aria-describedby={isCreate ? hintId : undefined}
               aria-invalid={visibleError ? true : undefined}
@@ -228,10 +251,17 @@ export default function BackupPasswordModal({
           >
             {t('buttons.cancel')}
           </button>
-          <button type="submit" className={primaryButtonClass}>
+          <button
+            type="submit"
+            className={primaryButtonClass}
+            aria-busy={checking || undefined}
+            disabled={checking}
+          >
             {isCreate
               ? t('backupPassword.submitCreate')
-              : t('backupPassword.submitUnlock')}
+              : checking
+                ? t('backupPassword.checking')
+                : t('backupPassword.submitUnlock')}
           </button>
         </div>
       </form>

@@ -35,6 +35,7 @@ const mocks = vi.hoisted(() => ({
   renameSeatingPlan: vi.fn((..._args: unknown[]) => true),
   setPlanName: vi.fn(),
   showToast: vi.fn(),
+  announce: vi.fn(),
 }));
 
 vi.mock('@/contexts/SeatingPlanContext', () => ({
@@ -58,7 +59,10 @@ vi.mock('@/contexts/SeatingPlanContext', () => ({
   }),
 }));
 
-vi.mock('@/utils/ui/toast', () => ({ showToast: mocks.showToast }));
+vi.mock('@/utils/ui/toast', () => ({
+  showToast: mocks.showToast,
+  announce: mocks.announce,
+}));
 
 /** A plan saved as the stage shows it, in the open room. */
 const savedPlan = (name: string, extra: Partial<SavedPlan> = {}) =>
@@ -206,10 +210,12 @@ describe('PlanSection', () => {
     expect(mocks.handleHistoryLoad).toHaveBeenCalledWith(
       mocks.seatingHistory[0],
     );
-    expect(mocks.showToast).toHaveBeenCalledWith(
-      'success',
+    // The stage shows the plan that opened: a screen reader hears it, no
+    // card says it over the stage.
+    expect(mocks.announce).toHaveBeenCalledWith(
       expect.stringMatching(/Chemie/),
     );
+    expect(mocks.showToast).not.toHaveBeenCalled();
   });
 
   it('names no room while the class has one', async () => {

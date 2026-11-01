@@ -2,6 +2,7 @@
 // Copyright (C) 2026 Eike Schäfer
 import { useRef } from 'react';
 import { showToast, TOAST_MESSAGES } from '@/utils/ui/toast';
+import { confirmInStatusBar } from '@/utils/ui/statusNotice';
 import { recordBackupCreated } from '@/utils/data/backupReminder';
 import {
   BACKUP_ERROR_MESSAGES,
@@ -251,7 +252,9 @@ export default function useDataBackup({
       // and the save dialog both come after the click.
       if (saved) {
         recordBackupCreated();
-        showToast('success', 'generator:storage.backupExported');
+        // The file is saved where the browser keeps it; the status bar's
+        // line says so, where there is one.
+        confirmInStatusBar('backupSaved', 'generator:storage.backupExported');
       }
     } catch (e) {
       if (e instanceof WebCryptoUnavailableError) {
@@ -294,19 +297,46 @@ export default function useDataBackup({
           handleWebCryptoUnavailable('import');
           return;
         }
-        const password = await dialogs.promptBackupPassword('unlock');
+        // The dialog tries the password itself and stays open on a wrong
+        // one, saying so under the field (decision 0037); the backup it
+        // opened is kept here.
+        let decrypted: Awaited<ReturnType<typeof decryptJson>> | undefined;
+        let cryptoError: WebCryptoUnavailableError | null = null;
+        const password = await dialogs.promptBackupPassword(
+          'unlock',
+          async (candidate) => {
+            try {
+              decrypted = await decryptJson(encryptedPayload, candidate);
+              return null;
+            } catch (error) {
+              if (error instanceof WebCryptoUnavailableError) {
+                // Nothing a second password changes: let the dialog close.
+                cryptoError = error;
+                return null;
+              }
+              logError('Decrypt failed', { error }, 'useDataBackup');
+              return i18n.t('common:backupPassword.errorWrong');
+            }
+          },
+        );
         if (password === null) return;
-        let decrypted;
-        try {
-          decrypted = await decryptJson(encryptedPayload, password);
-        } catch (error) {
-          if (error instanceof WebCryptoUnavailableError) {
-            handleWebCryptoUnavailable('import', error);
-          } else {
-            logError('Decrypt failed', { error }, 'useDataBackup');
-            showToast('error', 'toast:backup.decryptFailed');
-          }
+        if (cryptoError) {
+          handleWebCryptoUnavailable('import', cryptoError);
           return;
+        }
+        if (decrypted === undefined) {
+          // A dialog that did not try the password leaves it to us.
+          try {
+            decrypted = await decryptJson(encryptedPayload, password);
+          } catch (error) {
+            if (error instanceof WebCryptoUnavailableError) {
+              handleWebCryptoUnavailable('import', error);
+            } else {
+              logError('Decrypt failed', { error }, 'useDataBackup');
+              showToast('error', 'toast:backup.decryptFailed');
+            }
+            return;
+          }
         }
 
         // Let the user choose between replacing everything and merging the

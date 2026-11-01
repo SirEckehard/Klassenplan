@@ -29,8 +29,11 @@ import {
   animateToastIn,
   animateToastNudge,
   animateToastOut,
+  type SwipeOffset,
 } from './toastMotion';
 import { motionEnabled } from '@/utils/ui/motion';
+import { measureToastDock, type ToastDock } from '@/hooks/ui/toastDock';
+import { useCookieBannerOffset } from '@/hooks/ui/useCookieBannerOffset';
 
 const ICON_SIZE = 18;
 const CLOSE_ICON_SIZE = 16;
@@ -43,11 +46,14 @@ const iconMap = {
   critical: ShieldWarningIcon,
 } as const;
 
-/** A swipe that carries a card this far to the right puts it away … */
+/** A swipe that carries a card this far sideways puts it away … */
 const SWIPE_DISTANCE_PX = 90;
+/** … or this far down, towards the bar it rose from … */
+const SWIPE_DOWN_PX = 48;
 /** … and so does a flick faster than this (px per ms) past a few pixels. */
 const SWIPE_VELOCITY = 0.45;
 const SWIPE_FLICK_MIN_PX = 24;
+const SWIPE_DOWN_FLICK_MIN_PX = 16;
 
 /** On a touch screen a 28px button gets a 44px target around it. */
 const COARSE_HIT_AREA =
@@ -66,9 +72,12 @@ interface ToastEntry {
 interface Swipe {
   pointerId: number;
   startX: number;
-  offset: number;
-  started: boolean;
+  startY: number;
+  /** Which way the card follows, settled once the pointer has moved. */
+  axis: 'x' | 'y' | null;
+  offset: SwipeOffset;
   lastX: number;
+  lastY: number;
   lastTime: number;
   velocity: number;
 }
@@ -181,7 +190,9 @@ function ToastItem({
   const { key, toast, revision, leaving } = entry;
   const cardRef = React.useRef<HTMLDivElement>(null);
   const swipeRef = React.useRef<Swipe | null>(null);
-  const swipedBy = React.useRef<number | undefined>(undefined);
+  const swipedBy = React.useRef<SwipeOffset | undefined>(undefined);
+  // A swipe ends in a click on the card; that click must not close it.
+  const swipeEnded = React.useRef(false);
   const Icon = iconMap[toast.type] ?? InfoIcon;
   // Errors interrupt the screen reader (role="alert" implies assertive);
   // everything else is announced politely via role="status".
@@ -224,6 +235,7 @@ function ToastItem({
   };
 
   const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
+    swipeEnded.current = false;
     if (leaving || event.button !== 0) return;
     if (event.target instanceof Element && event.target.closest('button')) {
       return;
@@ -236,9 +248,11 @@ function ToastItem({
     swipeRef.current = {
       pointerId: event.pointerId,
       startX: event.clientX,
-      offset: 0,
-      started: false,
+      startY: event.clientY,
+      axis: null,
+      offset: { x: 0, y: 0 },
       lastX: event.clientX,
+      lastY: event.clientY,
       lastTime: event.timeStamp,
       velocity: 0,
     };
@@ -248,29 +262,39 @@ function ToastItem({
     const swipe = swipeRef.current;
     const card = cardRef.current;
     if (!swipe || !card || swipe.pointerId !== event.pointerId) return;
-    const distance = event.clientX - swipe.startX;
-    if (!swipe.started) {
+    const dx = event.clientX - swipe.startX;
+    const dy = event.clientY - swipe.startY;
+    if (!swipe.axis) {
       const threshold =
         event.pointerType === 'touch'
           ? DRAG_THRESHOLD_PX.touch
           : DRAG_THRESHOLD_PX.mouse;
-      if (Math.abs(distance) < threshold) return;
-      swipe.started = true;
+      if (Math.max(Math.abs(dx), Math.abs(dy)) < threshold) return;
+      swipe.axis = Math.abs(dx) >= Math.abs(dy) ? 'x' : 'y';
       onSwipeChange(true);
     }
-    // To the right the card follows the pointer; to the left it barely gives.
-    swipe.offset = distance > 0 ? distance : distance * 0.2;
+    // Sideways the card follows either way; downwards, towards the bar it
+    // rose from, it follows too, and upwards it barely gives.
+    swipe.offset =
+      swipe.axis === 'x'
+        ? { x: dx, y: 0 }
+        : { x: 0, y: dy > 0 ? dy : dy * 0.2 };
     const elapsed = event.timeStamp - swipe.lastTime;
-    if (elapsed > 0) swipe.velocity = (event.clientX - swipe.lastX) / elapsed;
+    if (elapsed > 0) {
+      swipe.velocity =
+        swipe.axis === 'x'
+          ? Math.abs(event.clientX - swipe.lastX) / elapsed
+          : (event.clientY - swipe.lastY) / elapsed;
+    }
     swipe.lastX = event.clientX;
+    swipe.lastY = event.clientY;
     swipe.lastTime = event.timeStamp;
-    card.style.transform = `translateX(${swipe.offset}px)`;
-    card.style.opacity = String(
-      Math.max(
-        0.25,
-        1 - Math.max(0, swipe.offset) / Math.max(1, card.offsetWidth * 0.9),
-      ),
-    );
+    card.style.transform = `translate(${swipe.offset.x}px, ${swipe.offset.y}px)`;
+    const travelled =
+      swipe.axis === 'x'
+        ? Math.abs(swipe.offset.x) / Math.max(1, card.offsetWidth * 0.9)
+        : Math.max(0, swipe.offset.y) / Math.max(1, card.offsetHeight * 1.5);
+    card.style.opacity = String(Math.max(0.25, 1 - travelled));
   };
 
   const endSwipe = (
@@ -281,21 +305,41 @@ function ToastItem({
     const card = cardRef.current;
     if (!swipe || swipe.pointerId !== event.pointerId) return;
     swipeRef.current = null;
-    if (!swipe.started || !card) return;
+    if (!swipe.axis || !card) return;
+    swipeEnded.current = true;
     onSwipeChange(false);
+    const { x, y } = swipe.offset;
     const farEnough =
-      swipe.offset > Math.min(SWIPE_DISTANCE_PX, card.offsetWidth * 0.35) ||
-      (swipe.velocity > SWIPE_VELOCITY && swipe.offset > SWIPE_FLICK_MIN_PX);
+      swipe.axis === 'x'
+        ? Math.abs(x) > Math.min(SWIPE_DISTANCE_PX, card.offsetWidth * 0.35) ||
+          (swipe.velocity > SWIPE_VELOCITY && Math.abs(x) > SWIPE_FLICK_MIN_PX)
+        : y > Math.min(SWIPE_DOWN_PX, card.offsetHeight * 0.8) ||
+          (swipe.velocity > SWIPE_VELOCITY && y > SWIPE_DOWN_FLICK_MIN_PX);
     if (farEnough && !cancelled) {
       swipedBy.current = swipe.offset;
       close();
       return;
     }
     // Let go too early, or taken back by the browser: it settles back.
-    const from = { offset: swipe.offset, opacity: card.style.opacity || '1' };
+    const from = { x, y, opacity: card.style.opacity || '1' };
     card.style.transform = '';
     card.style.opacity = '';
     if (motionEnabled()) animateToastBack(card, from);
+  };
+
+  // A tap anywhere on the card puts it away; only its own button does
+  // something else (decision 0037). The close button stays, for the keyboard
+  // and as the sign that a card can be put away.
+  const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (swipeEnded.current) {
+      swipeEnded.current = false;
+      return;
+    }
+    if (leaving) return;
+    if (event.target instanceof Element && event.target.closest('button')) {
+      return;
+    }
+    close();
   };
 
   return (
@@ -304,7 +348,7 @@ function ToastItem({
       role={leaving ? undefined : isUrgent ? 'alert' : 'status'}
       aria-hidden={leaving || undefined}
       inert={leaving}
-      className={`${toastSurfaceClass} pointer-events-auto`}
+      className={`${toastSurfaceClass} pointer-events-auto cursor-pointer`}
       style={{ zIndex }}
       data-testid="toast-item"
       data-toast-card=""
@@ -314,6 +358,7 @@ function ToastItem({
       onPointerMove={handlePointerMove}
       onPointerUp={(event) => endSwipe(event, false)}
       onPointerCancel={(event) => endSwipe(event, true)}
+      onClick={handleClick}
     >
       <span aria-hidden="true" className={toastIconClass}>
         <Icon size={ICON_SIZE} />
@@ -377,6 +422,12 @@ export function ToastProvider({
   const [pointerOver, setPointerOver] = React.useState(false);
   const [focusInside, setFocusInside] = React.useState(false);
   const [swiping, setSwiping] = React.useState(false);
+  const [announcement, setAnnouncement] = React.useState<{
+    id: string;
+    message: string;
+  } | null>(null);
+  const [dock, setDock] = React.useState<ToastDock | null>(null);
+  const cookieBannerOffset = useCookieBannerOffset();
   const pageHidden = usePageHidden();
   // Every toast's time stands still while one is pointed at, holds the
   // keyboard focus or is being swiped, and while the page is in the
@@ -404,6 +455,9 @@ export function ToastProvider({
             setEntries((prev) => addEntry(prev, event.toast, key));
             break;
           }
+          case 'announce':
+            setAnnouncement({ id: event.id, message: event.message });
+            break;
           case 'dismiss':
             leave((toast) => toast.id === event.id);
             break;
@@ -418,9 +472,20 @@ export function ToastProvider({
     [leave],
   );
 
+  // Where the stack stands is asked anew whenever a card comes or goes and
+  // while the window changes with cards on it: the shell's columns and
+  // drawers decide it (`toastDock`), and they change with the layout.
+  const count = entries.length;
+  React.useLayoutEffect(() => {
+    if (count === 0) return undefined;
+    const update = () => setDock(measureToastDock());
+    update();
+    window.addEventListener('resize', update);
+    return () => window.removeEventListener('resize', update);
+  }, [count]);
+
   // A card taken away under the pointer or with the focus in it sends
   // neither pointerout nor focusout, so the stack would stay paused for good.
-  const count = entries.length;
   const previousCount = React.useRef(count);
   React.useEffect(() => {
     const removed = count < previousCount.current;
@@ -434,15 +499,23 @@ export function ToastProvider({
   return (
     <>
       {children}
-      {/* Top right, just under the header: in its corner they lay over Help
-          and the gear, at the bottom they read as part of the status bar. On
-          a phone they take the width. The newest stands on top, nearest the
-          header, and the older ones move down. */}
+      {/* Centred over the stage, just above the status bar, the newest
+          nearest the bar (decision 0037): top right they lay over the
+          inspector's head, where a teacher was typing. Outside the shell at
+          the bottom of the window, above a cookie banner. */}
       <div
         ref={stackRef}
         aria-live="polite"
         aria-atomic="false"
-        className="pointer-events-none fixed inset-x-4 top-18 z-9999 flex max-h-svh flex-col items-end gap-3 sm:inset-x-auto sm:right-6"
+        className="pointer-events-none fixed z-9999 flex flex-col-reverse items-center gap-3"
+        style={{
+          left: `calc(${dock?.left ?? 0}px + max(1rem, env(safe-area-inset-left)))`,
+          right: `calc(${dock?.right ?? 0}px + max(1rem, env(safe-area-inset-right)))`,
+          bottom: dock
+            ? `${Math.max(dock.bottom, cookieBannerOffset + 16)}px`
+            : `calc(1rem + env(safe-area-inset-bottom) + ${cookieBannerOffset}px)`,
+          maxHeight: `calc(100svh - ${dock?.bottom ?? 16}px - 4.5rem)`,
+        }}
         data-testid="toast-container"
         onPointerOver={(event) => {
           if (
@@ -484,6 +557,14 @@ export function ToastProvider({
             onSwipeChange={setSwiping}
           />
         ))}
+      </div>
+      {/* What the screen already shows, said to a screen reader alone
+          (`announce`). A new node each time, so the same words twice are
+          read twice. */}
+      <div role="status" aria-live="polite" className="sr-only">
+        {announcement && (
+          <span key={announcement.id}>{announcement.message}</span>
+        )}
       </div>
     </>
   );

@@ -287,6 +287,33 @@ describe('useDataBackup', () => {
     );
   });
 
+  // The dialog tries the password and stays open on a wrong one; the backup
+  // it opened is the one restored (decision 0037).
+  it('lets the password dialog try a wrong password, then the right one', async () => {
+    const importFn = vi.fn().mockResolvedValue({ merge: false });
+    decryptSpy.mockRejectedValueOnce(new Error('wrong password'));
+    const answers: Array<string | null> = [];
+    mockPromptPassword.mockImplementation(async (_mode, check) => {
+      answers.push(await check!('falsch'));
+      answers.push(await check!('richtig'));
+      return 'richtig';
+    });
+
+    await runImport(importFn);
+
+    await waitFor(() => expect(importFn).toHaveBeenCalled());
+    expect(answers).toEqual([
+      expect.stringMatching(/nicht öffnen|does not open/),
+      null,
+    ]);
+    // Decrypted once by the dialog's check, not again afterwards.
+    expect(decryptSpy).toHaveBeenCalledTimes(2);
+    expect(showToastMock).not.toHaveBeenCalledWith(
+      'error',
+      'toast:backup.decryptFailed',
+    );
+  });
+
   it('restores a file handed over directly, as the installed app does', async () => {
     const importFn = vi.fn().mockResolvedValue({ merge: false });
     const { result } = renderHook(() =>

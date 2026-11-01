@@ -3,7 +3,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Student } from '@/types';
-import { showToast } from '@/utils';
+import { announce } from '@/utils';
 import { confirmDialog } from '@/services/ui/dialogs';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { isAnyDialogOpen } from '@/hooks/ui/useDialogLayer';
@@ -132,8 +132,8 @@ export default function StudentInspectorPanel({
     if (!confirmed) return;
     removeStudent(student.id);
     onClose();
-    showToast(
-      'success',
+    // Its row is gone, and the status bar's undo brings it back.
+    announce(
       t('studentInput.studentRemoved', {
         studentName: name || t('studentList.newStudent'),
       }),

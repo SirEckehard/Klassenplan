@@ -132,6 +132,8 @@ Convention: lowerCamelCase, no path prefix, roughly by domain (`seatingAlgorithm
 
 User-visible messages go through the toast system in [src/utils/ui/toast.ts](../src/utils/ui/toast.ts). **No** direct `alert()` calls, **no** inline strings.
 
+A message is a toast only when nothing closer can say it ([decision 0037](decisions/0037-messages-where-they-belong.md)): what the screen already shows is said to a screen reader alone (`announce`), a refusal is said at the control that asked (under its field, at the blocked button), a state or a confirmation the screen does not show goes to the status bar (`confirmInStatusBar`). What is left — an error, an undo, a note on the unexpected — is a toast.
+
 ### 5.1 i18n keys instead of strings
 
 `TOAST_MESSAGES` maps stable keys (e.g. `SAVE_ERROR`) to i18n paths (e.g. `'toast:save.error'`). The toast renderer resolves the path at runtime via `i18n.t()` — any message containing a `:` namespace separator is treated as an i18n key. This prevents hard-coded strings and enforces DE/EN consistency.
@@ -156,7 +158,7 @@ The central handler in [src/utils/errorHandling.ts](../src/utils/errorHandling.t
 | ---------- | ---------- | ---------- | ---------------------------- |
 | `SILENT`   | –          | –          | Logged only                  |
 | `WARNING`  | `warning`  | 4 s        | Yes                          |
-| `ERROR`    | `error`    | 5 s        | Yes                          |
+| `ERROR`    | `error`    | 8 s        | Yes                          |
 | `CRITICAL` | `critical` | persistent | Yes, must be closed manually |
 
 Prefer the convenience helpers from `errorHandlers` (see [errorHandling.ts:164](../src/utils/errorHandling.ts#L164)) over direct calls to `handleError`:

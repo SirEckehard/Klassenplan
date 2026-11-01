@@ -2,7 +2,7 @@
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
 import type { ClassroomTemplate, ClassroomScene } from '@/types';
-import { showToast, TOAST_MESSAGES } from '@/utils/ui/toast';
+import { announce, showToast, TOAST_MESSAGES } from '@/utils/ui/toast';
 import { logError } from '@/utils';
 import { useTemplateService } from './useTemplateService';
 import type { TemplateServiceError } from './useTemplateService';
@@ -84,7 +84,8 @@ export default function useTemplateManager(classroomScene: ClassroomScene) {
           showToast('error', getToastMessageForError(result.error));
           return false;
         }
-        showToast('success', TOAST_MESSAGES.TEMPLATE_UPDATE_SUCCESS);
+        // The row that saved it answers in its own place (decision 0037).
+        announce(TOAST_MESSAGES.TEMPLATE_UPDATE_SUCCESS);
         await reloadTemplates();
         setSelectedTemplateId(overwriteId);
         return true;
@@ -95,7 +96,7 @@ export default function useTemplateManager(classroomScene: ClassroomScene) {
         showToast('error', getToastMessageForError(result.error));
         return false;
       }
-      showToast('success', TOAST_MESSAGES.SAVE_TEMPLATE_SUCCESS);
+      announce(TOAST_MESSAGES.SAVE_TEMPLATE_SUCCESS);
       await reloadTemplates();
       setSelectedTemplateId(result.data.id);
       return true;
@@ -118,7 +119,7 @@ export default function useTemplateManager(classroomScene: ClassroomScene) {
 
       const result = await deleteTemplateService(templateId);
       if (result.success) {
-        showToast('success', TOAST_MESSAGES.DELETE_TEMPLATE_SUCCESS);
+        announce(TOAST_MESSAGES.DELETE_TEMPLATE_SUCCESS);
         await reloadTemplates();
 
         // Update selection if deleted template was selected
@@ -145,7 +146,7 @@ export default function useTemplateManager(classroomScene: ClassroomScene) {
     ): Promise<{ success: boolean; error?: string }> => {
       const result = await renameTemplateService(id, newName);
       if (result.success) {
-        showToast('success', TOAST_MESSAGES.TEMPLATE_RENAME_SUCCESS);
+        announce(TOAST_MESSAGES.TEMPLATE_RENAME_SUCCESS);
         await reloadTemplates();
         return { success: true };
       } else {
