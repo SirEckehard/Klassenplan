@@ -20,7 +20,12 @@ import {
   useOnboardingTour,
   type TourId,
 } from '@/hooks/onboarding/onboardingTourStore';
-import { TOURS, findTourAnchor, type TourMark } from './tours';
+import {
+  LAYER_LOADING_ATTRIBUTE,
+  TOURS,
+  findTourAnchor,
+  type TourMark,
+} from './tours';
 
 /** Room between the highlighted element and the ring drawn around it. */
 const SPOTLIGHT_PADDING = 6;
@@ -354,11 +359,28 @@ export default function OnboardingTour({ tourId }: OnboardingTourProps) {
       return;
     }
     let settledChecks = 0;
+    let previousAnchors = '';
     const timer = window.setInterval(() => {
+      // A layer still loading shows its skeleton, while the header and the
+      // status bar already carry some of its marks: started then, the tour
+      // would keep only those and count as seen.
+      if (document.querySelector(`[${LAYER_LOADING_ATTRIBUTE}]`)) {
+        settledChecks = 0;
+        previousAnchors = '';
+        return;
+      }
       const marks = TOURS[tourId].filter(
         (mark) => findTourAnchor(mark.anchor) !== null,
       );
-      settledChecks = marks.length > 0 ? settledChecks + 1 : 0;
+      // It starts once the same marks are found twice in a row.
+      const anchors = marks.map((mark) => mark.anchor).join(' ');
+      settledChecks =
+        marks.length === 0
+          ? 0
+          : anchors === previousAnchors
+            ? settledChecks + 1
+            : 1;
+      previousAnchors = anchors;
       if (settledChecks < ANCHOR_SETTLE_CHECKS) {
         return;
       }

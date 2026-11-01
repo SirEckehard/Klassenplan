@@ -2,6 +2,7 @@
 // Copyright (C) 2026 Eike Schäfer
 import { useTranslation } from 'react-i18next';
 import { SkeletonLine, SkeletonCircle } from './SkeletonLoader';
+import { LAYER_LOADING_ATTRIBUTE } from '@/components/onboarding/tours';
 
 /**
  * Skeleton placeholder for the canvas/layout editor (Step 2/3).
@@ -14,6 +15,8 @@ export default function CanvasSkeleton() {
     <div
       className="flex flex-col gap-6 lg:flex-row"
       aria-label={t('loading.canvas')}
+      aria-busy="true"
+      {...{ [LAYER_LOADING_ATTRIBUTE]: '' }}
     >
       {/* Sidebar skeleton */}
       <div className="card-surface w-full p-4 lg:w-72">

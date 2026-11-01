@@ -19,7 +19,7 @@ it for Antigravity — edit this file, never those two.
 
 - **After every change**, before it is committed: the unit tests, `npx eslint` and Prettier on the changed files, `npm run typecheck:all` and the E2E specs (`npm run test:e2e`, about half a minute) — the specs are what notices a layout that breaks on a tablet or a phone, which no unit test renders. A spec that fails is fixed or its expectation brought up to date in the same change, never left for CI
 - **What CI runs, locally in one go:** `npm run check:ci` — lint, typecheck, i18n, unused exports, docs, licences, unit tests, E2E, `build:static` (with the bundle budgets), in the order of `.github/workflows/ci.yml`, which it must keep in step with. Run it before a push of several commits and before a release
-- **After a push**, check that CI went green (`gh run list --limit 3`, `gh run watch <id>`); a red run is fixed before the next change goes on top
+- **After a push**, check that CI went green (`gh run list --limit 3`, `gh run watch <id>`); a red run is fixed before the next change goes on top. CI retries a failed spec twice but fails the run on a spec that passed only on a retry (`failOnFlakyTests`): green means green at the first attempt
 - Run unit tests with `npm test -- --run` (or `npx vitest run`)
 - Coverage report: `npm run test:coverage` (v8 provider, HTML report in `coverage/`)
 - Check modified files with `npx eslint <files>`

@@ -6,7 +6,7 @@ import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import '@/i18n';
 import OnboardingTour from '../OnboardingTour';
-import { TOUR_ANCHORS } from '../tours';
+import { LAYER_LOADING_ATTRIBUTE, TOUR_ANCHORS } from '../tours';
 import {
   resetOnboardingTourForTests,
   type TourId,
@@ -173,6 +173,38 @@ describe('OnboardingTour', () => {
 
     await sleep(TOUR_START_WINDOW_MS);
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  it('waits while a layer is still loading, then starts with all its marks', async () => {
+    // The header's mark is on screen at once; the layer's own comes with
+    // its code, which a slow device loads behind a skeleton.
+    function LoadingLayer({ loaded }: { loaded: boolean }) {
+      return (
+        <>
+          <button type="button" data-tour={TOUR_ANCHORS.classSwitcher}>
+            7b
+          </button>
+          {loaded ? (
+            <button type="button" data-tour={TOUR_ANCHORS.addStudents}>
+              +
+            </button>
+          ) : (
+            <div {...{ [LAYER_LOADING_ATTRIBUTE]: '' }} />
+          )}
+          <OnboardingTour tourId="students" />
+        </>
+      );
+    }
+    const { rerender } = render(<LoadingLayer loaded={false} />);
+
+    await sleep(TOUR_START_WINDOW_MS);
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(readRecord().seen).toEqual([]);
+
+    rerender(<LoadingLayer loaded />);
+    expect(await findMark(classSwitcherMark)).toHaveTextContent(
+      /1 von 2|1 of 2/,
+    );
   });
 
   it('does not start a tour none of whose elements are on screen', async () => {

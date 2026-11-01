@@ -140,6 +140,13 @@ export function resolveTourId(
   return null;
 }
 
+/**
+ * Carried by the placeholder a layer shows while its code loads. A due tour
+ * waits until none is on screen: the header and the status bar already hold
+ * some of the layer's marks, and a tour keeps the marks it starts with.
+ */
+export const LAYER_LOADING_ATTRIBUTE = 'data-layer-loading';
+
 /** The first element carrying `anchor` that takes up space on screen, or null. */
 export function findTourAnchor(anchor: TourAnchor): HTMLElement | null {
   const candidates = document.querySelectorAll<HTMLElement>(

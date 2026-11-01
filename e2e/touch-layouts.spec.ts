@@ -450,6 +450,12 @@ test(
         .getByRole('button', { name: /Präsentieren/ })
         .click();
       await expect(page).toHaveURL(/\/present/);
+      // The address changes first; the router keeps the plan editor on
+      // screen until the projection has loaded, and its tables match the
+      // locator below too.
+      await expect(
+        page.getByRole('button', { name: 'Präsentation beenden' }),
+      ).toBeVisible();
 
       const projected = page.locator('svg g[data-table-index]');
       await expect(projected).toHaveCount(12);

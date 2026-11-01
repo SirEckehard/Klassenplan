@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 - In the room, a right-click on a table of a selection that also holds room elements keeps the whole selection: the windows, cabinets and other elements in it were dropped, so copying, cutting and duplicating took the tables alone. A right-click on a room element already kept the tables
 - On a phone in Chrome, the seating plan and the circle are drawn again: since they fit between the header and the status bar, the plan layer showed an empty stage there
+- On a slower device, the tour of a layer opened for the first time waits until the layer has loaded: the room's tour could start while the room was still loading, begin with its last steps and then count as seen
 - On a phone and a tablet held upright, swiping in an open drawer — the inspector, the toolbar, the help — or in a student's sheet no longer scrolls the class list or the page under it as well; the drawer scrolls as far as it goes and stops there
 
 ## [3.2.3] - 2026-10-30

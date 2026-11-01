@@ -7,6 +7,10 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 2 : 0,
+  // A retry tells a broken runner from a broken spec, but a spec that passes
+  // only on its second attempt still fails the run: three runs in a row once
+  // went green on a spec that failed every first attempt.
+  failOnFlakyTests: Boolean(process.env.CI),
   reporter: 'list',
   // The suite runs against the Vite dev server, which transforms a route the
   // first time it is requested. On a cold CI server that first navigation can

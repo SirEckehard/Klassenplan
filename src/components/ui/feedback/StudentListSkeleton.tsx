@@ -2,6 +2,7 @@
 // Copyright (C) 2026 Eike Schäfer
 import { useTranslation } from 'react-i18next';
 import { SkeletonLine, SkeletonCircle } from './SkeletonLoader';
+import { LAYER_LOADING_ATTRIBUTE } from '@/components/onboarding/tours';
 
 /**
  * Skeleton placeholder for the student list (Step 1).
@@ -11,7 +12,12 @@ export default function StudentListSkeleton() {
   const { t } = useTranslation('common');
 
   return (
-    <div className="card-surface p-6" aria-label={t('loading.studentList')}>
+    <div
+      className="card-surface p-6"
+      aria-label={t('loading.studentList')}
+      aria-busy="true"
+      {...{ [LAYER_LOADING_ATTRIBUTE]: '' }}
+    >
       {/* Header skeleton */}
       <div className="mb-6 flex items-center justify-between">
         <SkeletonLine width="10rem" />
