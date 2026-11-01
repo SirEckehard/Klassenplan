@@ -19,14 +19,21 @@ import {
   BACKUP_LIMITS,
   BackupValidationError,
 } from './backupLimits';
+import { hydrateExportBundle } from '@/utils/data/storedSeating';
 
 // Re-exported so existing imports keep working; the definitions live apart so
 // the app can check a file's size without loading the validators below.
 export { BACKUP_ERROR_MESSAGES, BACKUP_LIMITS, BackupValidationError };
 
-export const CURRENT_EXPORT_VERSION = 2;
-// v1 (without photos) stays importable for backward compatibility.
-const SUPPORTED_EXPORT_VERSIONS = new Set<number>([1, CURRENT_EXPORT_VERSION]);
+// 3: every seat is a student's id, every place of a circle a `studentId`
+// (decision 0035); earlier versions hold whole students there.
+export const CURRENT_EXPORT_VERSION = 3;
+// v1 (without photos) and v2 (whole students on the seats) stay importable.
+const SUPPORTED_EXPORT_VERSIONS = new Set<number>([
+  1,
+  2,
+  CURRENT_EXPORT_VERSION,
+]);
 
 export interface BackupKdfParams {
   name: 'PBKDF2';
@@ -417,7 +424,17 @@ function validateSeatingArrangement(
       throw new BackupValidationError(BACKUP_ERROR_MESSAGES.invalidData);
     }
     for (const seat of table) {
-      if (seat !== null) {
+      // A student's id since export version 3, a whole student before.
+      if (typeof seat === 'string') {
+        if (
+          !assertString(seat, {
+            allowEmpty: false,
+            maxLength: BACKUP_LIMITS.maxIdLength,
+          })
+        ) {
+          throw new BackupValidationError(BACKUP_ERROR_MESSAGES.invalidData);
+        }
+      } else if (seat !== null) {
         validateStudent(seat);
       }
     }
@@ -590,11 +607,23 @@ function validateCircleStudentPosition(value: unknown): void {
   }
   const record = value as Record<string, unknown>;
 
-  // Validate student
-  if (!isObject(record.student)) {
-    throw new BackupValidationError(BACKUP_ERROR_MESSAGES.invalidCircleData);
+  // The place's student: its id since export version 3, the whole student
+  // before.
+  if (typeof record.studentId === 'string') {
+    if (
+      !assertString(record.studentId, {
+        allowEmpty: false,
+        maxLength: BACKUP_LIMITS.maxIdLength,
+      })
+    ) {
+      throw new BackupValidationError(BACKUP_ERROR_MESSAGES.invalidCircleData);
+    }
+  } else {
+    if (!isObject(record.student)) {
+      throw new BackupValidationError(BACKUP_ERROR_MESSAGES.invalidCircleData);
+    }
+    validateStudent(record.student);
   }
-  validateStudent(record.student);
 
   // Validate angle
   if (!ensureNumberInRange(record.angle, 0, BACKUP_LIMITS.maxAngleDegrees)) {
@@ -1227,5 +1256,6 @@ export function parseExportBundle(json: string): ExportBundle {
     throw new BackupValidationError(BACKUP_ERROR_MESSAGES.unreadable);
   }
   validateExportBundleStructure(parsed);
-  return parsed as ExportBundle;
+  // The import works with the students on the seats, whatever the version.
+  return hydrateExportBundle(parsed as ExportBundle);
 }

@@ -122,6 +122,29 @@ describe('backup round trip', () => {
     expect(Object.keys(restored.studentPhotos ?? {})).toHaveLength(30 * 24);
   });
 
+  // Export version 3 names every seated student by id (decision 0035); the
+  // import puts the students back.
+  it('writes every seat as an id and reads the students back', async () => {
+    const classes = [busyClass(0, 1024)];
+    const first = classes[0].students[0];
+
+    const json = await exportClasses(classes);
+
+    const raw = JSON.parse(json);
+    expect(raw.version).toBe(3);
+    expect(raw.seatingHistory[0].seating[0][0]).toBe(first.id);
+    expect(raw.classCollection.classes[0].currentSeating[0][0]).toBe(first.id);
+    expect(raw.classCollection.classes[0].mixHistory[0].seating[0][0]).toBe(
+      first.id,
+    );
+    const restored = parseExportBundle(json);
+    expect(restored.seatingHistory[0].seating[0][0]).toEqual(first);
+    expect(
+      (restored.classCollection?.classes[0] as ClassRecord)
+        .currentSeating[0][0],
+    ).toEqual(first);
+  });
+
   it('refuses a backup too large for the import, with its size', async () => {
     // Photos as large as the import allows each one, far more than a class
     // list's: the content outgrows what the import takes.

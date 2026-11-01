@@ -31,8 +31,13 @@ in `src/config/backupFile.ts`.
 
 A backup (`ExportBundle`) contains the following required fields:
 
-- `version` – current format version (currently `2`; version `1` backups
-  without student photos remain importable).
+- `version` – current format version (currently `3`). Version 3 names every
+  seated student by id: a seat is a student id or `null`, a place of a circle
+  carries `studentId` instead of `student`
+  ([decision 0035](decisions/0035-seats-stored-by-id.md)); the import puts the
+  students back from the class they belong to, the global `circleLayouts` from
+  every student the backup holds. Version 2 (whole students on the seats) and
+  version 1 (without student photos) remain importable.
 - `students` – list of all students, including status flags.
 - `seatingHistory` – stored seating plans together with scenes and optional locks.
 - `mixHistory` – history of automatically generated seating arrangements.

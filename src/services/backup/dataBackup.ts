@@ -36,6 +36,7 @@ import {
   parseExportBundle,
 } from '@/utils/validation/backupValidation';
 import { BackupExportError } from '@/utils/validation/backupLimits';
+import { dehydrateExportBundle } from '@/utils/data/storedSeating';
 import {
   resetApplicationState,
   type ApplicationStateResetHandlers,
@@ -260,8 +261,9 @@ export async function exportAllAsJson(
       ...(planUsageManualClassIds ? { planUsageManualClassIds } : {}),
       ...(duties ? { duties } : {}),
     };
-    // Compact: indented, a school year's backup was almost twice the size.
-    const json = JSON.stringify(bundle);
+    // Compact, and every seat an id: indented, with a copy of every student
+    // on every seat, a school year's backup was several times the size.
+    const json = JSON.stringify(dehydrateExportBundle(bundle));
     assertRestorable(json);
     return json;
   } catch (e) {

@@ -1,6 +1,6 @@
 # Data Model
 
-> **Status:** current · **Last reviewed:** 2026-10-30 · **Source of truth:**
+> **Status:** current · **Last reviewed:** 2026-11-01 · **Source of truth:**
 > `src/utils/data/storageKeys.ts`, `src/types/`, `src/repositories/`
 
 Everything Klassenplan stores lives in the teacher's browser. This document
@@ -128,6 +128,16 @@ recommended 8 once. `neighborWeights` is still stored but no longer read.
   room. A record that needs nothing comes back unchanged, so a read writes only
   when there was something to repair. Writes of the live state are never
   repaired: the live state keeps itself consistent.
+- **A stored seat names its student by id**
+  ([decision 0035](decisions/0035-seats-stored-by-id.md)). Stored,
+  `currentSeating`, the seating of every plan and mix and every parked room
+  hold ids (`string | null`), and every place of a circle a `studentId` instead
+  of a `student`; the repository turns them into the class's students as it
+  reads (`hydrateCollection` in `src/utils/data/storedSeating.ts`) and back as
+  it writes (`dehydrateCollection`), so the app only ever sees students. A
+  seat whose student is gone reads as empty, a place of a circle whose student
+  is gone is dropped. Data written before (`CLASS_COLLECTION_VERSION` 2) holds
+  whole students on the seats and is read alike; its next write stores ids.
 - **`seatingHistory` holds saved plans**, not a log. At most one entry per room
   carries `autoSaved: true`; the next silent auto-save in that room overwrites
   it. The name an auto-save generated is no name the teacher chose: leaving the

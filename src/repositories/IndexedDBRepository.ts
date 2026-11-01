@@ -34,6 +34,10 @@ import { hasIndexedDB } from '@/utils/data/indexedDb';
 import { logError, deepClone } from '@/utils';
 import i18n from '@/i18n';
 import {
+  dehydrateCollection,
+  hydrateCollection,
+} from '@/utils/data/storedSeating';
+import {
   CLASS_COLLECTION_VERSION,
   createClassCollection,
   createClassRecord,
@@ -192,19 +196,23 @@ export class IndexedDBRepository implements ISeatingPlanRepository {
     // Data from before rooms existed — or from an older build — gets them
     // here, once, and is written back so the ids it got stay (decision
     // 0024). Another tab may have repaired it in the meantime; its ids stay.
+    // Stored, every seat names its student by id; the app gets the students
+    // (decision 0035).
     const ensured = repairCollection(stored);
     if (ensured === stored) {
-      return stored;
+      return hydrateCollection(stored);
     }
     let written = ensured;
     await idbUpdate<ClassCollectionState>(
       DB_KEYS.classCollection,
       (current) => {
-        written = current ? repairCollection(current) : ensured;
+        written = dehydrateCollection(
+          current ? repairCollection(current) : ensured,
+        );
         return written;
       },
     );
-    return written;
+    return hydrateCollection(written);
   }
 
   private async migrateLegacyStorage(): Promise<ClassCollectionState> {
@@ -260,12 +268,14 @@ export class IndexedDBRepository implements ISeatingPlanRepository {
     await idbUpdate<ClassCollectionState>(
       DB_KEYS.classCollection,
       (current) => {
-        written = current ? repairCollection(current) : collection;
+        written = dehydrateCollection(
+          current ? repairCollection(current) : collection,
+        );
         return written;
       },
     );
     this.legacyChecked = true;
-    return written;
+    return hydrateCollection(written);
   }
 
   /**
@@ -315,9 +325,9 @@ export class IndexedDBRepository implements ISeatingPlanRepository {
       await idbUpdate<ClassCollectionState>(
         DB_KEYS.classCollection,
         (stored) => {
-          const collection = stored
-            ? repairCollection(stored)
-            : createClassCollection();
+          const collection = hydrateCollection(
+            stored ? repairCollection(stored) : createClassCollection(),
+          );
           const stampOfOpenClass = () =>
             collection.classes.find((entry) => entry.id === this.openClassId)
               ?.updatedAt;
@@ -329,7 +339,7 @@ export class IndexedDBRepository implements ISeatingPlanRepository {
           outcome = change(collection);
           openClassStamp = inStep ? stampOfOpenClass() : this.openClassStamp;
           collection.version = CLASS_COLLECTION_VERSION;
-          return collection;
+          return dehydrateCollection(collection);
         },
       );
     } catch (error) {
@@ -678,7 +688,7 @@ export class IndexedDBRepository implements ISeatingPlanRepository {
         // Replaces what is stored, so nothing is read first.
         const ensured = repairCollection(collection);
         ensured.version = CLASS_COLLECTION_VERSION;
-        await idbSet(DB_KEYS.classCollection, ensured);
+        await idbSet(DB_KEYS.classCollection, dehydrateCollection(ensured));
         this.legacyChecked = true;
         this.openClassId = ensured.activeClassId;
         this.openClassStamp = undefined;

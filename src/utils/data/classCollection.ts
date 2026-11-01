@@ -12,7 +12,9 @@ import { ensureClassRooms } from './classRooms';
 
 // 2: classes keep their rooms (decision 0024); version 1 data is repaired as
 // it is read (`ensureClassRooms`).
-export const CLASS_COLLECTION_VERSION = 2;
+// 3: every seat is stored as its student's id (decision 0035); seats of
+// earlier versions, whole students, are read alike (`hydrateCollection`).
+export const CLASS_COLLECTION_VERSION = 3;
 
 export function createClassRecord(
   payload?: Partial<CreateClassPayload> & Partial<ClassRecord>,

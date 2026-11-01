@@ -47,6 +47,7 @@ it says so instead of reconstructing one.
 | [0032](0032-repetition-reads-plans-in-use.md)      | Repetition counts the plans in use, never a mix               |
 | [0033](0033-wishes-take-turns.md)                  | Wishes take turns, friends who wish each other hold longer    |
 | [0034](0034-substitute-sheet.md)                   | A sheet for the substitute, with names and nothing else       |
+| [0035](0035-seats-stored-by-id.md)                 | Stored seats name their students by id                        |
 
 ## Reasons still to be recorded
 
