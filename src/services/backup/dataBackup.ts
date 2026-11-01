@@ -31,9 +31,11 @@ import { clearProjectLocalStorage } from '@/utils/data/storage';
 import {
   BackupValidationError,
   BACKUP_ERROR_MESSAGES,
+  BACKUP_LIMITS,
   CURRENT_EXPORT_VERSION,
   parseExportBundle,
 } from '@/utils/validation/backupValidation';
+import { BackupExportError } from '@/utils/validation/backupLimits';
 import {
   resetApplicationState,
   type ApplicationStateResetHandlers,
@@ -183,7 +185,30 @@ async function restoreStudentPhotos(
 }
 
 /**
- * Export all stored data to a JSON string.
+ * Refuses a backup the import would refuse: it would leave the teacher
+ * believing in a copy of their data that no device can read back.
+ */
+function assertRestorable(json: string): void {
+  const sizeBytes = new TextEncoder().encode(json).length;
+  if (sizeBytes > BACKUP_LIMITS.decryptedJsonBytes) {
+    throw new BackupExportError('tooLarge', sizeBytes);
+  }
+  try {
+    parseExportBundle(json);
+  } catch (error) {
+    logError(
+      'Export refused: the import would reject the backup',
+      { error },
+      'dataBackup',
+    );
+    throw new BackupExportError('notRestorable', sizeBytes);
+  }
+}
+
+/**
+ * Export all stored data to a JSON string the import accepts.
+ *
+ * @throws BackupExportError when the import would refuse it
  */
 export async function exportAllAsJson(
   data: {
@@ -235,7 +260,10 @@ export async function exportAllAsJson(
       ...(planUsageManualClassIds ? { planUsageManualClassIds } : {}),
       ...(duties ? { duties } : {}),
     };
-    return JSON.stringify(bundle, null, 2);
+    // Compact: indented, a school year's backup was almost twice the size.
+    const json = JSON.stringify(bundle);
+    assertRestorable(json);
+    return json;
   } catch (e) {
     logError('Export failed', { error: e }, 'dataBackup');
     throw e;

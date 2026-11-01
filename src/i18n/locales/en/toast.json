@@ -25,6 +25,8 @@
   },
   "backup": {
     "webCryptoExportError": "Secure backup not possible: your browser does not support encryption.",
+    "exportTooLarge": "Backup not created: at {{size}} MB it would be too large to restore (at most {{max}} MB). Delete old classes, plans or photos you no longer need, then try again.",
+    "exportNotRestorable": "Backup not created: it could not be restored. Please report this through \"Feedback\" under the gear at the top right.",
     "webCryptoImportError": "Decryption not possible: your browser does not support encryption.",
     "decryptFailed": "Decryption failed.",
     "importSuccess": "Data imported successfully.",

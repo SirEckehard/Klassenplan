@@ -13,6 +13,7 @@ import {
   BACKUP_ERROR_MESSAGES,
   BACKUP_LIMITS,
 } from '../../utils/validation/backupValidation';
+import { BackupExportError } from '@/utils/validation/backupLimits';
 import { setupLocalStorageMock } from '../../__tests__/utils';
 import * as toastModule from '../../utils/ui/toast';
 import { TOAST_MESSAGES } from '../../utils/ui/toast';
@@ -120,6 +121,30 @@ describe('useDataBackup', () => {
     });
     expect(exportFn).toHaveBeenCalled();
     expect(showToastMock).toHaveBeenCalledWith('error', 'toast:export.error');
+  });
+
+  it('says why no file came when the import could not read the backup', async () => {
+    const megabyte = 1024 * 1024;
+    const exportFn = vi
+      .fn()
+      .mockRejectedValue(
+        new BackupExportError('tooLarge', 25 * megabyte + 1, 24 * megabyte),
+      );
+    const downloadSpy = vi.spyOn(utilsModule, 'downloadBlob');
+    const { result } = renderHook(() =>
+      useDataBackup({ exportAllAsJson: exportFn, importAllFromJson: vi.fn() }),
+    );
+
+    await act(async () => {
+      await result.current.handleExportAll();
+    });
+
+    expect(downloadSpy).not.toHaveBeenCalled();
+    expect(showToastMock).toHaveBeenCalledWith(
+      'error',
+      expect.stringMatching(/26 MB.*24 MB/),
+    );
+    downloadSpy.mockRestore();
   });
 
   it('does not call exportAllAsJson when password prompt is cancelled', async () => {

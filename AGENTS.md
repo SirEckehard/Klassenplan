@@ -465,7 +465,7 @@ factories in `testHelpers.ts`, `createMemoryIdbKeyval` and
 - Maximum 36 students per classroom (defined in `src/utils/constants.ts`)
 - Classroom dimensions are fixed at 900x600 pixels
 - Mix history is limited to 20 entries to prevent memory bloat
-- Backup files have strict size limits (16 MB encrypted file, 12 MB decrypted content; see `BACKUP_LIMITS`)
+- Backup files have strict size limits (24 MB decrypted content, the encrypted file's limit derived from it; see `BACKUP_LIMITS`); the export checks its result with the import's validator and refuses a backup the import would refuse (`BackupExportError`)
 - Student photos: 20 MB max input, stored as ~160px JPEG blobs (EXIF stripped via canvas re-encode)
 
 ## Color Palette Standards

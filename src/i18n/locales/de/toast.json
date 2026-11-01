@@ -25,6 +25,8 @@
   },
   "backup": {
     "webCryptoExportError": "Sicheres Backup nicht möglich: Browser unterstützt keine Verschlüsselung.",
+    "exportTooLarge": "Backup nicht erstellt: Mit {{size}} MB wäre es zu groß, um es wieder einzuspielen (höchstens {{max}} MB). Lösche alte Klassen, Pläne oder Fotos, die du nicht mehr brauchst, und versuche es dann noch einmal.",
+    "exportNotRestorable": "Backup nicht erstellt: Es ließe sich nicht wieder einspielen. Bitte melde das über „Feedback“ unter dem Zahnrad oben rechts.",
     "webCryptoImportError": "Entschlüsselung nicht möglich: Browser unterstützt keine Verschlüsselung.",
     "decryptFailed": "Entschlüsselung fehlgeschlagen.",
     "importSuccess": "Daten wurden erfolgreich importiert.",

@@ -6,6 +6,7 @@ import { recordBackupCreated } from '@/utils/data/backupReminder';
 import {
   BACKUP_ERROR_MESSAGES,
   BACKUP_LIMITS,
+  BackupExportError,
   BackupValidationError,
 } from '@/utils/validation/backupLimits';
 import type { EncryptedBackupPayload } from '@/utils/validation/backupValidation';
@@ -182,6 +183,24 @@ function showMergeOutcome(
   }
 }
 
+/** Megabytes for a message, rounded up so the size is never understated. */
+const toMegabytes = (bytes: number) => Math.ceil(bytes / (1024 * 1024));
+
+/** Why no backup file came: the import would not have read it back. */
+function showBackupExportRefusal(error: BackupExportError) {
+  if (error.reason === 'tooLarge') {
+    showToast(
+      'error',
+      i18n.t('toast:backup.exportTooLarge', {
+        size: toMegabytes(error.sizeBytes),
+        max: toMegabytes(error.maxBytes),
+      }),
+    );
+    return;
+  }
+  showToast('error', 'toast:backup.exportNotRestorable');
+}
+
 export default function useDataBackup({
   exportAllAsJson,
   importAllFromJson,
@@ -237,6 +256,8 @@ export default function useDataBackup({
     } catch (e) {
       if (e instanceof WebCryptoUnavailableError) {
         handleWebCryptoUnavailable('export', e);
+      } else if (e instanceof BackupExportError) {
+        showBackupExportRefusal(e);
       } else {
         logError('Export failed', { error: e }, 'useDataBackup');
         showToast('error', TOAST_MESSAGES.EXPORT_ERROR);

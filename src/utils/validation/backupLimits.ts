@@ -19,16 +19,32 @@ import {
   MAX_STUDENTS,
 } from '../constants';
 
+/**
+ * The most the backup's content may take. A school year of a teacher with
+ * many classes — plans, mixes, photos — has to fit with room to spare, and
+ * the export refuses a backup the import would refuse (`BackupExportError`).
+ */
+const DECRYPTED_JSON_BYTES = 24 * 1024 * 1024;
+
+/**
+ * The encrypted file that content makes: AES-GCM adds a 16-byte tag, Base64
+ * four characters for every three bytes, the envelope its salt, iv and KDF
+ * parameters. Derived, so a backup at the content limit is never refused for
+ * the size of its file.
+ */
+const ENCRYPTED_FILE_BYTES =
+  Math.ceil((DECRYPTED_JSON_BYTES + 16) / 3) * 4 + 4096;
+
 // Hard limits that incoming backups must respect to be accepted.
-// Raised for export version 2: backups may embed downscaled student photos as
-// base64 (~8–15 KB each), so the JSON/encrypted payloads are larger than v1.
 export const BACKUP_LIMITS = {
-  encryptedFileBytes: 16 * 1024 * 1024,
-  decryptedJsonBytes: 12 * 1024 * 1024,
+  encryptedFileBytes: ENCRYPTED_FILE_BYTES,
+  decryptedJsonBytes: DECRYPTED_JSON_BYTES,
   maxStudents: MAX_STUDENTS,
-  maxSeatingHistory: 200,
+  // The app keeps every saved plan and template, so these are generous; the
+  // size above bounds the file.
+  maxSeatingHistory: 1000,
   maxMixHistory: 200,
-  maxClassroomTemplates: 100,
+  maxClassroomTemplates: 500,
   maxLockedPositions: 500,
   maxTablesPerScene: 150,
   maxSeatsPerTable: 12,
@@ -100,5 +116,21 @@ export class BackupValidationError extends Error {
   constructor(message: string) {
     super(message);
     this.name = 'BackupValidationError';
+  }
+}
+
+/**
+ * A backup the export refuses because this app could not read it back: too
+ * large for the import (`tooLarge`, with both sizes in bytes), or failing the
+ * import's validation (`notRestorable`, which is a bug to report).
+ */
+export class BackupExportError extends Error {
+  constructor(
+    readonly reason: 'tooLarge' | 'notRestorable',
+    readonly sizeBytes: number,
+    readonly maxBytes: number = DECRYPTED_JSON_BYTES,
+  ) {
+    super(`Backup export refused: ${reason}`);
+    this.name = 'BackupExportError';
   }
 }

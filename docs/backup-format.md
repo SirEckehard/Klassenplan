@@ -107,13 +107,20 @@ Once the password is accepted, the restore asks how the backup applies
 
 To detect malicious or corrupted backups, the following upper limits apply on
 import (see `BACKUP_LIMITS` in
-[`src/utils/validation/backupValidation.ts`](../src/utils/validation/backupValidation.ts)):
+[`src/utils/validation/backupLimits.ts`](../src/utils/validation/backupLimits.ts)).
+The export holds itself to them: it writes the JSON without indentation and
+checks the result with the import's own validator, and a backup the import
+would refuse is not written — the teacher is told why (`BackupExportError`:
+too large, with its size, or not restorable, which is a bug to report).
 
-- Maximum file size of the encrypted backup: **16 MB**.
-- Maximum size of the decrypted JSON payload: **12 MB**.
+- Maximum size of the decrypted JSON payload: **24 MB**, room for a subject
+  teacher's school year of some 30 classes with photos.
+- Maximum file size of the encrypted backup: derived from the payload limit
+  (Base64 of the payload and the AES-GCM tag, plus the envelope), so a payload
+  at its limit is never refused for the size of its file.
 - At most **36** entries in `students` (`MAX_STUDENTS`).
-- At most **200** entries in `seatingHistory` and `mixHistory`.
-- At most **100** entries in `classroomTemplates`.
+- At most **1,000** entries in `seatingHistory` and **200** in `mixHistory`.
+- At most **500** entries in `classroomTemplates`.
 - At most **500** entries in `lockedPositions`.
 - At most **150** tables per `classroomScene` with at most **12** seats each.
 - At most **30** `rooms` per class (`MAX_ROOMS_PER_CLASS`), each with an id and

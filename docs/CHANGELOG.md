@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 - In the room, a right-click on a table of a selection that also holds room elements keeps the whole selection: the windows, cabinets and other elements in it were dropped, so copying, cutting and duplicating took the tables alone. A right-click on a room element already kept the tables
 - On a phone in Chrome, the seating plan and the circle are drawn again: since they fit between the header and the status bar, the plan layer showed an empty stage there
+- A backup can always be restored: a teacher with many classes, plans and photos could create a backup too large to restore, and only found out on the new device. Backups are now about half the size, may be twice as large as before, and a backup that could still not be restored is not created — the message says why
 - A dialog no longer closes when a text selection that starts in one of its fields ends beside it: selecting the backup password with the mouse and letting go next to the window closed it and dropped what was typed
 - On an iPhone, a tall dialog and a student's sheet fit the visible screen with Safari's bars shown, instead of putting their buttons under the bar
 - A download in Safari — a picture, a PDF, a backup — no longer risks arriving empty: the file stays available until the browser has saved it

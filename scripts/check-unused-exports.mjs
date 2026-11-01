@@ -60,7 +60,7 @@ const rootDir = path.resolve(
  * import to leave the initial bundle, and the tool does not follow `import()`;
  * `exportAllAsJson` is the one export of it no test imports statically.
  */
-const BASELINE = 25;
+const BASELINE = 24;
 
 const IGNORE_FILES = 'vite-env.d.ts|index.tsx|App.tsx';
 
