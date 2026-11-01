@@ -13,12 +13,9 @@ import packageJson from '../../../package.json';
 
 /**
  * The release notes on GitHub are cut out of docs/CHANGELOG.md, while the
- * post-update notice and /changelog read the in-app entries. From this
- * version on the two say the same thing, item by item, in the same order;
- * earlier releases were worded apart and stay as they were published.
+ * post-update notice and /changelog read the in-app entries. For every
+ * version the two say the same thing, item by item, in the same order.
  */
-const FIRST_ALIGNED_VERSION = '3.1.2';
-
 const HEADING_CATEGORY: Record<string, ChangeCategory> = {
   Added: 'feature',
   Improved: 'improvement',
@@ -34,16 +31,6 @@ const CATEGORY_ORDER: ChangeCategory[] = [
 ];
 
 type Texts = Record<string, Record<string, string> | unknown>;
-
-const compareVersions = (a: string, b: string): number => {
-  const pa = a.split('.').map(Number);
-  const pb = b.split('.').map(Number);
-  for (let i = 0; i < Math.max(pa.length, pb.length); i += 1) {
-    const diff = (pa[i] ?? 0) - (pb[i] ?? 0);
-    if (diff !== 0) return diff;
-  }
-  return 0;
-};
 
 const markdown = readFileSync(
   resolve(process.cwd(), 'docs/CHANGELOG.md'),
@@ -80,16 +67,12 @@ const textOf = (texts: Texts, textKey: string | undefined) => {
   return entries?.[index ?? ''];
 };
 
-const alignedVersions = changelogVersions.filter(
-  (entry) => compareVersions(entry.version, FIRST_ALIGNED_VERSION) >= 0,
-);
-
 describe('changelog parity', () => {
   it('lists the running version first', () => {
     expect(changelogVersions[0]?.version).toBe(packageJson.version);
   });
 
-  it.each(alignedVersions.map((entry) => [entry.version, entry] as const))(
+  it.each(changelogVersions.map((entry) => [entry.version, entry] as const))(
     'docs/CHANGELOG.md and the in-app entries of %s agree',
     (version, entry) => {
       const section = readMarkdownSection(version);

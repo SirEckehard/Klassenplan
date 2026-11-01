@@ -47,8 +47,8 @@ describe('Changelog', () => {
   it('lists the kinds of change in the same order in every version', async () => {
     await renderChangelog();
 
-    // The data does not keep that order everywhere — 2.0.4 names its bug
-    // fixes before its improvements — so the page has to.
+    // The page groups by kind in this order, whatever order the data lists
+    // the changes in.
     for (const version of changelogVersions) {
       const section = screen.getByRole('region', {
         name: `Version ${version.version}`,

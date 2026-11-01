@@ -48,7 +48,8 @@ it for Antigravity — edit this file, never those two.
 ## Git Workflow
 
 - Do not create new branches
-- Follow existing commit message patterns
+- Follow existing commit message patterns (`fix:`, `change:`, `docs:`, `test:`, `update:` …), and keep the message short: a subject that says what changed, then a few lines at most — the code, the docs and the decision records carry the details
+- Changelog entries, in `## [Unreleased]` as at a release, are written for teachers, who skip long ones: one short sentence each saying what changed for them, never how or why; related changes share one entry, and small fixes end the section as one "Other small fixes"
 - Work happens on `update`; `main` only ever receives it as a fast-forward (`git merge --ff-only update`), never a merge commit
 
 ### Release workflow
