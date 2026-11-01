@@ -26,3 +26,28 @@ export function useReturnToApp(): (() => void) | null {
   const state = location.state as { fromApp?: unknown } | null;
   return state?.fromApp === true ? goBack : null;
 }
+
+/**
+ * Router state the workspace hands the export page and the projection, the
+ * two ways a plan leaves it, so their way back returns through the history.
+ */
+export const FROM_WORKSPACE_STATE = { fromWorkspace: true } as const;
+
+/**
+ * The way back from the export page or the projection: through the history
+ * when the workspace opened the page — a forward step to the workspace would
+ * leave the page behind it, and the browser's or the phone's back would open
+ * it again — else `fallback`, for a page opened from an address or reloaded
+ * without one.
+ */
+export function useBackToWorkspace(fallback: () => void): () => void {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const fromWorkspace =
+    (location.state as { fromWorkspace?: unknown } | null)?.fromWorkspace ===
+    true;
+  return useCallback(
+    () => (fromWorkspace ? navigate(-1) : fallback()),
+    [fallback, fromWorkspace, navigate],
+  );
+}

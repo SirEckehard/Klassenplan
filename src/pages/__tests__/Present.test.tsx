@@ -2,7 +2,13 @@
 // Copyright (C) 2026 Eike Schäfer
 import '@testing-library/jest-dom/vitest';
 import { act, fireEvent, render, screen } from '@testing-library/react';
-import { MemoryRouter, Route, Routes, useNavigate } from 'react-router-dom';
+import {
+  MemoryRouter,
+  Route,
+  Routes,
+  useLocation,
+  useNavigate,
+} from 'react-router-dom';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import '@/i18n'; // Initialize i18n for tests
 import Present from '../Present';
@@ -278,6 +284,37 @@ describe('Present', () => {
     );
 
     expect(teacherView()).toHaveAttribute('aria-pressed', 'true');
+  });
+
+  // Opened from the workspace, the way back is the browser's: a forward step
+  // would leave the projection behind the plan, and the phone's back gesture
+  // would open it again.
+  it('goes back through the history when the workspace opened it', () => {
+    function Workspace() {
+      const state = useLocation().state as { opened?: boolean } | null;
+      return <p>{state?.opened ? 'the entry it came from' : 'a new entry'}</p>;
+    }
+    render(
+      <MemoryRouter
+        initialEntries={[
+          { pathname: '/generator', state: { opened: true } },
+          {
+            pathname: '/present',
+            state: { mode: 'table', fromWorkspace: true },
+          },
+        ]}
+        initialIndex={1}
+      >
+        <Routes>
+          <Route path="/present" element={<Present />} />
+          <Route path="/generator" element={<Workspace />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: /^(Zurück|Back)$/ }));
+
+    expect(screen.getByText('the entry it came from')).toBeInTheDocument();
   });
 
   describe('in fullscreen', () => {

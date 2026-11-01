@@ -66,12 +66,7 @@ import {
 } from '@/utils/ui/substituteSheet';
 import type { ExportClassMetadata } from '@/services/export/sceneRenderer';
 import { buildPhotoDataUrlMap } from '@/services/export/pdfExportFunctions';
-import type {
-  ClassroomFeatureType,
-  PhotoDisplayMode,
-  SeatingArrangement,
-  Student,
-} from '@/types';
+import type { ClassroomFeatureType, PhotoDisplayMode, Student } from '@/types';
 import usePersistentState from '@/hooks/usePersistentState';
 import type { CircleLayout, SeatingMode } from '@/types/Circle';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
@@ -81,6 +76,7 @@ import { usePlanUsagePrompt } from '@/hooks/plan/usePlanUsagePrompt';
 import Seo from '@/components/Seo';
 import { useLocalizedNavigate } from '@/hooks/useLocalizedNavigate';
 import { usePageSeo } from '@/hooks/usePageSeo';
+import { useBackToWorkspace } from '@/hooks/useReturnToApp';
 import primaryFontWoff2Url from '@fontsource-variable/atkinson-hyperlegible-next/files/atkinson-hyperlegible-next-latin-wght-normal.woff2?url';
 import AppShell from '@/components/shell/AppShell';
 import InspectorPortal from '@/components/shell/InspectorPortal';
@@ -193,10 +189,10 @@ export default function Export() {
   const navigate = useLocalizedNavigate();
   // Marks the visit (`spg.hasVisitedApp`) for the onboarding tour record.
   useFirstVisit();
+  // The sheet always prints the open class as the context holds it: the
+  // header switches the class on this page, so nothing of a plan may come
+  // along in the router state.
   const navigationState = (location.state || {}) as {
-    seating?: SeatingArrangement;
-    planName?: string;
-    circleLayout?: CircleLayout;
     /** The arrangement the plan layer showed: the sheet starts with it. */
     mode?: SeatingMode | 'list';
     /**
@@ -217,14 +213,10 @@ export default function Export() {
     rooms,
     activeRoomId,
   } = useSeatingPlanState();
-  const {
-    generateCircleSeating,
-    cancelCircleGeneration,
-    setCircleLayoutValue,
-  } = useSeatingPlanActions();
+  const { generateCircleSeating, cancelCircleGeneration } =
+    useSeatingPlanActions();
   const { exportError } = errorHandlers;
-  // Get circle layout from navigation state if available, or auto-generate one
-  const seating = navigationState.seating || currentSeating;
+  const seating = currentSeating;
   // A plan made for other tables — the room set up anew under it — is no
   // plan for this room: its seats would land beside the tables on the sheet.
   // Nor is a seating of empty seats alone.
@@ -233,7 +225,6 @@ export default function Export() {
     typeof navigationState.returnStep === 'number'
       ? navigationState.returnStep
       : 3;
-  const stateCircleLayout = navigationState.circleLayout || null;
   const circleLayoutPromiseRef = useRef<Promise<CircleLayout | null> | null>(
     null,
   );
@@ -246,7 +237,7 @@ export default function Export() {
   // The sheet's title follows the plan's name until the teacher types one of
   // their own — renaming the plan, or switching the class in the header,
   // should not leave the old name printed on the sheet.
-  const planNameForTitle = navigationState.planName || contextPlanName || '';
+  const planNameForTitle = contextPlanName || '';
   const [title, setTitle] = useState(planNameForTitle);
   const lastPlanNameRef = useRef(planNameForTitle);
   useEffect(() => {
@@ -265,8 +256,7 @@ export default function Export() {
   const [previewMode, setPreviewMode] = useState<ExportView>(() =>
     navigationState.mode === 'list'
       ? 'list'
-      : navigationState.mode === 'circle' &&
-          (circleLayout ?? navigationState.circleLayout)
+      : navigationState.mode === 'circle' && circleLayout
         ? 'circle'
         : 'table',
   );
@@ -419,10 +409,7 @@ export default function Export() {
   );
   const [substituteArrangement, setSubstituteArrangement] =
     useState<SubstituteArrangement>(() =>
-      navigationState.mode === 'circle' &&
-      (circleLayout ?? navigationState.circleLayout)
-        ? 'circle'
-        : 'table',
+      navigationState.mode === 'circle' && circleLayout ? 'circle' : 'table',
     );
   const [substituteDate, setSubstituteDate] = useState(() => toIsoDate());
   const [substituteNote, setSubstituteNote] = useState('');
@@ -835,20 +822,9 @@ export default function Export() {
     return `<!DOCTYPE html><html lang="${metadata.lang}"><head><meta charset="utf-8" /><title>${documentTitle}</title><style>${styles}</style></head><body${multiPage ? ' class="pages"' : ''}><div id="print-root">${content}</div></body></html>`;
   }, [activeOrientation, previewPages, metadata.lang, t]);
 
-  useEffect(() => {
-    if (stateCircleLayout && circleLayout !== stateCircleLayout) {
-      setCircleLayoutValue(() => stateCircleLayout);
-    }
-  }, [stateCircleLayout, circleLayout, setCircleLayoutValue]);
-
   const ensureCircleLayout = useCallback(async () => {
     if (circleLayout) {
       return circleLayout;
-    }
-
-    if (stateCircleLayout) {
-      setCircleLayoutValue(() => stateCircleLayout);
-      return stateCircleLayout;
     }
 
     if (circleLayoutPromiseRef.current) {
@@ -874,12 +850,7 @@ export default function Export() {
 
     circleLayoutPromiseRef.current = promise;
     return promise;
-  }, [
-    circleLayout,
-    stateCircleLayout,
-    generateCircleSeating,
-    setCircleLayoutValue,
-  ]);
+  }, [circleLayout, generateCircleSeating]);
 
   const handleCancelCircleGeneration = useCallback(() => {
     circleLayoutPromiseRef.current = null;
@@ -1298,9 +1269,11 @@ export default function Export() {
     handleTablePdf,
   ]);
 
-  const backToPlan = useCallback(
-    () => navigate('/generator', { state: { step: returnStep } }),
-    [navigate, returnStep],
+  const backToPlan = useBackToWorkspace(
+    useCallback(
+      () => navigate('/generator', { state: { step: returnStep } }),
+      [navigate, returnStep],
+    ),
   );
 
   // P saves the PDF of whatever the sheet shows, as the toolbar's one PDF

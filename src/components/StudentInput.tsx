@@ -54,6 +54,7 @@ import { useIsPhone } from '@/hooks/ui/useLayoutMode';
 import { useCsvImportWithDialog } from '@/hooks/csv/useCsvImportWithDialog';
 import { isAnyDialogOpen } from '@/hooks/ui/useDialogLayer';
 import { useDemoClass } from '@/hooks/onboarding/useDemoClass';
+import { FROM_WORKSPACE_STATE } from '@/hooks/useReturnToApp';
 
 /**
  * Whether Escape is free for the selection shortcut.
@@ -334,7 +335,10 @@ function StudentInput({
   // The note list needs no plan: it opens on the list, and its way back leads
   // here rather than to the plan.
   const handlePrintList = useCallback(
-    () => navigate('/export', { state: { mode: 'list', returnStep: 1 } }),
+    () =>
+      navigate('/export', {
+        state: { mode: 'list', returnStep: 1, ...FROM_WORKSPACE_STATE },
+      }),
     [navigate],
   );
 

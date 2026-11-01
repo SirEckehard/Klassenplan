@@ -46,7 +46,7 @@ const inspectorDrawerClass =
  * it, where a swipe leaves.
  */
 const phoneSheetClass =
-  'fixed inset-x-0 bottom-0 z-40 flex max-h-[80vh] flex-col overflow-hidden rounded-t-xl border-t border-(--border-card) bg-(--surface-card) pb-[env(safe-area-inset-bottom)] shadow-(--shadow-sheet)';
+  'fixed inset-x-0 bottom-0 z-40 flex max-h-[80dvh] flex-col overflow-hidden rounded-t-xl border-t border-(--border-card) bg-(--surface-card) pb-[env(safe-area-inset-bottom)] shadow-(--shadow-sheet)';
 
 /**
  * The properties of whatever is selected, in one place on the right.

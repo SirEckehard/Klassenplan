@@ -8,6 +8,7 @@ import {
 import { useLocalizedNavigate } from '@/hooks/useLocalizedNavigate';
 import { usePlanSaveState } from '@/hooks/plan/usePlanSaveState';
 import { hasPlanForScene } from '@/utils';
+import { FROM_WORKSPACE_STATE } from '@/hooks/useReturnToApp';
 
 /**
  * The two ways a finished plan leaves the workspace: the export page and the
@@ -40,12 +41,16 @@ export function usePlanExits() {
   // open on the circle when the circle is what the teacher was looking at.
   const exportPlan = useCallback(() => {
     saveIfNeeded();
-    navigate('/export', { state: { mode: seatingMode } });
+    navigate('/export', {
+      state: { mode: seatingMode, ...FROM_WORKSPACE_STATE },
+    });
   }, [navigate, saveIfNeeded, seatingMode]);
 
   const presentPlan = useCallback(() => {
     saveIfNeeded();
-    navigate('/present', { state: { mode: seatingMode } });
+    navigate('/present', {
+      state: { mode: seatingMode, ...FROM_WORKSPACE_STATE },
+    });
   }, [navigate, saveIfNeeded, seatingMode]);
 
   return {

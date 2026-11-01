@@ -3,6 +3,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import {
+  ChartBarIcon,
   WarningIcon,
   InfoIcon,
   GridNineIcon,
@@ -873,8 +874,10 @@ export default function SeatingPlanEditorView({
         </StatusBarPortal>
 
         {/* How well the plan meets the criteria, at the bar's left end where
-            the other layers state their numbers; the word goes where the bar
-            is narrow, the figure stays — alone, without an icon to crowd it. */}
+            the other layers state their numbers. The chart icon of the values
+            per criterion it switches on says what the figure is where the bar
+            is too narrow for the word, and stands beside the word elsewhere,
+            so the button looks the same on every screen. */}
         {hasStatistics && onOpenStatistics && (
           <StatusBarPortal slot="status">
             <button
@@ -890,6 +893,7 @@ export default function SeatingPlanEditorView({
               }
               className="inline-flex min-w-0 shrink-0 cursor-pointer items-center gap-1 rounded-md px-1 py-1 text-xs tabular-nums text-(--text-muted) transition hover:bg-(--surface-sunken) hover:text-(--text-page) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) pointer-coarse:min-h-11 sm:gap-1.5 sm:px-1.5 sm:text-sm"
             >
+              <ChartBarIcon size={16} aria-hidden="true" className="shrink-0" />
               <span className={statusBarWordClass}>
                 {t('editor.fulfillmentLabel')}
               </span>

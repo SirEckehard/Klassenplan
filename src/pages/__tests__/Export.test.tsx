@@ -563,6 +563,41 @@ describe('Export page', () => {
       expect(await screen.findByText('generator step 1')).toBeInTheDocument();
     });
 
+    it('goes back through the history when the class layer opened it', async () => {
+      seatingState.current = withoutPlan();
+      const Generator = () => (
+        <p>
+          {(useLocation().state as { opened?: boolean } | null)?.opened
+            ? 'the entry it came from'
+            : 'a new entry'}
+        </p>
+      );
+      render(
+        <MemoryRouter
+          initialEntries={[
+            { pathname: '/generator', state: { opened: true } },
+            {
+              pathname: '/export',
+              state: { mode: 'list', returnStep: 1, fromWorkspace: true },
+            },
+          ]}
+          initialIndex={1}
+        >
+          <Routes>
+            <Route path="/export" element={<Export />} />
+            <Route path="/generator" element={<Generator />} />
+          </Routes>
+        </MemoryRouter>,
+      );
+
+      await userEvent.click(
+        await screen.findByRole('button', { name: 'Zurück zur Klasse' }),
+      );
+      expect(
+        await screen.findByText('the entry it came from'),
+      ).toBeInTheDocument();
+    });
+
     it('remembers its settings, badges off until asked for', async () => {
       await openList();
 

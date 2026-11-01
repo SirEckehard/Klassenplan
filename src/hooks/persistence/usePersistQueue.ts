@@ -179,18 +179,17 @@ export function usePersistQueue(
           return;
         }
 
-        // CRITICAL: Skip jobs for classes that are no longer active
-        // This prevents race conditions during class switches
+        // A job of a class that is no longer open is dropped: a class switch
+        // writes what is queued before it opens the next class.
         if (job.classId !== currentClassId && job.classId !== '') {
           return;
         }
 
         const classId = job.classId;
-        if (!jobsByClass[classId]) {
-          jobsByClass[classId] = {};
-        }
-        // @ts-expect-error - Types are tricky here but safe
-        jobsByClass[classId][key] = job;
+        const classJobs = (jobsByClass[classId] ??= {});
+        // `key` and `job` belong together, which TypeScript cannot follow
+        // through the loop over the keys.
+        (classJobs as Record<PersistKey, PersistJob>)[key] = job;
       });
 
       for (const [classId, jobs] of Object.entries(jobsByClass)) {
@@ -207,8 +206,10 @@ export function usePersistQueue(
         });
 
         const snapshotKeys = Object.keys(snapshot) as PersistKey[];
-        // If saving for the active class, check against lastPersistedSnapshotRef to avoid redundant writes.
-        // For other classes (pending from before switch), always write to be safe.
+        // The open class writes only what differs from its last write
+        // (`lastPersistedSnapshotRef`, which describes the open class alone).
+        // Anything else is written whole: a job queued without a class (''),
+        // or the class a switch left while this flush was writing.
         const isActiveClass = classId === activeClassIdRef.current;
         const changedKeys = isActiveClass
           ? snapshotKeys.filter(

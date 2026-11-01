@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
-import React, { useId } from 'react';
+import React, { useId, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { createPortal } from 'react-dom';
 import { XIcon } from '@phosphor-icons/react';
@@ -41,6 +41,12 @@ export default function Modal({
   // Claims the Escape key for as long as this modal is up, so views underneath
   // (the student list, the room's canvas) leave it alone.
   useDialogLayer(open);
+  // Where the press that ends in a click began: a text selection started in a
+  // field and let go over the backdrop clicks the backdrop too, and must not
+  // close the dialog with what was typed in it.
+  const pressedOutsideRef = useRef(false);
+  const isOutside = (target: EventTarget) =>
+    !(target instanceof Node && dialogRef.current?.contains(target));
   const titleId = useId();
   const descriptionId = useId();
   const hasHeaderContent = Boolean(
@@ -61,7 +67,13 @@ export default function Modal({
   const modalContent = (
     <div
       className="fixed inset-0 z-60 overflow-y-auto bg-(--scrim) px-4 py-6 backdrop-blur-sm"
-      onClick={onClose}
+      onPointerDown={(event) => {
+        pressedOutsideRef.current = isOutside(event.target);
+      }}
+      onClick={(event) => {
+        if (pressedOutsideRef.current && isOutside(event.target)) onClose();
+        pressedOutsideRef.current = false;
+      }}
     >
       <div className="flex min-h-full w-full items-center justify-center py-6">
         <div
@@ -73,12 +85,13 @@ export default function Modal({
           aria-describedby={subtitle ? descriptionId : undefined}
           className={`relative w-full ${sizeClassMap[size]} focus:outline-none`}
           onClick={(e) => {
-            // Prevent closing when clicking inside the dialog
+            // React carries a click up through the portal to whatever renders
+            // the dialog, a row that opens it on click included.
             e.stopPropagation();
           }}
         >
           <div className="rounded-xl shadow-2xl">
-            <div className="flex max-h-[calc(100vh-3rem)] flex-col overflow-hidden rounded-xl border border-(--border-card) bg-(--surface-card)">
+            <div className="flex max-h-[calc(100dvh-3rem)] flex-col overflow-hidden rounded-xl border border-(--border-card) bg-(--surface-card)">
               <div className="flex-1 overflow-y-auto p-6 sm:p-8">
                 <div className="flex flex-col gap-6">
                   {hasHeaderContent && (

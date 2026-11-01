@@ -86,6 +86,19 @@ async function writeWithPicker(
   }
 }
 
+/**
+ * How long the object URL of a download outlives the click. Safari reads the
+ * blob after `click()` has returned and drops a download whose URL is already
+ * revoked; the PDF opened for printing keeps its URL for a minute for the
+ * same reason.
+ */
+const DOWNLOAD_URL_LIFETIME_MS = 30_000;
+
+/** Revokes an object URL once a download started from it has read it. */
+export function revokeObjectUrlLater(url: string): void {
+  setTimeout(() => URL.revokeObjectURL(url), DOWNLOAD_URL_LIFETIME_MS);
+}
+
 function anchorDownload(blob: Blob, filename: string): void {
   const documentRef = getBrowserDocument();
   if (!documentRef || !documentRef.body) {
@@ -108,7 +121,7 @@ function anchorDownload(blob: Blob, filename: string): void {
       anchor.parentNode.removeChild(anchor);
     }
     if (objectUrl) {
-      URL.revokeObjectURL(objectUrl);
+      revokeObjectUrlLater(objectUrl);
     }
   }
 }

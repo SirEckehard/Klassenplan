@@ -125,7 +125,7 @@ export default function StudentListViewMenu({
           <div
             role="dialog"
             aria-label={label}
-            className={`${menuSurfaceClass} max-h-[70vh] min-w-56 overflow-y-auto`}
+            className={`${menuSurfaceClass} max-h-[70dvh] min-w-56 overflow-y-auto`}
           >
             <div role="group" aria-labelledby="student-list-view-filter">
               <h3 id="student-list-view-filter" className={headingClass}>

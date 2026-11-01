@@ -320,7 +320,7 @@ export default function HeroMockup() {
               role="dialog"
               aria-modal="true"
               aria-label={t(SLIDES[current].labelKey)}
-              className="relative flex flex-col items-center max-w-6xl w-full max-h-[90vh] focus:outline-none"
+              className="relative flex flex-col items-center max-w-6xl w-full max-h-[90dvh] focus:outline-none"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Lightbox image */}
@@ -346,7 +346,7 @@ export default function HeroMockup() {
                   )}
                   alt={t(SLIDES[current].labelKey)}
                   decoding="async"
-                  className="max-h-[80vh] w-full rounded-lg object-contain"
+                  className="max-h-[80dvh] w-full rounded-lg object-contain"
                 />
               </picture>
 

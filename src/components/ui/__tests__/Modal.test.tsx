@@ -46,4 +46,23 @@ describe('Modal', () => {
     await userEvent.click(screen.getByRole('dialog').parentElement!);
     expect(onClose).toHaveBeenCalledTimes(1);
   });
+
+  it('stays open when a press inside ends on the overlay', async () => {
+    // Selecting a typed password with the mouse and letting go beside the
+    // card: the browser sends the click to the overlay.
+    const onClose = vi.fn();
+    render(
+      <Modal open onClose={onClose}>
+        <input aria-label="Passwort" defaultValue="geheim123" />
+      </Modal>,
+    );
+    const field = screen.getByRole('textbox', { name: 'Passwort' });
+    const overlay = screen.getByRole('dialog').parentElement!;
+    await userEvent.pointer([
+      { keys: '[MouseLeft>]', target: field },
+      { target: overlay },
+      { keys: '[/MouseLeft]', target: overlay },
+    ]);
+    expect(onClose).not.toHaveBeenCalled();
+  });
 });

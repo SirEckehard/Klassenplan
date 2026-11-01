@@ -16,12 +16,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - The menu on a table, a room element or the empty floor of the room is now a list with words and keys instead of a row of icons, and it can also turn and duplicate what is selected, as the inspector does. Shift+F10 or the menu key opens it for the selection
 
 - Dragging a student in the seating plan or the circle shows the result before you let go: once the pointer rests on a seat, the student already sits there and the classmate who would swap sits on the seat left behind, with name, color, markers and photo. A small chip beside the pointer — above the finger on a touch screen — names who you are holding; the card that covered the neighbouring seats and said "swaps with …" is gone, and so is the seat left behind that showed one student's name with another's photo and markers
+- The fulfilment in the status bar of the seating plan carries the chart icon of the values per criterion, so on a phone, where the word does not fit, "100 %" no longer reads like a zoom level
+- "Back" on the export page and in the projection returns to the plan the way the browser's back button does, so that button or a phone's back gesture no longer opens the export or the projection again afterwards
 - In "Library", choosing an entry with the arrow keys or a click no longer draws a blue frame round it on top of its marking: the bar at its edge already shows where you are, as in the class list. Reached with Tab, the entry keeps its frame
 
 ### Fixed
 
 - In the room, a right-click on a table of a selection that also holds room elements keeps the whole selection: the windows, cabinets and other elements in it were dropped, so copying, cutting and duplicating took the tables alone. A right-click on a room element already kept the tables
 - On a phone in Chrome, the seating plan and the circle are drawn again: since they fit between the header and the status bar, the plan layer showed an empty stage there
+- A dialog no longer closes when a text selection that starts in one of its fields ends beside it: selecting the backup password with the mouse and letting go next to the window closed it and dropped what was typed
+- On an iPhone, a tall dialog and a student's sheet fit the visible screen with Safari's bars shown, instead of putting their buttons under the bar
+- A download in Safari — a picture, a PDF, a backup — no longer risks arriving empty: the file stays available until the browser has saved it
 - On a slower device, the tour of a layer opened for the first time waits until the layer has loaded: the room's tour could start while the room was still loading, begin with its last steps and then count as seen
 - On a phone and a tablet held upright, swiping in an open drawer — the inspector, the toolbar, the help — or in a student's sheet no longer scrolls the class list or the page under it as well; the drawer scrolls as far as it goes and stops there
 

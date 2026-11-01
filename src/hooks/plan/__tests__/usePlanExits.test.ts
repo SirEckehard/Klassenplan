@@ -76,7 +76,7 @@ describe('usePlanExits', () => {
 
     expect(mocks.handleSaveSeatingPlan).not.toHaveBeenCalled();
     expect(mocks.navigate).toHaveBeenCalledWith('/export', {
-      state: { mode: 'table' },
+      state: { mode: 'table', fromWorkspace: true },
     });
   });
 
@@ -88,7 +88,7 @@ describe('usePlanExits', () => {
     act(() => result.current.exportPlan());
 
     expect(mocks.navigate).toHaveBeenCalledWith('/export', {
-      state: { mode: 'circle' },
+      state: { mode: 'circle', fromWorkspace: true },
     });
   });
 
@@ -104,7 +104,7 @@ describe('usePlanExits', () => {
 
     expect(mocks.handleSaveSeatingPlan).toHaveBeenCalledTimes(1);
     expect(mocks.navigate).toHaveBeenCalledWith('/present', {
-      state: { mode: 'table' },
+      state: { mode: 'table', fromWorkspace: true },
     });
   });
 });

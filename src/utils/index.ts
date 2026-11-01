@@ -35,6 +35,7 @@ export { logInfo, logWarn, logError, logDebug } from './logger';
 export {
   downloadBlob,
   downloadJson,
+  revokeObjectUrlLater,
   type DownloadBlobSource,
 } from './downloads';
 

@@ -10,7 +10,7 @@ function RootErrorFallback({ error }: { error: Error }) {
     i18n.t(key, { ns: 'common', defaultValue: fallback });
 
   return (
-    <div className="flex min-h-screen items-start justify-center bg-(--surface-card) px-4 py-16">
+    <div className="flex min-h-dvh items-start justify-center bg-(--surface-card) px-4 py-16">
       <div className="w-full max-w-lg rounded-2xl border border-(--button-danger-bg) bg-(--button-icon-danger-bg) p-8 shadow-lg">
         <h1 className="text-xl font-bold text-(--text-page)">
           {t('errors.generic', 'Ein Fehler ist aufgetreten')}

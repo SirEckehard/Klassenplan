@@ -235,7 +235,7 @@ function SeatingStatisticsBadge({
   return (
     <section
       aria-label={t('statisticsBadge.title')}
-      className={`${cardSurfaceClass} ${positionClasses} flex max-h-[calc(100vh-6rem)] flex-col gap-2 overflow-hidden border border-(--border-card) p-3 transition-[opacity,transform] duration-100 ease-out ${className}`}
+      className={`${cardSurfaceClass} ${positionClasses} flex max-h-[calc(100dvh-6rem)] flex-col gap-2 overflow-hidden border border-(--border-card) p-3 transition-[opacity,transform] duration-100 ease-out ${className}`}
     >
       {/* Compact Header with Score */}
       <div className="flex items-center justify-between gap-2 border-b border-(--border-card) pb-2">

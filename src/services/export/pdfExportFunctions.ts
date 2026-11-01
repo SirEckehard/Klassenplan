@@ -11,7 +11,7 @@ import {
 } from '@/services/export/sceneRenderer';
 import type { NoteListInput } from '@/components/scene/NoteListSheet';
 import type { DutyRosterInput } from '@/components/scene/DutyRosterSheet';
-import { logError, toIsoDate } from '@/utils';
+import { logError, revokeObjectUrlLater, toIsoDate } from '@/utils';
 import i18n from '@/i18n';
 import type { DataFamily, NameDisplayMode } from '@/utils';
 import { confirmDownload } from '@/utils/ui/downloadConfirmation';
@@ -300,7 +300,7 @@ export function downloadPdfBlob(blob: Blob, filename: string): void {
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
-  URL.revokeObjectURL(url);
+  revokeObjectUrlLater(url);
 }
 
 async function exportSvgToPdf(

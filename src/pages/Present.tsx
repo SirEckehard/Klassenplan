@@ -12,6 +12,7 @@ import Seo from '@/components/Seo';
 import { KpLockup } from '@/components/KpLockup';
 import { LocalizedLink } from '@/components/LocalizedLink';
 import { usePageSeo } from '@/hooks/usePageSeo';
+import { useBackToWorkspace } from '@/hooks/useReturnToApp';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { useLocalizedNavigate } from '@/hooks/useLocalizedNavigate';
 import { useIsDarkMode } from '@/hooks/useIsDarkMode';
@@ -77,6 +78,7 @@ export default function Present() {
   const openedWith = location.state as {
     mode?: SeatingMode;
     perspective?: PresentationPerspective;
+    fromWorkspace?: boolean;
   } | null;
   const [mode, setMode] = useState<SeatingMode>(openedWith?.mode ?? 'table');
   // Generate the circle layout on demand when switching to circle presentation.
@@ -183,6 +185,10 @@ export default function Present() {
     mode === 'circle' ? circleSeating : hasPlan ? currentSeating : NO_SEATING,
   );
 
+  const backToPlan = useBackToWorkspace(
+    useCallback(() => navigate('/generator'), [navigate]),
+  );
+
   const zoomBy = useCallback(
     (delta: number) =>
       setZoomLevel(
@@ -196,7 +202,7 @@ export default function Present() {
 
   useKeyboardShortcuts({
     // Same back shortcut as the export page.
-    'alt+arrowleft': () => navigate('/generator'),
+    'alt+arrowleft': backToPlan,
     f: toggleFullscreen,
     ' ': () => picker.pick(),
     escape: () => picker.reset(),
@@ -209,7 +215,10 @@ export default function Present() {
   // this entry is where their way back lands: it is brought up to the view on
   // screen first.
   const openTool = (route: '/gruppen' | '/dienste') => {
-    navigate('/present', { replace: true, state: { mode, perspective } });
+    navigate('/present', {
+      replace: true,
+      state: { mode, perspective, fromWorkspace: openedWith?.fromWorkspace },
+    });
     navigate(route);
   };
 
@@ -390,7 +399,7 @@ export default function Present() {
             <p className="text-lg font-medium">{t('present.empty')}</p>
             <button
               type="button"
-              onClick={() => navigate('/generator')}
+              onClick={backToPlan}
               className={`${primaryButtonClass} h-10 gap-2 px-4`}
               title={t('present.backTitle')}
             >
@@ -450,7 +459,7 @@ export default function Present() {
             fullscreenSupported={fullscreenSupported}
             isFullscreen={isFullscreen}
             onToggleFullscreen={toggleFullscreen}
-            onExit={() => navigate('/generator')}
+            onExit={backToPlan}
           />
         </div>
       ) : (

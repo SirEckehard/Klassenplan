@@ -102,16 +102,23 @@ describe('downloads utilities', () => {
           return element;
         });
 
-      await expect(
-        downloads.downloadBlob('payload', 'fallback.txt', 'text/plain'),
-      ).resolves.toBe(true);
+      vi.useFakeTimers({ toFake: ['setTimeout'] });
+      try {
+        await expect(
+          downloads.downloadBlob('payload', 'fallback.txt', 'text/plain'),
+        ).resolves.toBe(true);
 
-      expect(createElementSpy).toHaveBeenCalled();
-      expect(clickSpy).toHaveBeenCalledTimes(1);
-      expect(createUrlSpy).toHaveBeenCalled();
-      expect(revokeUrlSpy).toHaveBeenCalledWith('blob:test-url');
-
-      createElementSpy.mockRestore();
+        expect(createElementSpy).toHaveBeenCalled();
+        expect(clickSpy).toHaveBeenCalledTimes(1);
+        expect(createUrlSpy).toHaveBeenCalled();
+        // Safari reads the blob after the click returned: the URL outlives it.
+        expect(revokeUrlSpy).not.toHaveBeenCalled();
+        vi.advanceTimersByTime(30_000);
+        expect(revokeUrlSpy).toHaveBeenCalledWith('blob:test-url');
+      } finally {
+        vi.useRealTimers();
+        createElementSpy.mockRestore();
+      }
     });
 
     it('resolves to false when the picker is cancelled by the user', async () => {
