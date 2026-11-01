@@ -27,6 +27,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 
+- A student can no longer be added twice under the same name: the class list's "Add student" refuses a name the class already has and says so under the field, as renaming a student always did
+- Naming a seating plan or circle in the inspector saves it: Enter or the tick keeps the plan under the new name, and a plan changed since it was saved is saved along with it; it took "Save plan" as well, so a plan named but not saved was easily lost
 - In the room, a right-click on a table of a selection that also holds room elements keeps the whole selection: the windows, cabinets and other elements in it were dropped, so copying, cutting and duplicating took the tables alone. A right-click on a room element already kept the tables
 - On a phone in Chrome, the seating plan and the circle are drawn again: since they fit between the header and the status bar, the plan layer showed an empty stage there
 - Undoing the removal of a table in the room brings back the locks of the students who sat at it; they were lost, and the students came back unlocked

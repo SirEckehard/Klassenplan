@@ -249,7 +249,7 @@ describe('PlanInspectorHeader', () => {
     expect(screen.queryByRole('textbox')).toBeNull();
   });
 
-  it('renames the open plan at once, leaving what it holds', async () => {
+  it('only renames an open plan the stage shows as saved', async () => {
     const user = userEvent.setup();
     render(<PlanInspectorHeader />);
 
@@ -308,7 +308,7 @@ describe('PlanInspectorHeader', () => {
     ).toBeInTheDocument();
   });
 
-  it('names a plan never saved for its first save', async () => {
+  it('saves a plan never saved once it is named', async () => {
     mocks.planName = '';
     mocks.activePlanId = null;
     const user = userEvent.setup();
@@ -318,7 +318,59 @@ describe('PlanInspectorHeader', () => {
     expect(input).toHaveValue('');
     await user.type(input, 'Englisch{Enter}');
 
-    expect(mocks.setPlanName).toHaveBeenCalledWith('Englisch');
+    expect(mocks.handleSaveSeatingPlan).toHaveBeenCalledWith(
+      'Englisch',
+      mocks.classroomScene,
+      { rename: false },
+    );
+    expect(screen.queryByRole('textbox')).toBeNull();
+  });
+
+  it('saves a plan never saved by the check as well', async () => {
+    mocks.planName = '';
+    mocks.activePlanId = null;
+    const user = userEvent.setup();
+    render(<PlanInspectorHeader />);
+
+    const input = await openNameField(user);
+    await user.type(input, 'Englisch');
+    await user.click(getButton(/^Speichern$|^Save$/i));
+
+    expect(mocks.handleSaveSeatingPlan).toHaveBeenCalledWith(
+      'Englisch',
+      mocks.classroomScene,
+      { rename: false },
+    );
+  });
+
+  it('saves the changed stage into the open plan under its new name', async () => {
+    mocks.currentSeating = [[{ id: 'ben', name: 'Ben' }]] as SeatingArrangement;
+    const user = userEvent.setup();
+    render(<PlanInspectorHeader />);
+
+    const input = await openNameField(user);
+    await user.clear(input);
+    await user.type(input, 'Deutsch ab Oktober{Enter}');
+
+    expect(mocks.handleSaveSeatingPlan).toHaveBeenCalledWith(
+      'Deutsch ab Oktober',
+      mocks.classroomScene,
+      { rename: true },
+    );
+    expect(mocks.renameSeatingPlan).not.toHaveBeenCalled();
+  });
+
+  it('leaves a plan never saved unnamed when its name is emptied', async () => {
+    mocks.planName = 'Englisch';
+    mocks.activePlanId = null;
+    const user = userEvent.setup();
+    render(<PlanInspectorHeader />);
+
+    const input = await openNameField(user);
+    await user.clear(input);
+    await user.keyboard('{Enter}');
+
+    expect(mocks.setPlanName).toHaveBeenCalledWith('');
     expect(mocks.handleSaveSeatingPlan).not.toHaveBeenCalled();
   });
 

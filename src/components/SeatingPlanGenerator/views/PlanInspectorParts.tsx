@@ -94,11 +94,14 @@ function usePlanSave() {
  * Shared by the table plan and the circle, which are the same plan seated
  * two ways.
  *
- * A saved plan is renamed at once, as in "Bibliothek" — what it holds stays
- * as it was saved. A plan never saved takes the name its first save will
- * use; emptied, it gets a date then, as it always has. A name another plan
- * carries is refused under the name rather than by a toast after the fact,
- * and Ctrl/⌘+S in the field saves under the typed name.
+ * Giving the name — Enter, the check, leaving the field — saves the plan
+ * under it: a plan never saved is kept as its first save, a saved plan the
+ * stage has changed is written anew under the new name. A saved plan the
+ * stage still shows as saved is only renamed, as in "Bibliothek", so its
+ * date stays. Emptied, a plan never saved stays unnamed until its first
+ * save gives it a date. A name another plan carries is refused under the
+ * name rather than by a toast after the fact, and Ctrl/⌘+S in the field
+ * saves under the typed name.
  *
  * "Nicht gespeichert" alone is the status bar's word for a write to storage
  * that failed, so the subtitle never says only that.
@@ -155,10 +158,20 @@ export function PlanInspectorHeader() {
           disabled={!canSave}
           problemFor={(draft) => (nameTaken(draft.trim()) ? 'taken' : null)}
           onCommit={(name) => {
-            if (openPlan) {
+            // An emptied name of a plan never saved stays empty until its
+            // first save, which gives it a date.
+            if (!name) {
+              setPlanName(name);
+              return null;
+            }
+            if (nameTaken(name)) return 'taken';
+            // A saved plan whose stage is as it was saved is renamed alone:
+            // saving it again would date it today and count it as used.
+            if (openPlan && !hasUnsavedChanges()) {
               return renameSeatingPlan(openPlan.id, name) ? null : 'taken';
             }
-            setPlanName(name);
+            // Giving the name saves the plan under it, as Ctrl/⌘+S does.
+            save(name);
             return null;
           }}
           takenMessage={t('planSave.nameTaken')}

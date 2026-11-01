@@ -158,7 +158,7 @@ test('a teacher can go from an empty app to an exportable seating plan', async (
 
   await test.step('step 3 — save the plan under a name', async () => {
     // The plan is named in the inspector's header, as every inspector's
-    // name is: pressed, it opens as a field. Saving is the "Plan" section's.
+    // name is: pressed, it opens as a field, and Enter saves under the name.
     const inspector = page.getByRole('complementary', { name: 'Plan' });
     await inspector
       .getByRole('heading', { level: 2 })
@@ -167,7 +167,6 @@ test('a teacher can go from an empty app to an exportable seating plan', async (
     const name = inspector.getByRole('textbox', { name: 'Name des Sitzplans' });
     await name.fill('E2E Plan');
     await name.press('Enter');
-    await inspector.getByRole('button', { name: 'Plan speichern' }).click();
 
     // The inspector's head says it was saved, where the name stands; no card
     // says it again over the stage (decision 0037).

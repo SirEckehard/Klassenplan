@@ -73,8 +73,8 @@ async function mixAndSave(page: Page, name: string): Promise<void> {
     page.getByRole('group', { name: /^Sitzplan:/ }),
   ).toHaveAccessibleName('Sitzplan: 4 von 4 Plätzen belegt');
 
-  // The plan is named in the inspector's header; saving is the "Plan"
-  // section's.
+  // The plan is named in the inspector's header, and Enter saves under the
+  // name.
   const inspector = page.getByRole('complementary', { name: 'Plan' });
   await inspector
     .getByRole('heading', { level: 2 })
@@ -83,7 +83,6 @@ async function mixAndSave(page: Page, name: string): Promise<void> {
   const field = inspector.getByRole('textbox', { name: 'Name des Sitzplans' });
   await field.fill(name);
   await field.press('Enter');
-  await inspector.getByRole('button', { name: 'Plan speichern' }).click();
   // Its head says it was saved; no card says it over the stage.
   await expect(inspector.getByText('Heute gespeichert')).toBeVisible();
 }

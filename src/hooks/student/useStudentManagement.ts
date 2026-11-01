@@ -129,13 +129,21 @@ export function useStudentManagement(
     }
 
     const name = newStudentName.trim();
+    // A name the class already has, compared as renaming a student does
+    // (`StudentNameEditor`): two students of one name cannot be told apart.
+    const lowerName = name.toLowerCase();
+    if (students.some((s) => s.name.toLowerCase() === lowerName)) {
+      setAddProblem(TOAST_MESSAGES.STUDENT_NAME_EXISTS);
+      return;
+    }
+
     const student = addStudent(name);
     setLastAddedId(student.id);
     setAddProblem(null);
 
     // Clear input for next entry
     setNewStudentName('');
-  }, [newStudentName, students.length, addStudent]);
+  }, [newStudentName, students, addStudent]);
 
   const isAddDisabled =
     !newStudentName.trim() || students.length >= MAX_STUDENTS;
