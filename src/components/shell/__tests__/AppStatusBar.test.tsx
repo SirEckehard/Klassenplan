@@ -115,6 +115,10 @@ describe('AppStatusBar', () => {
     render(<AppStatusBar />);
 
     expect(status()).toHaveTextContent(/3 Schüler|3 students/i);
+    // The figure is set as the plan's fulfilment sets its percentage.
+    expect(
+      within(status()).getAllByText('3', { selector: 'span' })[0],
+    ).toHaveClass('font-semibold');
     // The check says it; the words are for the tooltip and the screen reader.
     expect(screen.getByText(/Alle Namen gesetzt|All names set/i)).toHaveClass(
       'sr-only',
@@ -179,7 +183,8 @@ describe('AppStatusBar', () => {
     try {
       setState({ students: named(3) });
       render(<AppStatusBar />);
-      const line = screen.getByText(/3 Schüler|3 students/i);
+      // The figure stands in a span of its own; the full line is the title.
+      const line = screen.getByTitle(/3 Schüler|3 students/i);
 
       act(() => {
         confirmInStatusBar('backupSaved', 'generator:storage.backupExported');

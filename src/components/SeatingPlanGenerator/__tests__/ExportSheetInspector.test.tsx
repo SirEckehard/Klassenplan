@@ -272,8 +272,8 @@ describe('ExportSheetInspector note list', () => {
     }
   });
 
-  // The format stands in the status bar and the orientation in the first
-  // row; the heading does not repeat them.
+  // The orientation stands in the first row and the paper on the stage
+  // shows the format; the heading does not repeat them.
   it('does not repeat the format under its heading', () => {
     renderInspector();
 

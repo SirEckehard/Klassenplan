@@ -150,8 +150,11 @@ async function openClassTools(page: Page): Promise<void> {
 async function mixThePlan(page: Page): Promise<void> {
   await page.getByRole('button', { name: 'Weiter zum Raum' }).click();
   // Below xl the line is the count alone, the check says it fits; the long
-  // one came out as "24 Plä…".
-  await expect(statusBar(page).getByText('24', { exact: true })).toBeVisible();
+  // one came out as "24 Plä…". Its figures stand in spans of their own, the
+  // hidden long line's too, so the visible one is asked for.
+  await expect(
+    statusBar(page).getByText('24', { exact: true }).filter({ visible: true }),
+  ).toHaveCount(1);
   await expectCanvasInSight(page);
 
   await page.getByRole('button', { name: 'Weiter zum Sitzplan' }).click();

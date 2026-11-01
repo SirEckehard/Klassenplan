@@ -251,7 +251,8 @@ describe('Export page', () => {
     it('reads the inspector column as the sheet', async () => {
       renderExport();
 
-      // The sheet goes by its title; the format is the status bar's alone.
+      // The sheet goes by its title; the orientation is its first row, and
+      // the paper on the stage shows the rest.
       const panel = await sheetPanel();
       expect(within(panel).getByRole('heading', { level: 2 })).toBeVisible();
       expect(within(panel).queryByText(/A4 ·/)).not.toBeInTheDocument();
@@ -386,6 +387,12 @@ describe('Export page', () => {
           ),
         { timeout: 4000 },
       );
+
+      // The bar does not repeat what the sheet shows ("A4 · Hochformat ·
+      // 24 Schüler"); it holds the ways out.
+      expect(
+        screen.getByRole('region', { name: /Statusleiste|Status bar/i }),
+      ).not.toHaveTextContent(/A4|Hochformat|Schüler/);
 
       await userEvent.click(screen.getByRole('button', { name: 'Drucken' }));
 
