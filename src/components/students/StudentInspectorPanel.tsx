@@ -126,7 +126,7 @@ export default function StudentInspectorPanel({
       t('studentInput.removeStudentMessage', { studentName: label }),
       {
         title: t('studentInput.removeStudentTitle'),
-        confirmLabel: t('classManagement.delete'),
+        confirmLabel: t('studentList.delete'),
       },
     );
     if (!confirmed) return;

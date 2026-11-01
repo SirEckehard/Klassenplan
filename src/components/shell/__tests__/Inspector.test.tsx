@@ -129,7 +129,7 @@ describe('Inspector', () => {
     renderInspector();
     fireEvent.click(screen.getByRole('button', { name: 'pick-grace' }));
 
-    fireEvent.click(getButton(/^(Löschen|Delete)$/i));
+    fireEvent.click(getButton(/^(Schüler löschen|Delete student)$/i));
     await waitFor(() => expect(mocks.removeStudent).toHaveBeenCalledWith('g'));
     // The panel lets go of what it just deleted.
     expect(
@@ -142,7 +142,7 @@ describe('Inspector', () => {
     renderInspector();
     fireEvent.click(screen.getByRole('button', { name: 'pick-grace' }));
 
-    fireEvent.click(getButton(/^(Löschen|Delete)$/i));
+    fireEvent.click(getButton(/^(Schüler löschen|Delete student)$/i));
     await waitFor(() => expect(mocks.confirm).toHaveBeenCalled());
     expect(mocks.removeStudent).not.toHaveBeenCalled();
   });

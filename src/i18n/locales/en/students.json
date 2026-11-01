@@ -32,8 +32,7 @@
     "studentCount_other": "{{count}} students",
     "newClass": "New Class",
     "editClass": "Edit class",
-    "deleteClass": "Delete class",
-    "delete": "Delete"
+    "deleteClass": "Delete class"
   },
   "gender": {
     "title": "Gender",
@@ -84,7 +83,7 @@
     },
     "newStudent": "New Student",
     "createPlaceholders": "Create placeholders",
-    "delete": "Delete",
+    "delete": "Delete student",
     "placeholderCountPlaceholder": "Count",
     "printList": "Print list",
     "printListTitle": "Print the class list with room for notes"

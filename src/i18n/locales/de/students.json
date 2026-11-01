@@ -32,8 +32,7 @@
     "studentCount_other": "{{count}} Schüler",
     "newClass": "Neue Klasse",
     "editClass": "Klasse bearbeiten",
-    "deleteClass": "Klasse löschen",
-    "delete": "Löschen"
+    "deleteClass": "Klasse löschen"
   },
   "gender": {
     "title": "Geschlecht",
@@ -84,7 +83,7 @@
     },
     "newStudent": "Neuer Schüler",
     "createPlaceholders": "Platzhalter erstellen",
-    "delete": "Löschen",
+    "delete": "Schüler löschen",
     "placeholderCountPlaceholder": "Anzahl",
     "printList": "Liste drucken",
     "printListTitle": "Klassenliste mit Platz für Notizen drucken"

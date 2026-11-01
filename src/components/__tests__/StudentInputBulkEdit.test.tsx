@@ -818,14 +818,18 @@ describe('StudentInput with a single ticked student', () => {
     await tickFirst(user);
     const panel = await studentPanel();
     await user.click(
-      within(panel).getByRole('button', { name: /^(Löschen|Delete)$/i }),
+      within(panel).getByRole('button', {
+        name: /^(Schüler löschen|Delete student)$/i,
+      }),
     );
     const dialog = await screen.findByRole('dialog');
     expect(dialog).toHaveTextContent(/Anna/);
     expect(removeStudents).not.toHaveBeenCalled();
 
     await user.click(
-      within(dialog).getByRole('button', { name: /^(Löschen|Delete)$/i }),
+      within(dialog).getByRole('button', {
+        name: /^(Schüler löschen|Delete student)$/i,
+      }),
     );
 
     await waitFor(() =>

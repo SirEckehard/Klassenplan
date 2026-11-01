@@ -125,10 +125,12 @@ async function addStudentFromToolbar(page: Page, name: string): Promise<void> {
   await page
     .getByRole('button', { name: `${name} im Inspektor öffnen` })
     .click();
-  await page.getByRole('button', { name: 'Löschen', exact: true }).click();
+  await page
+    .getByRole('button', { name: 'Schüler löschen', exact: true })
+    .click();
   await page
     .getByRole('dialog', { name: 'Schüler löschen' })
-    .getByRole('button', { name: 'Löschen', exact: true })
+    .getByRole('button', { name: 'Schüler löschen', exact: true })
     .click();
   await expect(
     page.getByRole('button', { name: `${name} im Inspektor öffnen` }),
