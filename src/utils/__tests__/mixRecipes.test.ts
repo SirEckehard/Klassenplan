@@ -66,7 +66,7 @@ describe('mix recipes', () => {
   });
 
   it('is the recommended weights under its own name', () => {
-    const settings = applied('recommended');
+    const settings = applied('standard');
 
     for (const key of SCALAR_MIX_SETTING_KEYS) {
       // Only the losing performance criterion differs; decision 0013 clears it.

@@ -307,9 +307,9 @@
       "title": "Voreinstellung",
       "custom": "Eigene Mischung",
       "activeCount": "{{active}} von {{total}} Kriterien aktiv",
-      "recommended": {
-        "label": "Empfohlene Mischung",
-        "desc": "Alle Kriterien, für die diese Klasse Daten hat, mit ihren Standardwerten."
+      "standard": {
+        "label": "Standard",
+        "desc": "Jedes Kriterium, für das die Klasse Daten hat, auf seiner Grundeinstellung."
       },
       "quietWork": {
         "label": "Ruhige Arbeitsphase",

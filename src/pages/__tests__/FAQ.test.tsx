@@ -60,7 +60,7 @@ describe('FAQ', () => {
     });
     for (const word of [
       /Sehr wichtig|Very important/,
-      /Empfohlene Mischung|Recommended mix/,
+      /Standard|Default/,
       /Klassenarbeit|Exam/,
     ]) {
       expect(criteria).toHaveTextContent(word);

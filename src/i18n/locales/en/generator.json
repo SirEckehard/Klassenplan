@@ -307,9 +307,9 @@
       "title": "Preset",
       "custom": "Your own mix",
       "activeCount": "{{active}} of {{total}} criteria active",
-      "recommended": {
-        "label": "Recommended mix",
-        "desc": "Every criterion this class has data for, at its default weight."
+      "standard": {
+        "label": "Default",
+        "desc": "Every criterion this class has data for, at its basic setting."
       },
       "quietWork": {
         "label": "Quiet work",

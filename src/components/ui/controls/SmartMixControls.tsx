@@ -394,8 +394,8 @@ function SmartMixControls({
  * What the plan is being mixed for — the recipe, the first section of the
  * mixing under the plan's own, since it sets every criterion below at once.
  * Beside its heading the one control that acts on all of them, "Alle
- * Kriterien" as a switch — the way back to the recommended weights is the
- * recipe of that name — and under the recipe how many of the criteria this
+ * Kriterien" as a switch — the way back to the recommended weights is
+ * "Standard" — and under the recipe how many of the criteria this
  * class has data for carry weight, and, when none does, that nothing is
  * weighed.
  */

@@ -18,7 +18,7 @@ import {
  * were (decision 0018).
  */
 export type MixRecipeId =
-  'recommended' | 'quietWork' | 'groupWork' | 'exam' | 'newClass';
+  'standard' | 'quietWork' | 'groupWork' | 'exam' | 'newClass';
 
 export interface MixRecipe {
   id: MixRecipeId;
@@ -27,7 +27,7 @@ export interface MixRecipe {
 }
 
 /**
- * The recipes in the order they are offered. `recommended` comes first: it is
+ * The recipes in the order they are offered. `standard` comes first: it is
  * what a class starts with, so it is also the way back.
  *
  * The weights stay inside the bands of the named levels (`mixImportance.ts`),
@@ -35,7 +35,7 @@ export interface MixRecipe {
  */
 export const MIX_RECIPES: readonly MixRecipe[] = [
   {
-    id: 'recommended',
+    id: 'standard',
     weights: Object.fromEntries(
       SCALAR_MIX_SETTING_KEYS.map((key) => [key, DEFAULT_MIX_WEIGHTS[key]]),
     ),

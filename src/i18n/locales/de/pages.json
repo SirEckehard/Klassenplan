@@ -323,7 +323,7 @@
       "recipes": {
         "q": "Was sind Voreinstellungen?",
         "intro": "Eine Voreinstellung setzt alle Kriterien auf einmal passend zur Stunde. Du findest die Voreinstellungen über den Kriterien:",
-        "outro": "Änderst du danach ein einzelnes Kriterium, wird daraus eine „Eigene Mischung“. Die „Empfohlene Mischung“ führt jederzeit zu den Standardwerten zurück."
+        "outro": "Änderst du danach ein einzelnes Kriterium, wird daraus eine „Eigene Mischung“. „Standard“ führt jederzeit zu den Grundeinstellungen zurück."
       },
       "weights": {
         "q": "Was bedeuten Aus, Beachten, Wichtig und Sehr wichtig?",

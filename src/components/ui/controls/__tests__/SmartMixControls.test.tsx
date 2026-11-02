@@ -299,7 +299,7 @@ describe('SmartMixControls — comfortable density', () => {
     expect(weightOf('peerTutoring')).toBe(7);
   });
 
-  // The header carries only the switch; the recommended recipe is the way
+  // The header carries only the switch; "Standard" is the way
   // back to the default weights.
   it('has no restore button of its own beside the recipes', () => {
     render(<Harness initial={{ avoidRestlessTogether: 9 }} />);
@@ -315,7 +315,7 @@ describe('SmartMixControls — comfortable density', () => {
     );
     fireEvent.click(
       within(screen.getByRole('dialog')).getByRole('button', {
-        name: /Empfohlene Mischung|Recommended mix/,
+        name: /Standard|Default/,
       }),
     );
 
@@ -365,7 +365,7 @@ describe('SmartMixControls — recipes', () => {
   it('counts only the criteria this class has data for', () => {
     render(<Harness />);
 
-    chooseRecipe(/Empfohlene Mischung|Recommended mix/);
+    chooseRecipe(/Standard|Default/);
 
     // Language levels and social roles are missing from this class, so its
     // panel shows 13 criteria; the homogeneous groups stay off beside the
