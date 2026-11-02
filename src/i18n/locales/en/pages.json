@@ -487,12 +487,13 @@
         "a": "The export creates a file encrypted with your password (at least 8 characters) containing all classes, students including their photos, seating plans, mix and usage history, seating circle, room elements, templates and settings. Without that password the file cannot be restored."
       },
       "deviceChange": {
-        "q": "How do I move my classes to a new computer?",
+        "q": "How do I move my classes to a new device?",
         "intro": "Through the backup file — there is no sync between devices, because there is no server.",
         "li1": "On the old device, click “Backup” at the very bottom of the toolbar, choose “Export backup” and set a password.",
         "li2": "Get the file onto the new device, for example via USB stick, a cloud folder or an email to yourself.",
         "li3": "On the new device, open Klassenplan and choose “Import backup” – on the empty class page or, if a class already exists there, under “Backup” at the very bottom of the toolbar.",
         "li4": "Pick the file, enter the password and confirm, for example with “Replace everything”.",
+        "ios": "On an iPad or iPhone, tapping the file does not open it. Save it to the Files app and pick it in Klassenplan with “Import backup”.",
         "outro": "Your classes, students including photos, seating plans and templates are then on the new device. The file works on any operating system and in any browser. Without the password, however, it cannot be opened."
       },
       "frequency": {

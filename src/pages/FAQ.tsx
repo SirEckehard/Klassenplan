@@ -438,6 +438,7 @@ export default function FAQ() {
                   <li>{t('faq.backups.deviceChange.li3')}</li>
                   <li>{t('faq.backups.deviceChange.li4')}</li>
                 </ol>
+                <p>{t('faq.backups.deviceChange.ios')}</p>
                 <p>{t('faq.backups.deviceChange.outro')}</p>
               </>
             ),

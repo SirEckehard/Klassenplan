@@ -487,12 +487,13 @@
         "a": "Der Export erstellt eine mit deinem Passwort verschlüsselte Datei (mindestens 8 Zeichen) mit allen Klassen, Schülern samt Fotos, Sitzplänen, Misch- und Nutzungs-Historie, Sitzkreis, Raumelementen, Vorlagen und Einstellungen. Ohne dieses Passwort lässt sich die Datei nicht wiederherstellen."
       },
       "deviceChange": {
-        "q": "Wie nehme ich meine Daten auf einen neuen Rechner mit?",
+        "q": "Wie nehme ich meine Daten auf ein neues Gerät mit?",
         "intro": "Über die Backup-Datei – eine Synchronisation zwischen Geräten gibt es nicht, weil es keinen Server gibt.",
         "li1": "Auf dem alten Gerät ganz unten in der Werkzeugleiste auf „Backup“ klicken, „Backup exportieren“ wählen und ein Passwort vergeben.",
         "li2": "Die Datei auf das neue Gerät bringen, etwa per USB-Stick, Cloud-Ordner oder E-Mail an dich selbst.",
         "li3": "Auf dem neuen Gerät Klassenplan öffnen und „Backup importieren“ wählen – auf der leeren Klassenseite oder, wenn es dort schon eine Klasse gibt, ganz unten in der Werkzeugleiste unter „Backup“.",
         "li4": "Die Datei auswählen, das Passwort eingeben und z. B. mit „Alles ersetzen“ bestätigen.",
+        "ios": "Auf iPad und iPhone lässt sich die Datei nicht durch Antippen öffnen. Sichere sie in der Dateien-App und wähle sie in Klassenplan über „Backup importieren“ aus.",
         "outro": "Danach sind Klassen, Schüler samt Fotos, Sitzpläne und Vorlagen auf dem neuen Gerät. Die Datei funktioniert auf jedem Betriebssystem und in jedem Browser. Ohne das Passwort lässt sie sich jedoch nicht öffnen."
       },
       "frequency": {
