@@ -159,7 +159,7 @@ test('a first visitor tries the sample class with the tours as a guide', async (
       'Alles an einem Ort',
       'Ansehen und ändern',
       'Öffnen',
-      'Neue Klassen und Räume',
+      'Neues anlegen',
       'Hilfe und Tour',
     ]);
   });

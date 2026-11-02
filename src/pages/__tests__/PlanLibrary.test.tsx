@@ -27,7 +27,13 @@ import {
   createMockSavedPlan,
   createMockStudent,
 } from '@/__tests__/utils';
-import { neutralSettings, normalizeMixSettings } from '@/utils';
+import {
+  fullRecipeWeights,
+  MAX_MIX_PRESETS,
+  MIX_RECIPES,
+  neutralSettings,
+  normalizeMixSettings,
+} from '@/utils';
 import PlanLibrary from '../PlanLibrary';
 
 const mocks = vi.hoisted(() => ({
@@ -41,6 +47,8 @@ const mocks = vi.hoisted(() => ({
   requestDelete: vi.fn(),
   confirmDialog: vi.fn(),
   setMixPresetOverride: vi.fn(async () => true),
+  addMixPreset: vi.fn(),
+  ownPresets: [] as { id: string; name: string; weights: object }[],
 }));
 
 vi.mock('@/contexts/SeatingPlanContext', () => ({
@@ -88,8 +96,13 @@ vi.mock('@/services/ui/dialogs', () => ({
   confirmDialog: mocks.confirmDialog,
 }));
 vi.mock('@/repositories/mixPresetStore', () => ({
-  loadMixPresets: async () => ({ version: 1, overrides: {}, presets: [] }),
+  loadMixPresets: async () => ({
+    version: 1,
+    overrides: {},
+    presets: mocks.ownPresets,
+  }),
   subscribeToMixPresets: () => () => undefined,
+  addMixPreset: mocks.addMixPreset,
   setMixPresetOverride: mocks.setMixPresetOverride,
   updateMixPreset: vi.fn(async () => true),
   deleteMixPreset: vi.fn(async () => true),
@@ -535,6 +548,54 @@ describe('PlanLibrary', () => {
     );
   });
 
+  it('adds an empty room template, chosen with its name open', async () => {
+    const user = userEvent.setup();
+    let stored: ClassroomTemplate[] = [];
+    mocks.actions.loadTemplate = vi.fn(async () => stored);
+    mocks.actions.saveTemplate = vi.fn(async (name, scene) => {
+      stored = [{ id: 9, name, scene }];
+      return { success: true };
+    });
+    renderPage();
+
+    await screen.findByRole('option', { name: /^Oktober/ });
+    await user.click(
+      screen.getByRole('button', {
+        name: /^(Neue Raumvorlage|New room template)$/,
+      }),
+    );
+
+    expect(
+      await screen.findByRole('textbox', {
+        name: /Name der Vorlage|Template name/,
+      }),
+    ).toHaveValue(stored[0]?.name);
+    expect(stored[0]?.scene.tables).toEqual([]);
+    expect(
+      screen.getByRole('option', { name: /^(Neue Raumvorlage|New room)/ }),
+    ).toHaveAttribute('aria-selected', 'true');
+  });
+
+  it('adds a preset from the weights of "Standard"', async () => {
+    const user = userEvent.setup();
+    mocks.addMixPreset.mockResolvedValue({ id: 'own' });
+    renderPage();
+
+    await screen.findByRole('option', { name: /^Oktober/ });
+    await user.click(
+      screen.getByRole('button', {
+        name: /^(Neue Voreinstellung|New preset)$/,
+      }),
+    );
+
+    await waitFor(() =>
+      expect(mocks.addMixPreset).toHaveBeenCalledWith(
+        expect.stringMatching(/Neue Voreinstellung|New preset/),
+        fullRecipeWeights(MIX_RECIPES[0]?.weights ?? {}),
+      ),
+    );
+  });
+
   it('refuses to open a mix that no longer fits its room', async () => {
     const user = userEvent.setup();
     renderPage();
@@ -586,6 +647,54 @@ describe('PlanLibrary when a change is not made', () => {
 
   afterEach(() => {
     stopListening();
+  });
+
+  it('adds no preset beyond the limit and says so', async () => {
+    const user = userEvent.setup();
+    mocks.ownPresets = Array.from({ length: MAX_MIX_PRESETS }, (_, index) => ({
+      id: `own-${index}`,
+      name: `Eigene ${index}`,
+      weights: {},
+    }));
+    renderPage();
+
+    await user.click(
+      await screen.findByRole('option', {
+        name: /^(Voreinstellungen|Presets)/,
+      }),
+    );
+    await screen.findByRole('option', { name: /^Eigene 0/ });
+    await user.click(
+      screen.getByRole('button', {
+        name: /^(Neue Voreinstellung|New preset)$/,
+      }),
+    );
+    mocks.ownPresets = [];
+
+    await waitFor(() =>
+      expect(toasts.map((toast) => toast.type)).toEqual(['warning']),
+    );
+    expect(mocks.addMixPreset).not.toHaveBeenCalled();
+  });
+
+  it('says when a new template could not be kept', async () => {
+    const user = userEvent.setup();
+    mocks.actions.saveTemplate = vi.fn(async () => ({
+      success: false,
+      error: 'storage',
+    }));
+    renderPage();
+
+    await screen.findByRole('option', { name: /^Oktober/ });
+    await user.click(
+      screen.getByRole('button', {
+        name: /^(Neue Raumvorlage|New room template)$/,
+      }),
+    );
+
+    await waitFor(() =>
+      expect(toasts.map((toast) => toast.type)).toEqual(['error']),
+    );
   });
 
   it('says that storage refused to delete a plan', async () => {

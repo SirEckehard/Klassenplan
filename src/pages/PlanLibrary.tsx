@@ -67,6 +67,7 @@ import { usePlanUsageRecords } from '@/hooks/plan/usePlanUsageRecords';
 import { useMixPresets } from '@/hooks/ui/useMixPresets';
 import { withRecipe } from '@/hooks/ui/useMixRecipes';
 import {
+  addMixPreset,
   deleteMixPreset,
   setMixPresetOverride,
   updateMixPreset,
@@ -80,9 +81,12 @@ import { confirmDialog } from '@/services/ui/dialogs';
 import type { ClassroomTemplate } from '@/types';
 import {
   cardSurfaceClass,
+  DEFAULT_CLASSROOM_SCENE,
   formatTime,
+  fullRecipeWeights,
   isEditableBuiltin,
   logError,
+  MAX_MIX_PRESETS,
   MAX_NAME_LENGTH,
   MAX_ROOMS_PER_CLASS,
   uniqueName,
@@ -774,6 +778,63 @@ function PlanLibraryPage() {
     }
   };
 
+  // Empty, as a new room is; its tables are arranged in a room opened from it.
+  const addTemplate = async () => {
+    const name = uniqueName(
+      t('library.template.newName'),
+      templates.map((entry) => entry.name),
+      MAX_NAME_LENGTH,
+    );
+    try {
+      const saved = await actions.saveTemplate(name, DEFAULT_CLASSROOM_SCENE);
+      if (!saved.success) {
+        showToast('error', TOAST_MESSAGES.SAVE_TEMPLATE_ERROR);
+        return;
+      }
+      const list = await actions.loadTemplate();
+      setTemplates(list);
+      // Template names are unique, and a save does not say the new one's id.
+      const made = list.find((entry) => entry.name === name);
+      if (!made) return;
+      const key = libraryKey({ kind: 'template', templateId: made.id });
+      setChosenPath([libraryKey({ kind: 'templates' }), key]);
+      showInspector(key);
+      requestRenameOf(key);
+    } catch (error: unknown) {
+      logError('Failed to add a template', { error }, 'PlanLibrary');
+      showToast('error', TOAST_MESSAGES.SAVE_TEMPLATE_ERROR);
+    }
+  };
+
+  // From the basic settings, the way "Standard" is the way back to them; the
+  // panel shows every criterion to change.
+  const addPreset = async () => {
+    const own = presets.recipes.filter((recipe) => !recipe.builtin);
+    if (own.length >= MAX_MIX_PRESETS) {
+      showToast('warning', t('mix.recipes.limit', { count: MAX_MIX_PRESETS }));
+      return;
+    }
+    const standard = presets.recipes.find(
+      (recipe) => recipe.builtin === 'standard',
+    );
+    const preset = await addMixPreset(
+      uniqueName(
+        t('library.preset.newName'),
+        presets.recipes.map((recipe) => presetLabel(recipe, t)),
+        MAX_NAME_LENGTH,
+      ),
+      fullRecipeWeights(standard?.weights ?? {}),
+    );
+    if (!preset) {
+      showToast('error', 'toast:mixPresets.saveFailed');
+      return;
+    }
+    const key = libraryKey({ kind: 'preset', presetId: preset.id });
+    setChosenPath([libraryKey({ kind: 'presets' }), key]);
+    showInspector(key);
+    requestRenameOf(key);
+  };
+
   const studentOf = (studentId: string) =>
     classLibrary?.students.find((student) => student.id === studentId);
   const studentName = (studentId: string) =>
@@ -1157,6 +1218,8 @@ function PlanLibraryPage() {
               density={isExpanded ? 'comfortable' : 'compact'}
               onNewClass={() => void addClass()}
               onNewRoom={classLibrary ? () => void addRoom() : undefined}
+              onNewTemplate={() => void addTemplate()}
+              onNewPreset={() => void addPreset()}
             />
           )}
         </SmartSidebar>

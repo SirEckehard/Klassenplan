@@ -941,8 +941,8 @@
         "body": "The blue button takes the selection into the workspace: a plan onto the seating plan, a room into the room, a class into the class list – and a template as a new room of the class."
       },
       "toolbar": {
-        "title": "New classes and rooms",
-        "body": "In the toolbar you create a new class or add a room to the selected class – a lab with tables and plans of its own, say."
+        "title": "Adding something new",
+        "body": "In the toolbar you create a new class, add a room to the selected class – a lab with tables and plans of its own, say – or make a room template or a preset for every class."
       }
     }
   },
@@ -1223,7 +1223,7 @@
     "emptyClasses": "No class yet.",
     "emptyRoom": "No plan in this room yet.",
     "emptyMixes": "No mix yet.",
-    "emptyTemplates": "No template yet. In the room view you save a room as a template.",
+    "emptyTemplates": "No template yet. Add one in the toolbar or save a room as a template.",
     "emptyNeighbours": "No students in this class yet.",
     "neighboursCount_one": "{{count}} counted plan",
     "neighboursCount_other": "{{count}} counted plans",
@@ -1275,16 +1275,19 @@
       "delete": "Delete mix"
     },
     "template": {
+      "newName": "New room template",
       "section": "Template",
       "hint": "“Open as a room” at the bottom right adds this template as a new room of the open class.",
+      "emptyHint": "No tables yet. Open the template as a room, place the tables and replace it there in the inspector under “Templates”.",
       "delete": "Delete template"
     },
     "presets": "Presets",
     "presetsCount_one": "{{count}} preset",
     "presetsCount_other": "{{count}} presets",
-    "presetsHint": "Presets apply to every class. You save your own in the plan under “Preset”; “Apply” sets the criteria of the open class.",
+    "presetsHint": "Presets apply to every class. You add your own in the toolbar or save them in the plan under “Preset”; “Apply” sets the criteria of the open class.",
     "applyPreset": "Apply",
     "preset": {
+      "newName": "New preset",
       "shipped": "Built in",
       "own": "Your own",
       "hint": "Every change applies to the preset at once. “Apply” at the bottom right sets the criteria of the open class to it; nothing is mixed until you mix.",

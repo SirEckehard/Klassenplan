@@ -17,9 +17,9 @@ import { ValueRow } from './panelParts';
 
 /**
  * A room kept for every class: its name, renamed in the header, its tables,
- * and
- * removing it. Opened — from the status bar — it becomes a room of its own of
- * the class that is open (decision 0024).
+ * and removing it. Opened — from the status bar — it becomes a room of its own
+ * of the class that is open (decision 0024). One made here starts without
+ * tables, and its hint says how it gets them.
  */
 export default function TemplatePanel({
   template,
@@ -78,7 +78,9 @@ export default function TemplatePanel({
           </ValueRow>
           {/* In the section it speaks of, not loose under the panel. */}
           <p className="text-xs text-(--text-muted)">
-            {t('library.template.hint')}
+            {template.scene.tables.length > 0
+              ? t('library.template.hint')
+              : t('library.template.emptyHint')}
           </p>
         </InspectorSection>
       </InspectorBody>

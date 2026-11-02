@@ -288,3 +288,65 @@ test('a preset of your own is kept and found in "Bibliothek"', async ({
 
   expect(consoleErrors).toEqual([]);
 });
+
+// As a class and a room are added: under a free name, ready to be typed over.
+test('"Bibliothek" adds a preset and a room template', async ({ page }) => {
+  const consoleErrors: string[] = [];
+  page.on('console', (message) => {
+    if (message.type() === 'error') consoleErrors.push(message.text());
+  });
+
+  await page.goto('/generator');
+  await createClassWithStudents(page);
+  await openLibrary(page);
+
+  await test.step('a preset, named in its inspector', async () => {
+    await page.getByRole('button', { name: 'Neue Voreinstellung' }).click();
+    const name = page.getByRole('textbox', {
+      name: 'Name der Voreinstellung',
+    });
+    await name.fill('Diktat');
+    await name.press('Enter');
+
+    await expect(page.getByRole('option', { name: /^Diktat/ })).toHaveAttribute(
+      'aria-selected',
+      'true',
+    );
+    await expect(
+      page.getByRole('heading', { level: 2, name: 'Diktat' }),
+    ).toBeVisible();
+  });
+
+  await test.step('a template, empty until a room opened from it replaces it', async () => {
+    await page.getByRole('button', { name: 'Neue Raumvorlage' }).click();
+    const name = page.getByRole('textbox', { name: 'Name der Vorlage' });
+    await name.fill('Labor');
+    await name.press('Enter');
+
+    await expect(page.getByText(/^Noch ohne Tische/)).toBeVisible();
+    await statusBar(page)
+      .getByRole('button', { name: 'Als Raum öffnen' })
+      .click();
+    await expect(page).toHaveURL(/\/generator$/);
+
+    await setUpDoubleTables(page);
+    await roomInspector(page)
+      .getByRole('button', { name: 'Raum als Vorlage speichern' })
+      .click();
+    await roomInspector(page)
+      .getByRole('button', { name: 'Vorlage „Labor“ ersetzen' })
+      .click();
+
+    await openLibrary(page);
+    await page.getByRole('option', { name: /^Raumvorlagen/ }).click();
+    await page.getByRole('option', { name: /^Labor/ }).click();
+    await expect(
+      page
+        .getByRole('complementary', { name: 'Bibliothek' })
+        .getByText('2 Tische · 4 Plätze'),
+    ).toBeVisible();
+    await expect(page.getByText(/^Noch ohne Tische/)).toBeHidden();
+  });
+
+  expect(consoleErrors).toEqual([]);
+});

@@ -27,7 +27,8 @@ the starting point it is.
 1. **"Standard"** is the shipped preset's new name. It is the way back to the
    basic settings and the one preset that cannot be changed.
 2. **Presets of one's own, for every class.** The criteria panel keeps the
-   class's weights as a preset ("Als Voreinstellung speichern …"); they are
+   class's weights as a preset ("Als Voreinstellung speichern …"), and the
+   toolbar of "Bibliothek" adds one from the weights of "Standard"; they are
    stored once for all classes (`spg.mixPresets`, `mixPresetStore.ts`), go with
    the backup, and are listed under a rule below the shipped ones. A pencil
    renames one, a bin deletes it after asking — in the menu and in

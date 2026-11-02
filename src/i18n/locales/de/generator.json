@@ -941,8 +941,8 @@
         "body": "Der blaue Knopf holt die Auswahl in den Arbeitsbereich: einen Plan in den Sitzplan, einen Raum in den Raum, eine Klasse in die Klassenliste – und eine Vorlage als neuen Raum der Klasse."
       },
       "toolbar": {
-        "title": "Neue Klassen und Räume",
-        "body": "In der Werkzeugleiste legst du eine neue Klasse an oder fügst der ausgewählten Klasse einen Raum hinzu – etwa einen Fachraum mit eigenen Tischen und Plänen."
+        "title": "Neues anlegen",
+        "body": "In der Werkzeugleiste legst du eine neue Klasse an, fügst der ausgewählten Klasse einen Raum hinzu – etwa einen Fachraum mit eigenen Tischen und Plänen – oder erstellst eine Raumvorlage oder Voreinstellung für alle Klassen."
       }
     }
   },
@@ -1223,7 +1223,7 @@
     "emptyClasses": "Noch keine Klasse.",
     "emptyRoom": "Noch kein Plan in diesem Raum.",
     "emptyMixes": "Noch keine Mischung.",
-    "emptyTemplates": "Noch keine Vorlage. Im Raum speicherst du einen Raum als Vorlage.",
+    "emptyTemplates": "Noch keine Vorlage. Lege eine in der Werkzeugleiste an oder speichere einen Raum als Vorlage.",
     "emptyNeighbours": "Noch keine Schüler in dieser Klasse.",
     "neighboursCount_one": "{{count}} gewerteter Plan",
     "neighboursCount_other": "{{count}} gewertete Pläne",
@@ -1275,16 +1275,19 @@
       "delete": "Mischung löschen"
     },
     "template": {
+      "newName": "Neue Raumvorlage",
       "section": "Vorlage",
       "hint": "„Als Raum öffnen“ unten rechts legt diese Vorlage als neuen Raum der offenen Klasse an.",
+      "emptyHint": "Noch ohne Tische. Öffne die Vorlage als Raum, stelle die Tische auf und ersetze sie dort im Inspektor unter „Vorlagen“.",
       "delete": "Vorlage löschen"
     },
     "presets": "Voreinstellungen",
     "presetsCount_one": "{{count}} Voreinstellung",
     "presetsCount_other": "{{count}} Voreinstellungen",
-    "presetsHint": "Voreinstellungen gelten für alle Klassen. Eigene speicherst du im Plan unter „Voreinstellung“; „Übernehmen“ setzt die Kriterien der offenen Klasse.",
+    "presetsHint": "Voreinstellungen gelten für alle Klassen. Eigene legst du in der Werkzeugleiste an oder speicherst sie im Plan unter „Voreinstellung“; „Übernehmen“ setzt die Kriterien der offenen Klasse.",
     "applyPreset": "Übernehmen",
     "preset": {
+      "newName": "Neue Voreinstellung",
       "shipped": "Mitgeliefert",
       "own": "Eigene",
       "hint": "Jede Änderung gilt sofort für die Voreinstellung. „Übernehmen“ unten rechts setzt die Kriterien der offenen Klasse auf sie; gemischt wird erst, wenn du mischst.",

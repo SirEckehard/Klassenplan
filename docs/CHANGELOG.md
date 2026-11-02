@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 - Save your own presets for mixing and adjust the built-in ones; "Recommended mix" is now called "Default"
 - A right-click or a long press on an entry in the "Library" opens a menu with everything you can do with it
+- Add room templates and presets right in the "Library"
 
 ### Improved
 
