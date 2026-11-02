@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - A blocked button or an entry that cannot be used says why, right where it happens
 - The status bar offers a new version quietly, confirms saving and looks alike on every layer
 - Every inspector starts with the same header: an icon, the name and one line with what matters
+- In the "Library", clicking an entry shows a hidden inspector, and a second click hides it again
 - The menu on tables and room elements lists its actions with words and shortcuts
 - Saved plans, mixes and rooms take far less space on the device and in backups
 - "Back" on the export page and in the presentation works like the browser's back button

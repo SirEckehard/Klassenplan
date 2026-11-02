@@ -94,11 +94,20 @@ type InspectorContextValue = {
    * left the plan barely 500px. The button in the panel's head folds it, a
    * narrow strip at the window's right edge brings it back, remembered per
    * device. A touch screen narrower than `xl` starts folded, anything else
-   * with the column shown. Opening a student unfolds it: the column is where
-   * a student is edited.
+   * with the column shown. Opening a student or an entry of "Bibliothek"
+   * unfolds it for as long as that is open: the column is where it is edited.
+   * Only the teacher's own switch is stored.
    */
   folded: boolean;
   setFolded: (folded: boolean) => void;
+  /**
+   * Shows the column for an entry of a list, in place of the help. Does not
+   * touch the stored choice: `foldRevealedColumn` or leaving the page puts
+   * it back.
+   */
+  showColumn: () => void;
+  /** Folds a column that was only unfolded for what was opened in it. */
+  foldRevealedColumn: () => void;
   /**
    * Below `lg` there is no room for the inspector's column, so what a layer
    * portals in opens as a drawer over the stage — from the strip at the right
@@ -190,45 +199,58 @@ export function InspectorProvider({ children }: { children: React.ReactNode }) {
   // Read once, on the first render: the default decides how a device starts,
   // the stored choice everything after.
   const [defaultFolded] = React.useState(foldsByDefault);
-  const [folded, setFolded] = usePersistentState<boolean>(
+  const [foldedByChoice, setFoldedByChoice] = usePersistentState<boolean>(
     LOCAL_STORAGE_KEYS.inspectorFolded,
     defaultFolded,
   );
+  // Unfolded for what is open in the column, on top of the stored choice: it
+  // ends with what it was for, with the page and with a reload.
+  const [columnRevealed, setColumnRevealed] = React.useState(false);
+  const folded = foldedByChoice && !columnRevealed;
 
-  // A student opened from `lg` up is to be edited in the column, so a folded
+  // What is opened from `lg` up is to be edited in the column, so a folded
   // one comes back. Below `lg` the drawer and the sheet open on their own,
-  // and the stored choice stays the teacher's for the wider window. Whether
-  // the column was folded before is kept, so putting the student away again
-  // folds it back — an iPad in landscape starts folded.
+  // and the stored choice stays the teacher's for the wider window. Putting
+  // it away again folds the column back — an iPad in landscape starts folded.
   const foldedRef = React.useRef(folded);
-  const unfoldedForStudentRef = React.useRef(false);
+  const revealedRef = React.useRef(false);
   const unfoldedForHelpRef = React.useRef(false);
   React.useLayoutEffect(() => {
     foldedRef.current = folded;
   }, [folded]);
   const revealColumn = React.useCallback(() => {
     if (!isBreakpointUp('lg') || !foldedRef.current) return;
-    unfoldedForStudentRef.current = true;
-    setFolded(false);
-  }, [setFolded]);
+    revealedRef.current = true;
+    setColumnRevealed(true);
+  }, []);
+  const foldRevealedColumn = React.useCallback(() => {
+    if (!revealedRef.current) return;
+    revealedRef.current = false;
+    setColumnRevealed(false);
+  }, []);
   // Something else takes the help's place. A column the help unfolded stays
-  // open for it, and folds back when that is put away, as for a student.
+  // open for it, and folds back when that is put away.
   const dismissHelp = React.useCallback(() => {
     setHelpOpenState(false);
     if (unfoldedForHelpRef.current) {
       unfoldedForHelpRef.current = false;
-      unfoldedForStudentRef.current = true;
+      revealedRef.current = true;
     }
   }, []);
+  const showColumn = React.useCallback(() => {
+    dismissHelp();
+    revealColumn();
+  }, [dismissHelp, revealColumn]);
   // The teacher's own switch makes the state theirs again.
   const setFoldedByHand = React.useCallback(
     (next: boolean) => {
-      unfoldedForStudentRef.current = false;
+      revealedRef.current = false;
       unfoldedForHelpRef.current = false;
       setHelpOpenState(false);
-      setFolded(next);
+      setColumnRevealed(false);
+      setFoldedByChoice(next);
     },
-    [setFolded],
+    [setFoldedByChoice],
   );
   const setDrawerOpen = React.useCallback(
     (open: boolean) => {
@@ -237,24 +259,21 @@ export function InspectorProvider({ children }: { children: React.ReactNode }) {
     },
     [dismissHelp],
   );
-  const setHelpOpen = React.useCallback(
-    (open: boolean) => {
-      if (open) {
-        if (isBreakpointUp('lg') && foldedRef.current) {
-          unfoldedForHelpRef.current = true;
-          setFolded(false);
-        }
-        setHelpOpenState(true);
-        return;
+  const setHelpOpen = React.useCallback((open: boolean) => {
+    if (open) {
+      if (isBreakpointUp('lg') && foldedRef.current) {
+        unfoldedForHelpRef.current = true;
+        setColumnRevealed(true);
       }
-      setHelpOpenState(false);
-      if (unfoldedForHelpRef.current) {
-        unfoldedForHelpRef.current = false;
-        setFolded(true);
-      }
-    },
-    [setFolded],
-  );
+      setHelpOpenState(true);
+      return;
+    }
+    setHelpOpenState(false);
+    if (unfoldedForHelpRef.current) {
+      unfoldedForHelpRef.current = false;
+      setColumnRevealed(false);
+    }
+  }, []);
 
   const selectStudent = React.useCallback(
     (id: string, options?: SelectStudentOptions) => {
@@ -263,10 +282,9 @@ export function InspectorProvider({ children }: { children: React.ReactNode }) {
           ? { kind: 'student', id, keepFocus: true }
           : { kind: 'student', id },
       );
-      dismissHelp();
-      revealColumn();
+      showColumn();
     },
-    [dismissHelp, revealColumn],
+    [showColumn],
   );
 
   const toggleStudent = React.useCallback(
@@ -281,17 +299,13 @@ export function InspectorProvider({ children }: { children: React.ReactNode }) {
       }
       if (current?.kind === 'student' && current.id === id) {
         setSelection(null);
-        if (unfoldedForStudentRef.current) {
-          unfoldedForStudentRef.current = false;
-          setFolded(true);
-        }
+        foldRevealedColumn();
         return;
       }
       setSelection({ kind: 'student', id });
-      dismissHelp();
-      revealColumn();
+      showColumn();
     },
-    [dismissHelp, revealColumn, setFolded],
+    [dismissHelp, foldRevealedColumn, showColumn],
   );
 
   const clear = React.useCallback(() => setSelection(null), []);
@@ -328,6 +342,8 @@ export function InspectorProvider({ children }: { children: React.ReactNode }) {
       mountPortal,
       folded,
       setFolded: setFoldedByHand,
+      showColumn,
+      foldRevealedColumn,
       drawerOpen,
       setDrawerOpen,
       helpOpen,
@@ -339,6 +355,7 @@ export function InspectorProvider({ children }: { children: React.ReactNode }) {
     [
       clear,
       drawerOpen,
+      foldRevealedColumn,
       folded,
       helpOpen,
       helpSlotNode,
@@ -351,6 +368,7 @@ export function InspectorProvider({ children }: { children: React.ReactNode }) {
       setDrawerOpen,
       setFoldedByHand,
       setHelpOpen,
+      showColumn,
       slotNode,
       studentOrder,
       suspended,
@@ -394,6 +412,8 @@ const FALLBACK: InspectorContextValue = {
   mountPortal: () => noop,
   folded: false,
   setFolded: noop,
+  showColumn: noop,
+  foldRevealedColumn: noop,
   drawerOpen: false,
   setDrawerOpen: noop,
   helpOpen: false,

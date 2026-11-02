@@ -450,7 +450,8 @@ describe('Inspector from lg up', () => {
       screen.getByRole('complementary', { name: /Merkmale|Attributes/i }),
     ).toHaveClass('lg:flex');
     expect(screen.getByRole('heading', { name: 'Grace' })).toBeInTheDocument();
-    expect(localStorage.getItem(FOLDED_KEY)).toBe('false');
+    // Only the teacher's own switch is remembered.
+    expect(localStorage.getItem(FOLDED_KEY)).toBe('true');
   });
 
   // An iPad in landscape starts folded: the column a student unfolded folds

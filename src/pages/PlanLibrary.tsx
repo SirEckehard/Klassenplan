@@ -134,7 +134,8 @@ function PlanLibraryPage() {
   const actions = useSeatingPlanActions();
   const { selectClass, updateClassMetadata } = useClassManagementContext();
   const { create, requestDelete } = useClassDialogs();
-  const { setDrawerOpen, setFolded } = useInspector();
+  const { setDrawerOpen, folded, helpOpen, showColumn, foldRevealedColumn } =
+    useInspector();
   const layoutMode = useLayoutMode();
   const isDesktop = layoutMode === 'desktop';
 
@@ -246,15 +247,36 @@ function PlanLibraryPage() {
     setChosenPath(path.slice(0, index + 1));
   };
 
-  // The inspector is where an entry is read; below `lg` it is a drawer,
-  // shown when an entry that opens nothing further is tapped.
-  const showInspector = () => {
-    if (isDesktop) setFolded(false);
-    else setDrawerOpen(true);
+  // The inspector is where an entry is read, so an entry that opens nothing
+  // further shows it: the column from `lg` up, unfolded until a second click
+  // on that entry puts it away, or the drawer below `lg`. A folder needs no
+  // inspector to be of use; its contents are the next column.
+  const revealedEntryRef = React.useRef<string | null>(null);
+  const showInspector = (key: string) => {
+    if (!isDesktop) {
+      setDrawerOpen(true);
+      return;
+    }
+    revealedEntryRef.current = key;
+    showColumn();
   };
   const handleItemClick = (_columnIndex: number, key: string) => {
     const node = built.nodes.get(key);
-    if (!isDesktop && node && !isFolder(node)) setDrawerOpen(true);
+    if (!node) return;
+    if (isDesktop && !folded && !helpOpen && revealedEntryRef.current === key) {
+      revealedEntryRef.current = null;
+      foldRevealedColumn();
+      return;
+    }
+    if (!isFolder(node)) showInspector(key);
+    else if (isDesktop) revealedEntryRef.current = null;
+  };
+  // Stepping through a column with the keyboard reads the entries as clicking
+  // them does, but never puts the column away, and leaves a tablet's stage
+  // uncovered.
+  const handleItemStep = (_columnIndex: number, key: string) => {
+    const node = built.nodes.get(key);
+    if (isDesktop && node && !isFolder(node)) showInspector(key);
   };
 
   const goBack = React.useCallback(() => {
@@ -439,7 +461,7 @@ function PlanLibraryPage() {
       node.kind === 'template' ||
       (node.kind === 'preset' && !presetOf(node.presetId)?.builtin)
     ) {
-      showInspector();
+      showInspector(libraryKey(node));
       requestRenameOf(libraryKey(node));
     }
   };
@@ -646,7 +668,7 @@ function PlanLibraryPage() {
             label: t('contextMenu.saveAsTemplate'),
             icon: FloppyDiskIcon,
             onSelect: () => {
-              showInspector();
+              showInspector(libraryKey(node));
               requestPanelPart(libraryKey(node), 'template');
             },
           },
@@ -722,7 +744,7 @@ function PlanLibraryPage() {
     if (!classId) return;
     const key = libraryKey({ kind: 'class', classId });
     setChosenPath([key]);
-    showInspector();
+    showInspector(key);
     requestRenameOf(key);
   };
 
@@ -747,7 +769,7 @@ function PlanLibraryPage() {
         libraryKey({ kind: 'class', classId: classLibrary.id }),
         key,
       ]);
-      showInspector();
+      showInspector(key);
       requestRenameOf(key);
     }
   };
@@ -1152,6 +1174,7 @@ function PlanLibraryPage() {
               single={layoutMode === 'phone'}
               onSelect={choose}
               onItemClick={handleItemClick}
+              onItemStep={handleItemStep}
               onOpen={(_columnIndex, key) => {
                 const node = built.nodes.get(key);
                 if (node && !isFolder(node)) void openNode(node);

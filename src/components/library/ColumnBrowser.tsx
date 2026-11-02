@@ -41,10 +41,12 @@ interface ColumnBrowserProps {
   columns: BrowserColumn[];
   onSelect: (columnIndex: number, key: string) => void;
   /**
-   * A click or a tap, after the selection: where a pointer chose rather than
-   * the arrow keys — a tablet then shows the entry's inspector.
+   * A click or a tap, after the selection; the second click of a double click
+   * does not count.
    */
   onItemClick?: (columnIndex: number, key: string) => void;
+  /** An entry chosen with ↑/↓, Home or End, after the selection. */
+  onItemStep?: (columnIndex: number, key: string) => void;
   /** Enter or a double click. */
   onOpen?: (columnIndex: number, key: string) => void;
   /** F2. */
@@ -87,6 +89,7 @@ export default function ColumnBrowser({
   columns,
   onSelect,
   onItemClick,
+  onItemStep,
   onOpen,
   onRename,
   onDelete,
@@ -176,6 +179,7 @@ export default function ColumnBrowser({
       if (!target) return;
       onSelect(columnIndex, target.key);
       focusItem(target.key);
+      onItemStep?.(columnIndex, target.key);
     };
 
     switch (event.key) {
@@ -305,10 +309,14 @@ export default function ColumnBrowser({
                           role="option"
                           aria-selected={selected}
                           tabIndex={item.key === tabbableKey ? 0 : -1}
-                          onClick={() => {
+                          onClick={(event) => {
                             onSelect(columnIndex, item.key);
                             focusItem(item.key);
-                            onItemClick?.(columnIndex, item.key);
+                            // The second click of a double click is the
+                            // opening's, not a click of its own.
+                            if (event.detail < 2) {
+                              onItemClick?.(columnIndex, item.key);
+                            }
                           }}
                           onDoubleClick={() => onOpen?.(columnIndex, item.key)}
                           data-option-key={item.key}

@@ -319,6 +319,119 @@ describe('PlanLibrary', () => {
     expect(mocks.confirmDialog).toHaveBeenCalled();
   });
 
+  describe('with the inspector folded away', () => {
+    const FOLDED_KEY = 'spg.inspectorFolded';
+    const inspectorSwitch = () =>
+      within(statusBar()).getByRole('button', {
+        name: /einblenden|ausblenden|Show|Hide/i,
+      });
+    const expectColumnShown = (shown: boolean) =>
+      expect(inspectorSwitch()).toHaveAttribute('aria-expanded', String(shown));
+
+    beforeEach(() => {
+      localStorage.setItem(FOLDED_KEY, 'true');
+    });
+    afterEach(() => {
+      localStorage.removeItem(FOLDED_KEY);
+    });
+
+    it('shows it for a clicked plan and folds it back on a second click', async () => {
+      renderPage();
+      const plan = await screen.findByRole('option', { name: /^September/ });
+      expectColumnShown(false);
+
+      fireEvent.click(plan);
+      expectColumnShown(true);
+
+      fireEvent.click(plan);
+      expectColumnShown(false);
+
+      // The teacher's choice is what is remembered, whatever was opened.
+      fireEvent.click(plan);
+      expectColumnShown(true);
+      expect(localStorage.getItem(FOLDED_KEY)).toBe('true');
+    });
+
+    it('leaves it folded for a folder, whose contents are the next column', async () => {
+      renderPage();
+
+      fireEvent.click(
+        await screen.findByRole('option', { name: /^Klassenraum/ }),
+      );
+
+      expectColumnShown(false);
+    });
+
+    it('keeps it open for a folder chosen after a plan', async () => {
+      renderPage();
+      fireEvent.click(
+        await screen.findByRole('option', { name: /^September/ }),
+      );
+
+      const folder = screen.getByRole('option', { name: /^Klassenraum/ });
+      fireEvent.click(folder);
+      fireEvent.click(folder);
+
+      expectColumnShown(true);
+    });
+
+    it('does not fold it back on the second click of a double click', async () => {
+      renderPage();
+      const plan = await screen.findByRole('option', { name: /^September/ });
+
+      fireEvent.click(plan, { detail: 1 });
+      fireEvent.click(plan, { detail: 2 });
+
+      expectColumnShown(true);
+    });
+
+    it('shows it while stepping through the plans with the keyboard', async () => {
+      renderPage();
+
+      fireEvent.keyDown(
+        await screen.findByRole('option', { name: /^Oktober/ }),
+        {
+          key: 'ArrowDown',
+        },
+      );
+
+      expectColumnShown(true);
+      expect(
+        screen.getByRole('option', { name: /^September/ }),
+      ).toHaveAttribute('aria-selected', 'true');
+    });
+
+    it('shows it for a command of the menu, and a second click folds it back', async () => {
+      const user = userEvent.setup();
+      renderPage();
+
+      fireEvent.contextMenu(
+        await screen.findByRole('option', { name: /^September/ }),
+      );
+      expectColumnShown(false);
+      await user.click(
+        screen.getByRole('menuitem', { name: /^(Umbenennen|Rename)$/ }),
+      );
+      expectColumnShown(true);
+
+      fireEvent.click(screen.getByRole('option', { name: /^September/ }));
+      expectColumnShown(false);
+      expect(localStorage.getItem(FOLDED_KEY)).toBe('true');
+    });
+
+    it('keeps it open on a second click once the teacher unfolded it', async () => {
+      renderPage();
+      const plan = await screen.findByRole('option', { name: /^September/ });
+
+      fireEvent.click(inspectorSwitch());
+      fireEvent.click(plan);
+      fireEvent.click(plan);
+
+      expectColumnShown(true);
+      expect(localStorage.getItem(FOLDED_KEY)).toBe('false');
+    });
+  });
+
   it('deletes and duplicates a plan from its menu, chosen by the right-click', async () => {
     const user = userEvent.setup();
     renderPage();
