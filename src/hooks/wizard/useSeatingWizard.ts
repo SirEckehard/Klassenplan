@@ -117,8 +117,10 @@ export function useSeatingWizard(
     typeof location.state?.step === 'number' ? location.state.step : null;
   // The history entries whose step was applied. An entry comes back with its
   // state — "Zurück" from a tool, the browser's back button — and must not
-  // undo the layer changes made since.
-  const appliedLocationKeys = useRef(new Set<string>());
+  // undo the layer changes made since. The entry the page loaded on counts as
+  // applied: only a navigation inside the app asks for a layer, while a reload
+  // keeps the entry's state from before and the class is not read yet.
+  const appliedLocationKeys = useRef(new Set([location.key]));
   const autoMixTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [autoMixing, setAutoMixing] = useState(false);
   const [autoMixError, setAutoMixError] = useState<string | null>(null);

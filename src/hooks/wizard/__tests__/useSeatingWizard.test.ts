@@ -152,9 +152,30 @@ describe('useSeatingWizard', () => {
   });
 
   describe('location state handling', () => {
+    // The browser keeps an entry's state over a reload, and the class has not
+    // been read yet then: the way to the room said "add students first" beside
+    // a full class list on every reload after "Bibliothek" or the export.
+    it('leaves the step of the entry the page loaded on alone', async () => {
+      mockLocationState = { step: 2 };
+      mockLocationKey = 'from-library';
+      const { result } = renderHook(() =>
+        useSeatingWizard({ ...mockConfig, students: [] }),
+      );
+      await act(async () => {
+        await Promise.resolve();
+      });
+
+      expect(showToastMock).not.toHaveBeenCalled();
+      expect(result.current.step).toBe(1);
+    });
+
     it('applies location.state.step once and allows manual navigation afterwards', async () => {
+      const { result, rerender } = renderHook(() =>
+        useSeatingWizard(mockConfig),
+      );
       mockLocationState = { step: 3 };
-      const { result } = renderHook(() => useSeatingWizard(mockConfig));
+      mockLocationKey = 'from-library';
+      rerender();
 
       await waitFor(() => {
         expect(result.current.step).toBe(3);
@@ -168,11 +189,12 @@ describe('useSeatingWizard', () => {
     });
 
     it('does not apply the step again when its history entry comes back', async () => {
-      mockLocationState = { step: 3 };
-      mockLocationKey = 'from-export';
       const { result, rerender } = renderHook(() =>
         useSeatingWizard(mockConfig),
       );
+      mockLocationState = { step: 3 };
+      mockLocationKey = 'from-export';
+      rerender();
       await waitFor(() => expect(result.current.step).toBe(3));
 
       act(() => {
@@ -190,8 +212,6 @@ describe('useSeatingWizard', () => {
     });
 
     it('does not open the plan layer while seats are missing for the class', async () => {
-      mockLocationState = { step: 3 };
-      mockLocationKey = 'from-library';
       const crowded: WizardConfig = {
         ...mockConfig,
         students: ['1', '2', '3', '4', '5'].map((id) =>
@@ -199,7 +219,10 @@ describe('useSeatingWizard', () => {
         ),
       };
 
-      const { result } = renderHook(() => useSeatingWizard(crowded));
+      const { result, rerender } = renderHook(() => useSeatingWizard(crowded));
+      mockLocationState = { step: 3 };
+      mockLocationKey = 'from-library';
+      rerender();
 
       await waitFor(() =>
         expect(showToastMock).toHaveBeenCalledWith(
