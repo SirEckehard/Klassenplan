@@ -174,7 +174,7 @@ describe('buildLibraryColumns', () => {
       'Ruhige Arbeitsphase',
       'Gruppenarbeit',
       'Klassenarbeit',
-      'Neue Klasse',
+      'Kennenlernen',
       'Stillarbeit',
     ]);
     const exam = columns[1]!.groups[0]!.items[3]!;

@@ -25,7 +25,9 @@ the starting point it is.
 ## Decision
 
 1. **"Standard"** is the shipped preset's new name. It is the way back to the
-   basic settings and the one preset that cannot be changed.
+   basic settings and the one preset that cannot be changed. "Neue Klasse"
+   became "Kennenlernen" (id `newClass` unchanged): beside the toolbar's "Neue
+   Klasse" in "Bibliothek" it read as the same thing.
 2. **Presets of one's own, for every class.** The criteria panel keeps the
    class's weights as a preset ("Als Voreinstellung speichern …"), and the
    toolbar of "Bibliothek" adds one from the weights of "Standard"; they are

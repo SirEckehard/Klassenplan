@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Added
 
-- Save your own presets for mixing and adjust the built-in ones; "Recommended mix" is now called "Default"
+- Save your own presets for mixing and adjust the built-in ones; "Recommended mix" is now called "Default" and "New class" "Getting to know each other"
 - A right-click or a long press on an entry in the "Library" opens a menu with everything you can do with it
 - Add room templates and presets right in the "Library"
 
