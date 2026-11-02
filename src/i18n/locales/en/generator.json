@@ -1275,6 +1275,20 @@
       "section": "Template",
       "hint": "“Open as a room” at the bottom right adds this template as a new room of the open class.",
       "delete": "Delete template"
+    },
+    "presets": "Presets",
+    "presetsCount_one": "{{count}} preset",
+    "presetsCount_other": "{{count}} presets",
+    "presetsHint": "Presets apply to every class. You save your own in the plan under “Preset”; “Apply” sets the criteria of the open class.",
+    "applyPreset": "Apply",
+    "preset": {
+      "section": "Criteria",
+      "shipped": "Built in",
+      "own": "Your own",
+      "hint": "“Apply” at the bottom right sets the criteria of the open class to this preset. Nothing is mixed until you mix.",
+      "delete": "Delete preset",
+      "applied": "Preset “{{name}}” applied.",
+      "deleted": "Preset “{{name}}” deleted."
     }
   },
   "contextMenu": {

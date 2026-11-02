@@ -4,6 +4,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
 import {
+  ArrowCounterClockwiseIcon,
   ArrowSquareOutIcon,
   ClockCounterClockwiseIcon,
   CopySimpleIcon,
@@ -35,6 +36,7 @@ import {
   buildLibraryColumns,
   defaultLibraryPath,
   libraryKey,
+  presetLabel,
   type LibraryNode,
 } from '@/components/library/libraryColumns';
 import ClassPanel from '@/components/library/inspectors/ClassPanel';
@@ -46,6 +48,7 @@ import PlanPanel, {
   type PlanMove,
 } from '@/components/library/inspectors/PlanPanel';
 import RoomPanel from '@/components/library/inspectors/RoomPanel';
+import PresetPanel from '@/components/library/inspectors/PresetPanel';
 import TemplatePanel from '@/components/library/inspectors/TemplatePanel';
 import StudentAvatar from '@/components/students/StudentAvatar';
 import { useInspector } from '@/contexts/InspectorContext';
@@ -61,6 +64,13 @@ import {
   type LibraryEditOutcome,
 } from '@/hooks/library/useClassLibrary';
 import { usePlanUsageRecords } from '@/hooks/plan/usePlanUsageRecords';
+import { useMixPresets } from '@/hooks/ui/useMixPresets';
+import { rememberChosenRecipe } from '@/hooks/ui/useMixRecipes';
+import {
+  deleteMixPreset,
+  setMixPresetOverride,
+  updateMixPreset,
+} from '@/repositories/mixPresetStore';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { useLocalizedNavigate } from '@/hooks/useLocalizedNavigate';
 import { usePageSeo } from '@/hooks/usePageSeo';
@@ -71,10 +81,14 @@ import type { ClassroomTemplate } from '@/types';
 import {
   cardSurfaceClass,
   formatTime,
+  isEditableBuiltin,
   logError,
   MAX_NAME_LENGTH,
   MAX_ROOMS_PER_CLASS,
+  recipeSettings,
   uniqueName,
+  withWeightsFrom,
+  type MixRecipe,
   type NameProblem,
 } from '@/utils';
 import { buildUsageOrigins } from '@/utils/data/planUsage';
@@ -159,6 +173,10 @@ function PlanLibraryPage() {
     };
   }, [loadTemplates, templatesRevision]);
 
+  const presets = useMixPresets();
+  const presetOf = (presetId: string) =>
+    presets.recipes.find((recipe) => recipe.id === presetId);
+
   const built = buildLibraryColumns({
     path: requestedPath,
     classes: library.classes,
@@ -166,6 +184,7 @@ function PlanLibraryPage() {
     selected: library.selected,
     loadingClass: library.loading,
     templates,
+    presets: presets.recipes,
     planUsage: usageRecords.planUsage,
     t,
   });
@@ -359,6 +378,22 @@ function PlanLibraryPage() {
         toLayer(2);
         return;
       }
+      case 'preset': {
+        // Sets the open class's criteria; mixing is the teacher's to ask
+        // for, so a plan arranged by hand is not mixed over.
+        const preset = presetOf(node.presetId);
+        const latest = latestRef.current;
+        const classId = latest.state.activeClass.id;
+        if (!preset || !classId) return;
+        const students = latest.state.students;
+        rememberChosenRecipe(classId, preset.id);
+        latest.actions.setMixSettings((prev) =>
+          withWeightsFrom(prev, recipeSettings(preset, prev, students)),
+        );
+        announce(t('library.preset.applied', { name: presetLabel(preset, t) }));
+        toLayer(3);
+        return;
+      }
       default:
     }
   };
@@ -382,6 +417,13 @@ function PlanLibraryPage() {
               label: t('library.openAsRoom'),
               hint: t('library.openHintNoClass'),
             };
+      case 'preset':
+        return state.activeClass.id
+          ? { label: t('library.applyPreset') }
+          : {
+              label: t('library.applyPreset'),
+              hint: t('library.openHintNoClass'),
+            };
       case 'neighbours':
       case 'neighbourStudent':
       case 'neighbourPair':
@@ -397,7 +439,8 @@ function PlanLibraryPage() {
       node.kind === 'class' ||
       node.kind === 'room' ||
       node.kind === 'plan' ||
-      node.kind === 'template'
+      node.kind === 'template' ||
+      (node.kind === 'preset' && !presetOf(node.presetId)?.builtin)
     ) {
       showInspector();
       requestRenameOf(libraryKey(node));
@@ -514,8 +557,39 @@ function PlanLibraryPage() {
         setChosenPath(latestRef.current.path.slice(0, -1));
         return;
       }
+      case 'preset': {
+        const preset = presetOf(node.presetId);
+        if (!preset || preset.builtin) return;
+        const name = presetLabel(preset, t);
+        const confirmed = await confirmDialog(
+          t('mix.recipes.deleteMessage', { name }),
+          {
+            title: t('mix.recipes.deleteTitle'),
+            confirmLabel: t('common.delete'),
+          },
+        );
+        if (!confirmed) return;
+        if (!(await deleteMixPreset(preset.id))) {
+          showToast('error', 'toast:mixPresets.saveFailed');
+          return;
+        }
+        announce(t('library.preset.deleted', { name }));
+        setChosenPath(latestRef.current.path.slice(0, -1));
+        return;
+      }
       default:
     }
+  };
+
+  // A changed shipped preset gets its own weights back. The criteria of the
+  // classes stay as they are: the preset changes, not what it once set.
+  const restorePreset = async (preset: MixRecipe) => {
+    if (!isEditableBuiltin(preset.builtin)) return;
+    if (!(await setMixPresetOverride(preset.builtin, null))) {
+      showToast('error', 'toast:mixPresets.saveFailed');
+      return;
+    }
+    announce(t('mix.recipes.restored', { name: presetLabel(preset, t) }));
   };
 
   // The open room cannot go — another opens first — nor the last one.
@@ -613,6 +687,25 @@ function PlanLibraryPage() {
           rename,
           remove(),
         ];
+      case 'preset': {
+        const preset = presetOf(node.presetId);
+        if (!preset) return [];
+        const apply = open(
+          t('library.applyPreset'),
+          state.activeClass.id ? undefined : t('library.openHintNoClass'),
+        );
+        if (!preset.builtin) return [apply, rename, remove()];
+        return preset.changed
+          ? [
+              apply,
+              {
+                label: t('mix.recipes.restore'),
+                icon: ArrowCounterClockwiseIcon,
+                onSelect: () => void restorePreset(preset),
+              },
+            ]
+          : [apply];
+      }
       default:
         return [];
     }
@@ -935,6 +1028,46 @@ function PlanLibraryPage() {
             hint={t('library.templatesHint')}
           />
         );
+      case 'presets':
+        return (
+          <FolderPanel
+            icon={ENTITY_ICONS.preset}
+            title={t('library.presets')}
+            meta={[
+              {
+                icon: ENTITY_ICONS.preset,
+                label: t('library.presetsCount', {
+                  count: presets.recipes.length,
+                }),
+              },
+            ]}
+            hint={t('library.presetsHint')}
+          />
+        );
+      case 'preset': {
+        const preset = presetOf(current.presetId);
+        if (!preset) return null;
+        const name = presetLabel(preset, t);
+        return (
+          <PresetPanel
+            key={preset.id}
+            preset={preset}
+            takenNames={presets.recipes
+              .map((recipe) => presetLabel(recipe, t))
+              .filter((other) => other !== name)}
+            onRename={async (next) => {
+              if (await updateMixPreset(preset.id, { name: next })) {
+                return null;
+              }
+              showToast('error', 'toast:mixPresets.saveFailed');
+              return null;
+            }}
+            onDelete={() => void requestRemoval(current)}
+            onRestore={() => void restorePreset(preset)}
+            renameRequest={renameRequestCount}
+          />
+        );
+      }
       case 'template': {
         const template = templates.find(
           (entry) => entry.id === current.templateId,
@@ -1063,6 +1196,7 @@ function isFolder(node: LibraryNode) {
   return (
     node.kind === 'class' ||
     node.kind === 'templates' ||
+    node.kind === 'presets' ||
     node.kind === 'room' ||
     node.kind === 'mixes' ||
     node.kind === 'neighbours' ||

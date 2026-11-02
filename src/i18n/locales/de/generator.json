@@ -1275,6 +1275,20 @@
       "section": "Vorlage",
       "hint": "„Als Raum öffnen“ unten rechts legt diese Vorlage als neuen Raum der offenen Klasse an.",
       "delete": "Vorlage löschen"
+    },
+    "presets": "Voreinstellungen",
+    "presetsCount_one": "{{count}} Voreinstellung",
+    "presetsCount_other": "{{count}} Voreinstellungen",
+    "presetsHint": "Voreinstellungen gelten für alle Klassen. Eigene speicherst du im Plan unter „Voreinstellung“; „Übernehmen“ setzt die Kriterien der offenen Klasse.",
+    "applyPreset": "Übernehmen",
+    "preset": {
+      "section": "Kriterien",
+      "shipped": "Mitgeliefert",
+      "own": "Eigene",
+      "hint": "„Übernehmen“ unten rechts setzt die Kriterien der offenen Klasse auf diese Voreinstellung. Gemischt wird erst, wenn du mischst.",
+      "delete": "Voreinstellung löschen",
+      "applied": "Voreinstellung „{{name}}“ übernommen.",
+      "deleted": "Voreinstellung „{{name}}“ gelöscht."
     }
   },
   "contextMenu": {

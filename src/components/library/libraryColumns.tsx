@@ -11,7 +11,12 @@ import {
 } from '@phosphor-icons/react';
 import type { ClassroomTemplate, ClassSummary, PlanUsage } from '@/types';
 import type { LibraryClass } from '@/hooks/library/useClassLibrary';
-import { formatDate, formatDateAndTime, formatStoredDate } from '@/utils';
+import {
+  formatDate,
+  formatDateAndTime,
+  formatStoredDate,
+  type MixRecipe,
+} from '@/utils';
 import { buildNeighborhoodStats, isCountedUsage } from '@/utils/data/planUsage';
 import StudentAvatar from '@/components/students/StudentAvatar';
 import { ENTITY_ICONS } from '@/components/shell/entityIcons';
@@ -23,6 +28,8 @@ export type LibraryNode =
   | { kind: 'class'; classId: string }
   | { kind: 'templates' }
   | { kind: 'template'; templateId: number }
+  | { kind: 'presets' }
+  | { kind: 'preset'; presetId: string }
   | { kind: 'room'; classId: string; roomId: string }
   | { kind: 'mixes'; classId: string }
   | { kind: 'mix'; classId: string; mixId: number }
@@ -45,6 +52,10 @@ export function libraryKey(node: LibraryNode): string {
       return 'templates';
     case 'template':
       return `template:${node.templateId}`;
+    case 'presets':
+      return 'presets';
+    case 'preset':
+      return `preset:${node.presetId}`;
     case 'room':
       return `room:${node.classId}:${node.roomId}`;
     case 'mixes':
@@ -126,6 +137,21 @@ function LibraryChip({ children }: { children: React.ReactNode }) {
 }
 
 const thumbnailClass = 'h-7 w-10 shrink-0';
+
+/** A preset's name: a shipped one's translated, an own one's as given. */
+export function presetLabel(preset: MixRecipe, t: TFunction): string {
+  return preset.builtin
+    ? t(`mix.recipes.${preset.builtin}.label`)
+    : (preset.name ?? '');
+}
+
+/** Whether a preset ships with the app, was changed, or is the teacher's. */
+export function presetKind(preset: MixRecipe, t: TFunction): string {
+  if (!preset.builtin) return t('library.preset.own');
+  return preset.changed
+    ? `${t('library.preset.shipped')} · ${t('mix.recipes.adjusted')}`
+    : t('library.preset.shipped');
+}
 const iconSize = 18;
 
 export interface LibraryColumns {
@@ -152,6 +178,7 @@ export function buildLibraryColumns({
   selected,
   loadingClass,
   templates,
+  presets,
   planUsage,
   t,
 }: {
@@ -162,6 +189,8 @@ export function buildLibraryColumns({
   selected: LibraryClass | null;
   loadingClass: boolean;
   templates: ClassroomTemplate[];
+  /** The mixing presets, shipped and own (decision 0038). */
+  presets: readonly MixRecipe[];
   /** The plan usage record of the class the path goes into. */
   planUsage: readonly PlanUsage[];
   t: TFunction;
@@ -202,6 +231,16 @@ export function buildLibraryColumns({
     },
   );
 
+  const presetsItem = add(
+    { kind: 'presets' },
+    {
+      label: t('library.presets'),
+      meta: t('library.presetsCount', { count: presets.length }),
+      leading: <ENTITY_ICONS.preset size={iconSize} />,
+      isFolder: true,
+    },
+  );
+
   const columns: BrowserColumn[] = [
     {
       key: 'classes',
@@ -210,7 +249,7 @@ export function buildLibraryColumns({
       emptyText: t('library.emptyClasses'),
       groups: [
         { key: 'classes', items: classItems },
-        { key: 'shared', items: [templatesItem] },
+        { key: 'shared', items: [templatesItem, presetsItem] },
       ],
     },
   ];
@@ -253,6 +292,41 @@ export function buildLibraryColumns({
       selectedKey: second ? path[1] : null,
       emptyText: t('library.emptyTemplates'),
       groups: [{ key: 'templates', items }],
+    });
+    if (second) resolved.push(path[1]);
+    return { columns, nodes, path: resolved, labels };
+  }
+
+  // The presets belong to every class too (decision 0038).
+  if (first.kind === 'presets') {
+    const items = presets.map((preset) =>
+      add(
+        { kind: 'preset', presetId: preset.id },
+        {
+          label: presetLabel(preset, t),
+          // Shipped or own says the group's heading; only a change is told.
+          meta: preset.changed ? t('mix.recipes.adjusted') : undefined,
+          leading: <ENTITY_ICONS.preset size={iconSize} />,
+        },
+      ),
+    );
+    const second = path[1] ? nodes.get(path[1]) : undefined;
+    columns.push({
+      key: 'presets',
+      label: t('library.presets'),
+      selectedKey: second ? path[1] : null,
+      groups: [
+        {
+          key: 'shipped',
+          label: t('library.preset.shipped'),
+          items: items.filter((_, index) => presets[index]?.builtin),
+        },
+        {
+          key: 'own',
+          label: t('library.preset.own'),
+          items: items.filter((_, index) => !presets[index]?.builtin),
+        },
+      ],
     });
     if (second) resolved.push(path[1]);
     return { columns, nodes, path: resolved, labels };

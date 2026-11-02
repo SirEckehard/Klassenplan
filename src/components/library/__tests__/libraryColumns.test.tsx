@@ -11,6 +11,7 @@ import {
   createMockStudent,
   createMockTemplate,
 } from '@/__tests__/utils';
+import { resolveMixRecipes } from '@/utils';
 import {
   buildLibraryColumns,
   defaultLibraryPath,
@@ -93,6 +94,25 @@ const usage = [
   record('u3', ['b::c'], '2026-10-02T08:00:00.000Z', { confirmed: false }),
 ];
 
+const presets = resolveMixRecipes({
+  version: 1,
+  overrides: {
+    exam: {
+      weights: resolveMixRecipes(null)[2]!.weights as never,
+      criteriaVersion: 2,
+    },
+  },
+  presets: [
+    {
+      id: 'own-1',
+      name: 'Stillarbeit',
+      weights: resolveMixRecipes(null)[1]!.weights as never,
+      criteriaVersion: 2,
+      createdAt: '',
+    },
+  ],
+});
+
 const build = (
   path: string[],
   selected: LibraryClass | null = library,
@@ -105,6 +125,7 @@ const build = (
     selected,
     loadingClass: false,
     templates: [createMockTemplate({ id: 5, name: 'Turnhalle' })],
+    presets,
     planUsage,
     t,
   });
@@ -129,7 +150,36 @@ describe('buildLibraryColumns', () => {
     const { columns } = build([]);
 
     expect(columns).toHaveLength(1);
-    expect(labelsOf(columns, 0)).toEqual(['7b', '8c', 'Raumvorlagen']);
+    expect(labelsOf(columns, 0)).toEqual([
+      '7b',
+      '8c',
+      'Raumvorlagen',
+      'Voreinstellungen',
+    ]);
+  });
+
+  it('lists the presets, shipped apart from own, a changed one marked', () => {
+    const { columns, path } = build([
+      libraryKey({ kind: 'presets' }),
+      libraryKey({ kind: 'preset', presetId: 'own-1' }),
+    ]);
+
+    expect(path).toHaveLength(2);
+    expect(columns[1]!.groups.map((group) => group.label)).toEqual([
+      'Mitgeliefert',
+      'Eigene',
+    ]);
+    expect(labelsOf(columns, 1)).toEqual([
+      'Standard',
+      'Ruhige Arbeitsphase',
+      'Gruppenarbeit',
+      'Klassenarbeit',
+      'Neue Klasse',
+      'Stillarbeit',
+    ]);
+    const exam = columns[1]!.groups[0]!.items[3]!;
+    expect(exam.meta).toBe('angepasst');
+    expect(columns[1]!.selectedKey).toBe('preset:own-1');
   });
 
   it('shows a class with its rooms, its recent mixes and neighbourhoods', () => {
@@ -242,6 +292,7 @@ describe('buildLibraryColumns', () => {
       selected: null,
       loadingClass: true,
       templates: [],
+      presets: [],
       planUsage: [],
       t,
     });

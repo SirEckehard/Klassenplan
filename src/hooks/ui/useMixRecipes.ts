@@ -21,7 +21,7 @@ import {
 const chosenByClass = new Map<string, MixRecipeId>();
 
 /** Note the recipe a class's weights were just set from. */
-function rememberChosenRecipe(classId: string, id: MixRecipeId): void {
+export function rememberChosenRecipe(classId: string, id: MixRecipeId): void {
   chosenByClass.set(classId, id);
 }
 

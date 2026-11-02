@@ -27,6 +27,7 @@ import {
   createMockSavedPlan,
   createMockStudent,
 } from '@/__tests__/utils';
+import { neutralSettings, normalizeMixSettings } from '@/utils';
 import PlanLibrary from '../PlanLibrary';
 
 const mocks = vi.hoisted(() => ({
@@ -508,5 +509,41 @@ describe('PlanLibrary when a change is not made', () => {
     await waitFor(() =>
       expect(toasts.map((toast) => toast.type)).toEqual(['error']),
     );
+  });
+
+  // Decision 0038: a preset sets the open class's criteria; mixing is left
+  // to the teacher.
+  it('applies a preset to the open class and goes to the plan', async () => {
+    const user = userEvent.setup();
+    let settings = normalizeMixSettings({}, neutralSettings);
+    mocks.state.students = [ada, ben];
+    mocks.actions.setMixSettings = vi.fn((update) => {
+      settings = typeof update === 'function' ? update(settings) : update;
+    });
+    renderPage();
+
+    await user.click(
+      await screen.findByRole('option', {
+        name: /^(Voreinstellungen|Presets)/,
+      }),
+    );
+    await user.click(
+      await screen.findByRole('option', {
+        name: /^(Klassenarbeit|Written test)/,
+      }),
+    );
+    // A shipped preset keeps its name and cannot be deleted.
+    expect(
+      screen.queryByRole('button', {
+        name: /Voreinstellung löschen|Delete preset/,
+      }),
+    ).not.toBeInTheDocument();
+    await user.click(
+      within(statusBar()).getByRole('button', { name: /^(Übernehmen|Apply)$/ }),
+    );
+
+    expect(settings.avoidPreviousPairs).toBe(8);
+    expect(settings.considerWishPartners).toBe(0);
+    expect(await screen.findByText('Arbeitsfläche')).toBeInTheDocument();
   });
 });
