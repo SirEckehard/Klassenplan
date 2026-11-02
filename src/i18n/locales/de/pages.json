@@ -148,7 +148,7 @@
         "li3": "der Platz direkt daneben am Nachbartisch, ohne Gang dazwischen (mittleres Gewicht)",
         "li4": "die übrigen Plätze am selben Gruppentisch, etwa schräg gegenüber (etwas geringeres Gewicht)",
         "li5": "der Platz direkt davor oder dahinter in der nächsten Reihe (geringstes Gewicht)",
-        "outro": "Schräg versetzte Plätze an einem anderen Tisch und Plätze jenseits eines Gangs zählen nicht als Nachbarn. Dieselben Abstufungen gelten beim Mischen und in der Erfüllung, die dir der Inspektor zeigt."
+        "outro": "Schräg versetzte Plätze an einem anderen Tisch und Plätze jenseits eines Gangs zählen nicht als Nachbarn. Zusammengeschobene Tische liest der Algorithmus wie einen Gruppentisch: Über Eck (etwa zwei Tische als L) oder gegenüber zählt stark, und Geschlechtermischung, Rollen und Fördern gelten für die ganze Insel. In einer Reihe bündig zusammengeschobener Tische sind die beiden Plätze an jeder Nahtstelle Nachbarn wie Tischpartner. Dieselben Abstufungen gelten beim Mischen und in der Erfüllung, die dir der Inspektor zeigt."
       },
       "no_account": {
         "q": "Brauche ich ein Konto oder Internet?",
@@ -294,7 +294,7 @@
       },
       "height": {
         "q": "Wie berücksichtigt Klassenplan Körpergrößen und Raumpräferenzen?",
-        "a": "Körpergrößen fließen in die Platzwahl ein, damit kleinere Schüler möglichst weit vorne sitzen. Fenster- und Türwünsche werden pro Schüler gespeichert und mit den Fenstern und Türen verrechnet, die du im Raum platziert hast."
+        "a": "Körpergrößen fließen in die Platzwahl ein, damit kleinere Schüler möglichst weit vorne sitzen. Fenster- und Türwünsche werden pro Schüler gespeichert und mit den Fenstern und Türen verrechnet, die du im Raum platziert hast. In der Erfüllung zählen die Plätze, die dem Fenster oder der Tür am nächsten liegen, als voll erfüllt."
       }
     },
     "layout": {
@@ -306,7 +306,7 @@
       },
       "measure": {
         "q": "Wie werden Abstände gemessen?",
-        "a": "Die Sitzpositionen werden als Pixelkoordinaten gespeichert, und Nachbarschaften liest Klassenplan von der Tafel aus. Am Nachbartisch gilt nur der nächste Platz in jeder Richtung als Nachbar: daneben, solange die Lücke höchstens etwa 45 cm (40 Pixel) beträgt – mehr ist ein Gang –, davor oder dahinter, solange die nächste Reihe höchstens etwa 75 cm (70 Pixel) entfernt ist. Schräg versetzte Plätze zählen nicht."
+        "a": "Die Sitzpositionen werden als Pixelkoordinaten gespeichert, und Nachbarschaften liest Klassenplan von der Tafel aus. Am Nachbartisch gilt nur der nächste Platz in jeder Richtung als Nachbar: daneben, solange die Lücke höchstens etwa 45 cm (40 Pixel) beträgt – mehr ist ein Gang –, davor oder dahinter, solange die nächste Reihe höchstens etwa 75 cm (70 Pixel) entfernt ist. Schräg versetzte Plätze zählen nicht. Tische mit höchstens etwa 11 cm (10 Pixel) Abstand gelten als zusammengeschoben."
       },
       "limits": {
         "q": "Gibt es Grenzen bei Schülern und Sitzplätzen?",

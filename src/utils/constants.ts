@@ -282,6 +282,13 @@ export const RELATION_WEIGHTS = {
 export const ADJACENT_GAP = 40;
 
 /**
+ * Widest gap between two tables that still counts as pushed together: a grid
+ * step, about 11 cm. Tables pushed together round a corner or face to face
+ * are one group (decision 0031); "Neu einrichten" leaves no gap this narrow.
+ */
+export const JOIN_GAP = 10;
+
+/**
  * Widest gap between a seat and the seat directly in front of or behind it at
  * the next table that still counts as the next row: the room a chair takes,
  * about 75 cm.

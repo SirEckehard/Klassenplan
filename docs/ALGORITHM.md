@@ -55,9 +55,21 @@ settled on — the one on screen, the plan the teacher actually got.
   room a chair takes). Diagonal seats and a seat beyond a seat are no
   neighbours. "Neu einrichten" leaves 60 px between desks along the board, so
   there the desks of a row are apart and the row behind is close.
+  **Tables pushed together** — seat cells meeting edge to edge, at most
+  `JOIN_GAP` (10 px, a grid step) apart — relate as at one table, by where
+  the two chairs point (`joinedKind`): at right angles, as in an L of two
+  desks, `corner`; facing each other across the join, as two desks pushed
+  together into a table of four, `opposite`. Those tables are one **group**
+  (`SeatLayout.groups`), and what a table's make-up decides — gender, roles,
+  tutoring, and the hint on students avoiding each other — reads the group.
+  Desks pushed together in a row, all facing the same way, stay desks of their
+  own, but the two seats at each join are as close as seat partners
+  (`partner`), so everybody but the ends of the row has two neighbours. A
+  room without a gap that narrow mixes as before; "Neu einrichten" leaves at
+  least 15 px.
 - **`criteria.ts`** writes every criterion down once, as a `pair` term (two
   students in a relation), a `seat` term (a student on a seat), a `table`
-  term (who shares a table) or the language term (who sits around a student
+  term (who shares a table group) or the language term (who sits around a student
   needing support). A relation weighs by `RELATION_WEIGHTS` — partner 1,
   corner and opposite 0.8, beside 0.5, table 0.4, ahead and behind 0.3 — and
   a criterion by its weight and the multipliers in `CRITERION_WEIGHTS`.

@@ -517,6 +517,52 @@ describe('seatingStatistics', () => {
     });
   });
 
+  describe('tables pushed together', () => {
+    /** A desk and a desk turned against its side: one group of four. */
+    const L_ISLAND = room([
+      table(300, 100),
+      { ...table(392.5, 62.5), rotation: 90 },
+    ]);
+    const DESKS_APART = room([table(300, 100), table(300, 400)]);
+    const leader = (id: string) => student(id, { socialRole: 'leader' });
+
+    it('spreads the roles over the group, not over each desk', () => {
+      const settings = { distributeSocialRoles: 5 };
+      const together = fulfilment(
+        L_ISLAND,
+        [
+          [leader('a'), student('x')],
+          [leader('b'), student('y')],
+        ],
+        settings,
+      ).percentage('distributeSocialRoles');
+      const apart = fulfilment(
+        DESKS_APART,
+        [
+          [leader('a'), student('x')],
+          [leader('b'), student('y')],
+        ],
+        settings,
+      ).percentage('distributeSocialRoles');
+
+      expect(together).toBe(0);
+      expect(apart).toBe(100);
+    });
+
+    it('counts restless students round the corner of the join as close', () => {
+      const { percentage } = fulfilment(
+        L_ISLAND,
+        [
+          [student('a', { restless: true }), null],
+          [null, student('b', { restless: true })],
+        ],
+        { avoidRestlessTogether: 5 },
+      );
+      // Round a corner: 1 − 0.8 for each of the two.
+      expect(percentage('avoidRestlessTogether')).toBeCloseTo(20);
+    });
+  });
+
   describe('window and door seats', () => {
     const settings = { preferWindowSeats: 5 };
     const wantsWindow = (id: string) => student(id, { prefersWindow: true });

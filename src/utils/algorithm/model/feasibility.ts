@@ -111,7 +111,14 @@ export function findMixHints(
         link(id, student.id);
       }
     }
-    const tables = scene.tables.filter(isTableActive).length;
+    // Tables pushed together round a corner or face to face are one group.
+    const layout = getSeatLayout(scene);
+    const tables = layout.groups.filter((seats) =>
+      seats.some((seat) => {
+        const table = scene.tables[layout.tableOf[seat]!];
+        return table ? isTableActive(table) : false;
+      }),
+    ).length;
     const group = largestAvoidGroup(neighbours);
     if (group.length >= 3 && group.length > tables) {
       hints.push({ kind: 'avoidGroup', studentIds: group, tables });

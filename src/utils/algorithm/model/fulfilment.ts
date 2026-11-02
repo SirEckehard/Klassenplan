@@ -29,7 +29,7 @@ import {
 import { frontRowsOf, toleratesRowBehind } from './frontPool';
 import {
   strongSpeakerCloseness,
-  tableMembers,
+  groupMembers,
   type ModelContext,
   type Occupants,
 } from './objective';
@@ -327,8 +327,8 @@ export function evaluateCriteria(
     }
   }
 
-  // Per table: gender, performance and social roles.
-  const tableCount = context.scene.tables.length;
+  // Per table group (`SeatLayout.groups`): gender, performance and social
+  // roles.
   const genderTotals = new Array<number>(GENDER_COUNT).fill(0);
   const genderTables: Array<{ seats: number[]; known: number; ok: boolean }> =
     [];
@@ -342,18 +342,11 @@ export function evaluateCriteria(
   const sameLevelSeats: Array<[number, number]> = [];
   const roles = new CaseCollector();
 
-  for (let table = 0; table < tableCount; table++) {
-    const seats: number[] = [];
-    for (
-      let seat = layout.offsets[table]!;
-      seat < layout.offsets[table + 1]!;
-      seat++
-    ) {
-      if (occupants[seat]! >= 0) seats.push(seat);
-    }
+  for (let group = 0; group < layout.groups.length; group++) {
+    const seats = layout.groups[group]!.filter((seat) => occupants[seat]! >= 0);
     if (seats.length === 0) continue;
     pairRoom += Math.floor(seats.length / 2);
-    const members = tableMembers(context, occupants, table);
+    const members = groupMembers(context, occupants, group);
 
     const counts = new Array<number>(GENDER_COUNT).fill(0);
     for (const member of members) {

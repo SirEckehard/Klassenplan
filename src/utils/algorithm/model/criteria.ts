@@ -407,7 +407,8 @@ const roleTerm = (weights: CriterionWeights, roles: RoleCounts): number => {
 };
 
 /**
- * The table term: what the composition of one table costs — no gender holds
+ * The table term: what the composition of one table group costs — a table, or
+ * tables pushed together round a corner or face to face — no gender holds
  * more than half of it, and the social roles spread out.
  */
 export const tableTerm = (

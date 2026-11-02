@@ -288,3 +288,50 @@ criteria now follow. A flat weight for repetition alone would win back the
 0.8 pairs and most likely the close repetitions with them, so it stays as it
 is; "Sehr wichtig" holds the groups apart harder than the recommended level
 did before.
+
+## Addendum of 2026-11-02: tables pushed together
+
+Teachers push desks together into islands — an L of a desk facing the board
+and one turned against its side, two desks face to face as a table of four.
+Between tables the model knew only `beside`, `ahead` and `behind`, read
+relative to the board: two restless students round the corner of an L, shoulder
+to shoulder, cost as much as two one row apart (0.3), a wish met there read as
+30 %, and the roles and the gender mix were counted per desk, so two leaders
+on the two halves of one island were "spread out".
+
+- **Seats at a join relate as at one table** (`seatRelations.ts`,
+  `joinedKind`): cells meeting edge to edge, at most `JOIN_GAP` (10 px) apart
+  and overlapping by 5 px along the edge; chairs at right angles are
+  `corner`, chairs facing each other across the join `opposite`. The chair's
+  direction is the edge the seat faces (`determineSeatEdge`), turned with the
+  table.
+- **Those tables are one group** (`SeatLayout.groups`, maintainer): the table
+  term (gender, roles), tutoring in the fulfilment and the hint on a group of
+  students avoiding each other read the group, not the desk — otherwise the
+  model would call an island close for pairs and apart for its make-up.
+- **A row stays desks** (maintainer): desks pushed together side by side,
+  facing the same way, form no group — six students in a front row are no
+  working group — but the two seats at a join are `partner`, so everybody but
+  the ends of the row has two neighbours.
+- What stays per table: how many students a table takes, tables out of the
+  mix, filling from the front and the export's list by tables.
+
+Measured with the new model, 30 seeds, the mixQuality class (recommended
+weights, "Vordere Plätze" at 8), plans of the old and the new mixing:
+
+| Room, 24 students                   | Overall old → new | Restless | Roles    | Tutoring | Wishes  |
+| ----------------------------------- | ----------------: | -------: | -------- | -------- | ------- |
+| Six L islands of two desks          |     82.0 → 85.1 % |  81 → 89 | 72 → 90  | 53 → 73  | 49 → 56 |
+| Six tables of four from two desks   |     82.2 → 85.4 % |  71 → 88 | 71 → 94  | 49 → 69  | 53 → 49 |
+| Four rows of three desks, no aisles |     83.8 → 86.0 % |  68 → 83 | 99 → 100 | 28 → 35  | 60 → 60 |
+
+With 20 students the gains are smaller (overall +0.4 to +1.1), as there is
+room to keep students apart anyway. Window and door seats and body height lose
+a little in some rooms (up to −10 points) — the mixing has more closeness to
+weigh now. Read with the new model, plans mixed before lose on the roles
+(100 → 72 % at the L islands): the old mixing put roles together on an island
+without seeing it. Rooms without a join this narrow — "Neu einrichten" with
+double desks and tables of four, single desks 30 px apart, the mixed and
+turned room of mixQuality — give the same plans for all 30 seeds, so the
+figures in [PERFORMANCE.md](../PERFORMANCE.md) stand. A mix in a room with
+islands takes about 5 ms longer (36 instead of 31 ms).

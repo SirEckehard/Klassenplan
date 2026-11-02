@@ -284,6 +284,53 @@ describe('getSeatLayout', () => {
     expect(kinds.has('beside')).toBe(false);
   });
 
+  describe('tables pushed together', () => {
+    const groupOf = (layout: SeatLayout, [table, seat]: [number, number]) =>
+      layout.groupOf[layout.offsets[table]! + seat];
+
+    it('reads a desk turned against the side of another as round the corner', () => {
+      // A desk facing the board on the right, and one turned a quarter with
+      // its left seat against the first desk's front seat: an L.
+      const layout = getSeatLayout(
+        scene([double(300, 100), double(392.5, 62.5, 90)]),
+      );
+
+      expect(kindBetween(layout, [0, 0], [1, 1])).toBe('corner');
+      expect(groupOf(layout, [0, 0])).toBe(groupOf(layout, [1, 0]));
+      expect(layout.groups).toHaveLength(1);
+    });
+
+    it('reads two desks pushed together face to face as a table of four', () => {
+      const layout = getSeatLayout(
+        scene([double(300, 100), double(355, 100, 180)]),
+      );
+
+      expect(kindBetween(layout, [0, 0], [1, 1])).toBe('opposite');
+      expect(kindBetween(layout, [0, 1], [1, 0])).toBe('opposite');
+      expect(layout.groups).toHaveLength(1);
+    });
+
+    it('reads the seats at the join of desks in a row as neighbours, the desks as desks', () => {
+      const layout = getSeatLayout(
+        scene([double(600, 100), double(600, 230), double(600, 360)]),
+      );
+
+      expect(kindBetween(layout, [0, 1], [1, 0])).toBe('partner');
+      expect(kindBetween(layout, [1, 1], [2, 0])).toBe('partner');
+      expect(kindBetween(layout, [0, 0], [1, 0])).toBeNull();
+      expect(layout.groups).toHaveLength(3);
+    });
+
+    it('keeps desks a little apart desks of their own', () => {
+      const layout = getSeatLayout(
+        scene([double(300, 100), double(407.5, 62.5, 90)]),
+      );
+
+      expect(kindBetween(layout, [0, 0], [1, 1])).not.toBe('corner');
+      expect(layout.groups).toHaveLength(2);
+    });
+  });
+
   it('measures depth over the tables in the mix', () => {
     const layout = getSeatLayout(
       scene([

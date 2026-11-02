@@ -148,7 +148,7 @@
         "li3": "the seat directly beside at the next table, with no aisle in between (medium weight)",
         "li4": "the other seats at the same group table, such as diagonally across (slightly lower weight)",
         "li5": "the seat directly in front or behind in the next row (lowest weight)",
-        "outro": "Seats offset diagonally at another table and seats across an aisle do not count as neighbors. The same steps apply when mixing and in the fulfilment the inspector shows you."
+        "outro": "Seats offset diagonally at another table and seats across an aisle do not count as neighbors. Tables pushed together count like a group table: round the corner (such as two desks forming an L) or across counts strongly, and the gender mix, roles and tutoring apply to the whole island. In a row of desks pushed together side by side, the two seats at each join are neighbors like seat partners. The same steps apply when mixing and in the fulfilment the inspector shows you."
       },
       "no_account": {
         "q": "Do I need an account or internet?",
@@ -294,7 +294,7 @@
       },
       "height": {
         "q": "How does Klassenplan consider body heights and room preferences?",
-        "a": "Body heights feed into the choice of seat so that smaller students sit as far forward as possible. Window and door preferences are stored per student and weighed against the windows and doors you placed in the room."
+        "a": "Body heights feed into the choice of seat so that smaller students sit as far forward as possible. Window and door preferences are stored per student and weighed against the windows and doors you placed in the room. In the fulfilment, the seats nearest the window or the door count as fully met."
       }
     },
     "layout": {
@@ -306,7 +306,7 @@
       },
       "measure": {
         "q": "How are distances measured?",
-        "a": "Seat positions are stored as pixel coordinates, and Klassenplan reads neighborhoods as seen from the board. At the next table only the nearest seat in each direction counts as a neighbor: beside, while the gap is at most about 45 cm (40 pixels) – more is an aisle – and in front or behind, while the next row is at most about 75 cm (70 pixels) away. Seats offset diagonally do not count."
+        "a": "Seat positions are stored as pixel coordinates, and Klassenplan reads neighborhoods as seen from the board. At the next table only the nearest seat in each direction counts as a neighbor: beside, while the gap is at most about 45 cm (40 pixels) – more is an aisle – and in front or behind, while the next row is at most about 75 cm (70 pixels) away. Seats offset diagonally do not count. Tables at most about 11 cm (10 pixels) apart count as pushed together."
       },
       "limits": {
         "q": "Are there limits on students and seats?",

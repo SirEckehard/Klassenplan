@@ -237,27 +237,29 @@ export const arrangementOf = (
     });
   });
 
-/** The facts of whoever sits at a table. */
-export const tableMembers = (
+/**
+ * The facts of whoever sits at a table group — a table, or tables pushed
+ * together round a corner or face to face (`SeatLayout.groups`).
+ */
+export const groupMembers = (
   context: ModelContext,
   occupants: Occupants,
-  table: number,
+  group: number,
 ): StudentFacts[] => {
-  const { offsets } = context.layout;
   const members: StudentFacts[] = [];
-  for (let seat = offsets[table]!; seat < offsets[table + 1]!; seat++) {
+  for (const seat of context.layout.groups[group]!) {
     const student = occupants[seat]!;
     if (student >= 0) members.push(context.facts[student]!);
   }
   return members;
 };
 
-const tableTermAt = (
+const groupTermAt = (
   context: ModelContext,
   occupants: Occupants,
-  table: number,
+  group: number,
 ): number =>
-  tableTerm(context.weights, tableMembers(context, occupants, table));
+  tableTerm(context.weights, groupMembers(context, occupants, group));
 
 /**
  * How closely the nearest strong speaker sits to the student on `seat`: the
@@ -349,8 +351,8 @@ export const scoreArrangement = (
     }
   }
   if (context.hasTableTerms) {
-    for (let table = 0; table < context.scene.tables.length; table++) {
-      total += tableTermAt(context, occupants, table);
+    for (let group = 0; group < layout.groups.length; group++) {
+      total += groupTermAt(context, occupants, group);
     }
   }
   if (context.hasLanguage) {
@@ -407,16 +409,16 @@ export const swapDelta = (
   }
 
   if (context.hasTableTerms || context.hasLanguage) {
-    const tableA = layout.tableOf[a]!;
-    const tableB = layout.tableOf[b]!;
+    const groupA = layout.groupOf[a]!;
+    const groupB = layout.groupOf[b]!;
     const around = context.hasLanguage
       ? languageSeatsAround(context, [a, b])
       : [];
     const measure = () => {
       let value = 0;
       if (context.hasTableTerms) {
-        value += tableTermAt(context, occupants, tableA);
-        if (tableB !== tableA) value += tableTermAt(context, occupants, tableB);
+        value += groupTermAt(context, occupants, groupA);
+        if (groupB !== groupA) value += groupTermAt(context, occupants, groupB);
       }
       if (context.hasLanguage) value += languageSum(context, occupants, around);
       return value;
@@ -450,12 +452,12 @@ export const placementCost = (
     cost += context.pair[relation.kind * nn + other * n + student]!;
   }
   if (context.hasTableTerms || context.hasLanguage) {
-    const table = layout.tableOf[seat]!;
+    const group = layout.groupOf[seat]!;
     const around = context.hasLanguage
       ? languageSeatsAround(context, [seat])
       : [];
     const measure = () =>
-      (context.hasTableTerms ? tableTermAt(context, occupants, table) : 0) +
+      (context.hasTableTerms ? groupTermAt(context, occupants, group) : 0) +
       (context.hasLanguage ? languageSum(context, occupants, around) : 0);
     const before = measure();
     occupants[seat] = student;

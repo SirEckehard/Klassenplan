@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import type { ClassroomScene } from '@/types';
-import { ADJACENT_GAP, ROW_GAP } from '@/utils';
+import { ADJACENT_GAP, JOIN_GAP, ROW_GAP } from '@/utils';
 import {
   calculateSeatLayout,
   calculateSeatPosition,
@@ -67,6 +67,14 @@ export interface SeatLayout {
   depth: Float64Array;
   /** `"table-seat"`, the key the feature distances and the highlights use */
   keys: string[];
+  /**
+   * The seats of every table group: a table on its own, or tables pushed
+   * together round a corner or face to face. What a table's make-up decides —
+   * gender, roles, tutoring — reads the group.
+   */
+  groups: number[][];
+  /** The group of every seat */
+  groupOf: Int32Array;
 }
 
 export const kindIndex = (kind: SeatRelationKind): number =>
@@ -134,7 +142,21 @@ type SeatFootprint = {
   /** Half extents of the turned seat cell along x and y */
   hx: number;
   hy: number;
+  /** Unit vector from the seat towards its chair, in the room */
+  chairX: number;
+  chairY: number;
 };
+
+/** Least overlap along a shared edge for two seat cells to count as joined. */
+const JOIN_OVERLAP = 5;
+
+/** Unit vector from a seat towards its chair, by the edge it faces. */
+const EDGE_VECTORS = {
+  left: [-1, 0],
+  right: [1, 0],
+  top: [0, -1],
+  bottom: [0, 1],
+} as const;
 
 const collectFootprints = (scene: ClassroomScene): SeatFootprint[] => {
   const footprints: SeatFootprint[] = [];
@@ -147,17 +169,64 @@ const collectFootprints = (scene: ClassroomScene): SeatFootprint[] => {
       layout.seatHeight,
       table.rotation ?? 0,
     );
+    const radians = ((table.rotation ?? 0) * Math.PI) / 180;
+    const cos = Math.cos(radians);
+    const sin = Math.sin(radians);
     for (let seatIndex = 0; seatIndex < table.seatCount; seatIndex++) {
-      const { x, y } = calculateSeatPosition({
+      const { x, y, col, row } = calculateSeatPosition({
         mode: 'scene',
         table,
         seatIndex,
         layout,
       });
-      footprints.push({ table: tableIndex, seat: seatIndex, x, y, hx, hy });
+      const [ex, ey] =
+        EDGE_VECTORS[
+          determineSeatEdge(
+            table.templateType,
+            { col, row },
+            layout,
+            table.seatCount,
+          )
+        ];
+      footprints.push({
+        table: tableIndex,
+        seat: seatIndex,
+        x,
+        y,
+        hx,
+        hy,
+        chairX: ex * cos - ey * sin,
+        chairY: ex * sin + ey * cos,
+      });
     }
   });
   return footprints;
+};
+
+/**
+ * How two seats of different tables relate where the tables are pushed
+ * together: their cells meet edge to edge, no more than `JOIN_GAP` apart and
+ * overlapping along the edge — touching at a corner is no join. `corner` for
+ * chairs at right angles, `opposite` for chairs facing each other across the
+ * join, `partner` for chairs side by side facing the same way — the seats at
+ * the short sides of two desks in a row are as close as a seat partner. -1
+ * otherwise.
+ */
+const joinedKind = (a: SeatFootprint, b: SeatFootprint): number => {
+  const gapX = Math.abs(b.x - a.x) - a.hx - b.hx;
+  const gapY = Math.abs(b.y - a.y) - a.hy - b.hy;
+  if (Math.max(gapX, gapY) > JOIN_GAP || Math.min(gapX, gapY) > -JOIN_OVERLAP) {
+    return -1;
+  }
+  const chairs = a.chairX * b.chairX + a.chairY * b.chairY;
+  if (Math.abs(chairs) < 0.3) return CORNER;
+  const dx = b.x - a.x;
+  const dy = b.y - a.y;
+  // How far b lies the way a's chair points: -1 straight ahead of a, 0 beside.
+  const along = (a.chairX * dx + a.chairY * dy) / (Math.hypot(dx, dy) || 1);
+  if (chairs < -0.7) return along < -0.7 ? OPPOSITE : -1;
+  if (chairs > 0.7) return Math.abs(along) < 0.3 ? PARTNER : -1;
+  return -1;
 };
 
 const buildSeatLayout = (scene: ClassroomScene): SeatLayout => {
@@ -275,7 +344,28 @@ const buildSeatLayout = (scene: ClassroomScene): SeatLayout => {
       offer(b, bIsAhead ? BACK : FRONT, { seat: a, distance: depthDistance });
     }
   }
+  // Tables pushed together (`joinedKind`): round a corner or face to face
+  // they are one group, as a group table is. Desks pushed together in a row,
+  // facing the same way, stay desks of their own, but the seats at the join
+  // are neighbours as close as seat partners.
   const chosen = new Set<string>();
+  const parent = scene.tables.map((_, index) => index);
+  const root = (table: number): number => {
+    let current = table;
+    while (parent[current] !== current) current = parent[current]!;
+    parent[table] = current;
+    return current;
+  };
+  for (let a = 0; a < size; a++) {
+    for (let b = a + 1; b < size; b++) {
+      if (tableOf[a] === tableOf[b]) continue;
+      const kind = joinedKind(footprints[a]!, footprints[b]!);
+      if (kind < 0) continue;
+      chosen.add(`${a}-${b}`);
+      relate(a, b, kind, kind);
+      if (kind !== PARTNER) parent[root(tableOf[a]!)] = root(tableOf[b]!);
+    }
+  }
   nearest.forEach((directions, a) => {
     directions.forEach((candidates, direction) => {
       if (candidates.length === 0) return;
@@ -320,6 +410,21 @@ const buildSeatLayout = (scene: ClassroomScene): SeatLayout => {
     depth[index] = frontIsHigh ? raw : 1 - raw;
   });
 
+  const groupIndex = new Map<number, number>();
+  const groups: number[][] = [];
+  const groupOf = new Int32Array(size);
+  for (let seat = 0; seat < size; seat++) {
+    const key = root(tableOf[seat]!);
+    let group = groupIndex.get(key);
+    if (group === undefined) {
+      group = groups.length;
+      groupIndex.set(key, group);
+      groups.push([]);
+    }
+    groups[group]!.push(seat);
+    groupOf[seat] = group;
+  }
+
   return {
     size,
     offsets,
@@ -329,6 +434,8 @@ const buildSeatLayout = (scene: ClassroomScene): SeatLayout => {
     kindBetween,
     depth,
     keys,
+    groups,
+    groupOf,
   };
 };
 
