@@ -194,3 +194,90 @@ test('a plan is found in its room, and a lab is a room of its own', async ({
 
   expect(consoleErrors).toEqual([]);
 });
+
+// Decision 0038: a mix kept as a preset of one's own is offered in every
+// class and listed in "Bibliothek", which applies a preset without mixing.
+test('a preset of your own is kept and found in "Bibliothek"', async ({
+  page,
+}) => {
+  const consoleErrors: string[] = [];
+  page.on('console', (message) => {
+    if (message.type() === 'error') consoleErrors.push(message.text());
+  });
+  const inspector = page.getByRole('complementary', { name: 'Plan' });
+  const presetButton = inspector.getByRole('button', {
+    name: /^Voreinstellung:/,
+  });
+
+  await test.step('a shipped preset, changed and kept as a new one', async () => {
+    await page.goto('/generator');
+    await createClassWithStudents(page);
+    // Two genders, so mixing them is a criterion this class can weigh.
+    for (const [student, gender] of [
+      ['Ada Lovelace', 'Weiblich'],
+      ['Alan Turing', 'Männlich'],
+    ] as const) {
+      await page
+        .getByRole('button', { name: `${student} im Inspektor öffnen` })
+        .click();
+      const choice = page
+        .getByRole('group', { name: 'Geschlecht' })
+        .getByRole('button', { name: gender });
+      await choice.click();
+      await expect(choice).toHaveAttribute('aria-pressed', 'true');
+    }
+    await page.keyboard.press('Escape');
+    await page.getByRole('button', { name: 'Weiter zum Raum' }).click();
+    await setUpDoubleTables(page);
+    await page.getByRole('button', { name: 'Weiter zum Sitzplan' }).click();
+
+    await presetButton.click();
+    await page
+      .getByRole('dialog', { name: 'Voreinstellung' })
+      .getByRole('button', { name: /^Klassenarbeit/ })
+      .click();
+    await expect(presetButton).toHaveAccessibleName(
+      'Voreinstellung: Klassenarbeit',
+    );
+
+    await inspector
+      .getByRole('button', { name: 'Geschlechter: Wichtig', exact: true })
+      .click();
+    await expect(presetButton).toHaveAccessibleName(
+      'Voreinstellung: Klassenarbeit · geändert',
+    );
+
+    await inspector
+      .getByRole('button', { name: 'Als neue Voreinstellung speichern …' })
+      .click();
+    const name = inspector.getByRole('textbox', {
+      name: 'Name der Voreinstellung',
+    });
+    await name.fill('Stillarbeit');
+    await name.press('Enter');
+    await expect(presetButton).toHaveAccessibleName(
+      'Voreinstellung: Stillarbeit',
+    );
+  });
+
+  await test.step('"Bibliothek" lists it, also after a reload', async () => {
+    await openLibrary(page);
+    await page.reload();
+    await page.getByRole('option', { name: /^Voreinstellungen/ }).click();
+    await page.getByRole('option', { name: /^Stillarbeit/ }).click();
+
+    await expect(
+      page.getByRole('heading', { level: 2, name: 'Stillarbeit' }),
+    ).toBeVisible();
+  });
+
+  await test.step('"Übernehmen" sets the open class to a preset', async () => {
+    await page.getByRole('option', { name: /^Standard/ }).click();
+    await statusBar(page).getByRole('button', { name: 'Übernehmen' }).click();
+
+    await expect(page).toHaveURL(/\/generator$/);
+    await expect(presetButton).toHaveAccessibleName('Voreinstellung: Standard');
+  });
+
+  expect(consoleErrors).toEqual([]);
+});

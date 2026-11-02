@@ -323,7 +323,7 @@
       "recipes": {
         "q": "Was sind Voreinstellungen?",
         "intro": "Eine Voreinstellung setzt alle Kriterien auf einmal passend zur Stunde. Du findest die Voreinstellungen über den Kriterien:",
-        "outro": "Änderst du danach ein einzelnes Kriterium, wird daraus eine „Eigene Mischung“. „Standard“ führt jederzeit zu den Grundeinstellungen zurück."
+        "outro": "Änderst du danach ein Kriterium, steht „geändert“ hinter dem Namen: Du kannst die Änderung in die Voreinstellung übernehmen oder als eigene Voreinstellung speichern. Eigene Voreinstellungen gelten für alle Klassen und stehen auch in der Bibliothek; eine angepasste mitgelieferte stellst du mit „Original wiederherstellen“ zurück. „Standard“ führt jederzeit zu den Grundeinstellungen zurück."
       },
       "weights": {
         "q": "Was bedeuten Aus, Beachten, Wichtig und Sehr wichtig?",

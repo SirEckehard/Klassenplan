@@ -50,6 +50,7 @@ it says so instead of reconstructing one.
 | [0035](0035-seats-stored-by-id.md)                 | Stored seats name their students by id                        |
 | [0036](0036-tables-carry-ids.md)                   | Tables carry ids, and locks name their table by id            |
 | [0037](0037-messages-where-they-belong.md)         | Fewer toasts, and the rest over the stage                     |
+| [0038](0038-own-mixing-presets.md)                 | Presets of one's own, and the shipped ones changeable         |
 
 ## Reasons still to be recorded
 

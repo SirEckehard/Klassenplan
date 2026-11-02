@@ -76,6 +76,11 @@ Optional fields (version ≥ 2):
   they were handed out in ([decision 0028](decisions/0028-duties-remembered-per-class.md)).
   Absent when no class has duties. A full import replaces the stored duties; a
   merge only adds classes that have none yet.
+- `mixPresets` – the mixing presets as stored (`MixPresetData`,
+  [decision 0038](decisions/0038-own-mixing-presets.md)): the changed shipped
+  presets and the teacher's own. Absent when there are none. A full import
+  replaces them: after a backup without them only the shipped presets remain,
+  as shipped.
 
 Inside the nested objects, the same structures apply as in the application's
 TypeScript types (`Student`, `SavedPlan`, `MixResult`,
@@ -103,7 +108,9 @@ Once the password is accepted, the restore asks how the backup applies
   - a class whose name is taken gets a free one, `7b (2)`;
   - a template is added where neither its id nor its name is taken;
   - photos come back only for students no stored class has;
-  - plan usage is added for classes that have no records yet.
+  - plan usage is added for classes that have no records yet;
+  - an own preset is added where neither its id nor its name is taken, a
+    change to a shipped preset where this device has none.
 
   The message after a merge says how many classes came, else how many
   templates, else that the backup held nothing new.
@@ -136,6 +143,9 @@ too large, with its size, or not restorable, which is a bug to report).
   **1,000** pair keys per record; at most **200** classes in `planUsageResetAt`,
   each a parseable timestamp; at most **200** class ids in
   `planUsageManualClassIds`.
+- At most **30** presets of the teacher's own in `mixPresets`
+  (`MAX_MIX_PRESETS`), each named in at most 120 characters, every weight
+  from 0 to 10.
 
 ## Encryption
 

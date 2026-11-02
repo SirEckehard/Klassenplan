@@ -1,6 +1,6 @@
 # Architecture
 
-> **Status:** current · **Last reviewed:** 2026-11-01 · **Maintainer:** Eike
+> **Status:** current · **Last reviewed:** 2026-11-02 · **Maintainer:** Eike
 > Schäfer · **Describes:** Klassenplan 3.1.2
 
 This is the entry point for anyone who wants to understand _why_ Klassenplan is
@@ -443,7 +443,7 @@ translate one to one.
 | Sitzplan (layer Plan)                     | `SeatingArrangement`, `currentSeating`                       | Tables × seats → student or empty                                                                                                      |
 | Mischen                                   | mix, shuffle, `mix:run`                                      | Build a new arrangement (and refine it when criteria are active)                                                                       |
 | Kriterium, Wichtigkeit                    | `MixSettings`                                                | Weights 0–10 per criterion, set as four named levels; defaults in [PEDAGOGY.md](PEDAGOGY.md)                                           |
-| Voreinstellung                            | `MixRecipe`, `mixRecipes.ts`                                 | A named set of all sixteen weights for a kind of lesson                                                                                |
+| Voreinstellung                            | `MixRecipe`, `mixRecipes.ts`, `MixPresetData`                | A named set of all sixteen weights for a kind of lesson: shipped, changed or the teacher's own (decision 0038)                         |
 | Gesperrter Platz                          | `lockedPositions`, `isSeatLocked`                            | A seat the algorithm must not change                                                                                                   |
 | Gespeicherter Plan                        | `SavedPlan` in `seatingHistory`                              | A plan saved under a name. Despite its name, `seatingHistory` holds saved plans, not a log                                             |
 | Mischung                                  | `MixResult` in `mixHistory`                                  | One shuffle result, kept for the last 20                                                                                               |

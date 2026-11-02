@@ -83,8 +83,12 @@ read on one scale.
   0 to 10, and plans mixed before this change come out exactly as before.
 - A teacher who set 7 by hand sees "Sehr wichtig" and keeps the 7. One who then
   presses "Wichtig" gets 5 — the level is a decision, and it overwrites.
-- The recommended weights now also have a name ("Empfohlene Mischung"), so
+- The recommended weights now also have a name ("Empfohlene Mischung", since
+  [decision 0038](0038-own-mixing-presets.md) "Standard"), so
   `withDefaultWeights` has a second way in through the recipe list.
+- [Decision 0038](0038-own-mixing-presets.md) lets a teacher keep presets of
+  their own and change the shipped ones; the chosen preset is still not
+  stored.
 - Adding a criterion needs nothing beyond its scale, which comes for free.
 
 ## Revision of 2026-10-18: the levels as a scale

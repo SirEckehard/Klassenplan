@@ -1,6 +1,6 @@
 # Data Model
 
-> **Status:** current · **Last reviewed:** 2026-11-01 · **Source of truth:**
+> **Status:** current · **Last reviewed:** 2026-11-02 · **Source of truth:**
 > `src/utils/data/storageKeys.ts`, `src/types/`, `src/repositories/`
 
 Everything Klassenplan stores lives in the teacher's browser. This document
@@ -11,27 +11,28 @@ document: [backup-format.md](backup-format.md).
 
 ## Overview
 
-| Store           | Location                                                                  | Holds                                                                                        |
-| --------------- | ------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
-| Key-value store | IndexedDB, idb-keyval's default database (`keyval-store`, store `keyval`) | Class collection, room templates, circle exports, plan usage record, name game stats, duties |
-| Photo store     | IndexedDB database `spg-student-photos`, object store `photos`            | One image blob per student                                                                   |
-| localStorage    | The origin's localStorage                                                 | UI preferences, backup reminder state, a migration mirror — no student data                  |
+| Store           | Location                                                                  | Holds                                                                                                        |
+| --------------- | ------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| Key-value store | IndexedDB, idb-keyval's default database (`keyval-store`, store `keyval`) | Class collection, room templates, circle exports, plan usage record, name game stats, duties, mixing presets |
+| Photo store     | IndexedDB database `spg-student-photos`, object store `photos`            | One image blob per student                                                                                   |
+| localStorage    | The origin's localStorage                                                 | UI preferences, backup reminder state, a migration mirror — no student data                                  |
 
 All IndexedDB access goes through `src/repositories/idbClient.ts`, the only
 module that imports `idb-keyval` ([decision 0002](decisions/0002-single-indexeddb-entry-point.md)).
 
 ## Key-value store
 
-| Key                      | Type                   | Content                                                 |
-| ------------------------ | ---------------------- | ------------------------------------------------------- |
-| `spg.classCollection`    | `ClassCollectionState` | Every class and everything it owns, see below           |
-| `spg.classroomTemplates` | `ClassroomTemplate[]`  | Saved room layouts, shared by all classes               |
-| `spg.circleLayouts`      | `CircleExportData[]`   | Circle layouts kept for export, shared by all classes   |
-| `spg.planUsage`          | `PlanUsageData`        | Plan usage record, one bucket per class                 |
-| `spg.nameGameStats`      | `NameGameData`         | Name game statistics per student                        |
-| `spg.duties`             | `DutyData`             | Class duties and their rounds, one entry per class      |
-| `spg.migrationVersion`   | `number`               | Version of the last completed table migration           |
-| `spg.version`            | `number`               | `APP_DATA_VERSION` (currently 2), stamped on every load |
+| Key                      | Type                   | Content                                                    |
+| ------------------------ | ---------------------- | ---------------------------------------------------------- |
+| `spg.classCollection`    | `ClassCollectionState` | Every class and everything it owns, see below              |
+| `spg.classroomTemplates` | `ClassroomTemplate[]`  | Saved room layouts, shared by all classes                  |
+| `spg.circleLayouts`      | `CircleExportData[]`   | Circle layouts kept for export, shared by all classes      |
+| `spg.planUsage`          | `PlanUsageData`        | Plan usage record, one bucket per class                    |
+| `spg.nameGameStats`      | `NameGameData`         | Name game statistics per student                           |
+| `spg.duties`             | `DutyData`             | Class duties and their rounds, one entry per class         |
+| `spg.mixPresets`         | `MixPresetData`        | Mixing presets of the teacher's own, shared by all classes |
+| `spg.migrationVersion`   | `number`               | Version of the last completed table migration              |
+| `spg.version`            | `number`               | `APP_DATA_VERSION` (currently 2), stamped on every load    |
 
 The keys `spg.students`, `spg.seatingHistory`, `spg.mixHistory`,
 `spg.currentSeating`, `spg.lockedPositions`, `spg.classroomScene`,
@@ -287,6 +288,24 @@ A round is `{ at, assignments }`: an ISO 8601 timestamp and duty id → student
 ids. A round may name a student who has since left or a duty since removed;
 `trimRound` leaves both out when it is shown or changed.
 
+### Mixing presets
+
+A single `MixPresetData` value (`version: 1`,
+[decision 0038](decisions/0038-own-mixing-presets.md)), shared by all classes:
+
+- `overrides` – the shipped presets the teacher changed, by id (`quietWork`,
+  `groupWork`, `exam`, `newClass`; never `standard`), each `{ weights,
+criteriaVersion }`. An override that equals the shipped weights is not
+  kept; "Original wiederherstellen" removes it.
+- `presets` – the teacher's own, at most 30 (`MAX_MIX_PRESETS`), each `{ id,
+name, weights, criteriaVersion, createdAt }`, in the order they were saved.
+
+`weights` holds every criterion weight (0–10), the neighbour weights stay with
+the class. Reading (`normalizeMixPresetData`) drops what is not a preset, sets
+a missing criterion to 0 and lifts weights stored under an older
+`criteriaVersion` as the class's settings are (`migrateStoredMixSettings`).
+Which preset a class's weights came from is not stored.
+
 ## Photo store
 
 - Database `spg-student-photos`, object store `photos`. Key: the student id.
@@ -378,6 +397,7 @@ list is `PROJECT_LOCAL_STORAGE_KEYS` in `storageKeys.ts`. Groups:
 | Plan usage record        | 1                                 | `version` field                              | Other versions read as empty                                                                                                                                                                            |
 | Name game statistics     | 1                                 | `version` field                              |                                                                                                                                                                                                         |
 | Class duties             | 1                                 | `version` field                              | Other versions read as empty                                                                                                                                                                            |
+| Mixing presets           | 1                                 | `version` field                              | A newer version is read as no presets and never written over                                                                                                                                            |
 | Photo store              | `STUDENT_PHOTO_STORE_VERSION` = 1 | `__photoStoreVersion` key                    | Stamped by the start-up sweep                                                                                                                                                                           |
 | Backup file              | 2                                 | `version` in the bundle                      | Version 1 files stay importable ([backup-format.md](backup-format.md))                                                                                                                                  |
 

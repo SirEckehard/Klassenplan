@@ -323,7 +323,7 @@
       "recipes": {
         "q": "What are presets?",
         "intro": "A preset sets all criteria at once to suit the lesson. You find the presets above the criteria:",
-        "outro": "If you then change a single criterion, it becomes “Your own mix”. “Default” takes you back to the basic settings at any time."
+        "outro": "If you then change a criterion, “changed” follows the name: you can save the change to the preset or keep it as a preset of your own. Your own presets apply to every class and are listed in the Library too; “Restore original” takes an adjusted built-in preset back. “Default” takes you back to the basic settings at any time."
       },
       "weights": {
         "q": "What do Off, Consider, Important and Very important mean?",
