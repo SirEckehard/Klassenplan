@@ -181,5 +181,8 @@
     "redistributed": "Duties handed out again.",
     "redistributedAction": "Undo",
     "nobodyLeft": "Nobody left – everyone else already has a duty."
+  },
+  "mixPresets": {
+    "saveFailed": "The preset could not be saved."
   }
 }

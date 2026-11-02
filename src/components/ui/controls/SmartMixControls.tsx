@@ -10,13 +10,29 @@ import {
 import type { MixSettings, Student } from '@/types';
 import {
   MIX_IMPORTANCE_LEVELS,
+  MIX_RECIPES,
   SCALAR_MIX_SETTING_KEYS,
   dataFamilyClass,
+  findMixRecipe,
   formatPercent,
   getStatisticStatusMeta,
+  isEditableBuiltin,
+  presetWeightsFrom,
+  showToast,
   type DataFamily,
   type MixImportance,
+  type MixRecipe,
 } from '@/utils';
+import { announce } from '@/utils/ui/toast';
+import {
+  addMixPreset,
+  deleteMixPreset,
+  setMixPresetOverride,
+  updateMixPreset,
+} from '@/repositories/mixPresetStore';
+import { confirmDialog } from '@/services/ui/dialogs';
+import { useOptionalSeatingPlanState } from '@/contexts/seatingPlan/seatingPlanSelectors';
+import { useMixPresets } from '@/hooks/ui/useMixPresets';
 import type { CriterionFulfillment } from '@/utils/algorithm/seatingStatistics';
 import {
   useMixCriteria,
@@ -29,7 +45,11 @@ import {
   InspectorRow,
   InspectorSection,
 } from '@/components/shell/InspectorPanel';
-import { MixRecipePanel } from './MixRecipes';
+import {
+  MixPresetActions,
+  MixRecipePanel,
+  useMixRecipeText,
+} from './MixRecipes';
 import ToggleSwitch from './ToggleSwitch';
 
 /**
@@ -395,8 +415,10 @@ function SmartMixControls({
  * mixing under the plan's own, since it sets every criterion below at once.
  * Beside its heading the one control that acts on all of them, "Alle
  * Kriterien" as a switch — the way back to the recommended weights is
- * "Standard" — and under the recipe how many of the criteria this
- * class has data for carry weight, and, when none does, that nothing is
+ * "Standard" — and under the recipe what can be kept of it (decision 0038):
+ * a change in the preset it came from, a mix as a preset of one's own, a
+ * shipped preset's own weights back. Under that how many of the criteria
+ * this class has data for carry weight, and, when none does, that nothing is
  * weighed.
  */
 export function MixRecipeSection({
@@ -415,11 +437,78 @@ export function MixRecipeSection({
     students,
     suspendedWeights,
   });
-  const recipes = useMixRecipes({ settings, setMixSettings, students });
+  const text = useMixRecipeText();
+  const classId = useOptionalSeatingPlanState()?.activeClass.id ?? null;
+  const presets = useMixPresets();
+  const recipes = useMixRecipes({
+    settings,
+    setMixSettings,
+    students,
+    recipes: presets.recipes,
+    classId,
+  });
+  const [renamingId, setRenamingId] = React.useState<string | null>(null);
+  const renaming = presets.recipes.find((recipe) => recipe.id === renamingId);
   const criteria = mix.categories.flatMap((category) => category.criteria);
   const active = criteria.filter(
     (criterion) => mix.weightOf(criterion.key) > 0,
   ).length;
+
+  // A preset kept is on screen at once — the button names it — so it is
+  // only said to a screen reader; a write that failed is said to everyone
+  // (decision 0037).
+  const report = (written: boolean, message: string) => {
+    if (written) announce(message);
+    else showToast('error', 'toast:mixPresets.saveFailed');
+  };
+
+  const saveNew = async (name: string) => {
+    const preset = await addMixPreset(
+      name,
+      presetWeightsFrom(settings, students, recipes.base),
+    );
+    if (preset) recipes.choose(preset.id);
+    report(!!preset, t('mix.recipes.saved', { name }));
+  };
+
+  const keepChanges = async (recipe: MixRecipe) => {
+    const weights = presetWeightsFrom(settings, students, recipe);
+    const written = isEditableBuiltin(recipe.builtin)
+      ? await setMixPresetOverride(recipe.builtin, weights)
+      : await updateMixPreset(recipe.id, { weights });
+    report(written, t('mix.recipes.kept', { name: text.label(recipe) }));
+  };
+
+  // Gives the shipped preset its weights back and sets them here, so the
+  // button keeps naming it.
+  const restore = async (recipe: MixRecipe) => {
+    if (!isEditableBuiltin(recipe.builtin)) return;
+    const original = findMixRecipe(recipe.builtin, MIX_RECIPES);
+    const written = await setMixPresetOverride(recipe.builtin, null);
+    if (written && original) recipes.apply(original.id, original);
+    report(written, t('mix.recipes.restored', { name: text.label(recipe) }));
+  };
+
+  const rename = async (recipe: MixRecipe, name: string) => {
+    const written = await updateMixPreset(recipe.id, { name });
+    if (!written) showToast('error', 'toast:mixPresets.saveFailed');
+  };
+
+  // Deleting a preset is in no undo history, so it asks.
+  const requestDelete = async (recipe: MixRecipe) => {
+    const name = text.label(recipe);
+    const confirmed = await confirmDialog(
+      t('mix.recipes.deleteMessage', { name }),
+      {
+        title: t('mix.recipes.deleteTitle'),
+        confirmLabel: t('common.delete'),
+      },
+    );
+    if (!confirmed) return;
+    if (!(await deleteMixPreset(recipe.id))) {
+      showToast('error', 'toast:mixPresets.saveFailed');
+    }
+  };
 
   return (
     <InspectorSection
@@ -434,7 +523,42 @@ export function MixRecipeSection({
         />
       }
     >
-      <MixRecipePanel activeId={recipes.activeId} onSelect={recipes.apply} />
+      <MixRecipePanel
+        recipes={presets.recipes}
+        activeId={recipes.activeId}
+        base={recipes.base}
+        onSelect={(id) => {
+          setRenamingId(null);
+          recipes.apply(id);
+        }}
+        onRename={(recipe) => setRenamingId(recipe.id)}
+        onDelete={(recipe) => {
+          void requestDelete(recipe);
+        }}
+      />
+      {/* Nothing to keep while every criterion is off: that is the
+          switch's, and the warning below says so. */}
+      {(!mix.isRandom || renaming) && (
+        <MixPresetActions
+          recipes={presets.recipes}
+          active={recipes.active}
+          base={recipes.base}
+          onSaveNew={(name) => {
+            void saveNew(name);
+          }}
+          onKeepChanges={(recipe) => {
+            void keepChanges(recipe);
+          }}
+          onRestore={(recipe) => {
+            void restore(recipe);
+          }}
+          renaming={renaming}
+          onRename={(recipe, name) => {
+            void rename(recipe, name);
+          }}
+          onRenameDone={() => setRenamingId(null)}
+        />
+      )}
       <p className="text-xs tabular-nums text-(--text-muted)">
         {t('mix.recipes.activeCount', { active, total: criteria.length })}
       </p>

@@ -359,7 +359,10 @@ describe('SmartMixControls — recipes', () => {
 
     fireEvent.click(restlessLevel(OFF));
 
-    expect(recipeButton()).toHaveTextContent(/Eigene Mischung|Your own mix/);
+    // Left, but still named as where the mix came from (decision 0038).
+    expect(recipeButton()).toHaveTextContent(
+      /Ruhige Arbeitsphase · geändert|Quiet work · changed/,
+    );
   });
 
   it('counts only the criteria this class has data for', () => {

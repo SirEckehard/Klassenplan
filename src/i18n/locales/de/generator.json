@@ -326,7 +326,25 @@
       "newClass": {
         "label": "Neue Klasse",
         "desc": "Viel mischen, niemanden allein sitzen lassen, Rollen im Raum verteilen."
-      }
+      },
+      "changed": "{{name}} · geändert",
+      "adjusted": "angepasst",
+      "allOff": "Kein Kriterium – die Schüler werden zufällig verteilt.",
+      "saveAs": "Als Voreinstellung speichern …",
+      "saveAsNew": "Als neue Voreinstellung speichern …",
+      "keepChanges": "Änderungen in „{{name}}“ übernehmen",
+      "restore": "Original wiederherstellen",
+      "name": "Name der Voreinstellung",
+      "newName": "Eigene Voreinstellung",
+      "nameTaken": "Eine andere Voreinstellung heißt schon so.",
+      "limit": "Höchstens {{count}} eigene Voreinstellungen – lösche eine, um eine neue zu speichern.",
+      "renameNamed": "„{{name}}“ umbenennen",
+      "deleteNamed": "„{{name}}“ löschen",
+      "deleteTitle": "Voreinstellung löschen?",
+      "deleteMessage": "„{{name}}“ wird gelöscht. Die Kriterien deiner Klassen bleiben, wie sie sind.",
+      "saved": "Voreinstellung „{{name}}“ gespeichert.",
+      "kept": "Änderungen in „{{name}}“ übernommen.",
+      "restored": "„{{name}}“ wiederhergestellt."
     },
     "enableAll": "Alle Kriterien aktivieren",
     "disableAll": "Alle Kriterien deaktivieren",

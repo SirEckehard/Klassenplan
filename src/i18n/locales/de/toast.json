@@ -181,5 +181,8 @@
     "redistributed": "Dienste neu verteilt.",
     "redistributedAction": "Rückgängig",
     "nobodyLeft": "Niemand mehr frei – alle anderen haben schon einen Dienst."
+  },
+  "mixPresets": {
+    "saveFailed": "Die Voreinstellung konnte nicht gespeichert werden."
   }
 }

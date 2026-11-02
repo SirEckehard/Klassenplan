@@ -640,6 +640,8 @@ export type InspectorMenuRow = {
    * its place but says why it cannot be used — the open room.
    */
   remove?: { label: string; onSelect: () => void; blockedHint?: string };
+  /** A rule above the row: where the teacher's own presets begin. */
+  separatorBefore?: boolean;
 };
 
 /**
@@ -778,48 +780,65 @@ export function InspectorMenuButton({
                   )}
                 </button>
               );
+              const separator = row.separatorBefore && (
+                <div
+                  className="my-1 h-px bg-(--border-card)"
+                  role="separator"
+                />
+              );
               if (!row.rename && !row.remove) {
-                return <React.Fragment key={row.key}>{main}</React.Fragment>;
+                return (
+                  <React.Fragment key={row.key}>
+                    {separator}
+                    {main}
+                  </React.Fragment>
+                );
               }
               const { rename, remove } = row;
               return (
-                <div key={row.key} className="flex items-center gap-1">
-                  {main}
-                  {rename && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setOpen(false);
-                        rename.onSelect();
-                      }}
-                      title={rename.label}
-                      aria-label={rename.label}
-                      className={`${quietIconButtonClass} h-9 w-9 shrink-0`}
-                    >
-                      <PencilLineIcon className="h-4 w-4" aria-hidden="true" />
-                    </button>
-                  )}
-                  {remove && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (remove.blockedHint) return;
-                        setOpen(false);
-                        remove.onSelect();
-                      }}
-                      aria-disabled={remove.blockedHint ? true : undefined}
-                      title={remove.blockedHint ?? remove.label}
-                      aria-label={remove.label}
-                      className={`${quietDangerIconButtonClass} h-9 w-9 shrink-0 ${
-                        remove.blockedHint
-                          ? 'cursor-not-allowed opacity-40'
-                          : ''
-                      }`}
-                    >
-                      <TrashIcon className="h-4 w-4" aria-hidden="true" />
-                    </button>
-                  )}
-                </div>
+                <React.Fragment key={row.key}>
+                  {separator}
+                  <div className="flex items-center gap-1">
+                    {main}
+                    {rename && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setOpen(false);
+                          rename.onSelect();
+                        }}
+                        title={rename.label}
+                        aria-label={rename.label}
+                        className={`${quietIconButtonClass} h-9 w-9 shrink-0`}
+                      >
+                        <PencilLineIcon
+                          className="h-4 w-4"
+                          aria-hidden="true"
+                        />
+                      </button>
+                    )}
+                    {remove && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (remove.blockedHint) return;
+                          setOpen(false);
+                          remove.onSelect();
+                        }}
+                        aria-disabled={remove.blockedHint ? true : undefined}
+                        title={remove.blockedHint ?? remove.label}
+                        aria-label={remove.label}
+                        className={`${quietDangerIconButtonClass} h-9 w-9 shrink-0 ${
+                          remove.blockedHint
+                            ? 'cursor-not-allowed opacity-40'
+                            : ''
+                        }`}
+                      >
+                        <TrashIcon className="h-4 w-4" aria-hidden="true" />
+                      </button>
+                    )}
+                  </div>
+                </React.Fragment>
               );
             })}
           </div>
