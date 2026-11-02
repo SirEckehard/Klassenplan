@@ -82,6 +82,11 @@ export const MAX_DUTY_NAME_LENGTH = 40;
 export const MAX_DUTY_COUNT = 10;
 export const MAX_DUTY_ROUNDS = 20;
 
+// Most presets of a teacher's own (decision 0038): one per kind of lesson,
+// with room to spare, and still a menu one can read. The backup import holds
+// to it too.
+export const MAX_MIX_PRESETS = 30;
+
 // The name-game quiz needs 4 answer options, so 4 students with photos is the minimum
 export const NAME_GAME_MIN_PHOTOS = 4;
 

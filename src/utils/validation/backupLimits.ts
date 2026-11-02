@@ -13,6 +13,7 @@ import {
   MAX_DUTY_COUNT,
   MAX_DUTY_NAME_LENGTH,
   MAX_DUTY_ROUNDS,
+  MAX_MIX_PRESETS,
   MAX_NAME_LENGTH,
   MAX_NOTE_LENGTH,
   MAX_ROOMS_PER_CLASS,
@@ -83,6 +84,8 @@ export const BACKUP_LIMITS = {
   maxDutyNameLength: MAX_DUTY_NAME_LENGTH,
   maxDutyCount: MAX_DUTY_COUNT,
   maxDutyRounds: MAX_DUTY_ROUNDS,
+  // The teacher's own presets (decision 0038), held to what the app allows.
+  maxMixPresets: MAX_MIX_PRESETS,
   // Bounds for KDF iteration counts declared in the encrypted envelope: the
   // lower bound rejects deliberately weakened files, the upper bound prevents
   // a tampered envelope from stalling the browser during key derivation.

@@ -53,6 +53,10 @@ import {
   restorePlanUsage,
 } from '@/repositories/planUsageStore';
 import { getAllDuties, restoreDuties } from '@/repositories/dutyStore';
+import {
+  getMixPresetsForBackup,
+  restoreMixPresets,
+} from '@/repositories/mixPresetStore';
 import { normalizeSeatingHistory } from '@/utils/data/planNormalization';
 import {
   getAllPhotos,
@@ -243,6 +247,8 @@ export async function exportAllAsJson(
     // The rounds are what makes the rotation fair; a backup without them would
     // start every class's duties from scratch on a new device.
     const duties = await getAllDuties();
+    // The presets belong to no class; a new device should mix as this one.
+    const mixPresets = await getMixPresetsForBackup();
     const bundle: ExportBundle = {
       version: CURRENT_EXPORT_VERSION,
       students: data.students,
@@ -260,6 +266,7 @@ export async function exportAllAsJson(
       ...(planUsageResetAt ? { planUsageResetAt } : {}),
       ...(planUsageManualClassIds ? { planUsageManualClassIds } : {}),
       ...(duties ? { duties } : {}),
+      ...(mixPresets ? { mixPresets } : {}),
     };
     // Compact, and every seat an id: indented, with a copy of every student
     // on every seat, a school year's backup was several times the size.
@@ -412,6 +419,7 @@ export async function importAllFromJson(
       manualClassIds: data.planUsageManualClassIds,
     });
     await restoreDuties(data.duties, { merge: false });
+    await restoreMixPresets(data.mixPresets, { merge: false });
     return { merge: false };
   } catch (error) {
     logError('Import failed while applying backup', { error }, 'dataBackup');
@@ -493,6 +501,7 @@ async function mergeIntoStored(
     manualClassIds: data.planUsageManualClassIds,
   });
   await restoreDuties(data.duties, { merge: true });
+  await restoreMixPresets(data.mixPresets, { merge: true });
   return {
     merge: true,
     addedClasses: addedClassIds.length,

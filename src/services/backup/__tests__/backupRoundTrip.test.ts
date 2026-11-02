@@ -35,7 +35,16 @@ import {
   createClassCollection,
   createClassRecord,
 } from '@/utils/data/classCollection';
-import { generateId, neutralSettings } from '@/utils';
+import {
+  findMixRecipe,
+  fullRecipeWeights,
+  generateId,
+  neutralSettings,
+} from '@/utils';
+import {
+  addMixPreset,
+  setMixPresetOverride,
+} from '@/repositories/mixPresetStore';
 
 /** A student photo as the app stores it: a small JPEG of about 12 KB. */
 const photoOfSize = (bytes: number) =>
@@ -120,6 +129,29 @@ describe('backup round trip', () => {
     const restored = parseExportBundle(json);
     expect(restored.classCollection?.classes).toHaveLength(30);
     expect(Object.keys(restored.studentPhotos ?? {})).toHaveLength(30 * 24);
+  });
+
+  // Decision 0038: the presets belong to no class, and go with every backup.
+  it("carries the presets of the teacher's own", async () => {
+    vi.stubGlobal('indexedDB', {});
+    try {
+      const exam = fullRecipeWeights(findMixRecipe('exam')!.weights);
+      await addMixPreset('Stillarbeit', { ...exam, avoidShyAlone: 5 });
+      await setMixPresetOverride('exam', { ...exam, preferGenderMix: 5 });
+
+      const restored = parseExportBundle(
+        await exportClasses([busyClass(0, 1024)]),
+      );
+
+      expect(restored.mixPresets?.presets.map((p) => p.name)).toEqual([
+        'Stillarbeit',
+      ]);
+      expect(restored.mixPresets?.overrides.exam?.weights.preferGenderMix).toBe(
+        5,
+      );
+    } finally {
+      vi.unstubAllGlobals();
+    }
   });
 
   // Export version 3 names every seated student by id (decision 0035); the

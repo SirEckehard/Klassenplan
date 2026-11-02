@@ -144,6 +144,7 @@ export const STORAGE_KEYS = {
     nameGameStats: 'spg.nameGameStats',
     planUsage: 'spg.planUsage',
     duties: 'spg.duties',
+    mixPresets: 'spg.mixPresets',
     version: 'spg.version',
   },
 } as const;

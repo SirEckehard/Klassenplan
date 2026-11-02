@@ -317,6 +317,70 @@ describe('backupValidation: class duties', () => {
   });
 });
 
+describe('backupValidation: mix presets', () => {
+  const weights = { ...baseMixSettings, neighborWeights: undefined };
+  const preset = {
+    id: 'own-1',
+    name: 'Stillarbeit',
+    weights: { avoidRestlessTogether: 8, avoidShyAlone: 3 },
+    criteriaVersion: 2,
+    createdAt: '2026-11-02T08:00:00.000Z',
+  };
+  const withPresets = (mixPresets: unknown) =>
+    JSON.stringify({ ...baseBundle, version: 3, mixPresets });
+
+  it('accepts own presets and changes to the shipped ones', () => {
+    const mixPresets = {
+      version: 1,
+      overrides: { exam: { weights, criteriaVersion: 2 } },
+      presets: [preset],
+    };
+
+    expect(parseExportBundle(withPresets(mixPresets)).mixPresets).toEqual(
+      JSON.parse(JSON.stringify(mixPresets)),
+    );
+  });
+
+  it('rejects a weight outside the scale', () => {
+    expect(() =>
+      parseExportBundle(
+        withPresets({
+          version: 1,
+          overrides: {},
+          presets: [{ ...preset, weights: { avoidShyAlone: 11 } }],
+        }),
+      ),
+    ).toThrow(BackupValidationError);
+  });
+
+  it('rejects a preset without a name', () => {
+    expect(() =>
+      parseExportBundle(
+        withPresets({
+          version: 1,
+          overrides: {},
+          presets: [{ ...preset, name: '' }],
+        }),
+      ),
+    ).toThrow(BackupValidationError);
+  });
+
+  it('rejects more presets than the app keeps', () => {
+    expect(() =>
+      parseExportBundle(
+        withPresets({
+          version: 1,
+          overrides: {},
+          presets: Array.from({ length: 31 }, (_, index) => ({
+            ...preset,
+            id: `own-${index}`,
+          })),
+        }),
+      ),
+    ).toThrow(BackupValidationError);
+  });
+});
+
 describe('backupValidation: class notes', () => {
   const withClassNotes = (notes: string) =>
     JSON.stringify({

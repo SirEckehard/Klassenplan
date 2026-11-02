@@ -1138,6 +1138,57 @@ function validateExportBundleStructure(
   if ('duties' in value && value.duties) {
     validateDuties(value.duties);
   }
+  if ('mixPresets' in value && value.mixPresets) {
+    validateMixPresets(value.mixPresets);
+  }
+}
+
+/** A preset's weights: every criterion it names within 0–10. */
+function validatePresetWeights(value: unknown, criteriaVersion: unknown): void {
+  if (!isObject(value)) {
+    throw new BackupValidationError(BACKUP_ERROR_MESSAGES.invalidData);
+  }
+  validateMixSettings({ ...value, criteriaVersion });
+}
+
+/**
+ * The teacher's own presets and their changes to the shipped ones (decision
+ * 0038).
+ */
+function validateMixPresets(value: unknown): void {
+  if (
+    !isObject(value) ||
+    value.version !== 1 ||
+    !isObject(value.overrides) ||
+    !Array.isArray(value.presets) ||
+    value.presets.length > BACKUP_LIMITS.maxMixPresets
+  ) {
+    throw new BackupValidationError(BACKUP_ERROR_MESSAGES.invalidData);
+  }
+  for (const [id, override] of Object.entries(value.overrides)) {
+    if (
+      !assertString(id, { maxLength: BACKUP_LIMITS.maxIdLength }) ||
+      !isObject(override)
+    ) {
+      throw new BackupValidationError(BACKUP_ERROR_MESSAGES.invalidData);
+    }
+    validatePresetWeights(override.weights, override.criteriaVersion);
+  }
+  for (const preset of value.presets as unknown[]) {
+    if (
+      !isObject(preset) ||
+      !assertString(preset.id, { maxLength: BACKUP_LIMITS.maxIdLength }) ||
+      !assertString(preset.name, { maxLength: BACKUP_LIMITS.maxNameLength }) ||
+      (preset.createdAt !== undefined &&
+        !assertString(preset.createdAt, {
+          allowEmpty: true,
+          maxLength: BACKUP_LIMITS.maxTimestampLength,
+        }))
+    ) {
+      throw new BackupValidationError(BACKUP_ERROR_MESSAGES.invalidData);
+    }
+    validatePresetWeights(preset.weights, preset.criteriaVersion);
+  }
 }
 
 /** One round of duties: a timestamp and duty id → student ids. */

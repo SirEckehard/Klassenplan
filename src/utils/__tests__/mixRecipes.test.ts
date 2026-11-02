@@ -7,11 +7,17 @@ import {
   MIX_RECIPES,
   SCALAR_MIX_SETTING_KEYS,
   findMixRecipe,
+  fullRecipeWeights,
   hasActiveWeights,
   importanceOfWeight,
+  isOriginalWeights,
   matchMixRecipe,
   neutralSettings,
+  normalizeMixPresetData,
+  presetWeightsFrom,
+  recipeLevels,
   recipeSettings,
+  resolveMixRecipes,
 } from '@/utils';
 import { createMockStudent } from '@/__tests__/utils';
 
@@ -132,5 +138,148 @@ describe('mix recipes', () => {
 
   it("calls a mix of the teacher's own no recipe", () => {
     expect(matchMixRecipe(neutralSettings, students)).toBeNull();
+  });
+});
+
+describe("presets of the teacher's own (decision 0038)", () => {
+  const exam = fullRecipeWeights(findMixRecipe('exam')!.weights);
+
+  it('offers the shipped presets first, as the teacher changed them', () => {
+    const recipes = resolveMixRecipes({
+      version: 1,
+      overrides: {
+        exam: { weights: { ...exam, preferGenderMix: 5 }, criteriaVersion: 2 },
+      },
+      presets: [
+        {
+          id: 'own-1',
+          name: 'Stillarbeit',
+          weights: { ...exam, avoidShyAlone: 8 },
+          criteriaVersion: 2,
+          createdAt: '',
+        },
+      ],
+    });
+
+    expect(recipes.map((recipe) => recipe.id)).toEqual([
+      'standard',
+      'quietWork',
+      'groupWork',
+      'exam',
+      'newClass',
+      'own-1',
+    ]);
+    const changed = findMixRecipe('exam', recipes)!;
+    expect(changed.changed).toBe(true);
+    expect(changed.weights.preferGenderMix).toBe(5);
+    expect(findMixRecipe('own-1', recipes)).toMatchObject({
+      builtin: null,
+      name: 'Stillarbeit',
+    });
+  });
+
+  it('recognises an own preset as the active one', () => {
+    const weights = { ...exam, avoidShyAlone: 8 };
+    const recipes = resolveMixRecipes({
+      version: 1,
+      overrides: {},
+      presets: [
+        {
+          id: 'own-1',
+          name: 'Stillarbeit',
+          weights,
+          criteriaVersion: 2,
+          createdAt: '',
+        },
+      ],
+    });
+    const settings = recipeSettings(
+      findMixRecipe('own-1', recipes)!,
+      neutralSettings,
+      students,
+    );
+
+    expect(matchMixRecipe(settings, students, recipes)).toBe('own-1');
+  });
+
+  it('keeps what a class has no data for from the preset it came from', () => {
+    const plain = [createMockStudent({ id: '1', name: 'Ada' })];
+    const groupWork = findMixRecipe('groupWork')!;
+    const settings = recipeSettings(groupWork, neutralSettings, plain);
+
+    const weights = presetWeightsFrom(
+      { ...settings, avoidPreviousPairs: 9 },
+      plain,
+      groupWork,
+    );
+
+    // Changed here, so kept as changed.
+    expect(weights.avoidPreviousPairs).toBe(9);
+    // Cleared only because this class has no wishes or languages.
+    expect(weights.considerWishPartners).toBe(8);
+    expect(weights.preferLanguageMixing).toBe(6);
+  });
+
+  it('falls back to the basic settings without a preset to come from', () => {
+    const plain = [createMockStudent({ id: '1', name: 'Ada' })];
+
+    const weights = presetWeightsFrom(neutralSettings, plain);
+
+    expect(weights.considerWishPartners).toBe(
+      DEFAULT_MIX_WEIGHTS.considerWishPartners,
+    );
+    expect(weights.avoidPreviousPairs).toBe(0);
+  });
+
+  it('tells a change from the original', () => {
+    expect(isOriginalWeights('exam', exam)).toBe(true);
+    expect(isOriginalWeights('exam', { ...exam, preferGenderMix: 3 })).toBe(
+      false,
+    );
+  });
+
+  it('names the criteria of a preset by level, distractibility once', () => {
+    const levels = recipeLevels(findMixRecipe('exam')!.weights);
+
+    expect(levels.essential).toContain('avoidRestlessTogether');
+    expect(levels.essential).toContain('avoidConcentrationTogether');
+    expect(levels.essential).not.toContain('avoidConcentrationNearRestless');
+    expect(levels.consider).toEqual(['preferFrontForSmallerStudents']);
+    expect(levels.important).toEqual([]);
+  });
+
+  it('drops what is not a preset and brings older weights up to date', () => {
+    const data = normalizeMixPresetData({
+      version: 1,
+      overrides: {
+        standard: { weights: exam, criteriaVersion: 2 },
+        exam: { weights: exam, criteriaVersion: 2 },
+        quietWork: {
+          weights: {
+            avoidRestlessTogether: 12,
+            preferFrontForNeedsFrontSeat: 4,
+          },
+        },
+      },
+      presets: [
+        { id: 'a', name: '  Eins ', weights: { avoidShyAlone: 5 } },
+        { id: 'a', name: 'Doppelt', weights: {} },
+        { id: 'b', name: '', weights: {} },
+        { id: 'c', name: 'Ohne Gewichte' },
+      ],
+    });
+
+    // "Standard" cannot be changed, and an override that is the original
+    // is none.
+    expect(Object.keys(data.overrides)).toEqual(['quietWork']);
+    const quiet = data.overrides.quietWork!.weights;
+    expect(quiet.avoidRestlessTogether).toBe(10);
+    // Stored before decision 0031's front rows: lifted to "Sehr wichtig".
+    expect(quiet.preferFrontForNeedsFrontSeat).toBe(
+      DEFAULT_MIX_WEIGHTS.preferFrontForNeedsFrontSeat,
+    );
+    expect(data.presets.map((preset) => preset.name)).toEqual(['Eins']);
+    expect(data.presets[0]!.weights.avoidShyAlone).toBe(5);
+    expect(data.presets[0]!.weights.considerWishPartners).toBe(0);
   });
 });

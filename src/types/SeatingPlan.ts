@@ -5,6 +5,7 @@ import type { CircleLayout, CircleExportData } from './Circle';
 import type { Student, SeatingArrangement, ClassCollectionState } from './base';
 import type { PlanUsage } from './PlanUsage';
 import type { ClassDuties } from './Duties';
+import type { MixPresetData } from './MixPresets';
 
 export type NeighborWeightDirection = 'direct' | 'side' | 'front' | 'back';
 
@@ -166,6 +167,11 @@ export interface ExportBundleV1 {
    * (decision 0028). Absent when no class has duties, and in older backups.
    */
   duties?: Record<string, ClassDuties>;
+  /**
+   * The teacher's own presets and their changes to the shipped ones (decision
+   * 0038). Absent when there are none, and in older backups.
+   */
+  mixPresets?: MixPresetData;
 }
 
 export type ExportBundle = ExportBundleV1; // Alias for the current version

@@ -122,6 +122,7 @@ export {
 export {
   DEFAULT_MIX_WEIGHTS,
   DEFAULT_NEIGHBOR_WEIGHTS,
+  MIX_CRITERIA_VERSION,
   SCALAR_MIX_SETTING_KEYS,
   areMixSettingsEqual,
   criterionWeight,
@@ -146,9 +147,19 @@ export {
 export type { MixImportance } from './mixImportance';
 export {
   MIX_RECIPES,
+  emptyMixPresetData,
   findMixRecipe,
+  fullRecipeWeights,
+  hasMixPresetData,
+  isEditableBuiltin,
+  isOriginalWeights,
+  isRecipeOf,
   matchMixRecipe,
+  normalizeMixPresetData,
+  presetWeightsFrom,
+  recipeLevels,
   recipeSettings,
+  resolveMixRecipes,
 } from './mixRecipes';
 export type { MixRecipe, MixRecipeId } from './mixRecipes';
 
