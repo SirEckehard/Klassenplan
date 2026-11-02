@@ -38,7 +38,7 @@ let cachedWidthRem = typeof window === 'undefined' ? SERVER_WIDTH_REM : -1;
  * The app never sets the root's font size, so the root's computed size is
  * exactly that default.
  */
-function readRemPx(): number {
+export function readRemPx(): number {
   const size = Number.parseFloat(
     window.getComputedStyle(document.documentElement).fontSize,
   );

@@ -252,7 +252,7 @@ export default function SmartSidebar({
   return (
     <aside
       ref={containerRef}
-      // The toasts stand beside the column, never over it (`toastDock`).
+      // The toasts never lie over the column (`toastDock`).
       data-shell-toolbar=""
       style={sidebarStyle}
       className={`

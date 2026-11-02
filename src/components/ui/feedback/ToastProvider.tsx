@@ -499,10 +499,10 @@ export function ToastProvider({
   return (
     <>
       {children}
-      {/* Centred over the stage, just above the status bar, the newest
-          nearest the bar (decision 0037): top right they lay over the
-          inspector's head, where a teacher was typing. Outside the shell at
-          the bottom of the window, above a cookie banner. */}
+      {/* Over the status bar's middle, just above it, the newest nearest the
+          bar (decision 0037): top right they lay over the inspector's head,
+          where a teacher was typing. Outside the shell at the bottom of the
+          window, above a cookie banner. */}
       <div
         ref={stackRef}
         aria-live="polite"

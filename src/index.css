@@ -1174,7 +1174,7 @@
   display: flex;
   align-items: flex-start;
   gap: 0.625rem;
-  /* The stack's width is the stage's (`toastDock`); a card takes 23 rem of it. */
+  /* The stack's width comes from `toastDock`; a card takes 23 rem of it. */
   width: min(23rem, 100%);
   border-radius: var(--radius-card);
   border: 1px solid var(--toast-border);

@@ -91,7 +91,7 @@ export default function AppShell({
     observer.observe(bar);
     return () => observer.disconnect();
   }, [statusBar]);
-  // The toasts stand over the stage, above the bar: the provider is outside
+  // The toasts stand above the bar's middle: the provider is outside
   // the frame, so the frame lends it the measure (`toastDock`).
   React.useEffect(
     () =>

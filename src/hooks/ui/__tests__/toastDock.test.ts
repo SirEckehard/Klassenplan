@@ -8,7 +8,10 @@ import {
 } from '@/hooks/ui/toastDock';
 import { isBreakpointUp } from '@/hooks/ui/useBreakpoint';
 
-vi.mock('@/hooks/ui/useBreakpoint', () => ({ isBreakpointUp: vi.fn() }));
+vi.mock('@/hooks/ui/useBreakpoint', () => ({
+  isBreakpointUp: vi.fn(),
+  readRemPx: () => 16,
+}));
 
 /** An element of the frame, laid out where jsdom lays out nothing. */
 const part = (attribute: string, rect: Partial<DOMRect>, parent: Element) => {
@@ -46,26 +49,41 @@ const desktopFrame = () => {
   return { frame, bar };
 };
 
+let windowWidth = 1440;
+
 afterEach(() => {
   vi.mocked(isBreakpointUp).mockReset();
+  windowWidth = 1440;
 });
 
 describe('measureShellDock', () => {
   Object.defineProperty(document.documentElement, 'clientWidth', {
     configurable: true,
-    get: () => 1440,
+    get: () => windowWidth,
   });
 
-  // Over a column the toast lay over its head, where a teacher was typing.
-  it('keeps to the stage between the toolbar and the inspector', () => {
+  // The same insets on both sides: the card stands over the bar's middle, and
+  // an inspector opening or closing does not move it.
+  it('centres on the window, clear of the toolbar and the inspector', () => {
     vi.mocked(isBreakpointUp).mockReturnValue(true);
     const { frame } = desktopFrame();
 
     expect(measureShellDock(frame)).toEqual({
-      left: 208,
+      left: 320,
       right: 320,
       bottom: 61 + 16,
     });
+  });
+
+  // Over a column the toast lay over its head, where a teacher was typing.
+  it('takes the stage where the middle leaves a card too little room', () => {
+    vi.mocked(isBreakpointUp).mockReturnValue(true);
+    windowWidth = 900;
+    const frame = document.createElement('div');
+    part('data-shell-toolbar', { left: 0, width: 60, height: 700 }, frame);
+    part('data-shell-inspector', { left: 580, width: 320, height: 700 }, frame);
+
+    expect(measureShellDock(frame)).toMatchObject({ left: 60, right: 320 });
   });
 
   it('takes the window below md and stands over what hangs from the bar', () => {

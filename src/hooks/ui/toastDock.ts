@@ -1,17 +1,18 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
-import { isBreakpointUp } from '@/hooks/ui/useBreakpoint';
+import { isBreakpointUp, readRemPx } from '@/hooks/ui/useBreakpoint';
 
 /**
  * Where the toasts stand: the part of the window they may cover, as insets
  * from its left, right and bottom edge in px.
  *
- * A toast stands centred over the stage, just above the status bar (decision
- * 0037). The stage is what the toolbar, the inspector's column and an open
- * drawer leave of the window; a toast over one of them lay over its head,
- * where a teacher was typing. Below `md` it takes the window's width and
- * stands above whatever hangs from the bar — "Mischen", the class list's jump
- * to its ends.
+ * A toast stands in the middle of the window, over the middle of the status
+ * bar and just above it, so it does not move when a column opens (decision
+ * 0037). It never lies over the toolbar, the inspector's column or an open
+ * drawer, where a teacher was typing: where the middle leaves it too little
+ * room, it takes the middle of the stage those parts leave. Below `md` it
+ * takes the window's width and stands above whatever hangs from the bar —
+ * "Mischen", the class list's jump to its ends.
  *
  * The shell knows those parts and the toast provider stands far outside it,
  * so the shell registers a measure here and the provider asks it whenever a
@@ -28,6 +29,9 @@ export interface ToastDock {
 /** The room between a toast and the status bar, or what hangs from it. */
 const BAR_GAP_PX = 16;
 const HANG_GAP_PX = 12;
+/** A card's width (`toast-surface`) and the stack's margin on either side. */
+const CARD_WIDTH_REM = 23;
+const STACK_MARGIN_REM = 1;
 
 let measure: (() => ToastDock | null) | null = null;
 
@@ -55,10 +59,11 @@ function visibleRect(element: Element | null): DOMRect | null {
 }
 
 /**
- * Measures the dock inside a shell frame: the stage between the toolbar's
- * column (`data-shell-toolbar`) and the inspector's column or drawer
- * (`data-shell-inspector`), above the status bar (`data-shell-status-bar`)
- * and, below `md`, above what hangs from it (`data-status-bar-hang`).
+ * Measures the dock inside a shell frame: centred on the window, clear of the
+ * toolbar's column (`data-shell-toolbar`) and the inspector's column or drawer
+ * (`data-shell-inspector`), or the stage between them where a card does not
+ * fit that way; above the status bar (`data-shell-status-bar`) and, below
+ * `md`, above what hangs from it (`data-status-bar-hang`).
  */
 export function measureShellDock(frame: HTMLElement): ToastDock {
   const viewportWidth = document.documentElement.clientWidth;
@@ -80,6 +85,13 @@ export function measureShellDock(frame: HTMLElement): ToastDock {
         right = Math.min(right, rect.left);
       }
     });
+    // The same inset on both sides keeps the card on the bar's middle.
+    const inset = Math.max(left, viewportWidth - right);
+    const needed = (CARD_WIDTH_REM + 2 * STACK_MARGIN_REM) * readRemPx();
+    if (viewportWidth - 2 * inset >= needed) {
+      left = inset;
+      right = viewportWidth - inset;
+    }
   } else if (bar) {
     frame
       .querySelectorAll('[data-shell-status-bar] [data-status-bar-hang]')

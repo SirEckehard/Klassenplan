@@ -56,10 +56,11 @@ first that fits:
    is out of sight, a backup written, writes that work again: the bar's line
    says so for three seconds (`confirmInStatusBar`). Too few seats after
    tables were removed is said by the line's red cross already.
-4. **Everything else is a card,** centred over the stage, 16 px above the
-   status bar — below `md` above what hangs from it — never over the toolbar,
-   the inspector or an open drawer. The shell measures that part of the window
-   (`toastDock`); without a shell the cards stand at the bottom of the window.
+4. **Everything else is a card,** over the middle of the status bar, 16 px
+   above it — below `md` above what hangs from it — never over the toolbar, the
+   inspector or an open drawer; where the middle leaves it too little room, it
+   takes the middle of what they leave. The shell measures that (`toastDock`);
+   without a shell the cards stand at the bottom of the window.
    They rise 12 px from below, the newest nearest the bar. A tap anywhere on a
    card puts it away, only its own button does something else; the close
    button stays for the keyboard. A swipe sideways or down puts it away too.
@@ -88,9 +89,12 @@ stay as they were.
   number; an error that explains what to do does not fit, and an undo needs a
   button.
 - **The bottom centre of `8139a170` as it was.** It read as part of the bar
-  because the bar's middle was under it and every success message came there.
-  Now the card is centred on the stage, floats 16 px above the bar with its
-  shadow, and few cards come.
+  because it stood on it and every success message came there. Now the card
+  floats 16 px above the bar with its shadow, and few cards come.
+- **The middle of the stage at every width.** It was the first version of this
+  decision. With the inspector open the card stood visibly off the bar's middle
+  and moved when a column opened or closed, so the maintainer asked for the
+  bar's middle (2026-11-02); the stage's stays only where the bar's has no room.
 
 ## Consequences
 
