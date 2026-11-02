@@ -7,6 +7,18 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { ensureEnglishLoaded } from '../i18n/i18n';
 import { reportChunkLoadFailure } from '@/utils/performance/chunkLoad';
 
+/**
+ * The router state without `step`, the layer an entry asks the workspace for:
+ * that was answered when the entry opened, and on a new entry it would ask
+ * again, taking the teacher back from the layer they went to since.
+ */
+const withoutLayerRequest = (state: unknown): unknown => {
+  if (typeof state !== 'object' || state === null) return state;
+  const rest = { ...(state as Record<string, unknown>) };
+  delete rest.step;
+  return rest;
+};
+
 const LanguageSelector: React.FC = () => {
   const { t, i18n } = useTranslation('common');
   const navigate = useNavigate();
@@ -29,7 +41,10 @@ const LanguageSelector: React.FC = () => {
 
     // Carry the router state over: switching language remounts the route, and
     // pages like /present read their initial mode from it.
-    const navigateOptions = { replace: true, state: location.state as unknown };
+    const navigateOptions = {
+      replace: true,
+      state: withoutLayerRequest(location.state),
+    };
 
     if (newLanguage === 'en') {
       const newPath = pathWithoutLang === '/' ? '/en' : `/en${pathWithoutLang}`;
