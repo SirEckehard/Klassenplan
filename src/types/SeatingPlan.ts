@@ -55,6 +55,12 @@ export interface MixSettings {
    * before decision 0031, which `migrateStoredMixSettings` brings up to date.
    */
   criteriaVersion?: number;
+  /**
+   * The preset the weights were last set from (decision 0038): a shipped
+   * preset's id or an own one's. Kept when the weights are moved afterwards,
+   * so the panel names the preset they left; absent for a mix of one's own.
+   */
+  presetId?: string;
 }
 
 export interface MixResult {
@@ -178,5 +184,5 @@ export type ExportBundle = ExportBundleV1; // Alias for the current version
 
 export type ScalarMixSettingKey = Exclude<
   keyof MixSettings,
-  'neighborWeights' | 'criteriaVersion'
+  'neighborWeights' | 'criteriaVersion' | 'presetId'
 >;

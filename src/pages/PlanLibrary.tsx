@@ -65,7 +65,7 @@ import {
 } from '@/hooks/library/useClassLibrary';
 import { usePlanUsageRecords } from '@/hooks/plan/usePlanUsageRecords';
 import { useMixPresets } from '@/hooks/ui/useMixPresets';
-import { rememberChosenRecipe } from '@/hooks/ui/useMixRecipes';
+import { withRecipe } from '@/hooks/ui/useMixRecipes';
 import {
   deleteMixPreset,
   setMixPresetOverride,
@@ -85,9 +85,7 @@ import {
   logError,
   MAX_NAME_LENGTH,
   MAX_ROOMS_PER_CLASS,
-  recipeSettings,
   uniqueName,
-  withWeightsFrom,
   type MixRecipe,
   type NameProblem,
 } from '@/utils';
@@ -386,9 +384,8 @@ function PlanLibraryPage() {
         const classId = latest.state.activeClass.id;
         if (!preset || !classId) return;
         const students = latest.state.students;
-        rememberChosenRecipe(classId, preset.id);
         latest.actions.setMixSettings((prev) =>
-          withWeightsFrom(prev, recipeSettings(preset, prev, students)),
+          withRecipe(prev, preset, students),
         );
         announce(t('library.preset.applied', { name: presetLabel(preset, t) }));
         toLayer(3);
@@ -1061,6 +1058,14 @@ function PlanLibraryPage() {
               }
               showToast('error', 'toast:mixPresets.saveFailed');
               return null;
+            }}
+            onChangeWeights={(weights) => {
+              const written = isEditableBuiltin(preset.builtin)
+                ? setMixPresetOverride(preset.builtin, weights)
+                : updateMixPreset(preset.id, { weights });
+              void written.then((ok) => {
+                if (!ok) showToast('error', 'toast:mixPresets.saveFailed');
+              });
             }}
             onDelete={() => void requestRemoval(current)}
             onRestore={() => void restorePreset(preset)}

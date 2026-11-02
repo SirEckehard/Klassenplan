@@ -279,6 +279,14 @@ function validateMixSettings(value: unknown): asserts value is MixSettings {
     throw new BackupValidationError(BACKUP_ERROR_MESSAGES.invalidData);
   }
 
+  // The preset the weights came from (decision 0038); absent in older backups.
+  if (
+    record.presetId !== undefined &&
+    !assertString(record.presetId, { maxLength: BACKUP_LIMITS.maxIdLength })
+  ) {
+    throw new BackupValidationError(BACKUP_ERROR_MESSAGES.invalidData);
+  }
+
   const neighborWeights = record.neighborWeights;
   if (neighborWeights === undefined) {
     return; // Backwards compatibility: older backups may not include this field

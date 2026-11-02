@@ -5,6 +5,8 @@ import type { Student } from '@/types';
 import {
   DEFAULT_MIX_WEIGHTS,
   MIX_RECIPES,
+  areMixSettingsEqual,
+  normalizeMixSettings,
   SCALAR_MIX_SETTING_KEYS,
   findMixRecipe,
   fullRecipeWeights,
@@ -281,5 +283,30 @@ describe("presets of the teacher's own (decision 0038)", () => {
     expect(data.presets.map((preset) => preset.name)).toEqual(['Eins']);
     expect(data.presets[0]!.weights.avoidShyAlone).toBe(5);
     expect(data.presets[0]!.weights.considerWishPartners).toBe(0);
+  });
+});
+
+describe('the preset the weights came from (decision 0038)', () => {
+  it('is kept through normalising and let go of on purpose', () => {
+    const settings = normalizeMixSettings(
+      { presetId: 'exam' },
+      neutralSettings,
+    );
+    expect(settings.presetId).toBe('exam');
+
+    // Normalised again, as the store does on every change.
+    expect(normalizeMixSettings(settings, neutralSettings).presetId).toBe(
+      'exam',
+    );
+    expect(
+      normalizeMixSettings({ presetId: undefined }, settings).presetId,
+    ).toBeUndefined();
+  });
+
+  it('makes two settings differ', () => {
+    const settings = normalizeMixSettings({}, neutralSettings);
+    expect(
+      areMixSettingsEqual(settings, { ...settings, presetId: 'exam' }),
+    ).toBe(false);
   });
 });

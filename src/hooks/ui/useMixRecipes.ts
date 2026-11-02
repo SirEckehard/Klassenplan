@@ -12,66 +12,45 @@ import {
   type MixRecipeId,
 } from '@/utils';
 
-/**
- * The recipe each class last had chosen, for as long as the page is open.
- * Not stored (decision 0018): it only tells which preset weights that no
- * longer match came from, so the panel can say "· geändert" and offer to keep
- * the change — through a switch of the inspector, and when "Bibliothek" set it.
- */
-const chosenByClass = new Map<string, MixRecipeId>();
-
-/** Note the recipe a class's weights were just set from. */
-export function rememberChosenRecipe(classId: string, id: MixRecipeId): void {
-  chosenByClass.set(classId, id);
-}
-
 type UseMixRecipesOptions = {
   settings: MixSettings;
   setMixSettings: React.Dispatch<React.SetStateAction<MixSettings>>;
   students: Student[];
   /** Every preset on offer, the teacher's own included. */
   recipes: readonly MixRecipe[];
-  /** The open class; without one the choice is kept here alone. */
-  classId?: string | null;
 };
+
+/**
+ * The settings with a preset's weights, noted as set from it.
+ * "Bibliothek" applies a preset the same way.
+ */
+export const withRecipe = (
+  settings: MixSettings,
+  recipe: MixRecipe,
+  students: Student[],
+): MixSettings => ({
+  ...withWeightsFrom(settings, recipeSettings(recipe, settings, students)),
+  presetId: recipe.id,
+});
 
 /**
  * Which recipe the weights currently are, which one they were set from and
  * left, and how to set another one.
  *
- * The chosen recipe is remembered for as long as the weights still match it:
- * in a class with little data several recipes can come out the same, and the
- * panel should keep naming the one the teacher pressed rather than the first
- * that happens to fit. Moving any weight afterwards makes the recipe the
- * `base` of a changed mix — a starting point, never a lock.
+ * The settings note the recipe they were set from (`presetId`, decision
+ * 0038), so it survives a reload: in a class with little data several recipes
+ * can come out the same, and the panel keeps naming the one the teacher
+ * pressed rather than the first that happens to fit. Moving any weight
+ * afterwards makes that recipe the `base` of a changed mix — a starting
+ * point, never a lock.
  */
 export function useMixRecipes({
   settings,
   setMixSettings,
   students,
   recipes,
-  classId,
 }: UseMixRecipesOptions) {
-  const key = classId ?? null;
-  const [chosen, setChosen] = React.useState<{
-    key: string | null;
-    id: MixRecipeId | null;
-  }>(() => ({ key, id: key ? (chosenByClass.get(key) ?? null) : null }));
-  // Another class opened: its own choice, as it was left.
-  const chosenId =
-    chosen.key === key
-      ? chosen.id
-      : key
-        ? (chosenByClass.get(key) ?? null)
-        : null;
-
-  const choose = React.useCallback(
-    (id: MixRecipeId) => {
-      if (key) rememberChosenRecipe(key, id);
-      setChosen({ key, id });
-    },
-    [key],
-  );
+  const chosenId = settings.presetId ?? null;
 
   const { activeId, baseId } = React.useMemo(() => {
     const recipe = chosenId ? findMixRecipe(chosenId, recipes) : undefined;
@@ -88,12 +67,17 @@ export function useMixRecipes({
   const apply = React.useCallback(
     (id: MixRecipeId, recipe = findMixRecipe(id, recipes)) => {
       if (!recipe) return;
-      choose(id);
-      setMixSettings((prev) =>
-        withWeightsFrom(prev, recipeSettings(recipe, prev, students)),
-      );
+      setMixSettings((prev) => withRecipe(prev, recipe, students));
     },
-    [choose, recipes, setMixSettings, students],
+    [recipes, setMixSettings, students],
+  );
+
+  /** Take a recipe as the one the weights came from, leaving them as they are. */
+  const choose = React.useCallback(
+    (id: MixRecipeId) => {
+      setMixSettings((prev) => ({ ...prev, presetId: id }));
+    },
+    [setMixSettings],
   );
 
   return {
@@ -103,7 +87,6 @@ export function useMixRecipes({
     active: activeId ? findMixRecipe(activeId, recipes) : undefined,
     base: baseId ? findMixRecipe(baseId, recipes) : undefined,
     apply,
-    /** Take a recipe as the chosen one without setting its weights. */
     choose,
   };
 }

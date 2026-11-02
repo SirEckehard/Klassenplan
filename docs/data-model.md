@@ -98,6 +98,10 @@ weights under `spg.mixSettings`, a backup's, a mix of the history — are
 brought up to it where they come in (`migrateStoredMixSettings`): a level of
 `preferFrontForNeedsFrontSeat` below "Sehr wichtig" is lifted to the
 recommended 8 once. `neighborWeights` is still stored but no longer read.
+`presetId` names the preset the weights were last set from — a shipped
+preset's id or an own one's ([decision 0038](decisions/0038-own-mixing-presets.md))
+— and stays when a weight is moved afterwards; absent for a mix of one's own
+and in older settings. An id no preset carries any more reads as none.
 
 - **One record per class.** A class's students, plans, room and weights all
   live inside its record; switching classes means reading a different record.
@@ -304,7 +308,8 @@ name, weights, criteriaVersion, createdAt }`, in the order they were saved.
 the class. Reading (`normalizeMixPresetData`) drops what is not a preset, sets
 a missing criterion to 0 and lifts weights stored under an older
 `criteriaVersion` as the class's settings are (`migrateStoredMixSettings`).
-Which preset a class's weights came from is not stored.
+Which preset a class's weights came from is the class's: `presetId` in its
+`mixSettings`.
 
 ## Photo store
 

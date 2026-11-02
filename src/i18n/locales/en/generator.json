@@ -344,7 +344,10 @@
       "deleteMessage": "“{{name}}” will be deleted. The criteria of your classes stay as they are.",
       "saved": "Preset “{{name}}” saved.",
       "kept": "Changes saved to “{{name}}”.",
-      "restored": "“{{name}}” restored."
+      "restored": "“{{name}}” restored.",
+      "summary": "{{level}}: {{names}}",
+      "summaryMore": "{{level}}: {{names}} +{{count}}",
+      "adjustedSummary": "Adjusted · {{summary}}"
     },
     "enableAll": "Enable all criteria",
     "disableAll": "Disable all criteria",
@@ -1282,13 +1285,13 @@
     "presetsHint": "Presets apply to every class. You save your own in the plan under “Preset”; “Apply” sets the criteria of the open class.",
     "applyPreset": "Apply",
     "preset": {
-      "section": "Criteria",
       "shipped": "Built in",
       "own": "Your own",
-      "hint": "“Apply” at the bottom right sets the criteria of the open class to this preset. Nothing is mixed until you mix.",
+      "hint": "Every change applies to the preset at once. “Apply” at the bottom right sets the criteria of the open class to it; nothing is mixed until you mix.",
       "delete": "Delete preset",
       "applied": "Preset “{{name}}” applied.",
-      "deleted": "Preset “{{name}}” deleted."
+      "deleted": "Preset “{{name}}” deleted.",
+      "standardHint": "“Default” stays as it is – the way back to the basic settings. You can change the other presets and your own."
     }
   },
   "contextMenu": {

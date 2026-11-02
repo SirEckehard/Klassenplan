@@ -31,7 +31,6 @@ import {
   updateMixPreset,
 } from '@/repositories/mixPresetStore';
 import { confirmDialog } from '@/services/ui/dialogs';
-import { useOptionalSeatingPlanState } from '@/contexts/seatingPlan/seatingPlanSelectors';
 import { useMixPresets } from '@/hooks/ui/useMixPresets';
 import type { CriterionFulfillment } from '@/utils/algorithm/seatingStatistics';
 import {
@@ -74,6 +73,10 @@ type SmartMixControlsProps = FulfillmentProps & {
   setMixSettings: React.Dispatch<React.SetStateAction<MixSettings>>;
   students: Student[];
   suspendedWeights?: SuspendedWeights;
+  /** Every criterion, whatever data the class has: a preset's. */
+  allCriteria?: boolean;
+  /** The levels shown, not changed: "Standard" in "Bibliothek". */
+  readOnly?: boolean;
 };
 
 /** What one criterion's control needs of {@link FulfillmentProps}. */
@@ -117,11 +120,13 @@ function ImportanceScale({
   family,
   value,
   onChange,
+  readOnly = false,
 }: {
   label: string;
   family: DataFamily;
   value: MixImportance;
   onChange: (level: MixImportance) => void;
+  readOnly?: boolean;
 }) {
   const { t } = useTranslation('generator');
   const valueIndex = MIX_IMPORTANCE_LEVELS.indexOf(value);
@@ -158,11 +163,12 @@ function ImportanceScale({
             key={level}
             type="button"
             onPointerEnter={(event) => {
-              if (event.pointerType === 'mouse') {
+              if (event.pointerType === 'mouse' && !readOnly) {
                 setPreviewIndex(index);
               }
             }}
             onClick={() => onChange(level)}
+            disabled={readOnly}
             aria-pressed={isActive}
             aria-label={t('mix.importance.optionLabel', {
               label,
@@ -171,7 +177,7 @@ function ImportanceScale({
             title={`${levelLabel} – ${t(`mix.importance.${level}Hint`)}`}
             // Bars share a baseline, as a signal meter's do. A finger gets
             // the 44px of every inspector control.
-            className="flex h-7 w-4.5 cursor-pointer items-end justify-center rounded-sm pb-1.5 transition hover:bg-(--surface-sunken) pointer-coarse:h-11 pointer-coarse:w-7 pointer-coarse:pb-3.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary)"
+            className="flex h-7 w-4.5 cursor-pointer items-end justify-center rounded-sm pb-1.5 transition hover:bg-(--surface-sunken) disabled:cursor-default disabled:hover:bg-transparent pointer-coarse:h-11 pointer-coarse:w-7 pointer-coarse:pb-3.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary)"
           >
             <span
               aria-hidden="true"
@@ -287,6 +293,7 @@ function CriterionRow({
   value,
   importance,
   onImportanceChange,
+  readOnly,
   fulfillment,
   pinned,
   onHighlightHover,
@@ -297,6 +304,7 @@ function CriterionRow({
   value: number;
   importance: MixImportance;
   onImportanceChange: (level: MixImportance) => void;
+  readOnly?: boolean;
 }) {
   const family = CRITERIA_FAMILY_MAP[criterion.key];
 
@@ -318,6 +326,7 @@ function CriterionRow({
           family={family}
           value={importance}
           onChange={onImportanceChange}
+          readOnly={readOnly}
         />
       </InspectorRow>
       {fulfillment && (
@@ -360,12 +369,15 @@ function SmartMixControls({
   onHighlightToggle,
   activeHighlightKey = null,
   activeHighlightMode = null,
+  allCriteria = false,
+  readOnly = false,
 }: SmartMixControlsProps) {
   const mix = useMixCriteria({
     settings,
     setMixSettings,
     students,
     suspendedWeights,
+    allCriteria,
   });
 
   // The statistics carry only the criteria the mix scored, in the order of the
@@ -402,6 +414,7 @@ function SmartMixControls({
               onImportanceChange={(level) =>
                 mix.setImportance(criterion.key, level)
               }
+              readOnly={readOnly}
             />
           ))}
         </InspectorSection>
@@ -438,14 +451,12 @@ export function MixRecipeSection({
     suspendedWeights,
   });
   const text = useMixRecipeText();
-  const classId = useOptionalSeatingPlanState()?.activeClass.id ?? null;
   const presets = useMixPresets();
   const recipes = useMixRecipes({
     settings,
     setMixSettings,
     students,
     recipes: presets.recipes,
-    classId,
   });
   const [renamingId, setRenamingId] = React.useState<string | null>(null);
   const renaming = presets.recipes.find((recipe) => recipe.id === renamingId);

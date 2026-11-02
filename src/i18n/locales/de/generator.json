@@ -344,7 +344,10 @@
       "deleteMessage": "„{{name}}“ wird gelöscht. Die Kriterien deiner Klassen bleiben, wie sie sind.",
       "saved": "Voreinstellung „{{name}}“ gespeichert.",
       "kept": "Änderungen in „{{name}}“ übernommen.",
-      "restored": "„{{name}}“ wiederhergestellt."
+      "restored": "„{{name}}“ wiederhergestellt.",
+      "summary": "{{level}}: {{names}}",
+      "summaryMore": "{{level}}: {{names}} +{{count}}",
+      "adjustedSummary": "Angepasst · {{summary}}"
     },
     "enableAll": "Alle Kriterien aktivieren",
     "disableAll": "Alle Kriterien deaktivieren",
@@ -1282,13 +1285,13 @@
     "presetsHint": "Voreinstellungen gelten für alle Klassen. Eigene speicherst du im Plan unter „Voreinstellung“; „Übernehmen“ setzt die Kriterien der offenen Klasse.",
     "applyPreset": "Übernehmen",
     "preset": {
-      "section": "Kriterien",
       "shipped": "Mitgeliefert",
       "own": "Eigene",
-      "hint": "„Übernehmen“ unten rechts setzt die Kriterien der offenen Klasse auf diese Voreinstellung. Gemischt wird erst, wenn du mischst.",
+      "hint": "Jede Änderung gilt sofort für die Voreinstellung. „Übernehmen“ unten rechts setzt die Kriterien der offenen Klasse auf sie; gemischt wird erst, wenn du mischst.",
       "delete": "Voreinstellung löschen",
       "applied": "Voreinstellung „{{name}}“ übernommen.",
-      "deleted": "Voreinstellung „{{name}}“ gelöscht."
+      "deleted": "Voreinstellung „{{name}}“ gelöscht.",
+      "standardHint": "„Standard“ bleibt, wie er ist – der Weg zurück zu den Grundeinstellungen. Ändern kannst du die anderen Voreinstellungen und deine eigenen."
     }
   },
   "contextMenu": {

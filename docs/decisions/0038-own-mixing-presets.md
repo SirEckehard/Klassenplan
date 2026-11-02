@@ -31,14 +31,17 @@ the starting point it is.
    stored once for all classes (`spg.mixPresets`, `mixPresetStore.ts`), go with
    the backup, and are listed under a rule below the shipped ones. A pencil
    renames one, a bin deletes it after asking — in the menu and in
-   "Bibliothek", whose folder "Voreinstellungen" lists every preset and whose
-   "Übernehmen" sets the open class's criteria to one. Nothing is mixed then:
-   a plan arranged by hand is not mixed over unasked.
+   "Bibliothek", whose folder "Voreinstellungen" lists every preset, shows its
+   criteria as the plan's inspector does — every criterion, since a preset
+   belongs to no class — and keeps each change at once ("Standard" read only),
+   and whose "Übernehmen" sets the open class's criteria to one. Nothing is
+   mixed then: a plan arranged by hand is not mixed over unasked.
 3. **Changed weights say where they came from.** Moving a criterion after
    choosing a preset reads "Klassenarbeit · geändert" instead of "Eigene
    Mischung", and the panel offers to keep the change in that preset — not in
-   "Standard" — or as a new one. Which preset was chosen is remembered per
-   class while the page is open, never stored, as 0018 decided.
+   "Standard" — or as a new one. Which preset was chosen is stored with the
+   class's settings (`MixSettings.presetId`), so it is still named after a
+   reload; 0018 had derived it from the weights alone.
 4. **Shipped presets can be changed** (`overrides`). A changed one keeps its
    name, is marked "angepasst" and offers "Original wiederherstellen"; an
    override equal to the shipped weights is not kept.
@@ -47,10 +50,12 @@ the starting point it is.
    weights came from, or the basic setting, so saving in a class without
    language levels does not switch language support off everywhere
    (`presetWeightsFrom`).
-6. **An own or changed preset describes itself** from its weights, by level
-   ("Sehr wichtig: Unruhe, Distanzwünsche · Beachten: Körpergröße"); only an
-   unchanged shipped preset keeps its written line, which would no longer be
-   true of changed weights.
+6. **An own or changed preset describes itself** from its weights in one
+   short line — the highest level, two of its criteria and how many more
+   ("Sehr wichtig: Distanzwünsche, Unruhe +2", a changed one led by
+   "Angepasst"); only an unchanged shipped preset keeps its written line,
+   which would no longer be true of changed weights. The whole list is the
+   criteria's own, below the menu and in "Bibliothek".
 
 ## Alternatives considered
 
@@ -59,17 +64,21 @@ the starting point it is.
   preset is meant to save.
 - **Changing a shipped preset makes a copy.** Safer, but the menu would fill
   with "Klassenarbeit" and "Klassenarbeit (2)".
-- **Store the chosen preset with the settings.** Rejected again for the reasons
-  of 0018; after a reload a changed mix reads "Eigene Mischung", which is
-  still true.
+- **Remember the chosen preset only while the page is open.** No new stored
+  field, but after a reload a changed mix read "Eigene Mischung" and the
+  offer to keep the change in its preset was gone; the maintainer chose to
+  store it. A preset deleted since reads as none, which answers 0018's
+  question of a stored preset that no longer matches its weights: it is
+  "· geändert".
 - **Mix at once when "Bibliothek" applies a preset.** One step less, but it
   would replace a plan the teacher may have arranged by hand.
 
 ## Consequences
 
 - A new stored value, `spg.mixPresets` (`MixPresetData`, version 1), wiped
-  with all data and carried by the backup as an optional `mixPresets`; the
-  export version stays 3, and an older build ignores the field.
+  with all data and carried by the backup as an optional `mixPresets`, and an
+  optional `presetId` in every `MixSettings` (a class's, a mix's); the export
+  version stays 3, and an older build ignores both.
 - A changed shipped preset does not take up a later change of the shipped
   weights until it is restored; an own preset never does. Both are brought up
   to date when the meaning of the weights changes (`criteriaVersion`).

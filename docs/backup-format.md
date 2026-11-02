@@ -45,7 +45,8 @@ A backup (`ExportBundle`) contains the following required fields:
 - `classroomScene.features` – optional room features (windows, doors, blackboard, teacher's desk) as `ClassroomFeature`.
 - `mixSettings` – most recently used weights for the shuffle algorithm, with
   `criteriaVersion` since decision 0031; a backup without it is migrated on
-  import (see [data-model.md](data-model.md#class-collection)).
+  import (see [data-model.md](data-model.md#class-collection)). An optional
+  `presetId` names the preset the weights came from (decision 0038).
 - `lockedPositions` – fixed seat assignments for individual students.
 - `classroomTemplates` – saved layout templates.
 

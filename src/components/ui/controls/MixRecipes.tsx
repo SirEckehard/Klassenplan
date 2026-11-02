@@ -16,7 +16,6 @@ import {
   uniqueName,
   type MixRecipe,
 } from '@/utils';
-import type { ScalarMixSettingKey } from '@/types';
 import {
   InspectorActionRow,
   InspectorMenuButton,
@@ -29,35 +28,54 @@ import {
  * recipe it came from, or "eigene" — and offers to keep it (decision 0038).
  */
 
+/** How many criteria of a level the menu's short line names before "+2". */
+const SUMMARY_NAMES = 2;
+
 /**
  * A recipe's name and the line under it: a shipped one's in words, written
  * for it; an own or a changed one's from its weights, which no written line
- * could keep up with.
+ * could keep up with. That line stays short enough for the menu — the
+ * highest level only, two of its criteria and how many more — since the
+ * whole list is the criteria's own, below the menu and in "Bibliothek".
  */
 export function useMixRecipeText() {
   const { t } = useTranslation('generator');
   return React.useMemo(() => {
-    const criterionNames = (keys: ScalarMixSettingKey[]) =>
-      keys.map((key) => t(`mix.criteria.${key}.label`)).join(', ');
-    const describeWeights = (weights: MixRecipe['weights']) => {
+    const summarize = (weights: MixRecipe['weights']) => {
       const levels = recipeLevels(weights);
-      const parts = (['essential', 'important', 'consider'] as const)
-        .filter((level) => levels[level].length > 0)
-        .map(
-          (level) =>
-            `${t(`mix.importance.${level}`)}: ${criterionNames(levels[level])}`,
-        );
-      return parts.length > 0 ? parts.join(' · ') : t('mix.recipes.allOff');
+      const level = (['essential', 'important', 'consider'] as const).find(
+        (candidate) => levels[candidate].length > 0,
+      );
+      if (!level) return t('mix.recipes.allOff');
+      const keys = levels[level];
+      const names = keys
+        .slice(0, SUMMARY_NAMES)
+        .map((key) => t(`mix.criteria.${key}.label`))
+        .join(', ');
+      const more = keys.length - SUMMARY_NAMES;
+      return more > 0
+        ? t('mix.recipes.summaryMore', {
+            level: t(`mix.importance.${level}`),
+            names,
+            count: more,
+          })
+        : t('mix.recipes.summary', {
+            level: t(`mix.importance.${level}`),
+            names,
+          });
     };
     return {
       label: (recipe: MixRecipe) =>
         recipe.builtin
           ? t(`mix.recipes.${recipe.builtin}.label`)
           : (recipe.name ?? ''),
-      description: (recipe: MixRecipe) =>
-        recipe.builtin && !recipe.changed
-          ? t(`mix.recipes.${recipe.builtin}.desc`)
-          : describeWeights(recipe.weights),
+      description: (recipe: MixRecipe) => {
+        if (!recipe.builtin) return summarize(recipe.weights);
+        if (!recipe.changed) return t(`mix.recipes.${recipe.builtin}.desc`);
+        return t('mix.recipes.adjustedSummary', {
+          summary: summarize(recipe.weights),
+        });
+      },
     };
   }, [t]);
 }
@@ -66,7 +84,7 @@ export function useMixRecipeText() {
  * What the plan is being mixed for: one button the width of the inspector,
  * naming the recipe the weights match — "Klassenarbeit · geändert" once they
  * left it, or "Eigene Mischung" — that opens the recipes as a menu: the
- * shipped ones, a changed one marked "angepasst", and under a rule the
+ * shipped ones, a changed one's line starting "Angepasst", and under a rule the
  * teacher's own with a pencil and a bin. The menu lies over the criteria, as
  * the student inspector's values do (`InspectorSelect`), instead of pushing
  * every one of them down.
@@ -109,7 +127,6 @@ export function MixRecipePanel({
           key: recipe.id,
           label: name,
           description: text.description(recipe),
-          meta: recipe.changed ? t('mix.recipes.adjusted') : undefined,
           checked: recipe.id === activeId,
           separatorBefore: recipe === firstOwn,
           onSelect: () => onSelect(recipe.id),

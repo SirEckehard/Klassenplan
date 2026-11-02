@@ -62,6 +62,11 @@ type UseMixCriteriaOptions = {
   students: Student[];
   /** Falls back to one of the control's own. */
   suspendedWeights?: SuspendedWeights;
+  /**
+   * Every criterion, whatever data the class has: a preset in "Bibliothek"
+   * belongs to no class (decision 0038).
+   */
+  allCriteria?: boolean;
 };
 
 /**
@@ -201,14 +206,15 @@ export const buildMixCriteriaCategories = (
  * phone — so a rule such as the two exclusive performance criteria is written
  * once.
  *
- * `categories` holds only the criteria the class has data for; categories left
- * empty are dropped.
+ * `categories` holds only the criteria the class has data for — all of them
+ * with `allCriteria` —; categories left empty are dropped.
  */
 export function useMixCriteria({
   settings,
   setMixSettings,
   students,
   suspendedWeights,
+  allCriteria = false,
 }: UseMixCriteriaOptions) {
   const { t } = useTranslation('generator');
   const [ownSuspendedWeights] = React.useState(createSuspendedWeights);
@@ -221,11 +227,12 @@ export function useMixCriteria({
           ...category,
           criteria: category.criteria.filter(
             (criterion) =>
+              allCriteria ||
               isCriterionAvailable(criterion.key, students).available,
           ),
         }))
         .filter((category) => category.criteria.length > 0),
-    [t, students],
+    [t, students, allCriteria],
   );
 
   const isRandom = !hasActiveWeights(settings);
@@ -239,7 +246,7 @@ export function useMixCriteria({
   const setWeight = React.useCallback(
     (key: ScalarMixSettingKey, value: number) => {
       const availability = isCriterionAvailable(key, students);
-      if (!availability.available && value > 0) {
+      if (!allCriteria && !availability.available && value > 0) {
         showToast(
           'info',
           availability.reason || 'generator:mix.criterionNotAvailable',
@@ -248,7 +255,7 @@ export function useMixCriteria({
       }
       setMixSettings((prev) => withCriterionWeight(prev, key, value));
     },
-    [setMixSettings, students],
+    [setMixSettings, students, allCriteria],
   );
 
   /** The level a criterion's control shows; see {@link criterionImportance}. */

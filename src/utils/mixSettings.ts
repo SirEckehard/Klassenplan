@@ -157,19 +157,34 @@ export const normalizeMixSettings = (
     base.neighborWeights,
   );
 
+  // The preset the weights came from goes along unless the overrides say
+  // otherwise — an explicit `presetId: undefined` lets go of it.
+  const { presetId: basePresetId, ...baseRest } = base;
+  const presetId =
+    overrides && 'presetId' in overrides
+      ? typeof overrides.presetId === 'string'
+        ? overrides.presetId
+        : undefined
+      : basePresetId;
+
   return {
-    ...base,
+    ...baseRest,
     ...mergedScalars,
     neighborWeights,
     criteriaVersion: MIX_CRITERIA_VERSION,
+    ...(presetId ? { presetId } : {}),
   };
 };
 
-/** Whether two settings hold the same weights, neighbour weights included. */
+/**
+ * Whether two settings hold the same weights, neighbour weights included, and
+ * name the same preset.
+ */
 export const areMixSettingsEqual = (
   a: Readonly<MixSettings>,
   b: Readonly<MixSettings>,
 ): boolean =>
+  a.presetId === b.presetId &&
   SCALAR_MIX_SETTING_KEYS.every((key) => a[key] === b[key]) &&
   (['behavioral', 'gender'] as const).every((group) =>
     (['direct', 'side', 'front', 'back'] as const).every(

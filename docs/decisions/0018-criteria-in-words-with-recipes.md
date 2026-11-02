@@ -87,8 +87,8 @@ read on one scale.
   [decision 0038](0038-own-mixing-presets.md) "Standard"), so
   `withDefaultWeights` has a second way in through the recipe list.
 - [Decision 0038](0038-own-mixing-presets.md) lets a teacher keep presets of
-  their own and change the shipped ones; the chosen preset is still not
-  stored.
+  their own and change the shipped ones, and stores the chosen preset with
+  the settings after all.
 - Adding a criterion needs nothing beyond its scale, which comes for free.
 
 ## Revision of 2026-10-18: the levels as a scale

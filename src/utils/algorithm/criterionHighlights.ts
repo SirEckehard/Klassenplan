@@ -44,7 +44,8 @@ const highlightedKeys = (
     ).filter((key) => (settings[key] ?? 0) > 0);
   }
   return criterionKey === 'neighborWeights' ||
-    criterionKey === 'criteriaVersion'
+    criterionKey === 'criteriaVersion' ||
+    criterionKey === 'presetId'
     ? []
     : [criterionKey];
 };

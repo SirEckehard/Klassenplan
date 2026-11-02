@@ -141,7 +141,7 @@ describe('MixRecipeSection — presets (decision 0038)', () => {
     });
     expect(
       openMenu().getByRole('button', { name: /Klassenarbeit|Written test/ }),
-    ).toHaveTextContent(/angepasst|adjusted/);
+    ).toHaveTextContent(/Angepasst ·|Adjusted ·/);
     fireEvent.click(recipeButton());
 
     fireEvent.click(

@@ -258,6 +258,13 @@ test('a preset of your own is kept and found in "Bibliothek"', async ({
     await expect(presetButton).toHaveAccessibleName(
       'Voreinstellung: Stillarbeit',
     );
+
+    // The class keeps which preset its criteria came from.
+    await page.reload();
+    await page.getByRole('button', { name: 'Sitzplan', exact: true }).click();
+    await expect(presetButton).toHaveAccessibleName(
+      'Voreinstellung: Stillarbeit',
+    );
   });
 
   await test.step('"Bibliothek" lists it, also after a reload', async () => {

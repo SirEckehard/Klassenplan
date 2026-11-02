@@ -40,6 +40,7 @@ const mocks = vi.hoisted(() => ({
   updateClassMetadata: vi.fn(),
   requestDelete: vi.fn(),
   confirmDialog: vi.fn(),
+  setMixPresetOverride: vi.fn(async () => true),
 }));
 
 vi.mock('@/contexts/SeatingPlanContext', () => ({
@@ -85,6 +86,13 @@ vi.mock('@/hooks/plan/usePlanUsageRecords', () => ({
 }));
 vi.mock('@/services/ui/dialogs', () => ({
   confirmDialog: mocks.confirmDialog,
+}));
+vi.mock('@/repositories/mixPresetStore', () => ({
+  loadMixPresets: async () => ({ version: 1, overrides: {}, presets: [] }),
+  subscribeToMixPresets: () => () => undefined,
+  setMixPresetOverride: mocks.setMixPresetOverride,
+  updateMixPreset: vi.fn(async () => true),
+  deleteMixPreset: vi.fn(async () => true),
 }));
 
 const summaries: ClassSummary[] = [
@@ -545,5 +553,39 @@ describe('PlanLibrary when a change is not made', () => {
     expect(settings.avoidPreviousPairs).toBe(8);
     expect(settings.considerWishPartners).toBe(0);
     expect(await screen.findByText('Arbeitsfläche')).toBeInTheDocument();
+  });
+
+  it('changes a shipped preset in its criteria, never "Standard"', async () => {
+    const user = userEvent.setup();
+    renderPage();
+
+    await user.click(
+      await screen.findByRole('option', {
+        name: /^(Voreinstellungen|Presets)/,
+      }),
+    );
+    await user.click(
+      await screen.findByRole('option', { name: /^(Standard|Default)/ }),
+    );
+    // Every criterion is listed, whatever data the open class has.
+    expect(
+      screen.getByRole('button', {
+        name: /^(Sprachförderung|Language support): (Wichtig|Important)$/,
+      }),
+    ).toBeDisabled();
+
+    await user.click(
+      screen.getByRole('option', { name: /^(Klassenarbeit|Written test)/ }),
+    );
+    await user.click(
+      screen.getByRole('button', {
+        name: /^(Wiederholung|Repetition): (Wichtig|Important)$/,
+      }),
+    );
+
+    expect(mocks.setMixPresetOverride).toHaveBeenCalledWith(
+      'exam',
+      expect.objectContaining({ avoidPreviousPairs: 5 }),
+    );
   });
 });
