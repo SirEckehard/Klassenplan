@@ -184,6 +184,7 @@ export default function SeatingPlanHeader({
   return (
     <AppHeader
       brandIsHeading
+      isWorkspaceHead={!isOutside}
       // The class as the name of the open document.
       start={<HeaderClassMenu />}
       center={

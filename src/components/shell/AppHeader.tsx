@@ -6,6 +6,12 @@ import { ArrowLeftIcon } from '@phosphor-icons/react';
 import { KpLockup } from '@/components/KpLockup';
 import { LocalizedLink } from '@/components/LocalizedLink';
 import AppSettingsMenu from '@/components/shell/AppSettingsMenu';
+import {
+  BRAND_GEAR_ATTR,
+  BRAND_HAIR_ATTR,
+  brandHoverHandlers,
+  useBrandFlight,
+} from '@/components/shell/brandMotion';
 import { touchHitAreaClass } from '@/components/shell/shellTokens';
 import { secondaryButtonClass } from '@/utils';
 
@@ -30,12 +36,14 @@ export interface HeaderBack {
  * rather than works, so the row stands in the page's column, the logo over the
  * title and the gear over the preview's edge, on a hairline as wide as the
  * ones between its sections, and it scrolls away with the page. The logo is
- * larger there, and the row as high as the logo needs.
+ * larger there, and the row as high as the logo needs. Between that head and
+ * the workspace's the logo flies (`useBrandFlight`, decision 0040).
  */
 export default function AppHeader({
   brand = 'mark',
   brandIsHeading = false,
   inColumn = false,
+  isWorkspaceHead = false,
   ariaLabel,
   start,
   center,
@@ -49,6 +57,8 @@ export default function AppHeader({
   brandIsHeading?: boolean;
   /** The row in the page's column instead of a band across the window. */
   inColumn?: boolean;
+  /** The head the start page's logo flies to; not the export's or the library's. */
+  isWorkspaceHead?: boolean;
   /** Names the banner landmark, e.g. "FAQ Überblick". */
   ariaLabel?: string;
   /** What this page is about: a title, or the class menu. */
@@ -62,6 +72,11 @@ export default function AppHeader({
 }) {
   const { t } = useTranslation(['common', 'pages']);
   const word = t('common:nav.back');
+  const headRef = React.useRef<HTMLElement | null>(null);
+  useBrandFlight(
+    headRef,
+    inColumn ? 'start' : isWorkspaceHead ? 'workspace' : null,
+  );
 
   const brandLink = (
     <LocalizedLink
@@ -70,6 +85,7 @@ export default function AppHeader({
       // has no accessible name at all.
       aria-label={t('pages:header.homeLink')}
       className="kp-lockup focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) focus-visible:ring-offset-2"
+      {...brandHoverHandlers}
     >
       <KpLockup size={inColumn ? 'md' : 'sm'} markOnly={brand === 'mark'} />
     </LocalizedLink>
@@ -77,14 +93,17 @@ export default function AppHeader({
 
   return (
     <header
+      ref={headRef}
       aria-label={ariaLabel}
       className={
         inColumn
           ? 'shrink-0 px-4 pt-[env(safe-area-inset-top)] sm:px-6'
           : 'sticky top-0 z-30 shrink-0 border-b border-(--border-card) bg-(--surface-card) pt-[env(safe-area-inset-top)]'
       }
+      {...(inColumn ? {} : { [BRAND_HAIR_ATTR]: '' })}
     >
       <div
+        {...(inColumn ? { [BRAND_HAIR_ATTR]: '' } : {})}
         className={`flex items-center justify-between gap-3 ${
           inColumn
             ? 'mx-auto max-w-6xl border-b border-(--border-card) py-3 sm:py-4'
@@ -125,7 +144,9 @@ export default function AppHeader({
             </button>
           )}
           {help}
-          <AppSettingsMenu />
+          <div {...{ [BRAND_GEAR_ATTR]: '' }}>
+            <AppSettingsMenu />
+          </div>
         </div>
       </div>
       {children}

@@ -1560,102 +1560,15 @@ html.theme-switching *::after {
   fill: #f59e0b;
 }
 
-.kp-lockup:hover .kp-k rect,
-.kp-lockup:focus-visible .kp-k rect {
-  animation: kp-pop 380ms cubic-bezier(0.22, 0.61, 0.36, 1) both;
-}
-
-.kp-lockup:hover .kp-accent,
-.kp-lockup:focus-visible .kp-accent {
-  animation: kp-popAmber 520ms cubic-bezier(0.22, 0.85, 0.36, 1) both;
-}
-
-.kp-lockup:hover .kp-k rect[data-i='0'],
-.kp-lockup:focus-visible .kp-k rect[data-i='0'] {
-  animation-delay: 0ms;
-}
-
-.kp-lockup:hover .kp-k rect[data-i='1'],
-.kp-lockup:focus-visible .kp-k rect[data-i='1'] {
-  animation-delay: 110ms;
-}
-
-.kp-lockup:hover .kp-k rect[data-i='2'],
-.kp-lockup:focus-visible .kp-k rect[data-i='2'] {
-  animation-delay: 220ms;
-}
-
-.kp-lockup:hover .kp-k rect[data-i='3'],
-.kp-lockup:focus-visible .kp-k rect[data-i='3'] {
-  animation-delay: 330ms;
-}
-
-.kp-lockup:hover .kp-k rect[data-i='4'],
-.kp-lockup:focus-visible .kp-k rect[data-i='4'] {
-  animation-delay: 440ms;
-}
-
-.kp-lockup:hover .kp-k rect[data-i='5'],
-.kp-lockup:focus-visible .kp-k rect[data-i='5'] {
-  animation-delay: 550ms;
-}
-
-.kp-lockup:hover .kp-accent,
-.kp-lockup:focus-visible .kp-accent {
-  animation-delay: 760ms;
-}
-
-@keyframes kp-pop {
-  from {
-    opacity: 0;
-    transform: scale(0.85);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-@keyframes kp-popAmber {
-  0% {
-    opacity: 0;
-    transform: scale(1.18);
-  }
-  55% {
-    opacity: 1;
-    transform: scale(1.04);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-.kp-wordmark-text {
+.kp-wordmark-text,
+.kp-flight-letter {
   color: #2563eb;
   line-height: 1;
-  transform-origin: left center;
-  transition: transform 280ms cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
 .kp-wordmark-svg {
   display: block;
   overflow: visible;
-}
-
-.kp-lockup:hover .kp-wordmark-text,
-.kp-lockup:focus-visible .kp-wordmark-text {
-  transform: scale(1.04);
-}
-
-@media (prefers-color-scheme: dark) {
-  .kp-ghost rect {
-    fill: #60a5fa;
-    opacity: 0.16;
-  }
-  .kp-accent {
-    fill: #fbbf24;
-  }
 }
 
 .dark .kp-ghost rect {
@@ -1667,17 +1580,48 @@ html.theme-switching *::after {
   fill: #fbbf24;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .kp-lockup:hover .kp-k rect,
-  .kp-lockup:focus-visible .kp-k rect,
-  .kp-lockup:hover .kp-accent,
-  .kp-lockup:focus-visible .kp-accent {
-    animation: none;
-  }
-  .kp-wordmark-text {
-    transition: none;
-  }
+/* The logo's flight between two heads (brandMotion.ts): copies above the pages,
+   under a dialog, and the arriving head keeps its place empty until they land.
+   Opacity, not visibility: the link and the gear can be used all the while. */
+.kp-flight {
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  pointer-events: none;
+}
 
+.kp-flight > * {
+  position: absolute;
+  top: 0;
+  left: 0;
+  margin: 0;
+  transform-origin: 0 0;
+}
+
+.kp-flight-letter {
+  width: 1px;
+  height: 1px;
+  overflow: visible;
+  fill: currentColor;
+}
+
+.kp-flight-hair {
+  height: 1px;
+  background: var(--border-card);
+}
+
+[data-brand-landing] .kp-mark,
+[data-brand-landing] .kp-wordmark-text,
+[data-brand-landing] [data-brand-gear] {
+  opacity: 0;
+}
+
+[data-brand-landing][data-brand-hair],
+[data-brand-landing] [data-brand-hair] {
+  border-bottom-color: transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
   /* Globally neutralise motion for users who prefer reduced motion.
      Keeps functionality intact while removing animation/transition movement. */
   *,

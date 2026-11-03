@@ -108,11 +108,13 @@ export function KpLockup({
             fill="currentColor"
           >
             {WORDMARK_GLYPHS.map(({ char, x }, index) => (
-              <path
-                key={index}
-                d={WORDMARK_GLYPH_PATHS[char]}
-                transform={`translate(${x} 0) scale(1 -1)`}
-              />
+              // The group is what moves when letters swap seats (`brandMotion`).
+              <g key={index}>
+                <path
+                  d={WORDMARK_GLYPH_PATHS[char]}
+                  transform={`translate(${x} 0) scale(1 -1)`}
+                />
+              </g>
             ))}
           </svg>
         </span>

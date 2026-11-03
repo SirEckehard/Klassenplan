@@ -384,3 +384,117 @@ test(
     expect(action.width).toBeLessThanOrEqual(28 * remPx);
   },
 );
+
+/**
+ * The logo's flight between the start page and the workspace rests on the old
+ * and the new head changing in one commit, which only a real router and a real
+ * browser show. The copies live for a moment, so a watcher notes each flight:
+ * how many letters, and where the mark's copy leaves and lands, as boxes.
+ */
+interface BrandFlight {
+  letters: number;
+  from: { x: number; y: number; width: number };
+  to: { x: number; y: number; width: number };
+}
+
+async function watchBrandFlight(page: Page): Promise<void> {
+  await page.addInitScript(() => {
+    const seen: unknown[] = [];
+    (window as unknown as { brandFlights: unknown[] }).brandFlights = seen;
+    const boxOfFrame = (frame: Keyframe | undefined, base: number) => {
+      const [, x, y, scale] =
+        /translate\(([-\d.]+)px, ([-\d.]+)px\) scale\(([-\d.]+)\)/.exec(
+          String(frame?.transform),
+        ) ?? [];
+      return { x: Number(x), y: Number(y), width: Number(scale) * base };
+    };
+    new MutationObserver((records) => {
+      for (const { addedNodes } of records) {
+        for (const node of addedNodes) {
+          if (!(node instanceof Element)) continue;
+          if (!node.classList.contains('kp-flight')) continue;
+          const mark = node.querySelector<SVGSVGElement>(':scope > .kp-mark');
+          const effect = mark?.getAnimations()[0]?.effect as KeyframeEffect;
+          const frames = effect.getKeyframes();
+          const base = parseFloat(mark?.style.width ?? '0');
+          seen.push({
+            letters: node.querySelectorAll('.kp-flight-letter').length,
+            from: boxOfFrame(frames[0], base),
+            to: boxOfFrame(frames[frames.length - 1], base),
+          });
+        }
+      }
+      // The document, as an init script runs before it has a root element.
+    }).observe(document, { childList: true, subtree: true });
+  });
+}
+
+const brandFlights = (page: Page) =>
+  page.evaluate(
+    () => (window as unknown as { brandFlights: BrandFlight[] }).brandFlights,
+  );
+
+function expectSameBox(
+  actual: BrandFlight['from'],
+  expected: { x: number; y: number; width: number },
+): void {
+  expect(actual.x).toBeCloseTo(expected.x, 0);
+  expect(actual.y).toBeCloseTo(expected.y, 0);
+  expect(actual.width).toBeCloseTo(expected.width, 0);
+}
+
+test(
+  'the letters of the logo fly into the workspace and back',
+  EVERY_DEVICE,
+  async ({ page }) => {
+    await watchBrandFlight(page);
+    await page.goto('/');
+    expect(await brandFlights(page)).toEqual([]);
+    const mark = head(page).locator('svg.kp-mark');
+    const startBox = await boxOf(mark);
+
+    await page.getByRole('link', { name: 'Plane jetzt deine Klasse!' }).click();
+    await expect(page).toHaveURL(/\/generator$/);
+    await expect.poll(async () => (await brandFlights(page)).length).toBe(1);
+
+    // Landed: the copies are gone and the real head shows what they drew.
+    await expect(page.locator('.kp-flight')).toHaveCount(0);
+    await expect(mark).toHaveCSS('opacity', '1');
+    await expect(gearInHead(page)).toBeVisible();
+    const workspaceBox = await boxOf(mark);
+    const [there] = await brandFlights(page);
+    expect(there.letters).toBe(11);
+    expectSameBox(there.from, startBox);
+    expectSameBox(there.to, workspaceBox);
+
+    await head(page).getByRole('link').first().click();
+    await expect(page).toHaveURL(/\/$/);
+    await expect.poll(async () => (await brandFlights(page)).length).toBe(2);
+    await expect(page.locator('.kp-flight')).toHaveCount(0);
+    await expect(head(page).locator('.kp-wordmark-text')).toHaveCSS(
+      'opacity',
+      '1',
+    );
+    const [, back] = await brandFlights(page);
+    expect(back.letters).toBe(11);
+    expectSameBox(back.from, workspaceBox);
+    expectSameBox(back.to, await boxOf(mark));
+  },
+);
+
+test('the logo jumps under reduced motion, and on the other pages', async ({
+  page,
+}) => {
+  await watchBrandFlight(page);
+  await page.goto('/');
+  await goInside(page, '/faq');
+  await expect(page.locator('.kp-flight')).toHaveCount(0);
+  expect(await brandFlights(page)).toEqual([]);
+
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await goInside(page, '/');
+  await page.getByRole('link', { name: 'Plane jetzt deine Klasse!' }).click();
+  await expect(page).toHaveURL(/\/generator$/);
+  await expect(gearInHead(page)).toBeVisible();
+  expect(await brandFlights(page)).toEqual([]);
+});

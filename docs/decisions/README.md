@@ -52,6 +52,7 @@ it says so instead of reconstructing one.
 | [0037](0037-messages-where-they-belong.md)         | Fewer toasts, and the rest over the stage                     |
 | [0038](0038-own-mixing-presets.md)                 | Presets of one's own, and the shipped ones changeable         |
 | [0039](0039-one-head-on-every-page.md)             | One head on every page, the way back beside the page's bar    |
+| [0040](0040-the-logo-takes-its-seats.md)           | The logo takes its seats, and runs to its end                 |
 
 ## Reasons still to be recorded
 
