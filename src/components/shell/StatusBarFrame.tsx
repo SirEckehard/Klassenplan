@@ -33,6 +33,10 @@ import {
 import { useStatusNotice } from '@/hooks/ui/useStatusNotice';
 import type { StatusNoticeKind } from '@/utils/ui/statusNotice';
 import { TOUR_ANCHORS } from '@/components/onboarding/tours';
+import {
+  touchHitAreaBorderlessClass,
+  touchHitAreaClass,
+} from '@/components/shell/shellTokens';
 
 /** What the line says for each confirmation (`noteInStatusBar`). */
 const NOTICE_TEXT: Record<StatusNoticeKind, string> = {
@@ -41,8 +45,8 @@ const NOTICE_TEXT: Record<StatusNoticeKind, string> = {
   backupSaved: 'shell.notice.backupSaved',
 };
 
-/** The toolbar's switch: quiet, and small enough for a 44px line. */
-const statusBarIconButtonClass = `${quietIconButtonClass} h-9 w-9`;
+/** The toolbar's switch: quiet, and as high as the bar's other controls. */
+const statusBarIconButtonClass = `${quietIconButtonClass} ${touchHitAreaBorderlessClass} h-9 w-9`;
 
 /** A phone's drawer switch while its drawer is open. */
 const statusBarPressedClass =
@@ -58,14 +62,22 @@ const statusBarPressedClass =
  * the bar drops its hairlines: a 402px iPhone otherwise had to fit ~460px,
  * and the middle covered the plan's fulfilment at the left end. "Mischen"
  * leaves the bar below `md` altogether (`AppStatusBar`).
+ *
+ * The group is 36px with its border, as high as the buttons beside it; the
+ * border on top of 36px buttons made the bar 2px taller wherever undo/redo stood.
+ *
+ * On a touch screen each button is 44px to hit, as the bar's other buttons are
+ * (`touchHitAreaClass`), but only towards the outside: the two share an edge.
+ * So the buttons round their own outer corners, since the group's
+ * `overflow-hidden` would cut the hit area off.
  */
 export const statusBarHistoryGroupClass =
-  'flex items-center divide-x divide-(--button-secondary-border) overflow-hidden rounded-full border border-(--button-secondary-border) bg-(--button-secondary-bg) shadow-(--button-secondary-shadow)';
+  'flex h-9 items-center divide-x divide-(--button-secondary-border) rounded-full border border-(--button-secondary-border) bg-(--button-secondary-bg) shadow-(--button-secondary-shadow)';
 export const statusBarHistoryButtonClass =
-  'inline-flex h-9 w-9 cursor-pointer items-center justify-center sm:w-11 text-(--button-secondary-text) transition hover:not-disabled:bg-(--button-secondary-bg-hover) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-(--focus-ring-primary) disabled:cursor-not-allowed disabled:text-(--text-muted) disabled:opacity-50';
+  'relative inline-flex h-full w-9 cursor-pointer items-center justify-center first:rounded-l-full last:rounded-r-full sm:w-11 pointer-coarse:after:absolute pointer-coarse:after:inset-x-0 pointer-coarse:after:-inset-y-1.25 pointer-coarse:first:after:-left-1.25 pointer-coarse:last:after:-right-1.25 text-(--button-secondary-text) transition hover:not-disabled:bg-(--button-secondary-bg-hover) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-(--focus-ring-primary) disabled:cursor-not-allowed disabled:text-(--text-muted) disabled:opacity-50';
 
 /** The way back to the previous layer, beside the way on. */
-export const statusBarBackButtonClass = `${secondaryButtonClass} h-9 shrink-0 gap-2 px-3 whitespace-nowrap max-sm:w-9 max-sm:px-0`;
+export const statusBarBackButtonClass = `${secondaryButtonClass} ${touchHitAreaClass} h-9 shrink-0 gap-2 px-3 whitespace-nowrap max-sm:w-9 max-sm:px-0`;
 
 /**
  * The word beside a button's icon at the right end of a status bar. A desktop
@@ -242,7 +254,7 @@ export default function StatusBarFrame({
         data-status-bar-hang=""
         className="pointer-events-none absolute right-4 bottom-full mb-3 flex flex-col items-end gap-2 empty:hidden *:pointer-events-auto"
       />
-      <div className="flex min-h-11 items-center gap-2 px-3 py-2 sm:gap-4 sm:px-4">
+      <div className="flex min-h-13 items-center gap-2 px-3 py-2 sm:gap-4 sm:px-4">
         <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
           {/* The toolbar's switch belongs to the workspace, not to a surface,
               so it leads the bar — right under the toolbar it concerns. */}
@@ -261,7 +273,7 @@ export default function StatusBarFrame({
                 aria-controls={TOOL_RAIL_DRAWER_ID}
                 aria-label={t('sidebar.ariaLabel')}
                 title={t('sidebar.ariaLabel')}
-                className={`${secondaryButtonClass} h-9 w-9 shrink-0 px-0 ${
+                className={`${secondaryButtonClass} ${touchHitAreaClass} h-9 w-9 shrink-0 px-0 ${
                   toolRail.sheetOpen ? statusBarPressedClass : ''
                 }`}
               >
@@ -320,7 +332,7 @@ export default function StatusBarFrame({
               onClick={retryPersistNow}
               aria-label={t('shell.unsavedRetry')}
               title={t('shell.unsavedRetry')}
-              className={`${secondaryButtonClass} h-9 shrink-0 gap-2 px-3 text-(--status-alert-text) max-sm:w-9 max-sm:px-0`}
+              className={`${secondaryButtonClass} ${touchHitAreaClass} h-9 shrink-0 gap-2 px-3 text-(--status-alert-text) max-sm:w-9 max-sm:px-0`}
             >
               <WarningCircleIcon size={16} aria-hidden="true" />
               <span className={statusBarWordClass}>{t('shell.unsaved')}</span>
@@ -332,7 +344,7 @@ export default function StatusBarFrame({
               onClick={applyPendingUpdate}
               aria-label={t('common:pwa.updateReadyTitle')}
               title={t('common:pwa.updateReadyTitle')}
-              className={`${secondaryButtonClass} h-9 shrink-0 gap-2 px-3 max-sm:w-9 max-sm:px-0`}
+              className={`${secondaryButtonClass} ${touchHitAreaClass} h-9 shrink-0 gap-2 px-3 max-sm:w-9 max-sm:px-0`}
             >
               <ArrowClockwiseIcon size={16} aria-hidden="true" />
               <span className={statusBarWordClass}>
@@ -383,7 +395,7 @@ export default function StatusBarFrame({
                   aria-controls={INSPECTOR_DRAWER_ID}
                   aria-label={inspectorName}
                   title={inspectorName}
-                  className={`${secondaryButtonClass} relative h-9 w-9 shrink-0 px-0 ${
+                  className={`${secondaryButtonClass} ${touchHitAreaClass} h-9 w-9 shrink-0 px-0 ${
                     inspectorShown ? statusBarPressedClass : ''
                   }`}
                 >

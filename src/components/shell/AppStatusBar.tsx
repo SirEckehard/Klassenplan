@@ -26,6 +26,7 @@ import StatusBarFrame, {
   statusBarWordClass,
 } from '@/components/shell/StatusBarFrame';
 import PlanExits from '@/components/shell/PlanExits';
+import { touchHitAreaBorderlessClass } from '@/components/shell/shellTokens';
 import { countActiveSeats, countSeats, primaryButtonClass } from '@/utils';
 import { validateStudentsComplete } from '@/utils/validation';
 import HintTooltip from '@/components/ui/feedback/HintTooltip';
@@ -378,7 +379,7 @@ export default function AppStatusBar() {
                 aria-disabled={action.hint ? true : undefined}
                 aria-describedby={action.hint ? hintId : undefined}
                 title={action.title}
-                className={`${primaryButtonClass} flex items-center gap-2 whitespace-nowrap ${
+                className={`${primaryButtonClass} ${touchHitAreaBorderlessClass} flex h-9 items-center gap-2 whitespace-nowrap ${
                   action.hint ? 'cursor-not-allowed opacity-60' : ''
                 }`}
               >

@@ -6,7 +6,7 @@ import { ArrowLeftIcon } from '@phosphor-icons/react';
 import { KpLockup } from '@/components/KpLockup';
 import { LocalizedLink } from '@/components/LocalizedLink';
 import AppSettingsMenu from '@/components/shell/AppSettingsMenu';
-import { headerHitAreaClass } from '@/components/shell/shellTokens';
+import { touchHitAreaClass } from '@/components/shell/shellTokens';
 import { secondaryButtonClass } from '@/utils';
 
 export interface HeaderBack {
@@ -117,7 +117,7 @@ export default function AppHeader({
               aria-label={back.label ?? word}
               title={back.title}
               // A phone's head has no room for the word beside a title.
-              className={`${secondaryButtonClass} ${headerHitAreaClass} h-9 shrink-0 gap-2 px-3 whitespace-nowrap max-sm:w-9 max-sm:px-0`}
+              className={`${secondaryButtonClass} ${touchHitAreaClass} h-9 shrink-0 gap-2 px-3 whitespace-nowrap max-sm:w-9 max-sm:px-0`}
             >
               <ArrowLeftIcon className="h-4 w-4" aria-hidden="true" />
               <span className="max-sm:hidden">{word}</span>

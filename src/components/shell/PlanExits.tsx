@@ -6,6 +6,7 @@ import { usePlanExits } from '@/hooks/plan/usePlanExits';
 import { TOUR_ANCHORS } from '@/components/onboarding/tours';
 import { secondaryButtonClass, showToast, TOAST_MESSAGES } from '@/utils';
 import { statusBarWordClass } from '@/components/shell/StatusBarFrame';
+import { touchHitAreaClass } from '@/components/shell/shellTokens';
 import HintTooltip from '@/components/ui/feedback/HintTooltip';
 import { useRefusalHint } from '@/hooks/ui/useRefusalHint';
 import React from 'react';
@@ -67,7 +68,7 @@ export default function PlanExits() {
   const refusal = useRefusalHint(hint);
   const { onExport, onPresent, canExit } = guardPlanExits(exits, refusal.show);
 
-  const buttonClass = `${secondaryButtonClass} h-9 shrink-0 gap-2 px-2.5 text-sm whitespace-nowrap max-sm:w-9 max-sm:px-0 lg:pointer-fine:px-3 xl:px-3 ${
+  const buttonClass = `${secondaryButtonClass} ${touchHitAreaClass} h-9 shrink-0 gap-2 px-2.5 text-sm whitespace-nowrap max-sm:w-9 max-sm:px-0 lg:pointer-fine:px-3 xl:px-3 ${
     canExit ? '' : 'opacity-60'
   }`;
 

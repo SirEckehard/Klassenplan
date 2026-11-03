@@ -175,6 +175,113 @@ test(
 );
 
 test(
+  'the status bar is equally high on every layer and page that has one',
+  EVERY_DEVICE,
+  async ({ page }) => {
+    await openPlan(page);
+    const bar = page.getByRole('region', { name: 'Statusleiste' });
+    // The tallest thing the bar ever held: on a touch screen the fulfilment
+    // once grew it by 8px, on this layer alone.
+    await expect(bar.getByRole('button', { name: /^Erfüllung/ })).toBeVisible();
+    const height = (await boxOf(bar)).height;
+
+    for (const layer of ['Raum', 'Klasse']) {
+      await page.getByRole('button', { name: layer, exact: true }).click();
+      await test.step(layer, async () => {
+        await expect.poll(async () => (await boxOf(bar)).height).toBe(height);
+      });
+    }
+
+    for (const path of PAGES_WITH_A_STATUS_BAR) {
+      await goInside(page, path);
+      await test.step(path, async () => {
+        await expect.poll(async () => (await boxOf(bar)).height).toBe(height);
+      });
+    }
+  },
+);
+
+/**
+ * The buttons of the bar on screen that a finger misses within 44px around the
+ * middle of the button: a point there has to land on the button itself. It
+ * stands 1px inside that edge, where two hit areas meet and a fraction of a
+ * pixel falls to the neighbour. Undo/redo share an edge and a breadcrumb is as
+ * wide as its word, so those two are held to the height alone.
+ */
+async function buttonsTooSmallToHit(page: Page): Promise<string[]> {
+  return page.evaluate(() => {
+    const reach = 21;
+    const bar = document.querySelector('[data-shell-status-bar]');
+    return [...(bar?.querySelectorAll('button') ?? [])]
+      .filter((button) => button.getClientRects().length > 0)
+      .filter((button) => {
+        const box = button.getBoundingClientRect();
+        const x = box.left + box.width / 2;
+        const y = box.top + box.height / 2;
+        const heightOnly =
+          button.closest('nav') !== null ||
+          button.parentElement?.classList.contains('divide-x');
+        const points = [
+          [x, y - reach],
+          [x, y + reach],
+          ...(heightOnly
+            ? []
+            : [
+                [x - reach, y],
+                [x + reach, y],
+              ]),
+        ];
+        return points.some(([px, py]) => {
+          const hit = document.elementFromPoint(px, py);
+          return !hit || !button.contains(hit);
+        });
+      })
+      .map((button) => button.getAttribute('aria-label') ?? button.innerText);
+  });
+}
+
+test(
+  "a finger hits the status bar's buttons at 44px without the bar growing",
+  EVERY_DEVICE,
+  async ({ page }) => {
+    const coarse = await page.evaluate(
+      () => window.matchMedia('(pointer: coarse)').matches,
+    );
+    test.skip(!coarse, 'A mouse keeps the size it sees.');
+
+    await openPlan(page);
+    expect(await buttonsTooSmallToHit(page)).toEqual([]);
+
+    for (const layer of ['Raum', 'Klasse']) {
+      await page.getByRole('button', { name: layer, exact: true }).click();
+      await test.step(layer, async () => {
+        await expect
+          .poll(() =>
+            page
+              .getByRole('region', { name: 'Statusleiste' })
+              .getByRole('button', { name: /^Zurück/ })
+              .count(),
+          )
+          .toBe(layer === 'Klasse' ? 0 : 1);
+        expect(await buttonsTooSmallToHit(page)).toEqual([]);
+      });
+    }
+
+    for (const path of PAGES_WITH_A_STATUS_BAR) {
+      await goInside(page, path);
+      await test.step(path, async () => {
+        await expect(
+          page
+            .getByRole('region', { name: 'Statusleiste' })
+            .getByRole('button', { name: /^Zurück/ }),
+        ).toBeVisible();
+        expect(await buttonsTooSmallToHit(page)).toEqual([]);
+      });
+    }
+  },
+);
+
+test(
   'the head stays in view while a long page is read',
   EVERY_DEVICE,
   async ({ page }) => {

@@ -11,6 +11,7 @@ import StatusBarFrame, {
   statusBarBackButtonClass,
   statusBarWordClass,
 } from '@/components/shell/StatusBarFrame';
+import { touchHitAreaBorderlessClass } from '@/components/shell/shellTokens';
 import HintTooltip from '@/components/ui/feedback/HintTooltip';
 import { useRefusalHint } from '@/hooks/ui/useRefusalHint';
 import { TOUR_ANCHORS } from '@/components/onboarding/tours';
@@ -63,7 +64,7 @@ export default function LibraryStatusBar({
           <button
             type="button"
             onClick={() => onCrumb(-1)}
-            className="hidden shrink-0 rounded px-1 hover:text-(--text-page) focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) focus-visible:outline-none sm:inline"
+            className="hidden shrink-0 rounded px-1 pointer-coarse:-my-1 pointer-coarse:h-11 hover:text-(--text-page) focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) focus-visible:outline-none sm:inline"
           >
             {rootLabel}
           </button>
@@ -92,7 +93,7 @@ export default function LibraryStatusBar({
                   type="button"
                   onClick={() => onCrumb(index)}
                   aria-current={isLast ? 'location' : undefined}
-                  className={`min-w-0 truncate rounded px-1 hover:text-(--text-page) focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) focus-visible:outline-none ${
+                  className={`min-w-0 truncate rounded px-1 pointer-coarse:-my-1 pointer-coarse:h-11 hover:text-(--text-page) focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) focus-visible:outline-none ${
                     isLast ? 'font-medium text-(--text-page)' : ''
                   }`}
                 >
@@ -126,7 +127,7 @@ export default function LibraryStatusBar({
               aria-disabled={open.hint ? true : undefined}
               aria-describedby={open.hint ? hintId : undefined}
               title={open.hint ? undefined : t('library.openTitle')}
-              className={`${primaryButtonClass} flex items-center gap-2 whitespace-nowrap ${
+              className={`${primaryButtonClass} ${touchHitAreaBorderlessClass} flex h-9 items-center gap-2 whitespace-nowrap ${
                 open.hint ? 'cursor-not-allowed opacity-60' : ''
               }`}
             >

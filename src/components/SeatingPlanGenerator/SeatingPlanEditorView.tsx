@@ -100,6 +100,7 @@ import DragGhost from '@/components/scene/DragGhost';
 import { useHasHoverPointer } from '@/hooks/ui/useHasHoverPointer';
 import type { TemplateDragPreview } from '@/types/templateDrag';
 import {
+  touchHitAreaBorderlessClass,
   workspaceFitLayerClass,
   workspaceFitStageClass,
   workspaceLayerClass,
@@ -864,7 +865,7 @@ export default function SeatingPlanEditorView({
             disabled={mixingLocked}
             title={t('mixButton.shortcut')}
             aria-label={t('actions.mixAgain')}
-            className={`${primaryButtonClass} flex items-center gap-2 whitespace-nowrap ${
+            className={`${primaryButtonClass} ${touchHitAreaBorderlessClass} flex h-9 items-center gap-2 whitespace-nowrap ${
               mixingLocked ? 'cursor-not-allowed opacity-60' : ''
             }`}
           >
@@ -891,7 +892,7 @@ export default function SeatingPlanEditorView({
                   ? t('editor.hideFulfillment')
                   : t('editor.showFulfillment')
               }
-              className="inline-flex min-w-0 shrink-0 cursor-pointer items-center gap-1 rounded-md px-1 py-1 text-xs tabular-nums text-(--text-muted) transition hover:bg-(--surface-sunken) hover:text-(--text-page) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) pointer-coarse:min-h-11 sm:gap-1.5 sm:px-1.5 sm:text-sm"
+              className={`${touchHitAreaBorderlessClass} inline-flex min-w-0 shrink-0 cursor-pointer items-center gap-1 rounded-md px-1 py-1 text-xs tabular-nums text-(--text-muted) transition hover:bg-(--surface-sunken) hover:text-(--text-page) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) pointer-coarse:h-9 sm:gap-1.5 sm:px-1.5 sm:text-sm`}
             >
               <ChartBarIcon size={16} aria-hidden="true" className="shrink-0" />
               <span className={statusBarWordClass}>

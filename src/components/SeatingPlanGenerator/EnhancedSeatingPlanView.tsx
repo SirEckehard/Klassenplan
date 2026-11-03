@@ -49,6 +49,8 @@ import {
   workspaceFitStageClass,
   workspaceLayerClass,
   workspaceStageClass,
+  touchHitAreaBorderlessClass,
+  touchHitAreaClass,
 } from '@/components/shell/shellTokens';
 
 type EnhancedSeatingPlanViewProps = SeatingPlanViewProps & {
@@ -371,7 +373,7 @@ export default function EnhancedSeatingPlanView(
                 onClick={() => void generateCircleSeating()}
                 title={t('circleView.syncTitle')}
                 aria-label={t('circleView.syncButton')}
-                className={`${secondaryButtonClass} flex items-center gap-2 whitespace-nowrap`}
+                className={`${secondaryButtonClass} ${touchHitAreaClass} flex h-9 items-center gap-2 whitespace-nowrap`}
               >
                 <ArrowCounterClockwiseIcon
                   className="h-4 w-4"
@@ -385,7 +387,7 @@ export default function EnhancedSeatingPlanView(
                 disabled={!circleLayout}
                 title={t('circleView.shuffleTitle')}
                 aria-label={t('circleView.shuffleButton')}
-                className={`${primaryButtonClass} flex items-center gap-2 whitespace-nowrap`}
+                className={`${primaryButtonClass} ${touchHitAreaBorderlessClass} flex h-9 items-center gap-2 whitespace-nowrap`}
               >
                 <ShuffleIcon className="h-4 w-4" aria-hidden="true" />
                 <span>{t('circleView.shuffleShort')}</span>

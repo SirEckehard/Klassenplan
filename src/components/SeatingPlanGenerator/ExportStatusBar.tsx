@@ -7,6 +7,10 @@ import StatusBarFrame, {
   statusBarWordClass,
 } from '@/components/shell/StatusBarFrame';
 import {
+  touchHitAreaBorderlessClass,
+  touchHitAreaClass,
+} from '@/components/shell/shellTokens';
+import {
   formatPercent,
   primaryButtonClass,
   secondaryButtonClass,
@@ -72,7 +76,7 @@ export default function ExportStatusBar({
               <button
                 type="button"
                 onClick={circleGeneration.onCancel}
-                className={`${secondaryButtonClass} h-8 shrink-0 px-2.5 text-xs`}
+                className={`${secondaryButtonClass} ${touchHitAreaClass} h-9 shrink-0 px-2.5 text-xs`}
               >
                 {t('export.cancelCircleGeneration')}
               </button>
@@ -109,7 +113,7 @@ export default function ExportStatusBar({
               title={t('export.printShortcut')}
               // A phone and a tablet show the printer alone; the name stays.
               aria-label={t('actions.print')}
-              className={`${primaryButtonClass} flex items-center gap-2 whitespace-nowrap`}
+              className={`${primaryButtonClass} ${touchHitAreaBorderlessClass} flex h-9 items-center gap-2 whitespace-nowrap`}
             >
               <PrinterIcon className="h-4 w-4" aria-hidden="true" />
               <span className={statusBarWordClass}>{t('actions.print')}</span>

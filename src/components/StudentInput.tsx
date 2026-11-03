@@ -33,6 +33,7 @@ import SmartSidebar from '@/components/ui/panels/SmartSidebar';
 import {
   workspaceLayerClass,
   workspaceStageClass,
+  touchHitAreaClass,
 } from '@/components/shell/shellTokens';
 import { TOUR_ANCHORS } from '@/components/onboarding/tours';
 import StudentList from '@/components/studentInput/StudentList';
@@ -471,7 +472,7 @@ function StudentInput({
               onClick={selection.clear}
               aria-label={t('bulkEdit.clearSelection')}
               title={t('bulkEdit.clearSelection')}
-              className={`${secondaryButtonClass} h-9 w-9 shrink-0 px-0`}
+              className={`${secondaryButtonClass} ${touchHitAreaClass} h-9 w-9 shrink-0 px-0`}
             >
               <XIcon className="h-4 w-4" aria-hidden="true" />
             </button>

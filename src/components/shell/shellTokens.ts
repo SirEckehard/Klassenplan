@@ -16,21 +16,29 @@
 
 /**
  * How much of the window's bottom edge the status bar takes at the browser's
- * default text size: its row is at least 44px (`min-h-11`), with 8px of
- * padding above and below and the hairline on top, 61px. Whatever sits above
- * the bar keeps clear of it — the drawers and the focus mode's thumb bar
- * through `--shell-bottom-inset`, which `AppShell` sets from the bar's
- * measured height (a larger text size makes it taller) and from this until it
- * is measured; the tablet's toolbar column through its measured height.
+ * default text size: every control in it is 36px high, on every layer and
+ * pointer, with 8px of padding above and below (`min-h-13`, which holds the
+ * height while nothing stands in the row) and the hairline on top, 53px.
+ * Whatever sits above the bar keeps clear of it — the drawers and the focus
+ * mode's thumb bar through `--shell-bottom-inset`, which `AppShell` sets from
+ * the bar's measured height (a larger text size makes it taller) and from this
+ * until it is measured; the tablet's toolbar column through its measured
+ * height.
  */
-export const SHELL_STATUS_BAR_HEIGHT = 61;
+export const SHELL_STATUS_BAR_HEIGHT = 53;
 
 /**
- * A button of the header on a touch screen: 36px to see, 44px to hit. The head
- * of a phone has no width for larger buttons, so the hit area reaches into the
- * 8px between them.
+ * A 36px button of the head or the status bar on a touch screen: 36px to see,
+ * 44px to hit. Neither bar has the room for larger buttons — a taller one would
+ * grow the bar — so the hit area reaches into the 8px around them.
+ *
+ * It is measured from inside the button's border, so a button with the 1px
+ * border of the secondary one reaches 5px and one without 4px; 5px on both
+ * would take the neighbour's last pixel across a gap of 8px.
  */
-export const headerHitAreaClass =
+export const touchHitAreaClass =
+  'relative pointer-coarse:after:absolute pointer-coarse:after:-inset-1.25';
+export const touchHitAreaBorderlessClass =
   'relative pointer-coarse:after:absolute pointer-coarse:after:-inset-1';
 
 /** The root of a layer: the toolbar and the stage side by side. */
