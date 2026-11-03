@@ -8,15 +8,17 @@ import {
   WORDMARK_WIDTH,
 } from './kpWordmarkPaths';
 
+// `md` is the start page's: it follows the window down to the size of `sm`, so
+// the lockup leaves room for "Zurück" and the gear on the narrowest phone.
 const MARK_CLASS: Record<'xs' | 'sm' | 'md', string> = {
   xs: 'kp-mark w-6 h-6',
   sm: 'kp-mark w-9 h-9',
-  md: 'kp-mark w-14 h-14',
+  md: 'kp-mark size-[clamp(2.25rem,11vw,4rem)]',
 };
 const TEXT_SIZE_CLASS: Record<'xs' | 'sm' | 'md', string> = {
   xs: 'text-[0.6rem]',
   sm: 'text-[1.45rem]',
-  md: 'text-[2.25rem]',
+  md: 'text-[clamp(1.45rem,7vw,2.55rem)]',
 };
 
 interface KpLockupProps {

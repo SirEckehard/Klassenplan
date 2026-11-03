@@ -176,7 +176,7 @@ export default function StartPage() {
           },
         ]}
       />
-      <div className="grid items-center gap-10 pt-2 pb-10 lg:grid-cols-12 lg:gap-12 lg:pt-8 lg:pb-16">
+      <div className="grid items-center gap-10 pt-2 pb-10 lg:grid-cols-12 lg:gap-12 lg:pt-0 lg:pb-16">
         <div className="flex flex-col items-start lg:col-span-5">
           <p className={pageEyebrowClass}>{t('startPage.heroEyebrow')}</p>
           <h1 className={pageTitleClass}>{t('startPage.heroTitle')}</h1>

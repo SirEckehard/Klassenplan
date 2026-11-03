@@ -46,7 +46,8 @@ the app. Where each way back leads did not change.
 The start page keeps the same row but not the band (`inColumn`): logo and gear
 stand in the page's column, over the title and the preview's edge, on a hairline
 as wide as those between its sections, and the row scrolls away with the page.
-Its title opens as on the pages beside it, with small caps above the serif. The
+The logo is larger there, where the name is news, and the row as high as it
+needs. Its title opens as on the pages beside it, with small caps above the serif. The
 band across the window had left the logo far from the title on a wide window.
 
 `e2e/page-header.spec.ts` holds the positions on all four devices, and that no
@@ -71,8 +72,8 @@ page scrolls sideways.
 - On a wide window the logo of the pages beside the app no longer stands over
   their column, and those pages are less airy on top.
 - On a wide window logo and gear move outward when the start page opens one of
-  those pages; on a phone and a tablet, where the column is the window, the two
-  heads stand nearly alike.
+  those pages, and the logo shrinks; on a phone and a tablet, where the column
+  is the window, the two heads differ by the logo and its row's height.
 - What stays in view while a page is read sticks below the head (`lg:top-22`),
   and the head costs a phone held sideways 57 of about 400px.
 - The class tools and the projection reach theme and language through the gear,

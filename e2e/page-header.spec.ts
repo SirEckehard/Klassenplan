@@ -313,8 +313,27 @@ test(
     expect(gear.x + gear.width).toBeCloseTo(column.x + column.width, 0);
 
     await expectNoSidewaysScroll(page);
+
+    // It names the product larger than the head of the pages beside it.
+    await page.goto('/faq');
+    const logoBeside = await boxOf(head(page).getByRole('link'));
+    expect(logo.width).toBeGreaterThan(logoBeside.width);
   },
 );
+
+test("the start page's larger logo fits the narrowest phone beside its way back", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 320, height: 640 });
+  await page.goto('/faq');
+  // Until the page has set its own title it still wears the start page's, and
+  // `goInside` would wait for a change that has already been.
+  await expect(page).not.toHaveTitle(/Intelligente Sitzpläne/);
+  await goInside(page, '/');
+
+  await boxOf(backInHead(page));
+  await expectNoSidewaysScroll(page);
+});
 
 test(
   'the projection has its way out in the bar, in sight on every device',

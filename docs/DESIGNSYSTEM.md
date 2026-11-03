@@ -462,8 +462,10 @@ page carries one blue button — "Plane jetzt deine Klasse!". FAQ, contact and
 support are quiet links in ink. Its head is the row every page has, the lockup
 and the gear at the same height, but in the page's column rather than a band
 across the window (`AppHeader inColumn`): the logo over the title, the gear over
-the preview's edge, on a hairline as wide as those between the sections. It
-scrolls away with the page.
+the preview's edge, on a hairline as wide as those between the sections. The
+lockup is larger there than on any other page (`KpLockup size="md"`, following
+the window down to the others' size on a narrow phone), the row as high as it
+needs. It scrolls away with the page.
 
 The criteria section is the only place on the page with colour, and it may
 have it because every colour there describes pedagogy: each family is a

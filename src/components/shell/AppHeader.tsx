@@ -29,7 +29,8 @@ export interface HeaderBack {
  * The start page keeps the same row but not the band (`inColumn`): it sells
  * rather than works, so the row stands in the page's column, the logo over the
  * title and the gear over the preview's edge, on a hairline as wide as the
- * ones between its sections, and it scrolls away with the page.
+ * ones between its sections, and it scrolls away with the page. The logo is
+ * larger there, and the row as high as the logo needs.
  */
 export default function AppHeader({
   brand = 'mark',
@@ -70,7 +71,7 @@ export default function AppHeader({
       aria-label={t('pages:header.homeLink')}
       className="kp-lockup focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) focus-visible:ring-offset-2"
     >
-      <KpLockup size="sm" markOnly={brand === 'mark'} />
+      <KpLockup size={inColumn ? 'md' : 'sm'} markOnly={brand === 'mark'} />
     </LocalizedLink>
   );
 
@@ -84,10 +85,10 @@ export default function AppHeader({
       }
     >
       <div
-        className={`flex h-14 items-center justify-between gap-3 ${
+        className={`flex items-center justify-between gap-3 ${
           inColumn
-            ? 'mx-auto box-content max-w-6xl border-b border-(--border-card)'
-            : 'px-4'
+            ? 'mx-auto max-w-6xl border-b border-(--border-card) py-3 sm:py-4'
+            : 'h-14 px-4'
         }`}
       >
         <div
