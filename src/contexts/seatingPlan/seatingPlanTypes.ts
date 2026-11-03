@@ -28,7 +28,7 @@ import type { CriterionFulfillment } from '@/utils/algorithm/seatingStatistics';
 import type { LatestChangelogEntry } from '@/utils';
 import type { SeatingPlanStore } from '@/hooks/useSeatingState';
 import type { CsvImportSelection } from '@/utils/data/csvUtils';
-import type { RoomNameProblem } from '@/utils/data/classRooms';
+import type { ClassParts, RoomNameProblem } from '@/utils/data/classRooms';
 import type {
   PlanMoveTarget,
   RoomRemovalProblem,
@@ -152,6 +152,12 @@ export interface SeatingPlanActions {
   loadTemplate: () => Promise<ClassroomTemplate[]>;
   updateTemplate: (id: number, scene: ClassroomScene) => Promise<boolean>;
   deleteTemplate: (id: number) => Promise<boolean>;
+  /** One template as it was, or none with `null` (decision 0041). */
+  restoreTemplate: (
+    id: number,
+    template: ClassroomTemplate | null,
+    index: number,
+  ) => Promise<boolean>;
   renameTemplate: (
     id: number,
     newName: string,
@@ -194,6 +200,8 @@ export interface SeatingPlanActions {
     planId: string,
     target: PlanMoveTarget,
   ) => RoomNameProblem | 'not-found' | 'room-limit' | null;
+  /** Puts back a stand of the plans, mixes and rooms (decision 0041). */
+  restoreClassParts: (parts: ClassParts) => void;
   deleteMixResult: (id: number) => void;
   setMixSettings: React.Dispatch<React.SetStateAction<MixSettings>>;
   importInputRef: React.RefObject<HTMLInputElement | null>;

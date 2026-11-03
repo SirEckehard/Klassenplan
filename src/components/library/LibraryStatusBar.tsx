@@ -9,9 +9,12 @@ import {
 } from '@phosphor-icons/react';
 import StatusBarFrame, {
   statusBarBackButtonClass,
+  statusBarHistoryButtonClass,
+  statusBarHistoryGroupClass,
   statusBarWordClass,
 } from '@/components/shell/StatusBarFrame';
 import { touchHitAreaBorderlessClass } from '@/components/shell/shellTokens';
+import UndoRedoButtons from '@/components/ui/buttons/UndoRedoButtons';
 import HintTooltip from '@/components/ui/feedback/HintTooltip';
 import { useRefusalHint } from '@/hooks/ui/useRefusalHint';
 import { TOUR_ANCHORS } from '@/components/onboarding/tours';
@@ -24,16 +27,17 @@ export interface LibraryCrumb {
 
 /**
  * The status bar of "Bibliothek": where the selection is, as a file
- * manager's path bar has it — each step a way back up — and what to do with
- * it: back where the page was opened from, and the one blue button that
- * opens it. A selection that cannot be opened keeps the button in its place
- * and says why.
+ * manager's path bar has it — each step a way back up —, undo and redo in the
+ * middle as on the layers, and what to do with the selection: back where the
+ * page was opened from, and the one blue button that opens it. A selection
+ * that cannot be opened keeps the button in its place and says why.
  */
 export default function LibraryStatusBar({
   rootLabel,
   crumbs,
   onCrumb,
   onBack,
+  history,
   open,
 }: {
   rootLabel: string;
@@ -41,6 +45,12 @@ export default function LibraryStatusBar({
   /** Goes up to a step of the path; `-1` is the root. */
   onCrumb: (index: number) => void;
   onBack: () => void;
+  history: {
+    onUndo: () => void;
+    canUndo: boolean;
+    onRedo: () => void;
+    canRedo: boolean;
+  };
   open: {
     label: string;
     onOpen: () => void;
@@ -103,6 +113,17 @@ export default function LibraryStatusBar({
             );
           })}
         </nav>
+      }
+      middle={
+        <UndoRedoButtons
+          {...history}
+          undoTitle={t('canvas.undo')}
+          redoTitle={t('canvas.redo')}
+          undoLabel={t('canvas.undoLabel')}
+          redoLabel={t('canvas.redoLabel')}
+          buttonClass={statusBarHistoryButtonClass}
+          groupClass={statusBarHistoryGroupClass}
+        />
       }
       end={
         <>

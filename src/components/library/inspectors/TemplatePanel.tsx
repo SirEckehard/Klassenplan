@@ -27,14 +27,12 @@ export default function TemplatePanel({
   onRename,
   onDelete,
   renameRequest,
-  deleteRequest,
 }: {
   template: ClassroomTemplate;
   templates: ClassroomTemplate[];
   onRename: (name: string) => Promise<NameProblem | null>;
   onDelete: () => void;
   renameRequest: number;
-  deleteRequest?: number;
 }) {
   const { t } = useTranslation('generator');
   const seats = template.scene.tables.reduce(
@@ -89,12 +87,6 @@ export default function TemplatePanel({
       <InspectorDeleteFooter
         label={t('library.template.delete')}
         onDelete={onDelete}
-        question={{
-          title: t('library.template.deleteQuestion'),
-          detail: t('common.cannotUndo'),
-          confirmLabel: t('common.delete'),
-        }}
-        askRequest={deleteRequest}
       />
     </>
   );

@@ -26,8 +26,8 @@ interface UndoRedoButtonsProps {
 /**
  * The undo/redo pair, without an opinion on where it sits.
  *
- * Three histories use it — the class list, the layout editor and the seating
- * plan — and each lives in a differently styled row, so sizing and wording stay
+ * Four histories use it — the class list, the layout editor, the seating plan
+ * and "Bibliothek" — and each lives in a differently styled row, so sizing and wording stay
  * with the caller. What is shared is the part that must not drift: the same two
  * icons in the same order, and a disabled state whenever the stack behind a
  * button is empty.

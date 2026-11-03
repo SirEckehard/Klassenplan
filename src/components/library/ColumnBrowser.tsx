@@ -130,6 +130,22 @@ export default function ColumnBrowser({
     element?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
   };
 
+  // A row that goes with the focus on it (Entf, an undo) hands it to what is
+  // chosen now, or the keyboard would be left with nothing to step from.
+  const focusedKeyRef = React.useRef<string | null>(null);
+  const chosenKey = columns[currentColumnIndex]?.selectedKey ?? null;
+  React.useEffect(() => {
+    const key = focusedKeyRef.current;
+    if (!key || optionRefs.current.has(key)) return;
+    focusedKeyRef.current = null;
+    if (document.activeElement && document.activeElement !== document.body) {
+      return;
+    }
+    const element = chosenKey ? optionRefs.current.get(chosenKey) : undefined;
+    if (element) quietFocusRing(element);
+    element?.focus();
+  });
+
   // The menu is the entry's: it is selected first, as a click selects it.
   const askForMenu = (
     columnIndex: number,
@@ -309,6 +325,9 @@ export default function ColumnBrowser({
                           role="option"
                           aria-selected={selected}
                           tabIndex={item.key === tabbableKey ? 0 : -1}
+                          onFocus={() => {
+                            focusedKeyRef.current = item.key;
+                          }}
                           onClick={(event) => {
                             onSelect(columnIndex, item.key);
                             focusItem(item.key);

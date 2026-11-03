@@ -217,6 +217,14 @@ export const shortcutMap: Record<ShortcutContext, Shortcut[]> = {
       descriptionKey: 'shortcuts.descriptions.library_menu',
     },
     {
+      keysKey: 'shortcuts.keys.library_undo',
+      descriptionKey: 'shortcuts.descriptions.library_undo',
+    },
+    {
+      keysKey: 'shortcuts.keys.library_redo',
+      descriptionKey: 'shortcuts.descriptions.library_redo',
+    },
+    {
       keysKey: 'shortcuts.keys.library_back',
       descriptionKey: 'shortcuts.descriptions.library_back',
     },

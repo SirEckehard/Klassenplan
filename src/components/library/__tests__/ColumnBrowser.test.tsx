@@ -267,6 +267,38 @@ describe('ColumnBrowser', () => {
     expect(option('Klassenraum')).toHaveFocus();
   });
 
+  it('hands the focus to what is chosen when its row goes', async () => {
+    const columnsWith = (
+      keys: string[],
+      selectedKey: string,
+    ): BrowserColumn[] => [
+      {
+        key: 'plans',
+        label: 'Pläne',
+        selectedKey,
+        groups: [
+          {
+            key: 'all',
+            items: keys.map((key) => ({ key, label: key })),
+          },
+        ],
+      },
+    ];
+    const { rerender } = render(
+      <ColumnBrowser
+        columns={columnsWith(['a', 'b'], 'b')}
+        onSelect={vi.fn()}
+      />,
+    );
+    screen.getByRole('option', { name: 'b' }).focus();
+
+    rerender(
+      <ColumnBrowser columns={columnsWith(['a'], 'a')} onSelect={vi.fn()} />,
+    );
+
+    expect(screen.getByRole('option', { name: 'a' })).toHaveFocus();
+  });
+
   it('says so when a column lists nothing', async () => {
     const user = userEvent.setup();
     render(<Harness />);

@@ -8,6 +8,7 @@
 import '@testing-library/jest-dom/vitest';
 import type React from 'react';
 import {
+  act,
   fireEvent,
   render,
   screen,
@@ -26,7 +27,6 @@ import {
   createMockMixResult,
   createMockSavedPlan,
   createMockStudent,
-  confirmInlineQuestion,
 } from '@/__tests__/utils';
 import {
   fullRecipeWeights,
@@ -107,6 +107,7 @@ vi.mock('@/repositories/mixPresetStore', () => ({
   setMixPresetOverride: mocks.setMixPresetOverride,
   updateMixPreset: vi.fn(async () => true),
   deleteMixPreset: vi.fn(async () => true),
+  restoreOwnMixPreset: vi.fn(async () => true),
 }));
 
 const summaries: ClassSummary[] = [
@@ -177,6 +178,14 @@ const sevenB = (): LibraryClass => ({
   ],
 });
 
+const STAND = {
+  seatingHistory: [september, october],
+  mixHistory: [],
+  rooms: [],
+  activeRoomId: 'classroom',
+  activePlanId: 'oct',
+};
+
 const renderPage = () =>
   render(
     <MemoryRouter
@@ -214,9 +223,10 @@ beforeEach(() => {
     saveTemplate: vi.fn(async () => ({ success: true })),
     deleteTemplate: vi.fn(),
     renameTemplate: vi.fn(),
+    restoreTemplate: vi.fn(async () => true),
   };
   mocks.library = { '7b': sevenB(), '8c': null };
-  mocks.edit.mockResolvedValue({ ok: true });
+  mocks.edit.mockResolvedValue({ ok: true, before: STAND });
   mocks.selectClass.mockResolvedValue(true);
   mocks.confirmDialog.mockResolvedValue(true);
 });
@@ -315,16 +325,18 @@ describe('PlanLibrary', () => {
     expect(openButton()).toHaveAttribute('aria-disabled', 'true');
   });
 
-  it('deletes a plan after asking, and goes up to its room', async () => {
+  it('deletes a plan at once and offers it back, which goes up to its room', async () => {
     const user = userEvent.setup();
+    const toasts: ToastInstance[] = [];
+    const stop = subscribeToToasts((event) => {
+      if (event.action === 'add') toasts.push(event.toast);
+    });
     renderPage();
 
     await user.click(await screen.findByRole('option', { name: /^September/ }));
     await user.click(
       screen.getByRole('button', { name: /Plan löschen|Delete plan/ }),
     );
-    expect(mocks.edit).not.toHaveBeenCalled();
-    await confirmInlineQuestion(/Plan löschen|Delete plan/);
 
     await waitFor(() =>
       expect(mocks.edit).toHaveBeenCalledWith('7b', {
@@ -332,11 +344,30 @@ describe('PlanLibrary', () => {
         planId: 'sept',
       }),
     );
-    // A plan loses only itself: its foot asks, no window.
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
     expect(mocks.confirmDialog).not.toHaveBeenCalled();
+    await waitFor(() => expect(toasts).toHaveLength(1));
+    expect(toasts[0]?.message).toMatch(/September/);
+
+    // Its card takes it back, and what was chosen is chosen again.
+    mocks.edit.mockClear();
+    await act(async () => toasts[0]?.action?.onClick());
+    await waitFor(() =>
+      expect(mocks.edit).toHaveBeenCalledWith('7b', {
+        kind: 'restoreParts',
+        parts: STAND,
+        expected: undefined,
+      }),
+    );
+    await waitFor(() =>
+      expect(
+        screen.getByRole('option', { name: /^September/ }),
+      ).toHaveAttribute('aria-selected', 'true'),
+    );
+    stop();
   });
 
-  it('asks at the foot on Entf, with the focus on the cancel', async () => {
+  it('removes on Entf at once, and the focus keeps a row to step from', async () => {
     const user = userEvent.setup();
     renderPage();
 
@@ -345,18 +376,72 @@ describe('PlanLibrary', () => {
     row.focus();
     await user.keyboard('{Delete}');
 
-    const question = await screen.findByRole('alertdialog', {
-      name: /Plan löschen|Delete plan/,
-    });
-    expect(
-      within(question).getByRole('button', { name: /^(Abbrechen|Cancel)$/ }),
-    ).toHaveFocus();
+    await waitFor(() =>
+      expect(mocks.edit).toHaveBeenCalledWith('7b', {
+        kind: 'deletePlan',
+        planId: 'sept',
+      }),
+    );
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+  });
 
-    // Escape takes it back, and the focus returns to the row.
-    await user.keyboard('{Escape}');
-    expect(question).not.toBeInTheDocument();
-    expect(mocks.edit).not.toHaveBeenCalled();
-    await waitFor(() => expect(row).toHaveFocus());
+  it('takes a change back from the status bar and with the keys', async () => {
+    const user = userEvent.setup();
+    renderPage();
+    const undo = within(statusBar()).getByRole('button', {
+      name: /Letzte Aktion rückgängig|Undo last action/,
+    });
+    const redo = within(statusBar()).getByRole('button', {
+      name: /Letzte Aktion wiederherstellen|Redo last action/,
+    });
+    expect(undo).toBeDisabled();
+    expect(redo).toBeDisabled();
+
+    fireEvent.contextMenu(
+      await screen.findByRole('option', { name: /^September/ }),
+    );
+    await user.click(
+      screen.getByRole('menuitem', { name: /^(Duplizieren|Duplicate)$/ }),
+    );
+    await waitFor(() => expect(undo).toBeEnabled());
+
+    await user.click(undo);
+    await waitFor(() => expect(redo).toBeEnabled());
+    expect(undo).toBeDisabled();
+    expect(mocks.edit).toHaveBeenLastCalledWith('7b', {
+      kind: 'restoreParts',
+      parts: STAND,
+      expected: undefined,
+    });
+
+    await user.keyboard('{Control>}{Shift>}z{/Shift}{/Control}');
+    await waitFor(() => expect(undo).toBeEnabled());
+    await user.keyboard('{Control>}z{/Control}');
+    await waitFor(() => expect(redo).toBeEnabled());
+  });
+
+  it('counts what a room takes along, and no longer calls it final', async () => {
+    const user = userEvent.setup();
+    const library = sevenB();
+    library.plans = [{ ...september, roomId: 'lab' }, october];
+    mocks.library = { '7b': library, '8c': null };
+    renderPage();
+
+    await user.click(await screen.findByRole('option', { name: /^Labor/ }));
+    await user.click(
+      screen.getByRole('button', { name: /Raum löschen|Delete room/ }),
+    );
+
+    await waitFor(() => expect(mocks.confirmDialog).toHaveBeenCalledTimes(1));
+    expect(mocks.confirmDialog.mock.calls[0]?.[0]).not.toHaveProperty(
+      'message',
+    );
+    await waitFor(() =>
+      expect(mocks.edit).toHaveBeenCalledWith('7b', {
+        kind: 'deleteRoom',
+        roomId: 'lab',
+      }),
+    );
   });
 
   describe('with the inspector folded away', () => {
@@ -496,7 +581,6 @@ describe('PlanLibrary', () => {
     await user.click(
       screen.getByRole('menuitem', { name: /^(Löschen|Delete)$/ }),
     );
-    await confirmInlineQuestion(/Plan löschen|Delete plan/);
     await waitFor(() =>
       expect(mocks.edit).toHaveBeenCalledWith('7b', {
         kind: 'deletePlan',
@@ -734,7 +818,6 @@ describe('PlanLibrary when a change is not made', () => {
     await user.click(
       screen.getByRole('button', { name: /Plan löschen|Delete plan/ }),
     );
-    await confirmInlineQuestion(/Plan löschen|Delete plan/);
 
     await waitFor(() =>
       expect(toasts.map((toast) => toast.type)).toEqual(['error']),
@@ -761,7 +844,6 @@ describe('PlanLibrary when a change is not made', () => {
     await user.click(
       screen.getByRole('button', { name: /Vorlage löschen|Delete template/ }),
     );
-    await confirmInlineQuestion(/Vorlage löschen|Delete template/);
 
     await waitFor(() =>
       expect(mocks.actions.deleteTemplate).toHaveBeenCalledWith(4),

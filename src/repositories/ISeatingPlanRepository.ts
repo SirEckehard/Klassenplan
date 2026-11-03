@@ -17,12 +17,17 @@ import type {
   RoomRecord,
 } from '@/types';
 import type { CircleLayout, CircleExportData } from '@/types/Circle';
-import type { ClassEdit, ClassEditProblem } from '@/utils/data/classRooms';
+import type {
+  ClassEdit,
+  ClassEditProblem,
+  ClassParts,
+} from '@/utils/data/classRooms';
 import type { Result } from './types';
 
 /** What a change to a class that is not open came to. */
 export type ClassEditOutcome =
-  { ok: true } | { ok: false; reason: ClassEditProblem };
+  | { ok: true; before: ClassParts; after: ClassParts }
+  | { ok: false; reason: ClassEditProblem };
 
 export type ActiveClassSnapshot = {
   students?: Student[];
@@ -118,6 +123,15 @@ export interface ISeatingPlanRepository {
   loadTemplates(): Promise<Result<ClassroomTemplate[]>>;
   saveTemplate(template: ClassroomTemplate): Promise<Result<ClassroomTemplate>>;
   saveTemplates(templates: ClassroomTemplate[]): Promise<Result<void>>;
+  /**
+   * Puts one template back as it was, at `index` where it is gone, or takes it
+   * away with `null`; the others stay as they are.
+   */
+  restoreTemplate(
+    id: number,
+    template: ClassroomTemplate | null,
+    index: number,
+  ): Promise<Result<void>>;
   updateTemplate(id: number, scene: ClassroomScene): Promise<Result<void>>;
   deleteTemplate(id: number): Promise<Result<void>>;
   renameTemplate(id: number, newName: string): Promise<Result<void>>;

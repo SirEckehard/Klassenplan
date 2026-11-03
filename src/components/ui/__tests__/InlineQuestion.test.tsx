@@ -5,7 +5,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import '@/i18n';
-import { confirmInlineQuestion, getButton } from '@/__tests__/utils';
+import { getButton } from '@/__tests__/utils';
 import { InspectorDeleteFooter } from '@/components/shell/InspectorPanel';
 import { isAnyDialogOpen } from '@/hooks/ui/useDialogLayer';
 import InlineQuestion from '../modals/InlineQuestion';
@@ -89,61 +89,15 @@ describe('InspectorDeleteFooter', () => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   });
 
-  it('turns into the question, and back with the focus on its button', async () => {
-    const onDelete = vi.fn();
-    render(
-      <InspectorDeleteFooter
-        label="Delete plan"
-        onDelete={onDelete}
-        question={QUESTION}
-      />,
-    );
-    fireEvent.click(getButton('Delete plan'));
-    expect(screen.getByRole('alertdialog')).toBeInTheDocument();
-
-    fireEvent.click(getButton(CANCEL));
-    expect(onDelete).not.toHaveBeenCalled();
-    await waitFor(() => expect(getButton('Delete plan')).toHaveFocus());
-  });
-
-  it('deletes once the question is answered', async () => {
-    const onDelete = vi.fn();
-    render(
-      <InspectorDeleteFooter
-        label="Delete plan"
-        onDelete={onDelete}
-        question={QUESTION}
-      />,
-    );
-    fireEvent.click(getButton('Delete plan'));
-    await confirmInlineQuestion(/Delete plan/);
-    expect(onDelete).toHaveBeenCalledTimes(1);
-  });
-
-  it('asks when asked from elsewhere, also on its first drawing', () => {
-    render(
-      <InspectorDeleteFooter
-        label="Delete plan"
-        onDelete={vi.fn()}
-        question={QUESTION}
-        askRequest={1}
-      />,
-    );
-    expect(screen.getByRole('alertdialog')).toBeInTheDocument();
-  });
-
-  it('does not ask for what is blocked', () => {
+  it('leaves what is blocked alone', () => {
     const onDelete = vi.fn();
     render(
       <InspectorDeleteFooter
         label="Delete room"
         onDelete={onDelete}
-        question={QUESTION}
-        askRequest={1}
         blockedHint="The open room stays."
       />,
     );
-    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
     fireEvent.click(getButton('Delete room'));
     expect(onDelete).not.toHaveBeenCalled();
   });

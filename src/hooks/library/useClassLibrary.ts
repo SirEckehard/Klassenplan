@@ -25,9 +25,11 @@ import {
 } from '@/utils';
 import {
   checkPlanName,
+  classPartsOf,
   roomStateToOpen,
   type ClassEdit,
   type ClassEditProblem,
+  type ClassParts,
 } from '@/utils/data/classRooms';
 
 /** A room as "Bibliothek" shows it. */
@@ -68,18 +70,31 @@ export type LibraryEdit =
   | { kind: 'deleteMix'; mixId: number }
   | { kind: 'createRoom'; name: string }
   | { kind: 'renameRoom'; roomId: string; name: string }
-  | { kind: 'deleteRoom'; roomId: string };
+  | { kind: 'deleteRoom'; roomId: string }
+  | {
+      kind: 'restoreParts';
+      parts: ClassParts;
+      /** What a stored class must still hold; the open one is the live state. */
+      expected?: ClassParts;
+    };
 
 /** Why a change was not made: the class's own rule, or storage failing. */
 export type LibraryEditProblem = ClassEditProblem | 'storage';
 
 export type LibraryEditOutcome =
-  | { ok: true; /** The room a `createRoom` made. */ roomId?: string }
+  | {
+      ok: true;
+      /** The room a `createRoom` made. */
+      roomId?: string;
+      /** The class before the change, for its undo. */
+      before: ClassParts;
+      /** The stored class after the change; none for the live state. */
+      after?: ClassParts;
+    }
   | { ok: false; reason: LibraryEditProblem };
 
-const done: LibraryEditOutcome = { ok: true };
-const refused = (reason: LibraryEditProblem): LibraryEditOutcome => ({
-  ok: false,
+const refused = (reason: LibraryEditProblem) => ({
+  ok: false as const,
   reason,
 });
 
@@ -247,6 +262,16 @@ export function useClassLibrary(selectedClassId: string | null) {
 
   const editOpenClass = useCallback(
     (edit: LibraryEdit): LibraryEditOutcome => {
+      const done: LibraryEditOutcome = {
+        ok: true,
+        before: classPartsOf({
+          seatingHistory: state.seatingHistory,
+          mixHistory: state.mixHistory,
+          rooms: state.rooms,
+          activeRoomId: state.activeRoomId,
+          activePlanId: state.activePlanId,
+        }),
+      };
       switch (edit.kind) {
         case 'renamePlan': {
           const problem = checkPlanName(
@@ -285,7 +310,7 @@ export function useClassLibrary(selectedClassId: string | null) {
           const result = actions.addRoom(edit.name);
           return typeof result === 'string'
             ? refused(result)
-            : { ok: true, roomId: result.id };
+            : { ...done, roomId: result.id };
         }
         case 'renameRoom': {
           const problem = actions.renameRoom(edit.roomId, edit.name);
@@ -295,9 +320,19 @@ export function useClassLibrary(selectedClassId: string | null) {
           const problem = actions.deleteRoom(edit.roomId);
           return problem ? refused(problem) : done;
         }
+        case 'restoreParts':
+          actions.restoreClassParts(edit.parts);
+          return done;
       }
     },
-    [actions, state.seatingHistory],
+    [
+      actions,
+      state.seatingHistory,
+      state.mixHistory,
+      state.rooms,
+      state.activeRoomId,
+      state.activePlanId,
+    ],
   );
 
   const editStoredClass = useCallback(
@@ -347,6 +382,13 @@ export function useClassLibrary(selectedClassId: string | null) {
             createdAt: new Date().toISOString(),
           },
         };
+      } else if (edit.kind === 'restoreParts') {
+        if (!edit.expected) return refused('changed-elsewhere');
+        change = {
+          kind: 'restoreParts',
+          parts: edit.parts,
+          expected: edit.expected,
+        };
       } else {
         change = edit;
       }
@@ -364,7 +406,7 @@ export function useClassLibrary(selectedClassId: string | null) {
       }
       if (!result.data.ok) return result.data;
       setRevision((count) => count + 1);
-      return madeRoomId ? { ok: true, roomId: madeRoomId } : done;
+      return madeRoomId ? { ...result.data, roomId: madeRoomId } : result.data;
     },
     [repository, stored],
   );

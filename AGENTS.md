@@ -429,7 +429,7 @@ factories in `testHelpers.ts`, `createMemoryIdbKeyval` and
 - **Keyboard navigation** support throughout the application
 - **aria-label** and **aria-pressed** attributes for screen readers
 - **Focus management**: modals trap focus and restore it to the trigger element on close (`Modal.tsx`)
-- **A deletion asks as near its button as what it takes along allows** (decision 0041): what comes back asks nothing and offers "Rückgängig" (`offerStudentUndo`), what loses only itself asks in place (`question` on `InspectorDeleteFooter` and on a row of `InspectorMenuButton`, `InlineQuestion`), what takes more along asks in `ConfirmDialog`, which counts what goes (`confirmFacts`)
+- **A deletion asks as near its button as what it takes along allows** (decision 0041): what comes back asks nothing and offers "Rückgängig" (`offerStudentUndo`, in "Bibliothek" `useLibraryHistory`), what loses only itself asks in place (`question` on a row of `InspectorMenuButton`, `InlineQuestion`), what takes more along asks in `ConfirmDialog`, which counts what goes (`confirmFacts`)
 - **No global Enter-to-confirm** on destructive questions — `InlineQuestion` and `ConfirmDialog` focus "Abbrechen", so Enter cancels unless the confirm button was chosen on purpose
 - **One focus ring**: `--focus-ring`, quiet ink, for every control; blue stays with what can be pressed and what is selected
 - **Responsive design** that works at 200% zoom

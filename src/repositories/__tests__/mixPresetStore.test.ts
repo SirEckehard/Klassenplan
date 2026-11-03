@@ -17,6 +17,7 @@ import {
   getMixPresetsForBackup,
   loadMixPresets,
   restoreMixPresets,
+  restoreOwnMixPreset,
   setMixPresetOverride,
   subscribeToMixPresets,
   updateMixPreset,
@@ -161,5 +162,26 @@ describe('mixPresetStore', () => {
     // The change made here stays; the one this device lacked joins.
     expect(data.overrides.exam?.weights.preferGenderMix).toBe(5);
     expect(data.overrides.quietWork).toBeDefined();
+  });
+
+  it('puts one own preset back in its place and leaves the others', async () => {
+    const a = await addMixPreset('A', exam);
+    const b = await addMixPreset('B', exam);
+    const c = await addMixPreset('C', exam);
+    await deleteMixPreset(b!.id);
+
+    expect(await restoreOwnMixPreset(b!.id, b, 1)).toBe(true);
+    expect((await loadMixPresets()).presets).toEqual([a, b, c]);
+
+    // Standing, it stays where it stands.
+    await restoreOwnMixPreset(b!.id, { ...b!, name: 'B2' }, 0);
+    expect((await loadMixPresets()).presets.map((p) => p.name)).toEqual([
+      'A',
+      'B2',
+      'C',
+    ]);
+
+    await restoreOwnMixPreset(b!.id, null, 1);
+    expect((await loadMixPresets()).presets).toEqual([a, c]);
   });
 });

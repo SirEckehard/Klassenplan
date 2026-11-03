@@ -16,6 +16,7 @@ import {
 } from '@/__tests__/utils';
 import {
   applyClassEdit,
+  classPartsOf,
   checkPlanName,
   checkRoomName,
   EMPTY_ROOM_STATE,
@@ -485,6 +486,47 @@ describe('applyClassEdit', () => {
     const result = applyClassEdit(base(), edit);
     return 'problem' in result ? result.problem : null;
   };
+
+  it('puts back one stand of plans, mixes and rooms, and only that', () => {
+    const start = base();
+    const left = applyClassEdit(start, { kind: 'deleteRoom', roomId: 'lab' });
+    if (!('record' in left)) throw new Error(left.problem);
+
+    const restored = applyClassEdit(left.record, {
+      kind: 'restoreParts',
+      parts: classPartsOf(start),
+      expected: classPartsOf(left.record),
+    });
+
+    expect(restored).toEqual({ record: start });
+  });
+
+  it('refuses a stand when the class holds another than was left', () => {
+    const start = base();
+    expect(
+      problemOf({
+        kind: 'restoreParts',
+        parts: classPartsOf(start),
+        expected: { ...classPartsOf(start), activePlanId: 'sept' },
+      }),
+    ).toBe('changed-elsewhere');
+  });
+
+  it('holds a key with nothing in it for no change', () => {
+    const start = base();
+    const parts = classPartsOf(start);
+    const [first, ...others] = parts.seatingHistory;
+    expect(
+      problemOf({
+        kind: 'restoreParts',
+        parts,
+        expected: {
+          ...parts,
+          seatingHistory: [{ ...first!, autoSaved: undefined }, ...others],
+        },
+      }),
+    ).toBeNull();
+  });
 
   it('renames a plan and refuses a name another plan carries', () => {
     expect(

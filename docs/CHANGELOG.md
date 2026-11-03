@@ -12,12 +12,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Save your own presets for mixing and adjust the built-in ones; "Recommended mix" is now called "Default" and "New class" "Getting to know each other"
 - A right-click or a long press on an entry in the "Library" opens a menu with everything you can do with it
 - Add room templates and presets right in the "Library"
+- Undo and redo in the "Library"
 
 ### Improved
 
 - Tables pushed together count as one group when mixing, and in a row of desks the neighbours at each join count too
 - Fewer messages, and those left appear above the status bar instead of over your work
-- Deleting asks less: students and photos come back with "Undo", a plan asks right at its button, and deleting a class shows what goes with it
+- Deleting asks less: students, photos and what you delete in the "Library" come back with "Undo", and deleting a class shows what goes with it
 - The frame around the focused button is calmer
 - Dragging a student shows the swap before you let go
 - A blocked button or an entry that cannot be used says why, right where it happens

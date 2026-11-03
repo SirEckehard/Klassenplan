@@ -203,6 +203,27 @@ export function deleteMixPreset(id: string): Promise<boolean> {
 }
 
 /**
+ * Put an own preset back as it was, at `index` where it is gone, or take it
+ * away with `null`; the others stay as they are.
+ */
+export function restoreOwnMixPreset(
+  id: string,
+  preset: OwnMixPreset | null,
+  index: number,
+): Promise<boolean> {
+  return mutate((data) => {
+    const standing = data.presets.findIndex((entry) => entry.id === id);
+    const others = data.presets.filter((entry) => entry.id !== id);
+    if (!preset) return { ...data, presets: others };
+    const at = standing === -1 ? index : standing;
+    return {
+      ...data,
+      presets: [...others.slice(0, at), preset, ...others.slice(at)],
+    };
+  });
+}
+
+/**
  * Change a shipped preset, or — with `null`, or the weights it ships with —
  * give it back its own ("Original wiederherstellen").
  */

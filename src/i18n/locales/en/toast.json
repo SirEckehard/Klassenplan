@@ -174,7 +174,8 @@
     "undoCreate": "Undo"
   },
   "library": {
-    "gone": "That no longer exists. It may have been deleted in another tab."
+    "gone": "That no longer exists. It may have been deleted in another tab.",
+    "changedElsewhere": "This can no longer be undone: the class has since been changed in another tab."
   },
   "duties": {
     "saveFailed": "The duties could not be saved.",

@@ -439,7 +439,7 @@
       "description": "Dark mode, shortcuts, undo, the tour, tablets and installation.",
       "undo": {
         "q": "Can I undo changes?",
-        "a": "Yes, in the class list, in the room and in the seating plan and circle – so a student deleted by accident comes back with their photo, for example. The arrows in the middle of the status bar undo and redo changes, and so do Ctrl/⌘+Z and Ctrl/⌘+Shift+Z."
+        "a": "Yes, in the class list, in the room, in the seating plan and circle and in the library – so a student deleted by accident comes back with their photo, or a deleted plan comes back, for example. The arrows in the middle of the status bar undo and redo changes, and so do Ctrl/⌘+Z and Ctrl/⌘+Shift+Z. In the library this works until you leave it."
       },
       "shortcuts": {
         "q": "Which keyboard shortcuts are there?",

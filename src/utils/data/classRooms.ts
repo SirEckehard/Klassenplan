@@ -21,6 +21,7 @@ import type {
   ClassCollectionState,
   ClassRecord,
   LockedPositions,
+  MixResult,
   RoomRecord,
   RoomWorkingState,
   SavedPlan,
@@ -363,11 +364,53 @@ export type ClassEdit =
   | { kind: 'deleteMix'; mixId: number }
   | { kind: 'createRoom'; room: RoomRecord }
   | { kind: 'renameRoom'; roomId: string; name: string }
-  | { kind: 'deleteRoom'; roomId: string };
+  | { kind: 'deleteRoom'; roomId: string }
+  | {
+      kind: 'restoreParts';
+      parts: ClassParts;
+      /** What the undone change left, which must still be what is stored. */
+      expected: ClassParts;
+    };
 
 /** Why a change cannot be made. */
 export type ClassEditProblem =
-  NameProblem | 'not-found' | 'room-open' | 'last-room' | 'room-limit';
+  | NameProblem
+  | 'not-found'
+  | 'room-open'
+  | 'last-room'
+  | 'room-limit'
+  | 'changed-elsewhere';
+
+/**
+ * All that a change of "Bibliothek" can alter in a class, so that its undo
+ * puts back one stand of it, whatever the change took along: a moved plan parks
+ * rooms and may keep their work in a plan, a removed room takes its plans and
+ * mixes (decision 0041).
+ */
+export interface ClassParts {
+  seatingHistory: SavedPlan[];
+  mixHistory: MixResult[];
+  rooms: RoomRecord[];
+  activeRoomId: string | null;
+  activePlanId: string | null;
+}
+
+export function classPartsOf(
+  record: Pick<ClassRecord, 'seatingHistory' | 'mixHistory'> &
+    Partial<Pick<ClassRecord, 'rooms' | 'activeRoomId' | 'activePlanId'>>,
+): ClassParts {
+  return {
+    seatingHistory: record.seatingHistory,
+    mixHistory: record.mixHistory,
+    rooms: record.rooms ?? [],
+    activeRoomId: record.activeRoomId ?? null,
+    activePlanId: record.activePlanId ?? null,
+  };
+}
+
+/** Compared as stored: a key holding `undefined` is no key there. */
+const asStored = (parts: ClassParts): unknown =>
+  JSON.parse(JSON.stringify(parts));
 
 /**
  * Whether `name` may be a plan's: given, not too long, and no other plan of
@@ -653,6 +696,13 @@ export function applyClassEdit(
           ),
         },
       };
+    }
+    case 'restoreParts': {
+      // Another window wrote the class since: its stand would go with this.
+      if (!equal(asStored(classPartsOf(record)), asStored(edit.expected))) {
+        return { problem: 'changed-elsewhere' };
+      }
+      return { record: { ...record, ...edit.parts } };
     }
   }
 }

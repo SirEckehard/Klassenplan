@@ -174,7 +174,8 @@
     "undoCreate": "Rückgängig"
   },
   "library": {
-    "gone": "Das gibt es nicht mehr. Vielleicht wurde es in einem anderen Tab gelöscht."
+    "gone": "Das gibt es nicht mehr. Vielleicht wurde es in einem anderen Tab gelöscht.",
+    "changedElsewhere": "Das lässt sich nicht mehr zurücknehmen: Die Klasse wurde inzwischen in einem anderen Tab geändert."
   },
   "duties": {
     "saveFailed": "Die Dienste konnten nicht gespeichert werden.",

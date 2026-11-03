@@ -36,7 +36,6 @@ export default function RoomPanel({
   onDelete,
   deleteBlockedHint,
   renameRequest,
-  deleteRequest,
   templateRequest = 0,
 }: {
   room: LibraryRoom;
@@ -54,7 +53,6 @@ export default function RoomPanel({
   onDelete: () => void;
   deleteBlockedHint: string | null;
   renameRequest: number;
-  deleteRequest?: number;
   /** Counts up whenever the row naming the template is asked for (its menu). */
   templateRequest?: number;
 }) {
@@ -133,17 +131,6 @@ export default function RoomPanel({
         label={t('library.room.delete')}
         onDelete={onDelete}
         blockedHint={deleteBlockedHint}
-        // A room with plans takes them along, which a dialog says in figures.
-        question={
-          planCount === 0
-            ? {
-                title: t('library.room.deleteQuestion'),
-                detail: t('common.cannotUndo'),
-                confirmLabel: t('common.delete'),
-              }
-            : undefined
-        }
-        askRequest={deleteRequest}
       />
     </>
   );

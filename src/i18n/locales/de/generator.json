@@ -65,7 +65,7 @@
     "library": {
       "title": "Bibliothek",
       "item1": "Links stehen deine Klassen, daneben die Räume der gewählten Klasse und darin ihre Pläne.",
-      "item2": "Was du auswählst, zeigt der Inspektor: Dort benennst du es um, verschiebst einen Plan in einen anderen Raum oder löschst es.",
+      "item2": "Was du auswählst, zeigt der Inspektor: Dort benennst du es um, verschiebst einen Plan in einen anderen Raum oder löschst es. Die Pfeile in der Statusleiste nehmen das zurück, solange du hier bist.",
       "item3": "„Öffnen“ unten rechts holt die Auswahl in die Arbeitsfläche.",
       "item4": "„Letzte Mischungen“ und „Nachbarschaften“ gehören zur Klasse: die letzten 20 Mischungen und wer schon nebeneinander saß, über alle Räume der Klasse hinweg.",
       "item5": "„Raumvorlagen“ können von allen Klassen geöffnet werden. Wenn du die Vorlage öffnest, wird sie ein neuer Raum der aktuellen Klasse."
@@ -747,6 +747,8 @@
       "library_rename": "Auswahl umbenennen",
       "library_delete": "Auswahl löschen",
       "library_menu": "Menü des Eintrags öffnen",
+      "library_undo": "Letzte Änderung rückgängig machen",
+      "library_redo": "Letzte Änderung wiederherstellen",
       "library_back": "Zurück, wo du herkamst"
     },
     "keys": {
@@ -794,6 +796,8 @@
       "library_rename": "F2",
       "library_delete": "Entf / Rücktaste",
       "library_menu": "Umschalt+F10",
+      "library_undo": "Strg/⌘+Z",
+      "library_redo": "Strg/⌘+Umschalt+Z",
       "library_back": "Alt/⌥+←"
     }
   },
@@ -1236,8 +1240,7 @@
       "delete": "Raum löschen",
       "deleteOpenHint": "Den offenen Raum kannst du nicht löschen. Öffne zuerst einen anderen.",
       "deleteLastHint": "Eine Klasse behält mindestens einen Raum.",
-      "deleted": "Raum „{{name}}“ gelöscht.",
-      "deleteQuestion": "Raum löschen?"
+      "deleted": "Raum „{{name}}“ gelöscht."
     },
     "plan": {
       "section": "Plan",
@@ -1255,22 +1258,19 @@
       "detectOn": "Gilt für alle Pläne dieser Klasse: Ein Plan zählt als genutzt, sobald du ihn präsentierst, exportierst oder unter eigenem Namen speicherst.",
       "detectOff": "Gilt für alle Pläne dieser Klasse: Es zählen nur Pläne, die du selbst als genutzt markierst.",
       "delete": "Plan löschen",
-      "otherTables": "Dieser Plan hat andere Tische als „{{room}}“. Gehört er in einen eigenen Raum?",
-      "deleteQuestion": "Plan löschen?"
+      "otherTables": "Dieser Plan hat andere Tische als „{{room}}“. Gehört er in einen eigenen Raum?"
     },
     "mix": {
       "criteria": "Kriterien",
       "random": "Rein zufällig gemischt.",
-      "delete": "Mischung löschen",
-      "deleteQuestion": "Mischung löschen?"
+      "delete": "Mischung löschen"
     },
     "template": {
       "newName": "Neue Raumvorlage",
       "section": "Vorlage",
       "hint": "„Als Raum öffnen“ unten rechts legt diese Vorlage als neuen Raum der offenen Klasse an.",
       "emptyHint": "Noch ohne Tische. Öffne die Vorlage als Raum, stelle die Tische auf und ersetze sie dort im Inspektor unter „Vorlagen“.",
-      "delete": "Vorlage löschen",
-      "deleteQuestion": "Vorlage löschen?"
+      "delete": "Vorlage löschen"
     },
     "presets": "Voreinstellungen",
     "presetsCount_one": "{{count}} Voreinstellung",
@@ -1286,7 +1286,9 @@
       "applied": "Voreinstellung „{{name}}“ übernommen.",
       "deleted": "Voreinstellung „{{name}}“ gelöscht.",
       "standardHint": "„Standard“ bleibt, wie er ist – der Weg zurück zu den Grundeinstellungen. Ändern kannst du die anderen Voreinstellungen und deine eigenen."
-    }
+    },
+    "undone": "Rückgängig gemacht.",
+    "redone": "Wiederhergestellt."
   },
   "contextMenu": {
     "label": "Aktionen für „{{name}}“",

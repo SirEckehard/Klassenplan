@@ -46,6 +46,7 @@ import {
 } from '@/utils/data/classCollection';
 import {
   applyClassEdit,
+  classPartsOf,
   ensureClassRooms,
   ensureCollectionRooms,
   type ClassEdit,
@@ -822,10 +823,9 @@ export class IndexedDBRepository implements ISeatingPlanRepository {
           if (index === -1) {
             this.refuse(RepositoryErrorType.NOT_FOUND, 'Class not found');
           }
-          const applied = applyClassEdit(
-            ensureClassRooms(collection.classes[index]),
-            edit,
-          );
+          const current = ensureClassRooms(collection.classes[index]);
+          const before = cloneValue(classPartsOf(current));
+          const applied = applyClassEdit(current, edit);
           if ('problem' in applied) {
             throw new NothingToWrite({
               ok: false,
@@ -835,7 +835,11 @@ export class IndexedDBRepository implements ISeatingPlanRepository {
           const next = cloneValue(applied.record);
           this.touchClass(next);
           collection.classes[index] = next;
-          return { ok: true } as ClassEditOutcome;
+          return {
+            ok: true,
+            before,
+            after: cloneValue(classPartsOf(next)),
+          } as ClassEditOutcome;
         }),
       {
         logMessage: `Failed to change class ${classId} in IndexedDB`,
@@ -1076,6 +1080,33 @@ export class IndexedDBRepository implements ISeatingPlanRepository {
       {
         logMessage: 'Failed to save classroom templates to IndexedDB',
         errorMessage: 'Failed to save classroom templates',
+      },
+    );
+  }
+
+  async restoreTemplate(
+    id: number,
+    template: ClassroomTemplate | null,
+    index: number,
+  ): Promise<Result<void>> {
+    return this.withErrorHandling(
+      async () => {
+        const templates =
+          (await idbGet<ClassroomTemplate[]>(DB_KEYS.classroomTemplates)) || [];
+        const standing = templates.findIndex((entry) => entry.id === id);
+        const others = templates.filter((entry) => entry.id !== id);
+        const at = standing === -1 ? index : standing;
+        await idbSet(
+          DB_KEYS.classroomTemplates,
+          template
+            ? [...others.slice(0, at), template, ...others.slice(at)]
+            : others,
+        );
+        return undefined;
+      },
+      {
+        logMessage: 'Failed to restore classroom template in IndexedDB',
+        errorMessage: 'Failed to restore classroom template',
       },
     );
   }

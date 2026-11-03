@@ -66,7 +66,6 @@ export default function PlanPanel({
   onDuplicate,
   onDelete,
   renameRequest,
-  deleteRequest,
 }: {
   plan: SavedPlan;
   /**
@@ -83,7 +82,6 @@ export default function PlanPanel({
   onDuplicate: () => void;
   onDelete: () => void;
   renameRequest: number;
-  deleteRequest?: number;
 }) {
   const { t } = useTranslation('generator');
   const [namingRoom, setNamingRoom] = React.useState(false);
@@ -274,12 +272,6 @@ export default function PlanPanel({
       <InspectorDeleteFooter
         label={t('library.plan.delete')}
         onDelete={onDelete}
-        question={{
-          title: t('library.plan.deleteQuestion'),
-          detail: t('common.cannotUndo'),
-          confirmLabel: t('common.delete'),
-        }}
-        askRequest={deleteRequest}
       />
     </>
   );

@@ -2,8 +2,8 @@
 // Copyright (C) 2026 Eike Schäfer
 /**
  * What a deletion asks depends on what it takes along (decision 0041): a student
- * goes at once with "Rückgängig" on a card, a plan asks at the inspector's foot,
- * and a class asks in a dialog that counts what goes.
+ * and a plan go at once with "Rückgängig" on a card, and a class asks in a dialog
+ * that counts what goes.
  *
  * The locale is pinned to German, as in the core flow.
  */
@@ -102,7 +102,7 @@ test('a student goes without a question and comes back from the card', async ({
   await expect(undo).toHaveCount(0);
 });
 
-test('a plan asks at the inspector foot, a class in a dialog that counts', async ({
+test('a plan goes at once and comes back, a class asks in a dialog that counts', async ({
   page,
 }) => {
   await createClass(page);
@@ -112,26 +112,46 @@ test('a plan asks at the inspector foot, a class in a dialog that counts', async
   await expect(page).toHaveURL(/\/bibliothek$/);
   const planRow = page.getByRole('option', { name: /^Woche 1/ });
   await expect(planRow).toHaveAttribute('aria-selected', 'true');
+  const undo = statusBar(page).getByRole('button', {
+    name: 'Letzte Aktion rückgängig machen',
+  });
+  const redo = statusBar(page).getByRole('button', {
+    name: 'Letzte Aktion wiederherstellen',
+  });
+  await expect(undo).toBeDisabled();
 
-  await test.step('Entf asks at the foot, and Escape takes it back', async () => {
+  await test.step('Entf deletes at once, and the card brings it back', async () => {
     await planRow.focus();
     await page.keyboard.press('Delete');
-    const question = page.getByRole('alertdialog', { name: 'Plan löschen?' });
-    await expect(
-      question.getByRole('button', { name: 'Abbrechen' }),
-    ).toBeFocused();
-    await page.keyboard.press('Escape');
-    await expect(question).toHaveCount(0);
-    await expect(planRow).toBeFocused();
+    await expect(page.getByRole('alertdialog')).toHaveCount(0);
+    await expect(planRow).toHaveCount(0);
+    await page.getByRole('button', { name: 'Rückgängig', exact: true }).click();
+    await expect(planRow).toHaveAttribute('aria-selected', 'true');
   });
 
-  await test.step('the foot deletes once it is answered', async () => {
-    await page.getByRole('button', { name: 'Plan löschen' }).click();
-    await page
-      .getByRole('alertdialog', { name: 'Plan löschen?' })
-      .getByRole('button', { name: 'Löschen' })
-      .click();
+  await test.step('the status bar and the keys go both ways', async () => {
+    await expect(redo).toBeEnabled();
+    await redo.click();
     await expect(planRow).toHaveCount(0);
+    await page.keyboard.press('ControlOrMeta+z');
+    await expect(planRow).toHaveAttribute('aria-selected', 'true');
+    await page.keyboard.press('ControlOrMeta+Shift+z');
+    await expect(planRow).toHaveCount(0);
+    await undo.click();
+    await expect(planRow).toBeVisible();
+  });
+
+  await test.step('what came back is still there after a reload', async () => {
+    await expect(statusBar(page)).toBeVisible();
+    await page.reload();
+    await expect(page.getByRole('option', { name: /^Woche 1/ })).toBeVisible();
+  });
+
+  await test.step('the foot deletes at once', async () => {
+    await page.getByRole('option', { name: /^Woche 1/ }).click();
+    await page.getByRole('button', { name: 'Plan löschen' }).click();
+    await expect(page.getByRole('alertdialog')).toHaveCount(0);
+    await expect(page.getByRole('option', { name: /^Woche 1/ })).toHaveCount(0);
   });
 
   await test.step('the class counts what goes with it', async () => {

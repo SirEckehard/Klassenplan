@@ -62,6 +62,10 @@ import {
   type LibraryEdit,
   type LibraryEditOutcome,
 } from '@/hooks/library/useClassLibrary';
+import {
+  useLibraryHistory,
+  type LibraryStep,
+} from '@/hooks/library/useLibraryHistory';
 import { usePlanUsageRecords } from '@/hooks/plan/usePlanUsageRecords';
 import { useMixPresets } from '@/hooks/ui/useMixPresets';
 import { withRecipe } from '@/hooks/ui/useMixRecipes';
@@ -79,7 +83,11 @@ import { useLayoutMode } from '@/hooks/ui/useLayoutMode';
 import { isAnyDialogOpen } from '@/hooks/ui/useDialogLayer';
 import { confirmDialog } from '@/services/ui/dialogs';
 import { roomFacts } from '@/components/ui/modals/confirmFacts';
-import type { ClassroomTemplate } from '@/types';
+import type {
+  ClassroomTemplate,
+  EditableMixRecipeId,
+  UpdateClassMetadataPayload,
+} from '@/types';
 import {
   cardSurfaceClass,
   DEFAULT_CLASSROOM_SCENE,
@@ -113,7 +121,8 @@ const toProblem = (outcome: LibraryEditOutcome): NameProblem | null =>
  * (decision 0024). It wears the workspace's shell — header, toolbar,
  * inspector, status bar — as the export page does; what is selected is read
  * and changed in the inspector, the status bar holds its path and the one
- * button that opens it in the workspace.
+ * button that opens it in the workspace, and undo takes back what was changed
+ * here (`useLibraryHistory`).
  *
  * It opens on the plan that is open, in its room, in its class, so the room a
  * plan belongs to is the first thing to see. Another class is browsed without
@@ -210,6 +219,32 @@ function PlanLibraryPage() {
     [classLibrary],
   );
 
+  // The entry whose name is asked for (F2, a class or room just added), or
+  // whose row for keeping it as a template (its menu), so only its panel
+  // opens it — not every panel shown after it. Choosing another entry lets
+  // the request go.
+  const [renameRequest, setRenameRequest] = React.useState<{
+    key: string;
+    kind: 'rename' | 'template';
+    count: number;
+  } | null>(null);
+
+  const history = useLibraryHistory({
+    classes: library.classes,
+    openClassId: library.openClassId,
+    reloadGeneration: state.reloadGeneration,
+    path,
+    choosePath: (next) => {
+      setRenameRequest(null);
+      setChosenPath(next);
+    },
+    editClass: library.edit,
+    updateClassMetadata,
+    loadTemplates: actions.loadTemplate,
+    restoreTemplate: actions.restoreTemplate,
+    onTemplatesChanged: () => setTemplatesRevision((count) => count + 1),
+  });
+
   // The state and actions after an await — a class opened meanwhile.
   const latestRef = React.useRef({ state, actions, path: [] as string[] });
   // The path too: an entry's menu chose it in the same event, so a removal
@@ -218,33 +253,20 @@ function PlanLibraryPage() {
     latestRef.current = { state, actions, path };
   });
 
-  // The entry whose name is asked for (F2, a class or room just added), or
-  // whose row for keeping it as a template (its menu), so only its panel
-  // opens it — not every panel shown after it. Choosing another entry lets
-  // the request go.
-  const [renameRequest, setRenameRequest] = React.useState<{
-    key: string;
-    kind: 'rename' | 'template' | 'delete';
-    count: number;
-  } | null>(null);
-  const requestPanelPart = (
-    key: string,
-    kind: 'rename' | 'template' | 'delete',
-  ) =>
+  const requestPanelPart = (key: string, kind: 'rename' | 'template') =>
     setRenameRequest((previous) => ({
       key,
       kind,
       count: (previous?.count ?? 0) + 1,
     }));
   const requestRenameOf = (key: string) => requestPanelPart(key, 'rename');
-  const requestCountFor = (kind: 'rename' | 'template' | 'delete') =>
+  const requestCountFor = (kind: 'rename' | 'template') =>
     renameRequest &&
     renameRequest.key === currentKey &&
     renameRequest.kind === kind
       ? renameRequest.count
       : 0;
   const renameRequestCount = requestCountFor('rename');
-  const deleteRequestCount = requestCountFor('delete');
 
   const choose = (columnIndex: number, key: string) => {
     setRenameRequest(null);
@@ -297,6 +319,12 @@ function PlanLibraryPage() {
   useKeyboardShortcuts(
     {
       'alt+arrowleft': goBack,
+      'ctrl+z': history.undo,
+      'cmd+z': history.undo,
+      'ctrl+shift+z': history.redo,
+      'cmd+shift+z': history.redo,
+      'ctrl+y': history.redo,
+      'cmd+y': history.redo,
       '1': () => toLayer(1),
       '2': () => toLayer(2),
       '3': () => toLayer(3),
@@ -312,9 +340,23 @@ function PlanLibraryPage() {
   // A change that was not made says why — unless the inspector's name field
   // does (a name taken, empty or too long), or a hint said it before the
   // change was asked for (the open room, the last room).
-  const edit = async (classId: string, change: LibraryEdit) => {
+  // One that was is a step of the undo; `offer` says what went on a card that
+  // takes it back.
+  const edit = async (classId: string, change: LibraryEdit, offer?: string) => {
+    const pathThen = latestRef.current.path;
     const outcome = await library.edit(classId, change);
-    if (outcome.ok) return outcome;
+    if (outcome.ok) {
+      history.record(
+        {
+          kind: 'class',
+          classId,
+          parts: outcome.before,
+          expected: outcome.after,
+        },
+        { path: pathThen, offer },
+      );
+      return outcome;
+    }
     switch (outcome.reason) {
       case 'storage':
         showToast('error', 'toast:errors.storage');
@@ -468,15 +510,10 @@ function PlanLibraryPage() {
     }
   };
 
-  // What a deletion takes along decides where it asks (decision 0041): what
-  // loses only itself asks at its panel's foot, which opens for it; a class or
-  // a room with plans in a dialog that counts what goes.
-  const askAtFoot = (node: LibraryNode) => {
-    const key = libraryKey(node);
-    showInspector(key);
-    requestPanelPart(key, 'delete');
-  };
-
+  // What a deletion takes along decides how it goes (decision 0041): undo
+  // brings all of it back, so a plan, a mix, a template, a preset and an empty
+  // room go at once; a room with plans counts them in a dialog first. A class
+  // lies beyond the undo and asks in its own.
   const requestRemoval = async (node: LibraryNode | undefined) => {
     if (!node) return;
     switch (node.kind) {
@@ -486,10 +523,8 @@ function PlanLibraryPage() {
       case 'plan':
       case 'mix':
       case 'template':
-        askAtFoot(node);
-        return;
       case 'preset':
-        if (!presetOf(node.presetId)?.builtin) askAtFoot(node);
+        await removeEntry(node);
         return;
       case 'room': {
         const blocked = roomRemovalHint(node);
@@ -505,7 +540,7 @@ function PlanLibraryPage() {
           (plan) => plan.roomId === room.id,
         ).length;
         if (planCount === 0) {
-          askAtFoot(node);
+          await removeEntry(node);
           return;
         }
         const confirmed = await confirmDialog({
@@ -516,7 +551,6 @@ function PlanLibraryPage() {
             planCount,
             classLibrary.mixes.filter((mix) => mix.roomId === room.id).length,
           ),
-          message: t('common.cannotUndo'),
           confirmLabel: t('common.delete'),
         });
         if (confirmed) await removeEntry(node);
@@ -526,7 +560,34 @@ function PlanLibraryPage() {
     }
   };
 
-  // What was asked and answered.
+  // How a template and an own preset stand now, for the undo of a change.
+  const templateStep = (templateId: number): LibraryStep => {
+    const index = templates.findIndex((entry) => entry.id === templateId);
+    return {
+      kind: 'template',
+      templateId,
+      template: templates[index] ?? null,
+      index: index === -1 ? templates.length : index,
+    };
+  };
+  const ownPresetStep = (presetId: string): LibraryStep => {
+    const own = presets.data.presets;
+    const index = own.findIndex((entry) => entry.id === presetId);
+    return {
+      kind: 'ownPreset',
+      presetId,
+      preset: own[index] ?? null,
+      index: index === -1 ? own.length : index,
+    };
+  };
+  const overrideStep = (builtin: EditableMixRecipeId): LibraryStep => ({
+    kind: 'presetOverride',
+    builtin,
+    weights: presets.data.overrides[builtin]?.weights ?? null,
+  });
+  const recordStep = (step: LibraryStep, offer?: string) =>
+    history.record(step, { path: latestRef.current.path, offer });
+
   const removeEntry = async (node: LibraryNode) => {
     switch (node.kind) {
       case 'plan': {
@@ -534,26 +595,21 @@ function PlanLibraryPage() {
           (entry) => entry.id === node.planId,
         );
         if (!plan) return;
-        const outcome = await edit(node.classId, {
-          kind: 'deletePlan',
-          planId: node.planId,
-        });
-        if (outcome.ok) {
-          // The column shows it gone, after the question that asked.
-          announce(t('storage.planDeleted', { name: plan.name }));
-          setChosenPath(latestRef.current.path.slice(0, -1));
-        }
+        const outcome = await edit(
+          node.classId,
+          { kind: 'deletePlan', planId: node.planId },
+          t('storage.planDeleted', { name: plan.name }),
+        );
+        if (outcome.ok) setChosenPath(latestRef.current.path.slice(0, -1));
         return;
       }
       case 'mix': {
-        const outcome = await edit(node.classId, {
-          kind: 'deleteMix',
-          mixId: node.mixId,
-        });
-        if (outcome.ok) {
-          announce(t('storage.mixDeleted'));
-          setChosenPath(latestRef.current.path.slice(0, -1));
-        }
+        const outcome = await edit(
+          node.classId,
+          { kind: 'deleteMix', mixId: node.mixId },
+          t('storage.mixDeleted'),
+        );
+        if (outcome.ok) setChosenPath(latestRef.current.path.slice(0, -1));
         return;
       }
       case 'room': {
@@ -561,22 +617,21 @@ function PlanLibraryPage() {
           (entry) => entry.id === node.roomId,
         );
         if (!room) return;
-        const outcome = await edit(node.classId, {
-          kind: 'deleteRoom',
-          roomId: node.roomId,
-        });
-        if (outcome.ok) {
-          announce(t('library.room.deleted', { name: room.name }));
-          setChosenPath(latestRef.current.path.slice(0, -1));
-        }
+        const outcome = await edit(
+          node.classId,
+          { kind: 'deleteRoom', roomId: node.roomId },
+          t('library.room.deleted', { name: room.name }),
+        );
+        if (outcome.ok) setChosenPath(latestRef.current.path.slice(0, -1));
         return;
       }
       case 'template': {
+        const step = templateStep(node.templateId);
         if (!(await actions.deleteTemplate(node.templateId))) {
           showToast('error', TOAST_MESSAGES.DELETE_TEMPLATE_ERROR);
           return;
         }
-        announce(TOAST_MESSAGES.DELETE_TEMPLATE_SUCCESS);
+        recordStep(step, TOAST_MESSAGES.DELETE_TEMPLATE_SUCCESS);
         setTemplatesRevision((count) => count + 1);
         setChosenPath(latestRef.current.path.slice(0, -1));
         return;
@@ -584,12 +639,15 @@ function PlanLibraryPage() {
       case 'preset': {
         const preset = presetOf(node.presetId);
         if (!preset || preset.builtin) return;
-        const name = presetLabel(preset, t);
+        const step = ownPresetStep(preset.id);
         if (!(await deleteMixPreset(preset.id))) {
           showToast('error', 'toast:mixPresets.saveFailed');
           return;
         }
-        announce(t('library.preset.deleted', { name }));
+        recordStep(
+          step,
+          t('library.preset.deleted', { name: presetLabel(preset, t) }),
+        );
         setChosenPath(latestRef.current.path.slice(0, -1));
         return;
       }
@@ -601,11 +659,31 @@ function PlanLibraryPage() {
   // classes stay as they are: the preset changes, not what it once set.
   const restorePreset = async (preset: MixRecipe) => {
     if (!isEditableBuiltin(preset.builtin)) return;
+    const step = overrideStep(preset.builtin);
     if (!(await setMixPresetOverride(preset.builtin, null))) {
       showToast('error', 'toast:mixPresets.saveFailed');
       return;
     }
+    recordStep(step);
     announce(t('mix.recipes.restored', { name: presetLabel(preset, t) }));
+  };
+
+  // The name, school year and notes of a class, as they stood.
+  const commitClassMetadata = async (
+    classId: string,
+    patch: UpdateClassMetadataPayload,
+  ) => {
+    const stood = {
+      name: classLibrary?.name ?? '',
+      label: classLibrary?.label ?? '',
+      notes: classLibrary?.notes ?? '',
+    };
+    const kept = await updateClassMetadata(classId, patch);
+    const changed = (Object.keys(stood) as (keyof typeof stood)[]).some(
+      (key) => patch[key] !== undefined && patch[key] !== stood[key],
+    );
+    if (kept && changed) recordStep({ kind: 'classMeta', classId, ...stood });
+    return kept;
   };
 
   // The open room cannot go — another opens first — nor the last one.
@@ -789,6 +867,12 @@ function PlanLibraryPage() {
       // Template names are unique, and a save does not say the new one's id.
       const made = list.find((entry) => entry.name === name);
       if (!made) return;
+      recordStep({
+        kind: 'template',
+        templateId: made.id,
+        template: null,
+        index: list.length - 1,
+      });
       const key = libraryKey({ kind: 'template', templateId: made.id });
       setChosenPath([libraryKey({ kind: 'templates' }), key]);
       showInspector(key);
@@ -822,6 +906,12 @@ function PlanLibraryPage() {
       showToast('error', 'toast:mixPresets.saveFailed');
       return;
     }
+    recordStep({
+      kind: 'ownPreset',
+      presetId: preset.id,
+      preset: null,
+      index: own.length,
+    });
     const key = libraryKey({ kind: 'preset', presetId: preset.id });
     setChosenPath([libraryKey({ kind: 'presets' }), key]);
     showInspector(key);
@@ -880,7 +970,7 @@ function PlanLibraryPage() {
             otherNames={library.classes
               .filter((entry) => entry.id !== classLibrary.id)
               .map((entry) => entry.name)}
-            onCommit={(patch) => updateClassMetadata(classLibrary.id, patch)}
+            onCommit={(patch) => commitClassMetadata(classLibrary.id, patch)}
             onDelete={() => requestDelete(current.classId)}
             renameRequest={renameRequestCount}
           />
@@ -915,6 +1005,8 @@ function PlanLibraryPage() {
               try {
                 // A name a template carries is replaced only from the row's
                 // own step, as in the room's inspector.
+                const stood =
+                  overwriteId !== undefined ? templateStep(overwriteId) : null;
                 const kept =
                   overwriteId !== undefined
                     ? await actions.updateTemplate(overwriteId, room.scene)
@@ -922,6 +1014,23 @@ function PlanLibraryPage() {
                 if (!kept) {
                   showToast('error', TOAST_MESSAGES.SAVE_TEMPLATE_ERROR);
                   return false;
+                }
+                if (stood) {
+                  recordStep(stood);
+                } else {
+                  // Template names are unique, and a save does not say the id.
+                  const list = await actions.loadTemplate();
+                  const madeId = list.find(
+                    (entry) => entry.name === name.trim(),
+                  )?.id;
+                  if (madeId !== undefined) {
+                    recordStep({
+                      kind: 'template',
+                      templateId: madeId,
+                      template: null,
+                      index: list.length - 1,
+                    });
+                  }
                 }
                 // The template stands in its column.
                 announce(
@@ -948,7 +1057,6 @@ function PlanLibraryPage() {
             }
             deleteBlockedHint={roomRemovalHint(current)}
             renameRequest={renameRequestCount}
-            deleteRequest={deleteRequestCount}
             templateRequest={requestCountFor('template')}
           />
         );
@@ -1018,7 +1126,6 @@ function PlanLibraryPage() {
             }}
             onDelete={() => void removeEntry(current)}
             renameRequest={renameRequestCount}
-            deleteRequest={deleteRequestCount}
           />
         );
       }
@@ -1036,7 +1143,6 @@ function PlanLibraryPage() {
             }
             fits={mixFits(current)}
             onDelete={() => void removeEntry(current)}
-            deleteRequest={deleteRequestCount}
           />
         );
       }
@@ -1137,24 +1243,29 @@ function PlanLibraryPage() {
               .map((recipe) => presetLabel(recipe, t))
               .filter((other) => other !== name)}
             onRename={async (next) => {
+              const step = ownPresetStep(preset.id);
               if (await updateMixPreset(preset.id, { name: next })) {
+                recordStep(step);
                 return null;
               }
               showToast('error', 'toast:mixPresets.saveFailed');
               return null;
             }}
             onChangeWeights={(weights) => {
+              const step = isEditableBuiltin(preset.builtin)
+                ? overrideStep(preset.builtin)
+                : ownPresetStep(preset.id);
               const written = isEditableBuiltin(preset.builtin)
                 ? setMixPresetOverride(preset.builtin, weights)
                 : updateMixPreset(preset.id, { weights });
               void written.then((ok) => {
-                if (!ok) showToast('error', 'toast:mixPresets.saveFailed');
+                if (ok) recordStep(step);
+                else showToast('error', 'toast:mixPresets.saveFailed');
               });
             }}
             onDelete={() => void removeEntry(current)}
             onRestore={() => void restorePreset(preset)}
             renameRequest={renameRequestCount}
-            deleteRequest={deleteRequestCount}
           />
         );
       }
@@ -1169,8 +1280,10 @@ function PlanLibraryPage() {
             template={template}
             templates={templates}
             onRename={async (name) => {
+              const step = templateStep(template.id);
               const result = await actions.renameTemplate(template.id, name);
               if (result.success) {
+                recordStep(step);
                 setTemplatesRevision((count) => count + 1);
                 return null;
               }
@@ -1178,7 +1291,6 @@ function PlanLibraryPage() {
             }}
             onDelete={() => void removeEntry(current)}
             renameRequest={renameRequestCount}
-            deleteRequest={deleteRequestCount}
           />
         );
       }
@@ -1199,6 +1311,12 @@ function PlanLibraryPage() {
           }))}
           onCrumb={(index) => goUp(index)}
           onBack={goBack}
+          history={{
+            onUndo: history.undo,
+            canUndo: history.canUndo,
+            onRedo: history.redo,
+            canRedo: history.canRedo,
+          }}
           open={{
             ...openButton,
             onOpen: () => void openNode(current),

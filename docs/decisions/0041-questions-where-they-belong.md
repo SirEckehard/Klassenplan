@@ -79,3 +79,43 @@ the blue: a seat under the keyboard is a selection on the drawing.
   opens without figures when that fails.
 - The focus ring no longer has a colour of its own to tell a danger button from
   another; the button's own colour does that.
+
+## Addendum of 2026-11-03: "Bibliothek" takes back what it changes
+
+"Bibliothek" was the one page of the shell without undo: plans, mixes, rooms,
+templates and presets lie in none of the three histories, and the plan's would
+have taken back something the page does not show. It now has a fourth
+(`hooks/library/useLibraryHistory.ts`), in the middle of its status bar and on
+Ctrl/⌘+Z, for what is changed there: renaming, adding, duplicating, moving and
+deleting plans, mixes, rooms, templates and presets, a preset's weights, and a
+class's name, school year and notes.
+
+So rule 1 applies, as the maintainer chose on 2026-11-03: **a plan, a mix, a
+template, a preset and a room without plans go at once from "Bibliothek"**, with
+"Rückgängig" on a card until the next step. The question at the inspector's foot
+is gone with them, `InlineQuestion` staying for a menu's row where nothing takes
+it back: a template or a room in the room's inspector, a preset in the criteria
+panel. A room with plans still counts them in its dialog, which no longer calls
+it final.
+
+- **One stand of a class goes back as a whole** (`ClassParts`: plans, mixes,
+  rooms, open room, open plan), not a change's inverse: a moved plan parks rooms
+  and may keep their work in a plan, a removed room takes plans and mixes along.
+  The screen's tables and seating are not part of it; no change here touches them.
+  A template or a preset goes back alone, so what another window added stays.
+- **It lasts as long as the page.** Back in the workspace the plans go on
+  changing, and a step kept from before would write over that. A class's steps
+  also go when another class opens, and all of them when the open class is
+  replaced from outside (`reloadGeneration`) or everything is wiped.
+- **Another window's work is not written over.** A class that is not open goes
+  back only while it holds what the undone change left (`restoreParts`'
+  `expected`), in the same transaction; otherwise the step goes and a message says
+  why (`changed-elsewhere`).
+- **Beyond it:** adding and deleting a class, whose photos and usage records lie
+  in stores of their own, so a class still asks first; "Genutzt" and "Automatisch
+  erkennen", which lie in the usage store; the neighbourhoods' reset, which has its
+  own "Rückgängig"; a rename in the header's class menu, which belongs to no page.
+
+The cost is the one named when this was chosen: **a deleted plan is gone without
+any question once the page is left.** Should that lose a teacher a plan, the
+question comes back here, not the whole history.

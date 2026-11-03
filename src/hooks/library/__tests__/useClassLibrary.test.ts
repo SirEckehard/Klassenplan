@@ -7,7 +7,8 @@ import {
   createMockClassroomScene,
   createMockSavedPlan,
 } from '@/__tests__/utils';
-import { useClassLibrary } from '../useClassLibrary';
+import type { ClassParts } from '@/utils/data/classRooms';
+import { useClassLibrary, type LibraryEditOutcome } from '../useClassLibrary';
 
 const mocks = vi.hoisted(() => ({
   state: {} as Record<string, unknown>,
@@ -25,6 +26,14 @@ vi.mock('@/contexts/SeatingPlanContext', () => ({
 vi.mock('@/hooks/useSeatingRepository', () => ({
   useSeatingRepository: () => mocks.repository,
 }));
+
+const PARTS: ClassParts = {
+  seatingHistory: [],
+  mixHistory: [],
+  rooms: [],
+  activeRoomId: null,
+  activePlanId: null,
+};
 
 const room = (id: string, name: string): RoomRecord => ({
   id,
@@ -82,7 +91,7 @@ beforeEach(() => {
   }));
   mocks.repository.editInactiveClass.mockResolvedValue({
     success: true,
-    data: { ok: true },
+    data: { ok: true, before: PARTS, after: PARTS },
   });
 });
 
@@ -142,7 +151,7 @@ describe('useClassLibrary', () => {
       });
     });
 
-    expect(outcome).toEqual({ ok: true, roomId: 'r3' });
+    expect(outcome).toMatchObject({ ok: true, roomId: 'r3' });
     expect(mocks.actions.addRoom).toHaveBeenCalledWith('Turnhalle');
     expect(mocks.repository.editInactiveClass).not.toHaveBeenCalled();
   });
@@ -210,5 +219,62 @@ describe('useClassLibrary', () => {
     });
 
     expect(outcome).toEqual({ ok: false, reason: 'storage' });
+  });
+
+  it('says how the open class stood, and puts that back live', async () => {
+    mocks.actions.deleteSeatingPlan = vi.fn();
+    mocks.actions.restoreClassParts = vi.fn();
+    const { result } = renderHook(() => useClassLibrary('open'));
+
+    let outcome: LibraryEditOutcome | undefined;
+    await act(async () => {
+      outcome = await result.current.edit('open', {
+        kind: 'deletePlan',
+        planId: 'p1',
+      });
+    });
+    if (!outcome?.ok) throw new Error('not made');
+    expect(outcome.before.seatingHistory.map((plan) => plan.id)).toEqual([
+      'p1',
+    ]);
+    expect(outcome.after).toBeUndefined();
+
+    await act(async () => {
+      await result.current.edit('open', {
+        kind: 'restoreParts',
+        parts: PARTS,
+      });
+    });
+    expect(mocks.actions.restoreClassParts).toHaveBeenCalledWith(PARTS);
+    expect(mocks.repository.editInactiveClass).not.toHaveBeenCalled();
+  });
+
+  it('puts a stored class back only against what its undo expects', async () => {
+    const { result } = renderHook(() => useClassLibrary('other'));
+    await waitFor(() => expect(result.current.selected?.name).toBe('8c'));
+
+    let outcome: unknown;
+    await act(async () => {
+      outcome = await result.current.edit('other', {
+        kind: 'restoreParts',
+        parts: PARTS,
+      });
+    });
+    expect(outcome).toEqual({ ok: false, reason: 'changed-elsewhere' });
+    expect(mocks.repository.editInactiveClass).not.toHaveBeenCalled();
+
+    await act(async () => {
+      outcome = await result.current.edit('other', {
+        kind: 'restoreParts',
+        parts: PARTS,
+        expected: PARTS,
+      });
+    });
+    expect(mocks.repository.editInactiveClass).toHaveBeenCalledWith('other', {
+      kind: 'restoreParts',
+      parts: PARTS,
+      expected: PARTS,
+    });
+    expect(outcome).toEqual({ ok: true, before: PARTS, after: PARTS });
   });
 });

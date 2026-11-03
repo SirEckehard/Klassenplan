@@ -61,7 +61,6 @@ export default function PresetPanel({
   onDelete,
   onRestore,
   renameRequest,
-  deleteRequest,
 }: {
   preset: MixRecipe;
   /** Every other preset's name, the shipped ones' included. */
@@ -72,7 +71,6 @@ export default function PresetPanel({
   onDelete: () => void;
   onRestore: () => void;
   renameRequest: number;
-  deleteRequest?: number;
 }) {
   const { t } = useTranslation('generator');
   const name = presetLabel(preset, t);
@@ -159,12 +157,6 @@ export default function PresetPanel({
         <InspectorDeleteFooter
           label={t('library.preset.delete')}
           onDelete={onDelete}
-          question={{
-            title: t('mix.recipes.deleteTitle'),
-            detail: t('mix.recipes.deleteDetail'),
-            confirmLabel: t('common.delete'),
-          }}
-          askRequest={deleteRequest}
         />
       )}
     </>

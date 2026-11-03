@@ -399,13 +399,96 @@ describe('classes that are not open', () => {
       }),
     );
 
-    expect(outcome).toEqual({ ok: true });
+    expect(outcome.ok).toBe(true);
     expect(vi.mocked(idbUpdateMock)).toHaveBeenCalledTimes(1);
     const record = expectData(await repository.loadClassRecord(other.id));
     expect(record.rooms?.map((room) => room.name)).toEqual([
       expect.stringMatching(/Klassenraum|Classroom/),
       'Labor',
     ]);
+  });
+
+  it('puts a class back as a change found it, and forward again', async () => {
+    const { other } = await twoClasses();
+    const opened = expectData(await repository.loadClassRecord(other.id));
+    const made = expectData(
+      await repository.editInactiveClass(other.id, {
+        kind: 'createRoom',
+        room: { id: 'lab', name: 'Labor', createdAt: '2026-10-04' },
+      }),
+    );
+    if (!made.ok) throw new Error('not made');
+
+    const undone = expectData(
+      await repository.editInactiveClass(other.id, {
+        kind: 'restoreParts',
+        parts: made.before,
+        expected: made.after,
+      }),
+    );
+    if (!undone.ok) throw new Error('not undone');
+    expect(
+      expectData(await repository.loadClassRecord(other.id)).rooms,
+    ).toEqual(opened.rooms);
+
+    const redone = expectData(
+      await repository.editInactiveClass(other.id, {
+        kind: 'restoreParts',
+        parts: undone.before,
+        expected: undone.after,
+      }),
+    );
+    expect(redone.ok).toBe(true);
+    expect(
+      expectData(await repository.loadClassRecord(other.id)).rooms?.map(
+        (room) => room.name,
+      ),
+    ).toContain('Labor');
+  });
+
+  it('keeps what another window wrote from an undo', async () => {
+    const { other } = await twoClasses();
+    const made = expectData(
+      await repository.editInactiveClass(other.id, {
+        kind: 'createRoom',
+        room: { id: 'lab', name: 'Labor', createdAt: '2026-10-04' },
+      }),
+    );
+    if (!made.ok) throw new Error('not made');
+    await repository.editInactiveClass(other.id, {
+      kind: 'renameRoom',
+      roomId: 'lab',
+      name: 'Labor 2',
+    });
+
+    const outcome = expectData(
+      await repository.editInactiveClass(other.id, {
+        kind: 'restoreParts',
+        parts: made.before,
+        expected: made.after,
+      }),
+    );
+
+    expect(outcome).toEqual({ ok: false, reason: 'changed-elsewhere' });
+  });
+
+  it('puts one template back in its place and leaves the others', async () => {
+    const scene = createMockClassroomScene(1);
+    const a: ClassroomTemplate = { id: 1, name: 'A', scene };
+    const b: ClassroomTemplate = { id: 2, name: 'B', scene };
+    const c: ClassroomTemplate = { id: 3, name: 'C', scene };
+    await repository.saveTemplates([a, c]);
+
+    await repository.restoreTemplate(2, b, 1);
+    expect(expectData(await repository.loadTemplates())).toEqual([a, b, c]);
+
+    await repository.restoreTemplate(2, { ...b, name: 'B2' }, 0);
+    expect(
+      expectData(await repository.loadTemplates()).map((entry) => entry.name),
+    ).toEqual(['A', 'B2', 'C']);
+
+    await repository.restoreTemplate(2, null, 1);
+    expect(expectData(await repository.loadTemplates())).toEqual([a, c]);
   });
 
   it('says why a change cannot be made and writes nothing', async () => {

@@ -65,7 +65,7 @@
     "library": {
       "title": "Library",
       "item1": "Your classes are on the left, beside them the rooms of the chosen class and inside those its plans.",
-      "item2": "What you choose is shown in the inspector: rename it there, move a plan to another room or delete it.",
+      "item2": "What you choose is shown in the inspector: rename it there, move a plan to another room or delete it. The arrows in the status bar take that back while you are here.",
       "item3": "“Open” at the bottom right takes the choice into the workspace.",
       "item4": "“Recent mixes” and “Neighbourhoods” belong to the class: its last 20 mixes and who has already sat side by side, across all rooms of the class.",
       "item5": "“Room templates” can be opened by every class. When you open a template, it becomes a new room of the current class."
@@ -747,6 +747,8 @@
       "library_rename": "Rename the choice",
       "library_delete": "Delete the choice",
       "library_menu": "Open the menu of the entry",
+      "library_undo": "Undo the last change",
+      "library_redo": "Redo the last change",
       "library_back": "Back to where you came from"
     },
     "keys": {
@@ -794,6 +796,8 @@
       "library_rename": "F2",
       "library_delete": "Del / Backspace",
       "library_menu": "Shift+F10",
+      "library_undo": "Ctrl/⌘+Z",
+      "library_redo": "Ctrl/⌘+Shift+Z",
       "library_back": "Alt/⌥+←"
     }
   },
@@ -1236,8 +1240,7 @@
       "delete": "Delete room",
       "deleteOpenHint": "The open room cannot be deleted. Open another one first.",
       "deleteLastHint": "A class keeps at least one room.",
-      "deleted": "Room “{{name}}” deleted.",
-      "deleteQuestion": "Delete room?"
+      "deleted": "Room “{{name}}” deleted."
     },
     "plan": {
       "section": "Plan",
@@ -1255,22 +1258,19 @@
       "detectOn": "Applies to every plan of this class: a plan counts as used as soon as you present it, export it or save it under a name of its own.",
       "detectOff": "Applies to every plan of this class: only the plans you mark as used yourself count.",
       "delete": "Delete plan",
-      "otherTables": "This plan has other tables than “{{room}}”. Does it belong in a room of its own?",
-      "deleteQuestion": "Delete plan?"
+      "otherTables": "This plan has other tables than “{{room}}”. Does it belong in a room of its own?"
     },
     "mix": {
       "criteria": "Criteria",
       "random": "Mixed purely at random.",
-      "delete": "Delete mix",
-      "deleteQuestion": "Delete mix?"
+      "delete": "Delete mix"
     },
     "template": {
       "newName": "New room template",
       "section": "Template",
       "hint": "“Open as a room” at the bottom right adds this template as a new room of the open class.",
       "emptyHint": "No tables yet. Open the template as a room, place the tables and replace it there in the inspector under “Templates”.",
-      "delete": "Delete template",
-      "deleteQuestion": "Delete template?"
+      "delete": "Delete template"
     },
     "presets": "Presets",
     "presetsCount_one": "{{count}} preset",
@@ -1286,7 +1286,9 @@
       "applied": "Preset “{{name}}” applied.",
       "deleted": "Preset “{{name}}” deleted.",
       "standardHint": "“Default” stays as it is – the way back to the basic settings. You can change the other presets and your own."
-    }
+    },
+    "undone": "Undone.",
+    "redone": "Redone."
   },
   "contextMenu": {
     "label": "Actions for “{{name}}”",

@@ -1129,6 +1129,25 @@ export function useSeatingPersistence(state: SeatingState) {
     [repository],
   );
 
+  const restoreTemplate = useCallback(
+    async (
+      id: number,
+      template: ClassroomTemplate | null,
+      index: number,
+    ): Promise<boolean> => {
+      const result = await repository.restoreTemplate(id, template, index);
+      if (!result.success) {
+        logError(
+          'Failed to restore template via repository',
+          { error: result.error, templateId: id },
+          'useSeatingPersistence',
+        );
+      }
+      return result.success;
+    },
+    [repository],
+  );
+
   const renameTemplate = useCallback(
     async (
       id: number,
@@ -1191,6 +1210,7 @@ export function useSeatingPersistence(state: SeatingState) {
     updateTemplate,
     loadTemplate,
     deleteTemplate,
+    restoreTemplate,
     renameTemplate,
     exportAllAsJson,
     importAllFromJson,

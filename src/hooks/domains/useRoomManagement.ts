@@ -27,6 +27,7 @@ import {
 } from '@/utils';
 import {
   checkRoomName,
+  type ClassParts,
   EMPTY_ROOM_STATE,
   fittingLocks,
   keepParkedWork,
@@ -495,6 +496,43 @@ export function useRoomManagement({
     ],
   );
 
+  /**
+   * Puts back a stand of the class's plans, mixes and rooms, what the undo of
+   * "Bibliothek" does (decision 0041). The screen's tables and seating stay:
+   * no change there touches them, a moved open plan takes them along both
+   * ways. In one synchronous render, so the next undo reads this stand.
+   */
+  const restoreClassParts = useCallback(
+    (parts: ClassParts) => {
+      const planName = parts.activePlanId
+        ? (parts.seatingHistory.find((plan) => plan.id === parts.activePlanId)
+            ?.name ?? '')
+        : null;
+      flushSync(() => {
+        setSeatingHistory(parts.seatingHistory);
+        setMixHistory(parts.mixHistory);
+        setRooms(parts.rooms);
+        setActiveRoomId(parts.activeRoomId);
+        setActivePlanId(parts.activePlanId);
+        // A name typed for a plan not saved yet stays while none is open.
+        if (planName !== null) setPlanName(planName);
+        else if (activePlanId) setPlanName('');
+      });
+      if (parts.activeRoomId !== activeRoomId) resetSeatingHistory();
+    },
+    [
+      activePlanId,
+      activeRoomId,
+      resetSeatingHistory,
+      setActivePlanId,
+      setActiveRoomId,
+      setMixHistory,
+      setPlanName,
+      setRooms,
+      setSeatingHistory,
+    ],
+  );
+
   return {
     switchRoom,
     openRoom,
@@ -504,5 +542,6 @@ export function useRoomManagement({
     renameRoom,
     deleteRoom,
     movePlanToRoom,
+    restoreClassParts,
   };
 }

@@ -585,80 +585,21 @@ export function InspectorDeleteFooter({
   label,
   onDelete,
   blockedHint,
-  question,
-  askRequest = 0,
 }: {
   label: string;
+  /** Goes at once, or asks in a dialog of its own (decision 0041). */
   onDelete: () => void;
   blockedHint?: string | null;
-  /**
-   * What the foot asks in place before `onDelete`, for a deletion that loses
-   * only itself. Without one, `onDelete` is called at once: a deletion that
-   * takes more with it asks in a dialog of its own (decision 0041).
-   */
-  question?: DeleteQuestion;
-  /** Counts up whenever the question is asked for from elsewhere (Entf). */
-  askRequest?: number;
 }) {
   const hintId = React.useId();
   const refusal = useRefusalHint(blockedHint);
-  const [asking, setAsking] = React.useState(false);
-  const buttonRef = React.useRef<HTMLButtonElement | null>(null);
-
-  // Where the focus was when the question came: the row Entf was pressed on.
-  // A press on the button itself leaves nothing here, the button is gone.
-  const returnFocusRef = React.useRef<HTMLElement | null>(null);
-
-  // During the render, so the first drawing is already the question, and from
-  // nought, so a panel that opened for the request answers it.
-  const [seenRequest, setSeenRequest] = React.useState(0);
-  if (askRequest !== seenRequest) {
-    setSeenRequest(askRequest);
-    if (askRequest > 0 && question && !blockedHint) setAsking(true);
-  }
-
-  const answered = React.useRef(false);
-  React.useEffect(() => {
-    if (asking || !answered.current) return;
-    answered.current = false;
-    const back = returnFocusRef.current;
-    (back?.isConnected ? back : buttonRef.current)?.focus();
-  }, [asking]);
-
-  if (asking && question) {
-    return (
-      <InlineQuestion
-        question={question}
-        className="shrink-0 border-t border-(--border-card) px-4 py-3"
-        returnFocusRef={returnFocusRef}
-        onConfirm={() => {
-          answered.current = true;
-          setAsking(false);
-          onDelete();
-        }}
-        onCancel={(end) => {
-          answered.current = end === 'answered';
-          setAsking(false);
-        }}
-      />
-    );
-  }
 
   return (
     <InspectorFooter>
       <div className="group relative">
         <button
-          ref={buttonRef}
           type="button"
-          onClick={() => {
-            if (blockedHint) {
-              refusal.show();
-            } else if (question) {
-              setAsking(true);
-            } else {
-              onDelete();
-            }
-          }}
+          onClick={blockedHint ? refusal.show : onDelete}
           aria-disabled={blockedHint ? true : undefined}
           aria-describedby={blockedHint ? hintId : undefined}
           className={`${dangerButtonClass} h-8 gap-2 px-3 text-xs ${

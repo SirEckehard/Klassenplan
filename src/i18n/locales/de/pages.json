@@ -439,7 +439,7 @@
       "description": "Dark Mode, Tastenkürzel, Rückgängig, Tour, Tablet und Installation.",
       "undo": {
         "q": "Kann ich Änderungen rückgängig machen?",
-        "a": "Ja, in der Klassenliste, im Raum und im Sitzplan und Sitzkreis – so kommt z. B. ein versehentlich gelöschter Schüler samt Foto zurück. Die Pfeile in der Mitte der Statusleiste nehmen Änderungen zurück und stellen sie wieder her, ebenso Strg/⌘+Z und Strg/⌘+Umschalt+Z."
+        "a": "Ja, in der Klassenliste, im Raum, im Sitzplan und Sitzkreis und in der Bibliothek – so kommt z. B. ein versehentlich gelöschter Schüler samt Foto oder ein gelöschter Plan zurück. Die Pfeile in der Mitte der Statusleiste nehmen Änderungen zurück und stellen sie wieder her, ebenso Strg/⌘+Z und Strg/⌘+Umschalt+Z. In der Bibliothek gilt das, bis du sie verlässt."
       },
       "shortcuts": {
         "q": "Welche Tastenkürzel gibt es?",
