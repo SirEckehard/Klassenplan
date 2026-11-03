@@ -1,11 +1,10 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import { useTranslation } from 'react-i18next';
-import { LocalizedLink } from '@/components/LocalizedLink';
+import AppHeader from '@/components/shell/AppHeader';
 import LayerSwitcher from '@/components/shell/LayerSwitcher';
 import HeaderClassMenu from '@/components/shell/HeaderClassMenu';
 import HelpButton from '@/components/ui/buttons/HelpButton';
-import AppSettingsMenu from '@/components/shell/AppSettingsMenu';
 import OnboardingTour from '@/components/onboarding/OnboardingTour';
 import { resolveTourId } from '@/components/onboarding/tours';
 import {
@@ -18,11 +17,10 @@ import { useSeatingPlanSelector } from '@/contexts/seatingPlan/seatingPlanSelect
 import { useOnboardingTour } from '@/hooks/onboarding/onboardingTourStore';
 import { useLocalizedNavigate } from '@/hooks/useLocalizedNavigate';
 import type { ShortcutContext } from '@/utils';
-import { KpLockup } from '@/components/KpLockup';
 
 /**
- * The workspace header: branding, the class, the layer switcher, Help and the
- * settings.
+ * The workspace header: the head every page wears (`AppHeader`) with the class,
+ * the layer switcher and the screen's help in it.
  *
  * It sticks to the top so the layer switcher is reachable from anywhere in a
  * long student list, and it hosts the onboarding tour: the header knows the
@@ -34,7 +32,8 @@ import { KpLockup } from '@/components/KpLockup';
  *
  * The export page and "Bibliothek" wear the same header (`view="export"`,
  * `view="library"`). No layer is current there, so every one of the three
- * leads back into the workspace; "Bibliothek" runs a tour of its own.
+ * leads back into the workspace; "Bibliothek" runs a tour of its own. All of
+ * them keep their way back in the status bar, so the head has none.
  */
 export default function SeatingPlanHeader({
   view = 'workspace',
@@ -183,50 +182,30 @@ export default function SeatingPlanHeader({
   const helpContent = getHelpContent();
 
   return (
-    <header className="sticky top-0 z-30 shrink-0 border-b border-(--border-card) bg-(--surface-card) pt-[env(safe-area-inset-top)]">
-      <div className="flex h-14 flex-row items-center justify-between gap-3 px-4">
-        {/* Left — the brand, and the class as the name of the open document */}
-        <div className="flex min-w-0 shrink items-center gap-3 lg:w-95">
-          <h1 className="flex shrink-0 items-center">
-            <LocalizedLink
-              to="/"
-              // Both halves of the lockup are decorative, so without a label
-              // the heading and its link have no accessible name at all.
-              aria-label={t('common:nav.home')}
-              className="kp-lockup focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) focus-visible:ring-offset-2"
-            >
-              <KpLockup size="sm" markOnly />
-            </LocalizedLink>
-          </h1>
-          <HeaderClassMenu />
-        </div>
-
-        {/* Centre - the three layers of the classroom */}
+    <AppHeader
+      brandIsHeading
+      // The class as the name of the open document.
+      start={<HeaderClassMenu />}
+      center={
         <LayerSwitcher
           currentStep={isOutside ? 0 : step}
           onStepChange={onStepChange}
           seatingMode={seatingMode}
         />
-
-        {/* Right — help and the settings. */}
-        <div className="flex shrink-0 items-center justify-end gap-2 lg:w-95">
-          {helpContent && (
-            <HelpButton
-              title={helpContent.title}
-              instructions={helpContent.instructions}
-              shortcutContexts={helpContent.contexts}
-              onStartTour={tourId ? () => requestTour(tourId) : undefined}
-              faqSection={helpContent.faqSection}
-            />
-          )}
-          {/* The workspace runs at viewport height and shows no footer, so
-              appearance, the data wipe, feedback, the changelog and the legal
-              pages hang here. */}
-          <AppSettingsMenu />
-        </div>
-      </div>
-
+      }
+      help={
+        helpContent ? (
+          <HelpButton
+            title={helpContent.title}
+            instructions={helpContent.instructions}
+            shortcutContexts={helpContent.contexts}
+            onStartTour={tourId ? () => requestTour(tourId) : undefined}
+            faqSection={helpContent.faqSection}
+          />
+        ) : undefined
+      }
+    >
       {!isExport && <OnboardingTour tourId={tourId} />}
-    </header>
+    </AppHeader>
   );
 }

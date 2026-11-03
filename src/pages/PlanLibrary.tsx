@@ -2,7 +2,6 @@
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { useLocation } from 'react-router-dom';
 import {
   ArrowCounterClockwiseIcon,
   ArrowSquareOutIcon,
@@ -74,6 +73,7 @@ import {
 } from '@/repositories/mixPresetStore';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { useLocalizedNavigate } from '@/hooks/useLocalizedNavigate';
+import { useBackThroughHistory } from '@/hooks/useReturnToApp';
 import { usePageSeo } from '@/hooks/usePageSeo';
 import { useLayoutMode } from '@/hooks/ui/useLayoutMode';
 import { isAnyDialogOpen } from '@/hooks/ui/useDialogLayer';
@@ -133,7 +133,6 @@ function PlanLibraryPage() {
   const { t } = useTranslation('generator');
   const metadata = usePageSeo('/bibliothek');
   const navigate = useLocalizedNavigate();
-  const location = useLocation();
   const state = useSeatingPlanState();
   const actions = useSeatingPlanActions();
   const { selectClass, updateClassMetadata } = useClassManagementContext();
@@ -283,13 +282,7 @@ function PlanLibraryPage() {
     if (isDesktop && node && !isFolder(node)) showInspector(key);
   };
 
-  const goBack = React.useCallback(() => {
-    if (location.key !== 'default') {
-      navigate(-1);
-      return;
-    }
-    navigate('/generator');
-  }, [location.key, navigate]);
+  const goBack = useBackThroughHistory();
 
   const toLayer = React.useCallback(
     (step: 1 | 2 | 3) => navigate('/generator', { state: { step } }),

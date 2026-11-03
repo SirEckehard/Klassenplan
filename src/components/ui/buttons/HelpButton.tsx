@@ -24,6 +24,7 @@ import {
   InspectorMediaTile,
   InspectorSection,
 } from '@/components/shell/InspectorPanel';
+import { headerHitAreaClass } from '@/components/shell/shellTokens';
 import { INSPECTOR_DRAWER_ID, useInspector } from '@/contexts/InspectorContext';
 import { useShellToolRail } from '@/contexts/ToolRailContext';
 import { APP_RETURN_STATE } from '@/hooks/useReturnToApp';
@@ -139,7 +140,7 @@ export default function HelpButton({
         ref={triggerRef}
         type="button"
         onClick={() => setOpen(!open)}
-        className={`${secondaryButtonClass} h-9 w-9 justify-center p-0 ${
+        className={`${secondaryButtonClass} ${headerHitAreaClass} h-9 w-9 justify-center p-0 ${
           triggerDisabled ? 'cursor-not-allowed opacity-60' : ''
         }`}
         disabled={triggerDisabled}

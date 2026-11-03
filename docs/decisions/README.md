@@ -51,6 +51,7 @@ it says so instead of reconstructing one.
 | [0036](0036-tables-carry-ids.md)                   | Tables carry ids, and locks name their table by id            |
 | [0037](0037-messages-where-they-belong.md)         | Fewer toasts, and the rest over the stage                     |
 | [0038](0038-own-mixing-presets.md)                 | Presets of one's own, and the shipped ones changeable         |
+| [0039](0039-one-head-on-every-page.md)             | One head on every page, the way back beside the page's bar    |
 
 ## Reasons still to be recorded
 

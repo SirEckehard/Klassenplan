@@ -7,7 +7,17 @@ import { BrowserRouter, MemoryRouter, Route, Routes } from 'react-router-dom';
 import { describe, it, expect } from 'vitest';
 import '@/i18n'; // Initialize i18n for tests
 import Footer from '../Footer';
-import ReturnToAppLink from '@/components/ReturnToAppLink';
+import { useReturnToApp } from '@/hooks/useReturnToApp';
+
+/** What a page the footer opened offers in its head: the way back, or nothing. */
+function ReturnToAppLink() {
+  const goBack = useReturnToApp();
+  return goBack ? (
+    <button type="button" onClick={goBack}>
+      Zurück
+    </button>
+  ) : null;
+}
 
 const renderFooter = () =>
   render(

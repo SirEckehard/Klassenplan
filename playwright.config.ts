@@ -33,7 +33,7 @@ export default defineConfig({
     {
       name: 'tablet',
       use: { ...devices['iPad (gen 7)'], browserName: 'chromium' },
-      testMatch: /touch-layouts\.spec\.ts/,
+      testMatch: /(touch-layouts|page-header)\.spec\.ts/,
       grep: /@tablet/,
     },
     {
@@ -41,7 +41,7 @@ export default defineConfig({
       // The iPhone 16 Pro is 402px wide, the narrowest header the app has
       // been reported on.
       use: { ...devices['iPhone 16 Pro'], browserName: 'chromium' },
-      testMatch: /touch-layouts\.spec\.ts/,
+      testMatch: /(touch-layouts|page-header)\.spec\.ts/,
       grep: /@phone/,
     },
     {
@@ -53,7 +53,7 @@ export default defineConfig({
         viewport: { width: 1920, height: 1080 },
         hasTouch: true,
       },
-      testMatch: /touch-layouts\.spec\.ts/,
+      testMatch: /(touch-layouts|page-header)\.spec\.ts/,
       grep: /@whiteboard/,
     },
   ],

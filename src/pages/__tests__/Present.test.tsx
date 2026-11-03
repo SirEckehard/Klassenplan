@@ -26,6 +26,8 @@ const seatingState = vi.hoisted(() => ({
 
 vi.mock('@/contexts/SeatingPlanContext', () => ({
   useSeatingPlanState: () => seatingState.current,
+  // The settings in the page's head offer to wipe all data.
+  useSeatingPlanActions: () => ({ clearAllData: vi.fn() }),
 }));
 vi.mock('@/hooks/circle/useEnsureCircleLayout', () => ({
   useEnsureCircleLayout: vi.fn(),
@@ -228,16 +230,12 @@ describe('Present', () => {
     expect(contrastButton()).toHaveAttribute('aria-pressed', 'true');
   });
 
-  it('offers theme and language controls (the footer is hidden here)', () => {
+  // Theme and language are in it, as on every page (`AppSettingsMenu`).
+  it('offers the settings (the footer is hidden here)', () => {
     renderPresent();
 
     expect(
-      screen.getByRole('button', { name: /Design wechseln|Toggle theme/i }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole('button', {
-        name: /^(Zu (English|Deutsch) wechseln|Switch to (English|Deutsch))$/i,
-      }),
+      screen.getByRole('button', { name: /Einstellungen|Settings/i }),
     ).toBeInTheDocument();
   });
 

@@ -6,7 +6,7 @@ import { useLocation } from 'react-router-dom';
 import { ArrowRightIcon, HouseLineIcon } from '@phosphor-icons/react';
 import Seo from '@/components/Seo';
 import { LocalizedLink } from '@/components/LocalizedLink';
-import PublicPageHeader from '@/components/publicPage/PublicPageHeader';
+import PublicPage from '@/components/publicPage/PublicPage';
 import {
   pageEyebrowClass,
   pageTitleClass,
@@ -34,7 +34,7 @@ export default function NotFound() {
       : location.pathname;
 
   return (
-    <main id="main" tabIndex={-1} className="bg-(--surface-page) px-4 sm:px-6">
+    <PublicPage bannerLabel={t('pages:header.banner.notFound')}>
       <Seo
         title={t('notFound.title')}
         description={t('notFound.message')}
@@ -43,41 +43,37 @@ export default function NotFound() {
         ogType="website"
         noindex
       />
-      <div className="mx-auto max-w-6xl">
-        <PublicPageHeader bannerLabel={t('pages:header.banner.notFound')} />
+      <div className="max-w-2xl pt-4 pb-16 lg:pb-24">
+        <p className={pageEyebrowClass}>{t('notFound.eyebrow')}</p>
+        <h1 className={pageTitleClass}>{t('notFound.title')}</h1>
+        <p className="mt-4 text-lg text-pretty text-(--text-muted)">
+          {t('notFound.message')}
+        </p>
+        {today && (
+          <ClassRegisterEntry
+            className="mt-6"
+            date={today}
+            entry={path}
+            remark={t('notFound.registerRemark')}
+          />
+        )}
 
-        <div className="max-w-2xl pt-4 pb-16 lg:pb-24">
-          <p className={pageEyebrowClass}>{t('notFound.eyebrow')}</p>
-          <h1 className={pageTitleClass}>{t('notFound.title')}</h1>
-          <p className="mt-4 text-lg text-pretty text-(--text-muted)">
-            {t('notFound.message')}
-          </p>
-          {today && (
-            <ClassRegisterEntry
-              className="mt-6"
-              date={today}
-              entry={path}
-              remark={t('notFound.registerRemark')}
-            />
-          )}
-
-          {/* Home is the page's one action; whoever came back for a plan
+        {/* Home is the page's one action; whoever came back for a plan
               finds the generator one step closer. */}
-          <div className="mt-8 flex flex-col items-start gap-5 sm:flex-row sm:items-center sm:gap-8">
-            <LocalizedLink
-              to="/"
-              className={`${primaryButtonClass} w-full gap-2 px-6 py-3 text-base font-semibold sm:w-auto`}
-            >
-              <HouseLineIcon size={20} aria-hidden="true" />
-              {t('notFound.home')}
-            </LocalizedLink>
-            <LocalizedLink to="/generator" className={quietLinkClass}>
-              {t('notFound.generator')}
-              <ArrowRightIcon size={16} aria-hidden="true" />
-            </LocalizedLink>
-          </div>
+        <div className="mt-8 flex flex-col items-start gap-5 sm:flex-row sm:items-center sm:gap-8">
+          <LocalizedLink
+            to="/"
+            className={`${primaryButtonClass} w-full gap-2 px-6 py-3 text-base font-semibold sm:w-auto`}
+          >
+            <HouseLineIcon size={20} aria-hidden="true" />
+            {t('notFound.home')}
+          </LocalizedLink>
+          <LocalizedLink to="/generator" className={quietLinkClass}>
+            {t('notFound.generator')}
+            <ArrowRightIcon size={16} aria-hidden="true" />
+          </LocalizedLink>
         </div>
       </div>
-    </main>
+    </PublicPage>
   );
 }

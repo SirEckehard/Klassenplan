@@ -18,6 +18,8 @@ const photoUrls = vi.hoisted(() => ({
 
 vi.mock('@/contexts/SeatingPlanContext', () => ({
   useSeatingPlanState: () => seatingState.current,
+  // The settings in the page's head offer to wipe all data.
+  useSeatingPlanActions: () => ({ clearAllData: vi.fn() }),
 }));
 vi.mock('@/hooks/student/useStudentPhoto', () => ({
   useStudentPhotoUrls: () => photoUrls.current,
@@ -126,19 +128,13 @@ describe('NameGame', () => {
     ).toBeInTheDocument();
   });
 
-  it('offers theme and language controls (the footer is hidden here)', async () => {
+  // Theme and language are in it, as on every page (`AppSettingsMenu`).
+  it('offers the settings (the footer is hidden here)', async () => {
     setStudents(4);
     renderNameGame();
 
     expect(
-      await screen.findByRole('button', {
-        name: /Design wechseln|Toggle theme/i,
-      }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole('button', {
-        name: /^(Zu (English|Deutsch) wechseln|Switch to (English|Deutsch))$/i,
-      }),
+      await screen.findByRole('button', { name: /Einstellungen|Settings/i }),
     ).toBeInTheDocument();
   });
 

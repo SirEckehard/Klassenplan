@@ -20,7 +20,7 @@ import {
 } from '@phosphor-icons/react';
 import Seo from '@/components/Seo';
 import CriteriaReferenceSection from '@/components/FAQ/CriteriaReferenceSection';
-import PublicPageHeader from '@/components/publicPage/PublicPageHeader';
+import PublicPage from '@/components/publicPage/PublicPage';
 import {
   pageEyebrowClass,
   pageInlineLinkClass,
@@ -557,145 +557,140 @@ export default function FAQ() {
   };
 
   return (
-    <main id="main" tabIndex={-1} className="bg-(--surface-page) px-4 sm:px-6">
+    <PublicPage bannerLabel={t('faq.header.ariaOverview')}>
       <Seo {...metadata} structuredData={faqStructuredData} />
-      <div className="mx-auto max-w-6xl">
-        <PublicPageHeader bannerLabel={t('faq.header.ariaOverview')} />
-
-        {/* The same columns as the page below: the title over the contents,
+      {/* The same columns as the page below: the title over the contents,
             the note on what a seating plan can do over the questions. */}
-        <div className="grid gap-8 pt-4 pb-10 lg:grid-cols-12 lg:items-start lg:gap-12 lg:pb-14">
-          <div className="lg:col-span-4">
-            <p className={pageEyebrowClass}>{t('faq.header.eyebrow')}</p>
-            <h1 className={pageTitleClass}>{t('faq.header.title')}</h1>
-            <p className="mt-4 text-lg text-pretty text-(--text-muted)">
-              {t('faq.header.subtitle')}
+      <div className="grid gap-8 pt-4 pb-10 lg:grid-cols-12 lg:items-start lg:gap-12 lg:pb-14">
+        <div className="lg:col-span-4">
+          <p className={pageEyebrowClass}>{t('faq.header.eyebrow')}</p>
+          <h1 className={pageTitleClass}>{t('faq.header.title')}</h1>
+          <p className="mt-4 text-lg text-pretty text-(--text-muted)">
+            {t('faq.header.subtitle')}
+          </p>
+        </div>
+        <aside
+          aria-labelledby="faq-disclaimer-title"
+          className="rounded-(--radius-card) bg-(--surface-sunken) p-5 sm:p-6 lg:col-span-8"
+        >
+          <h2
+            id="faq-disclaimer-title"
+            className="flex items-center gap-2 font-semibold text-(--text-page)"
+          >
+            <BookOpenIcon
+              size={18}
+              aria-hidden="true"
+              className="shrink-0 text-(--text-muted)"
+            />
+            {t('faq.disclaimer.title')}
+          </h2>
+          <div className="mt-2 space-y-2 text-(--text-muted)">
+            <p>{t('faq.disclaimer.body')}</p>
+            <p className="text-sm font-medium text-(--text-page)">
+              {t('faq.disclaimer.callToAction')}
             </p>
           </div>
-          <aside
-            aria-labelledby="faq-disclaimer-title"
-            className="rounded-(--radius-card) bg-(--surface-sunken) p-5 sm:p-6 lg:col-span-8"
-          >
-            <h2
-              id="faq-disclaimer-title"
-              className="flex items-center gap-2 font-semibold text-(--text-page)"
-            >
-              <BookOpenIcon
-                size={18}
-                aria-hidden="true"
-                className="shrink-0 text-(--text-muted)"
-              />
-              {t('faq.disclaimer.title')}
-            </h2>
-            <div className="mt-2 space-y-2 text-(--text-muted)">
-              <p>{t('faq.disclaimer.body')}</p>
-              <p className="text-sm font-medium text-(--text-page)">
-                {t('faq.disclaimer.callToAction')}
-              </p>
-            </div>
-          </aside>
-        </div>
+        </aside>
+      </div>
 
-        <div className="grid gap-10 border-t border-(--border-card) pt-10 pb-16 lg:grid-cols-12 lg:gap-12 lg:pb-24">
-          <nav aria-label={t('faq.header.ariaNav')} className="lg:col-span-4">
-            <div className="lg:sticky lg:top-8">
-              <p className={pageEyebrowClass}>{t('faq.header.onThisPage')}</p>
-              <ol className="-mx-2 mt-3 flex flex-col gap-0.5">
-                {faqSections.map((section) => (
-                  <li key={section.id}>
-                    <a
-                      href={`#${section.id}`}
-                      onClick={(event) => goToSection(event, section.id)}
-                      className="flex items-center gap-3 rounded-lg px-2 py-2 text-(--text-page) transition-colors hover:bg-(--surface-sunken) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary)"
-                    >
-                      <section.icon
-                        size={18}
-                        aria-hidden="true"
-                        className="shrink-0 text-(--text-muted)"
-                      />
-                      {section.title}
-                    </a>
-                  </li>
-                ))}
-              </ol>
-            </div>
-          </nav>
+      <div className="grid gap-10 border-t border-(--border-card) pt-10 pb-16 lg:grid-cols-12 lg:gap-12 lg:pb-24">
+        <nav aria-label={t('faq.header.ariaNav')} className="lg:col-span-4">
+          <div className="lg:sticky lg:top-22">
+            <p className={pageEyebrowClass}>{t('faq.header.onThisPage')}</p>
+            <ol className="-mx-2 mt-3 flex flex-col gap-0.5">
+              {faqSections.map((section) => (
+                <li key={section.id}>
+                  <a
+                    href={`#${section.id}`}
+                    onClick={(event) => goToSection(event, section.id)}
+                    className="flex items-center gap-3 rounded-lg px-2 py-2 text-(--text-page) transition-colors hover:bg-(--surface-sunken) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary)"
+                  >
+                    <section.icon
+                      size={18}
+                      aria-hidden="true"
+                      className="shrink-0 text-(--text-muted)"
+                    />
+                    {section.title}
+                  </a>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </nav>
 
-          <div className="min-w-0 lg:col-span-8">
-            {faqSections.map((section) => (
-              <section
-                key={section.id}
-                id={section.id}
-                tabIndex={-1}
-                aria-labelledby={`${section.id}-title`}
-                className="scroll-mt-6 pt-14 first:pt-0 focus:outline-none"
-              >
-                <h2
-                  id={`${section.id}-title`}
-                  className={pageSectionTitleClass}
-                >
-                  {section.title}
-                </h2>
-                <p className="mt-2 text-pretty text-(--text-muted)">
-                  {section.description}
-                </p>
-
-                <div className="mt-6">
-                  {section.customContent ?? (
-                    <div className="border-t border-(--border-card)">
-                      {section.items.map((item) => (
-                        <details
-                          key={item.question}
-                          className="group border-b border-(--border-card)"
-                        >
-                          <summary className="flex cursor-pointer list-none items-start justify-between gap-4 rounded-sm py-4 text-left marker:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary)">
-                            <h3 className="text-base font-medium text-(--text-page) sm:text-lg">
-                              {item.question}
-                            </h3>
-                            <PlusIcon
-                              size={18}
-                              aria-hidden="true"
-                              className="mt-1 shrink-0 text-(--text-muted) transition-transform group-open:rotate-45"
-                            />
-                          </summary>
-                          <div className="space-y-2 pb-5 text-pretty text-(--text-muted)">
-                            {item.answer}
-                          </div>
-                        </details>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </section>
-            ))}
-
+        <div className="min-w-0 lg:col-span-8">
+          {faqSections.map((section) => (
             <section
-              aria-labelledby="faq-more-title"
-              className="mt-16 border-t border-(--border-card) pt-10"
+              key={section.id}
+              id={section.id}
+              tabIndex={-1}
+              aria-labelledby={`${section.id}-title`}
+              // Every heading lands the same distance under the page's head:
+              // the first section has no space above its heading to use.
+              className="scroll-mt-6 pt-14 first:scroll-mt-20 first:pt-0 focus:outline-none"
             >
-              <h2 id="faq-more-title" className={pageSectionTitleClass}>
-                {t('faq.footer.title')}
+              <h2 id={`${section.id}-title`} className={pageSectionTitleClass}>
+                {section.title}
               </h2>
-              <p className="mt-2 text-(--text-muted)">{t('faq.footer.text')}</p>
-              <div className="mt-6 flex flex-wrap gap-3">
-                <LocalizedLink
-                  to="/generator"
-                  className={`${primaryButtonClass} px-5 py-2.5 text-base font-semibold`}
-                >
-                  {t('faq.footer.generatorBtn')}
-                </LocalizedLink>
-                <LocalizedLink
-                  to="/feedback"
-                  state={APP_RETURN_STATE}
-                  className={`${secondaryButtonClass} px-5 py-2.5 text-base font-semibold`}
-                >
-                  {t('faq.footer.contactBtn')}
-                </LocalizedLink>
+              <p className="mt-2 text-pretty text-(--text-muted)">
+                {section.description}
+              </p>
+
+              <div className="mt-6">
+                {section.customContent ?? (
+                  <div className="border-t border-(--border-card)">
+                    {section.items.map((item) => (
+                      <details
+                        key={item.question}
+                        className="group border-b border-(--border-card)"
+                      >
+                        <summary className="flex cursor-pointer list-none items-start justify-between gap-4 rounded-sm py-4 text-left marker:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary)">
+                          <h3 className="text-base font-medium text-(--text-page) sm:text-lg">
+                            {item.question}
+                          </h3>
+                          <PlusIcon
+                            size={18}
+                            aria-hidden="true"
+                            className="mt-1 shrink-0 text-(--text-muted) transition-transform group-open:rotate-45"
+                          />
+                        </summary>
+                        <div className="space-y-2 pb-5 text-pretty text-(--text-muted)">
+                          {item.answer}
+                        </div>
+                      </details>
+                    ))}
+                  </div>
+                )}
               </div>
             </section>
-          </div>
+          ))}
+
+          <section
+            aria-labelledby="faq-more-title"
+            className="mt-16 border-t border-(--border-card) pt-10"
+          >
+            <h2 id="faq-more-title" className={pageSectionTitleClass}>
+              {t('faq.footer.title')}
+            </h2>
+            <p className="mt-2 text-(--text-muted)">{t('faq.footer.text')}</p>
+            <div className="mt-6 flex flex-wrap gap-3">
+              <LocalizedLink
+                to="/generator"
+                className={`${primaryButtonClass} px-5 py-2.5 text-base font-semibold`}
+              >
+                {t('faq.footer.generatorBtn')}
+              </LocalizedLink>
+              <LocalizedLink
+                to="/feedback"
+                state={APP_RETURN_STATE}
+                className={`${secondaryButtonClass} px-5 py-2.5 text-base font-semibold`}
+              >
+                {t('faq.footer.contactBtn')}
+              </LocalizedLink>
+            </div>
+          </section>
         </div>
       </div>
-    </main>
+    </PublicPage>
   );
 }

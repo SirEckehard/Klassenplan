@@ -1,18 +1,15 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
-import { useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeftIcon } from '@phosphor-icons/react';
 import Seo from '@/components/Seo';
-import { KpLockup } from '@/components/KpLockup';
-import { LocalizedLink } from '@/components/LocalizedLink';
+import AppHeader, { HeaderTitle } from '@/components/shell/AppHeader';
 import HelpButton from '@/components/ui/buttons/HelpButton';
-import AppearanceControls from '@/components/ui/navigation/AppearanceControls';
 import { usePageSeo } from '@/hooks/usePageSeo';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { useLocalizedNavigate } from '@/hooks/useLocalizedNavigate';
-import { primaryButtonClass, quietIconButtonClass } from '@/utils';
+import { useBackThroughHistory } from '@/hooks/useReturnToApp';
+import { primaryButtonClass } from '@/utils';
 
 /**
  * The frame the classroom tools share: one screen, one job, one thumb.
@@ -55,76 +52,52 @@ export default function ToolPage({
 }) {
   const { t } = useTranslation('generator');
   const metadata = usePageSeo(route);
-  const navigate = useLocalizedNavigate();
-  const location = useLocation();
 
   // Back is where the tool was opened from: the workspace's toolbar, or the
   // projection whose bar offers "Gruppen bilden" — which then comes back as it
-  // was left. Opened straight from a link or a bookmark there is nothing behind
-  // it inside the app, and the workspace is the way in.
-  const goBack = React.useCallback(() => {
-    if (location.key !== 'default') {
-      navigate(-1);
-      return;
-    }
-    navigate('/generator');
-  }, [location.key, navigate]);
+  // was left.
+  const goBack = useBackThroughHistory();
 
   // The same shortcut as the export and present pages.
   useKeyboardShortcuts({ 'alt+arrowleft': goBack });
 
   return (
-    <main
-      id="main"
-      tabIndex={-1}
-      className="fixed inset-0 flex flex-col bg-(--surface-sunken)"
-    >
-      <Seo {...metadata} />
+    // Fixed to the window, the page leaves the body's distance from a phone's
+    // notch behind and keeps its own.
+    <div className="fixed inset-0 flex flex-col bg-(--surface-sunken) pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)]">
+      <AppHeader
+        start={<HeaderTitle title={title} subtitle={subtitle} />}
+        back={{
+          onClick: onBack ?? goBack,
+          title: backTitle ?? t('tools.backTitle'),
+        }}
+        help={
+          help ? (
+            <HelpButton
+              title={title}
+              instructions={help}
+              faqSection={faqSection}
+            />
+          ) : undefined
+        }
+      />
 
-      <div className="flex shrink-0 items-center gap-2 border-b border-(--border-card) bg-(--surface-card) px-3 py-2">
-        <button
-          type="button"
-          onClick={onBack ?? goBack}
-          className={`${quietIconButtonClass} h-10 w-10 shrink-0`}
-          aria-label={t('tools.back')}
-          title={backTitle ?? t('tools.backTitle')}
-        >
-          <ArrowLeftIcon size={20} aria-hidden />
-        </button>
-        <div className="flex min-w-0 flex-1 flex-col">
-          <h1 className="truncate text-base font-semibold text-(--text-page)">
-            {title}
-          </h1>
-          {subtitle && (
-            <span className="truncate text-xs text-(--text-muted)">
-              {subtitle}
-            </span>
-          )}
+      <main id="main" tabIndex={-1} className="flex min-h-0 flex-1 flex-col">
+        <Seo {...metadata} />
+
+        <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4">
+          {children}
         </div>
-        <LocalizedLink
-          to="/"
-          className="kp-lockup hidden shrink-0 focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) focus-visible:ring-offset-2 sm:flex"
-        >
-          <KpLockup size="sm" hideWordmarkOnMobile />
-        </LocalizedLink>
-        <AppearanceControls />
-        {help && (
-          <HelpButton
-            title={title}
-            instructions={help}
-            faqSection={faqSection}
-          />
+
+        {footer && (
+          <div className="shrink-0 border-t border-(--border-card) bg-(--surface-card) px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+            {/* Under a phone's thumb it takes the width; on anything wider it
+                stays a button rather than a band across the window. */}
+            <div className="mx-auto w-full max-w-md">{footer}</div>
+          </div>
         )}
-      </div>
-
-      <div className="min-h-0 flex-1 overflow-y-auto px-4 py-4">{children}</div>
-
-      {footer && (
-        <div className="shrink-0 border-t border-(--border-card) bg-(--surface-card) px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
-          {footer}
-        </div>
-      )}
-    </main>
+      </main>
+    </div>
   );
 }
 

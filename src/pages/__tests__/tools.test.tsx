@@ -30,6 +30,8 @@ const seatingState = vi.hoisted(() => ({
 
 vi.mock('@/contexts/SeatingPlanContext', () => ({
   useSeatingPlanState: () => seatingState.current,
+  // The settings in the page's head offer to wipe all data.
+  useSeatingPlanActions: () => ({ clearAllData: vi.fn() }),
 }));
 // The duties are stored per class; here in a map that each test starts empty.
 const dutyMemory = vi.hoisted(() => new Map<string, unknown>());

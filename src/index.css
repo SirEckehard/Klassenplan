@@ -3,6 +3,13 @@
 @source './**/*.{js,jsx,ts,tsx}';
 @custom-variant light (&:where(:not(.dark) &));
 @custom-variant dark (&:where(.dark &));
+/* A window with no room to spare for the projection's bar: a phone, upright or
+   held sideways. The bar keeps to one row there (`PresentationToolbar`). */
+@custom-variant bar-compact {
+  @media (width < 48rem), (height < 32rem) {
+    @slot;
+  }
+}
 @import 'tailwindcss';
 
 /*

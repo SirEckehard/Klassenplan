@@ -2,6 +2,7 @@
 // Copyright (C) 2026 Eike Schäfer
 import { useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocalizedNavigate } from '@/hooks/useLocalizedNavigate';
 
 /**
  * Router state a link inside the site carries — the help dialog's FAQ link,
@@ -25,6 +26,24 @@ export function useReturnToApp(): (() => void) | null {
   const goBack = useCallback(() => navigate(-1), [navigate]);
   const state = location.state as { fromApp?: unknown } | null;
   return state?.fromApp === true ? goBack : null;
+}
+
+/**
+ * The way back of a page the whole app can open — a classroom tool,
+ * "Bibliothek": where it was opened from, through the history. Opened straight
+ * from a link or a bookmark there is nothing behind it inside the app, and the
+ * workspace is the way in.
+ */
+export function useBackThroughHistory(): () => void {
+  const location = useLocation();
+  const navigate = useLocalizedNavigate();
+  return useCallback(() => {
+    if (location.key !== 'default') {
+      navigate(-1);
+      return;
+    }
+    navigate('/generator');
+  }, [location.key, navigate]);
 }
 
 /**

@@ -47,7 +47,7 @@ const barBaseClass =
  * wide for one line even on a wide screen; under it, a button grows from 44
  * to about 60px.
  */
-const barIconButtonClass = `${barBaseClass} min-w-14 flex-col gap-1 px-2 text-xs font-medium leading-none`;
+const barIconButtonClass = `${barBaseClass} min-w-14 shrink-0 flex-col gap-1 px-2 text-xs font-medium leading-none`;
 
 const quietClass =
   'bg-(--present-bar-surface) text-(--present-bar-text) hover:bg-(--present-bar-surface-hover)';
@@ -227,206 +227,213 @@ export default function PresentationToolbar({
   const isCircle = mode === 'circle';
 
   return (
-    <div className="flex justify-center px-3 pb-4">
-      <div className="flex max-w-full flex-wrap items-center justify-center gap-1.5 rounded-panel border border-(--present-bar-border) bg-(--present-bar-bg) p-2 shadow-[0_8px_28px_-12px_rgba(0,0,0,0.3)]">
-        <BarSegment
-          label={t('present.perspective')}
-          value={perspective}
-          onChange={onPerspectiveChange}
-          primary
-          options={[
-            {
-              value: 'teacher',
-              label: t('present.teacherView'),
-              title: t('present.teacherViewTitle'),
-              icon: ChalkboardTeacherIcon,
-            },
-            {
-              value: 'student',
-              label: t('present.studentView'),
-              title: t('present.studentViewTitle'),
-              icon: StudentIcon,
-            },
-          ]}
-        />
-
-        <BarSegment
-          label={t('mode.label')}
-          value={mode}
-          onChange={onModeChange}
-          options={[
-            {
-              value: 'table',
-              label: t('mode.table'),
-              short: t('present.planShort'),
-              title: t('mode.tableView'),
-              icon: GridNineIcon,
-            },
-            {
-              value: 'circle',
-              label: t('mode.circle'),
-              short: t('present.circleShort'),
-              title: t('mode.circleView'),
-              icon: CircleDashedIcon,
-            },
-          ]}
-        />
-
-        <BarSeparator />
-
-        {onPick && (
-          <button
-            type="button"
-            onClick={onPick}
-            title={t('present.pickTitle')}
-            className={`${barIconButtonClass} ${quietClass} px-3`}
-          >
-            <HandPointingIcon size={18} aria-hidden />
-            <span>{t('present.pick')}</span>
-          </button>
-        )}
-        {onOpenGroups && (
-          <button
-            type="button"
-            onClick={onOpenGroups}
-            title={t('present.groupsTitle')}
-            className={`${barIconButtonClass} ${quietClass} px-3`}
-          >
-            <UsersThreeIcon size={18} aria-hidden />
-            <span>{t('present.groups')}</span>
-          </button>
-        )}
-        {onOpenDuties && (
-          <button
-            type="button"
-            onClick={onOpenDuties}
-            title={t('present.dutiesTitle')}
-            className={`${barIconButtonClass} ${quietClass} px-3`}
-          >
-            <BroomIcon size={18} aria-hidden />
-            <span>{t('present.duties')}</span>
-          </button>
-        )}
-
-        <BarSeparator />
-
-        {isTeacher && (
-          <BarToggle
-            icon={UserSquareIcon}
-            label={t('present.badges')}
-            title={t('present.badgesTitle')}
-            pressed={showBadges}
-            onClick={onToggleBadges}
+    <div className="flex justify-center px-3 pb-[max(1rem,env(safe-area-inset-bottom))] bar-compact:px-2 bar-compact:pb-[max(0.5rem,env(safe-area-inset-bottom))]">
+      <div className="flex max-w-full flex-wrap items-center justify-center gap-1.5 rounded-panel border border-(--present-bar-border) bg-(--present-bar-bg) p-2 shadow-[0_8px_28px_-12px_rgba(0,0,0,0.3)] bar-compact:w-full bar-compact:flex-nowrap bar-compact:p-1.5">
+        {/* Everything but the way out. On a phone five rows of it took a third
+            of the screen, so there it is one row that scrolls sideways, and
+            "Beenden" stays in sight beside it. */}
+        <div className="contents bar-compact:flex bar-compact:min-w-0 bar-compact:flex-1 bar-compact:items-center bar-compact:gap-1.5 bar-compact:overflow-x-auto bar-compact:scrollbar-none">
+          <BarSegment
+            label={t('present.perspective')}
+            value={perspective}
+            onChange={onPerspectiveChange}
+            primary
+            options={[
+              {
+                value: 'teacher',
+                label: t('present.teacherView'),
+                title: t('present.teacherViewTitle'),
+                icon: ChalkboardTeacherIcon,
+              },
+              {
+                value: 'student',
+                label: t('present.studentView'),
+                title: t('present.studentViewTitle'),
+                icon: StudentIcon,
+              },
+            ]}
           />
-        )}
-        {isTeacher && (
-          <BarToggle
-            icon={ImageIcon}
-            label={t('present.photos')}
-            title={t('present.photosTitle')}
-            pressed={showPhotos}
-            onClick={onTogglePhotos}
-          />
-        )}
-        <button
-          type="button"
-          onClick={onCycleNameDisplay}
-          aria-label={`${t('present.names')}: ${t(nameDisplayLabelKey(nameDisplay))}`}
-          title={`${t('present.names')}: ${t(nameDisplayLabelKey(nameDisplay))}`}
-          className={`${barIconButtonClass} ${quietClass}`}
-        >
-          <NameIcon size={18} aria-hidden />
-          <span>{t('present.names')}</span>
-        </button>
-        {!isCircle && (
-          <BarToggle
-            icon={DoorOpenIcon}
-            label={t('present.features')}
-            title={t('present.featuresTitle')}
-            pressed={showFeatures}
-            onClick={onToggleFeatures}
-          />
-        )}
-        <BarToggle
-          icon={PaletteIcon}
-          label={t('present.colors')}
-          title={t('present.colorsTitle')}
-          pressed={showColors}
-          onClick={onToggleColors}
-        />
-        <BarToggle
-          icon={SunIcon}
-          label={t('present.contrast')}
-          title={t('present.contrastTitle')}
-          pressed={contrast}
-          onClick={onToggleContrast}
-        />
 
-        <BarSeparator />
-
-        {/* The slider on top and its name with the value under it, the way
-            the buttons beside it carry their word. */}
-        <div className="flex h-11 shrink-0 flex-col items-center justify-center gap-1 rounded-card bg-(--present-bar-surface) px-3">
-          <input
-            id="present-zoom"
-            type="range"
-            min={minZoom}
-            max={maxZoom}
-            step={0.05}
-            value={zoom}
-            onChange={(event) => onZoomChange(Number(event.target.value))}
-            title={t('present.zoomTitle')}
-            // Taller on a touch screen, so a finger finds the track and not
-            // only its 16px thumb.
-            className="h-4 w-28 cursor-pointer accent-(--button-primary-bg) pointer-coarse:h-6 pointer-coarse:w-32"
+          <BarSegment
+            label={t('mode.label')}
+            value={mode}
+            onChange={onModeChange}
+            options={[
+              {
+                value: 'table',
+                label: t('mode.table'),
+                short: t('present.planShort'),
+                title: t('mode.tableView'),
+                icon: GridNineIcon,
+              },
+              {
+                value: 'circle',
+                label: t('mode.circle'),
+                short: t('present.circleShort'),
+                title: t('mode.circleView'),
+                icon: CircleDashedIcon,
+              },
+            ]}
           />
-          <span className="flex items-center gap-1.5 text-xs leading-none">
-            <label
-              htmlFor="present-zoom"
-              className="font-medium text-(--present-bar-muted)"
+
+          <BarSeparator />
+
+          {onPick && (
+            <button
+              type="button"
+              onClick={onPick}
+              title={t('present.pickTitle')}
+              className={`${barIconButtonClass} ${quietClass} px-3`}
             >
-              {t('present.size')}
-            </label>
-            <span className="font-semibold tabular-nums text-(--present-bar-text)">
-              {formatPercent(zoom * 100)}
-            </span>
-          </span>
-        </div>
-        <button
-          type="button"
-          onClick={onResetView}
-          aria-label={t('present.resetView')}
-          title={t('present.resetView')}
-          className={`${barIconButtonClass} ${quietClass}`}
-        >
-          <ArrowsInIcon size={18} aria-hidden />
-          <span>{t('present.resetViewShort')}</span>
-        </button>
-        {fullscreenSupported && (
+              <HandPointingIcon size={18} aria-hidden />
+              <span>{t('present.pick')}</span>
+            </button>
+          )}
+          {onOpenGroups && (
+            <button
+              type="button"
+              onClick={onOpenGroups}
+              title={t('present.groupsTitle')}
+              className={`${barIconButtonClass} ${quietClass} px-3`}
+            >
+              <UsersThreeIcon size={18} aria-hidden />
+              <span>{t('present.groups')}</span>
+            </button>
+          )}
+          {onOpenDuties && (
+            <button
+              type="button"
+              onClick={onOpenDuties}
+              title={t('present.dutiesTitle')}
+              className={`${barIconButtonClass} ${quietClass} px-3`}
+            >
+              <BroomIcon size={18} aria-hidden />
+              <span>{t('present.duties')}</span>
+            </button>
+          )}
+
+          <BarSeparator />
+
+          {isTeacher && (
+            <BarToggle
+              icon={UserSquareIcon}
+              label={t('present.badges')}
+              title={t('present.badgesTitle')}
+              pressed={showBadges}
+              onClick={onToggleBadges}
+            />
+          )}
+          {isTeacher && (
+            <BarToggle
+              icon={ImageIcon}
+              label={t('present.photos')}
+              title={t('present.photosTitle')}
+              pressed={showPhotos}
+              onClick={onTogglePhotos}
+            />
+          )}
           <button
             type="button"
-            onClick={onToggleFullscreen}
-            aria-pressed={isFullscreen}
-            aria-label={
-              isFullscreen
-                ? t('present.fullscreenExitTitle')
-                : t('present.fullscreenTitle')
-            }
-            title={
-              isFullscreen
-                ? t('present.fullscreenExitTitle')
-                : t('present.fullscreenTitle')
-            }
+            onClick={onCycleNameDisplay}
+            aria-label={`${t('present.names')}: ${t(nameDisplayLabelKey(nameDisplay))}`}
+            title={`${t('present.names')}: ${t(nameDisplayLabelKey(nameDisplay))}`}
             className={`${barIconButtonClass} ${quietClass}`}
           >
-            {isFullscreen ? (
-              <CornersInIcon size={18} aria-hidden />
-            ) : (
-              <ArrowsOutIcon size={18} aria-hidden />
-            )}
-            <span>{t('present.fullscreen')}</span>
+            <NameIcon size={18} aria-hidden />
+            <span>{t('present.names')}</span>
           </button>
-        )}
+          {!isCircle && (
+            <BarToggle
+              icon={DoorOpenIcon}
+              label={t('present.features')}
+              title={t('present.featuresTitle')}
+              pressed={showFeatures}
+              onClick={onToggleFeatures}
+            />
+          )}
+          <BarToggle
+            icon={PaletteIcon}
+            label={t('present.colors')}
+            title={t('present.colorsTitle')}
+            pressed={showColors}
+            onClick={onToggleColors}
+          />
+          <BarToggle
+            icon={SunIcon}
+            label={t('present.contrast')}
+            title={t('present.contrastTitle')}
+            pressed={contrast}
+            onClick={onToggleContrast}
+          />
+
+          <BarSeparator />
+
+          {/* The slider on top and its name with the value under it, the way
+            the buttons beside it carry their word. A row that scrolls has no
+            place for a slider, which a swipe would drag; there two fingers
+            and the wheel set the size. */}
+          <div className="flex h-11 shrink-0 flex-col items-center justify-center gap-1 rounded-card bg-(--present-bar-surface) px-3 bar-compact:hidden">
+            <input
+              id="present-zoom"
+              type="range"
+              min={minZoom}
+              max={maxZoom}
+              step={0.05}
+              value={zoom}
+              onChange={(event) => onZoomChange(Number(event.target.value))}
+              title={t('present.zoomTitle')}
+              // Taller on a touch screen, so a finger finds the track and not
+              // only its 16px thumb.
+              className="h-4 w-28 cursor-pointer accent-(--button-primary-bg) pointer-coarse:h-6 pointer-coarse:w-32"
+            />
+            <span className="flex items-center gap-1.5 text-xs leading-none">
+              <label
+                htmlFor="present-zoom"
+                className="font-medium text-(--present-bar-muted)"
+              >
+                {t('present.size')}
+              </label>
+              <span className="font-semibold tabular-nums text-(--present-bar-text)">
+                {formatPercent(zoom * 100)}
+              </span>
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={onResetView}
+            aria-label={t('present.resetView')}
+            title={t('present.resetView')}
+            className={`${barIconButtonClass} ${quietClass}`}
+          >
+            <ArrowsInIcon size={18} aria-hidden />
+            <span>{t('present.resetViewShort')}</span>
+          </button>
+          {fullscreenSupported && (
+            <button
+              type="button"
+              onClick={onToggleFullscreen}
+              aria-pressed={isFullscreen}
+              aria-label={
+                isFullscreen
+                  ? t('present.fullscreenExitTitle')
+                  : t('present.fullscreenTitle')
+              }
+              title={
+                isFullscreen
+                  ? t('present.fullscreenExitTitle')
+                  : t('present.fullscreenTitle')
+              }
+              className={`${barIconButtonClass} ${quietClass}`}
+            >
+              {isFullscreen ? (
+                <CornersInIcon size={18} aria-hidden />
+              ) : (
+                <ArrowsOutIcon size={18} aria-hidden />
+              )}
+              <span>{t('present.fullscreen')}</span>
+            </button>
+          )}
+        </div>
 
         <BarSeparator />
 

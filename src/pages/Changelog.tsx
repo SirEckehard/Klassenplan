@@ -9,9 +9,10 @@ import {
 } from '@phosphor-icons/react';
 import Seo from '@/components/Seo';
 import { LocalizedLink } from '@/components/LocalizedLink';
-import PublicPageHeader from '@/components/publicPage/PublicPageHeader';
+import PublicPage from '@/components/publicPage/PublicPage';
 import {
   pageEyebrowClass,
+  pageMainClass,
   pageSectionTitleClass,
   pageTitleClass,
 } from '@/components/publicPage/pageTokens';
@@ -54,13 +55,7 @@ const rowClass =
 export default function Changelog() {
   const ready = useChangelogReady();
   if (!ready) {
-    return (
-      <main
-        id="main"
-        tabIndex={-1}
-        className="bg-(--surface-page) px-4 sm:px-6"
-      />
-    );
+    return <main id="main" tabIndex={-1} className={pageMainClass} />;
   }
   return <ChangelogContent />;
 }
@@ -70,105 +65,100 @@ function ChangelogContent() {
   const metadata = usePageSeo('/changelog');
 
   return (
-    <main id="main" tabIndex={-1} className="bg-(--surface-page) px-4 sm:px-6">
+    <PublicPage bannerLabel={t('header.aria.banner')}>
       <Seo {...metadata} />
-      <div className="mx-auto max-w-6xl">
-        <PublicPageHeader bannerLabel={t('header.aria.banner')} />
-
-        <div className="max-w-3xl pt-4 pb-10 lg:pb-14">
-          <p className={pageEyebrowClass}>{t('header.eyebrow')}</p>
-          <h1 className={pageTitleClass}>{t('header.title')}</h1>
-          <p className="mt-4 text-lg text-pretty text-(--text-muted)">
-            {t('header.subtitle')}
-          </p>
-        </div>
-
-        <div className="pb-16 lg:pb-24">
-          {changelogVersions.map((version) => {
-            const headingId = `version-${version.version}`;
-
-            return (
-              <section
-                key={version.version}
-                aria-labelledby={headingId}
-                className={rowClass}
-              >
-                {/* The version stays in view while its changes are read. */}
-                <div className="lg:col-span-4">
-                  <div className="lg:sticky lg:top-8">
-                    <h2 id={headingId} className={pageSectionTitleClass}>
-                      Version {version.version}
-                    </h2>
-                    <time
-                      className="mt-2 block text-sm text-(--text-muted)"
-                      dateTime={version.date}
-                    >
-                      {formatLongDate(version.date)}
-                    </time>
-                  </div>
-                </div>
-
-                <div className="min-w-0 space-y-8 lg:col-span-8">
-                  {CHANGE_TYPES.map(({ type, labelKey, icon: TypeIcon }) => {
-                    const items = version.changes.filter(
-                      (change) => change.type === type,
-                    );
-                    if (items.length === 0) return null;
-
-                    return (
-                      <div key={type}>
-                        <h3
-                          className={`flex items-center gap-2 ${pageEyebrowClass}`}
-                        >
-                          <TypeIcon size={16} aria-hidden="true" />
-                          {t(labelKey)}
-                        </h3>
-                        <ul className="mt-3 list-disc space-y-2 pl-5 text-pretty text-(--text-page) marker:text-(--text-muted)">
-                          {items.map((item, index) => (
-                            <li key={index}>
-                              {item.text ||
-                                (item.textKey ? t(item.textKey) : '')}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    );
-                  })}
-                </div>
-              </section>
-            );
-          })}
-
-          <section aria-labelledby="changelog-more-title" className={rowClass}>
-            <h2
-              id="changelog-more-title"
-              className={`${pageSectionTitleClass} lg:col-span-4`}
-            >
-              {t('footer.title')}
-            </h2>
-            <div className="lg:col-span-8">
-              <p className="text-pretty text-(--text-muted)">
-                {t('footer.text')}
-              </p>
-              <div className="mt-6 flex flex-wrap gap-3">
-                <LocalizedLink
-                  to="/generator"
-                  className={`${primaryButtonClass} px-5 py-2.5 text-base font-semibold`}
-                >
-                  {t('footer.generatorBtn')}
-                </LocalizedLink>
-                <LocalizedLink
-                  to="/feedback"
-                  state={APP_RETURN_STATE}
-                  className={`${secondaryButtonClass} px-5 py-2.5 text-base font-semibold`}
-                >
-                  {t('footer.feedbackBtn')}
-                </LocalizedLink>
-              </div>
-            </div>
-          </section>
-        </div>
+      <div className="max-w-3xl pt-4 pb-10 lg:pb-14">
+        <p className={pageEyebrowClass}>{t('header.eyebrow')}</p>
+        <h1 className={pageTitleClass}>{t('header.title')}</h1>
+        <p className="mt-4 text-lg text-pretty text-(--text-muted)">
+          {t('header.subtitle')}
+        </p>
       </div>
-    </main>
+
+      <div className="pb-16 lg:pb-24">
+        {changelogVersions.map((version) => {
+          const headingId = `version-${version.version}`;
+
+          return (
+            <section
+              key={version.version}
+              aria-labelledby={headingId}
+              className={rowClass}
+            >
+              {/* The version stays in view while its changes are read. */}
+              <div className="lg:col-span-4">
+                <div className="lg:sticky lg:top-22">
+                  <h2 id={headingId} className={pageSectionTitleClass}>
+                    Version {version.version}
+                  </h2>
+                  <time
+                    className="mt-2 block text-sm text-(--text-muted)"
+                    dateTime={version.date}
+                  >
+                    {formatLongDate(version.date)}
+                  </time>
+                </div>
+              </div>
+
+              <div className="min-w-0 space-y-8 lg:col-span-8">
+                {CHANGE_TYPES.map(({ type, labelKey, icon: TypeIcon }) => {
+                  const items = version.changes.filter(
+                    (change) => change.type === type,
+                  );
+                  if (items.length === 0) return null;
+
+                  return (
+                    <div key={type}>
+                      <h3
+                        className={`flex items-center gap-2 ${pageEyebrowClass}`}
+                      >
+                        <TypeIcon size={16} aria-hidden="true" />
+                        {t(labelKey)}
+                      </h3>
+                      <ul className="mt-3 list-disc space-y-2 pl-5 text-pretty text-(--text-page) marker:text-(--text-muted)">
+                        {items.map((item, index) => (
+                          <li key={index}>
+                            {item.text || (item.textKey ? t(item.textKey) : '')}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+          );
+        })}
+
+        <section aria-labelledby="changelog-more-title" className={rowClass}>
+          <h2
+            id="changelog-more-title"
+            className={`${pageSectionTitleClass} lg:col-span-4`}
+          >
+            {t('footer.title')}
+          </h2>
+          <div className="lg:col-span-8">
+            <p className="text-pretty text-(--text-muted)">
+              {t('footer.text')}
+            </p>
+            <div className="mt-6 flex flex-wrap gap-3">
+              <LocalizedLink
+                to="/generator"
+                className={`${primaryButtonClass} px-5 py-2.5 text-base font-semibold`}
+              >
+                {t('footer.generatorBtn')}
+              </LocalizedLink>
+              <LocalizedLink
+                to="/feedback"
+                state={APP_RETURN_STATE}
+                className={`${secondaryButtonClass} px-5 py-2.5 text-base font-semibold`}
+              >
+                {t('footer.feedbackBtn')}
+              </LocalizedLink>
+            </div>
+          </div>
+        </section>
+      </div>
+    </PublicPage>
   );
 }

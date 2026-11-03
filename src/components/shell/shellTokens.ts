@@ -25,6 +25,14 @@
  */
 export const SHELL_STATUS_BAR_HEIGHT = 61;
 
+/**
+ * A button of the header on a touch screen: 36px to see, 44px to hit. The head
+ * of a phone has no width for larger buttons, so the hit area reaches into the
+ * 8px between them.
+ */
+export const headerHitAreaClass =
+  'relative pointer-coarse:after:absolute pointer-coarse:after:-inset-1';
+
 /** The root of a layer: the toolbar and the stage side by side. */
 export const workspaceLayerClass =
   'flex flex-col gap-4 md:flex-row md:items-start lg:min-h-0 lg:flex-1 lg:items-stretch lg:gap-0';

@@ -13,9 +13,19 @@ import { describe, it, expect, vi, afterEach } from 'vitest';
 import { BrowserRouter, MemoryRouter, Route, Routes } from 'react-router-dom';
 import '@/i18n';
 import AppSettingsMenu from '@/components/shell/AppSettingsMenu';
-import ReturnToAppLink from '@/components/ReturnToAppLink';
 import { getButton } from '@/__tests__/utils';
+import { useReturnToApp } from '@/hooks/useReturnToApp';
 import { characterKeyShortcutsEnabled, LOCAL_STORAGE_KEYS } from '@/utils';
+
+/** What a page the menu opened offers in its head: the way back, or nothing. */
+function ReturnToAppLink() {
+  const goBack = useReturnToApp();
+  return goBack ? (
+    <button type="button" onClick={goBack}>
+      Zurück
+    </button>
+  ) : null;
+}
 
 const clearAllData = vi.hoisted(() => vi.fn(async () => {}));
 

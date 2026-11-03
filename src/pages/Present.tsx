@@ -9,8 +9,7 @@ import {
   HandPointingIcon,
 } from '@phosphor-icons/react';
 import Seo from '@/components/Seo';
-import { KpLockup } from '@/components/KpLockup';
-import { LocalizedLink } from '@/components/LocalizedLink';
+import AppHeader, { HeaderTitle } from '@/components/shell/AppHeader';
 import { usePageSeo } from '@/hooks/usePageSeo';
 import { useBackToWorkspace } from '@/hooks/useReturnToApp';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
@@ -34,7 +33,6 @@ import {
 import { usePlanUsagePrompt } from '@/hooks/plan/usePlanUsagePrompt';
 import { NAME_DISPLAY_MODES } from '@/components/SeatingPlanGenerator/canvas/nameDisplayGroup';
 import HelpButton from '@/components/ui/buttons/HelpButton';
-import AppearanceControls from '@/components/ui/navigation/AppearanceControls';
 import PresentationScene from '@/components/scene/PresentationScene';
 import PresentationToolbar from '@/components/scene/PresentationToolbar';
 import SimpleCircleView from '@/components/circle/SimpleCircleView';
@@ -163,7 +161,7 @@ export default function Present() {
     isSupported: fullscreenSupported,
     toggle: toggleFullscreen,
   } = useFullscreen(surfaceRef);
-  // In fullscreen the wall belongs to the plan: the strip on top goes, and the
+  // In fullscreen the wall belongs to the plan: the head on top goes, and the
   // bar waits below the edge until the teacher reaches for it.
   const { visible: barVisible, barProps } = useEdgeReveal(isFullscreen);
 
@@ -227,57 +225,32 @@ export default function Present() {
   const isTeacher = perspective === 'teacher';
   const isCircle = mode === 'circle';
 
+  const wallClass = contrast
+    ? 'bg-(--present-contrast-bg)'
+    : 'bg-(--surface-sunken)';
+
   return (
-    <main
-      id="main"
-      ref={surfaceRef}
-      tabIndex={-1}
-      className={`fixed inset-0 flex flex-col ${
-        contrast ? 'bg-(--present-contrast-bg)' : 'bg-(--surface-sunken)'
-      } ${isFullscreen ? 'overflow-hidden' : ''}`}
+    // Fixed to the window, the page leaves the body's distance from a phone's
+    // notch behind and keeps its own.
+    <div
+      className={`fixed inset-0 flex flex-col pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)] ${wallClass}`}
     >
-      <Seo {...metadata} />
-
-      {/* A strip, not a toolbar: what is on the wall and for whom. Everything
-          that can be pressed lives in the bar at the bottom, within reach of
-          the teacher standing in front of it. In fullscreen the room sees the
-          plan alone, so the strip is not drawn at all. */}
+      {/* The head says what is on the wall and for whom, with no way back of
+          its own: that is "Beenden" in the bar at the bottom, within reach of
+          the teacher standing in front of it, like everything else that acts
+          on the plan. In fullscreen the room sees the plan alone, so the head
+          is not drawn at all. */}
       {!isFullscreen && (
-        <div
-          className={`flex flex-wrap items-center gap-3 px-3 py-2 sm:px-4 sm:py-3 ${
-            // The contrast wall is white in both themes, but the strip's
-            // controls speak the theme: in the dark one they keep their own
-            // surface rather than land light-on-white.
-            contrast && isDark ? 'bg-(--surface-sunken)' : ''
-          }`}
-        >
-          {/* The mark sits centred on the line; the class and whose view it is
-            share one baseline beside it. */}
-          <div className="flex min-w-0 flex-1 items-center gap-3">
-            <h1 className="flex shrink-0 items-center">
-              <LocalizedLink
-                to="/"
-                className="kp-lockup focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) focus-visible:ring-offset-2"
-                // On a phone only the mark is left, which is decorative.
-                aria-label={t('pages:header.homeLink')}
-              >
-                <KpLockup size="sm" hideWordmarkOnMobile />
-              </LocalizedLink>
-            </h1>
-            <div className="flex min-w-0 items-baseline gap-3">
-              <span className="truncate text-lg font-semibold text-(--text-page)">
-                {activeClass.name}
-              </span>
-              <span className="hidden shrink-0 text-sm text-(--text-muted) sm:inline">
-                {isTeacher
-                  ? t('present.teacherView')
-                  : t('present.studentView')}
-              </span>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <AppearanceControls />
+        <AppHeader
+          start={
+            <HeaderTitle
+              title={
+                isTeacher ? t('present.teacherView') : t('present.studentView')
+              }
+              subtitle={activeClass.name}
+            />
+          }
+          help={
             <HelpButton
               faqSection="unterricht"
               title={t('help.present.title')}
@@ -299,172 +272,187 @@ export default function Present() {
                 </ul>
               }
             />
-          </div>
-        </div>
+          }
+        />
       )}
 
-      {/* The drawn student is named in text as well: on a projection the
+      <main
+        id="main"
+        ref={surfaceRef}
+        tabIndex={-1}
+        className={`relative flex min-h-0 flex-1 flex-col ${wallClass} ${
+          isFullscreen ? 'overflow-hidden' : ''
+        }`}
+      >
+        <Seo {...metadata} />
+
+        {/* The drawn student is named in text as well: on a projection the
           spotlight alone is not readable from the back row, and the announcement
           also reaches screen readers. */}
-      {picker.picked && (
-        <div
-          role="status"
-          aria-live="polite"
-          className="flex flex-wrap items-center justify-center gap-3 px-4 pb-1"
-        >
-          <span className="inline-flex items-center gap-2 rounded-full border border-(--border-card) bg-(--surface-sunken) px-4 py-1.5 text-lg font-semibold text-(--text-page) shadow-sm">
-            <HandPointingIcon size={20} aria-hidden />
-            {picker.picked.student.name}
-          </span>
-          <span className="text-sm text-(--text-muted)">
-            {t('present.pickRemaining', {
-              count: picker.remaining,
-            })}
-          </span>
-          <button
-            type="button"
-            onClick={picker.reset}
-            className={`${iconButtonClass} h-9 w-9`}
-            aria-label={t('present.pickReset')}
-            title={t('present.pickReset')}
+        {picker.picked && (
+          <div
+            role="status"
+            aria-live="polite"
+            className="flex flex-wrap items-center justify-center gap-3 px-4 pb-1"
           >
-            <ArrowCounterClockwiseIcon size={18} aria-hidden />
-          </button>
-        </div>
-      )}
-
-      {/* Scene fills the remaining space. Without a plan there is nothing to
-          pan, and its pointer capture would take the click from "Zurück". */}
-      <div
-        ref={containerRef}
-        className="min-h-0 flex-1 touch-none overflow-hidden px-2"
-        style={{ cursor: canPan ? 'grab' : 'default' }}
-        {...(hasContent ? pointerHandlers : {})}
-      >
-        {hasContent && isCircle && circleLayout ? (
-          <div className="flex h-full items-center justify-center">
-            {/* The ring fills the wall, framed on itself as the table plan is
-                framed on its furniture; 100 % is the whole screen. */}
-            <div
-              className="h-full w-full"
-              style={{
-                transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
-                transformOrigin: 'center',
-              }}
-            >
-              <SimpleCircleView
-                layout={circleLayout}
-                editable={false}
-                isDark={contrast ? false : isDark}
-                contrast={contrast}
-                showSpecialNeeds={isTeacher && showBadges && !contrast}
-                showGenderColors={contrast ? false : showColors}
-                photoMode={isTeacher && showPhotos && !contrast ? 'all' : 'off'}
-                nameDisplay={currentNameDisplay}
-                connectionMode="off"
-                badgeView={PRESENT_CIRCLE_BADGE_VIEW}
-                transparentBackground
-                fit
-                spotlightStudentId={picker.picked?.student.id ?? null}
-              />
-            </div>
-          </div>
-        ) : hasContent ? (
-          <PresentationScene
-            scene={classroomScene}
-            seating={currentSeating}
-            students={students}
-            perspective={perspective}
-            showBadges={showBadges}
-            showPhotos={showPhotos}
-            showFeatures={showFeatures}
-            showColors={showColors}
-            nameDisplay={currentNameDisplay}
-            zoom={zoom}
-            panX={pan.x}
-            panY={pan.y}
-            isDark={isDark}
-            contrast={contrast}
-            spotlight={
-              picker.picked
-                ? {
-                    tableIndex: picker.picked.tableIndex,
-                    seatIndex: picker.picked.seatIndex,
-                  }
-                : null
-            }
-          />
-        ) : (
-          <div className="flex h-full flex-col items-center justify-center gap-4 text-center text-(--text-muted)">
-            <p className="text-lg font-medium">{t('present.empty')}</p>
+            <span className="inline-flex items-center gap-2 rounded-full border border-(--border-card) bg-(--surface-sunken) px-4 py-1.5 text-lg font-semibold text-(--text-page) shadow-sm">
+              <HandPointingIcon size={20} aria-hidden />
+              {picker.picked.student.name}
+            </span>
+            <span className="text-sm text-(--text-muted)">
+              {t('present.pickRemaining', {
+                count: picker.remaining,
+              })}
+            </span>
             <button
               type="button"
-              onClick={backToPlan}
-              className={`${primaryButtonClass} h-10 gap-2 px-4`}
-              title={t('present.backTitle')}
+              onClick={picker.reset}
+              className={`${iconButtonClass} h-9 w-9`}
+              aria-label={t('present.pickReset')}
+              title={t('present.pickReset')}
             >
-              <ArrowLeftIcon size={20} aria-hidden />
-              <span className="text-sm font-semibold">{t('present.back')}</span>
+              <ArrowCounterClockwiseIcon size={18} aria-hidden />
             </button>
           </div>
         )}
-      </div>
 
-      {/* One bar, floating over the plan: everything the teacher reaches for
+        {/* Scene fills the remaining space. Without a plan there is nothing to
+          pan, and its pointer capture would take the click from "Zurück". */}
+        <div
+          ref={containerRef}
+          className="min-h-0 flex-1 touch-none overflow-hidden px-2"
+          style={{ cursor: canPan ? 'grab' : 'default' }}
+          {...(hasContent ? pointerHandlers : {})}
+        >
+          {hasContent && isCircle && circleLayout ? (
+            <div className="flex h-full items-center justify-center">
+              {/* The ring fills the wall, framed on itself as the table plan is
+                framed on its furniture; 100 % is the whole screen. */}
+              <div
+                className="h-full w-full"
+                style={{
+                  transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
+                  transformOrigin: 'center',
+                }}
+              >
+                <SimpleCircleView
+                  layout={circleLayout}
+                  editable={false}
+                  isDark={contrast ? false : isDark}
+                  contrast={contrast}
+                  showSpecialNeeds={isTeacher && showBadges && !contrast}
+                  showGenderColors={contrast ? false : showColors}
+                  photoMode={
+                    isTeacher && showPhotos && !contrast ? 'all' : 'off'
+                  }
+                  nameDisplay={currentNameDisplay}
+                  connectionMode="off"
+                  badgeView={PRESENT_CIRCLE_BADGE_VIEW}
+                  transparentBackground
+                  fit
+                  spotlightStudentId={picker.picked?.student.id ?? null}
+                />
+              </div>
+            </div>
+          ) : hasContent ? (
+            <PresentationScene
+              scene={classroomScene}
+              seating={currentSeating}
+              students={students}
+              perspective={perspective}
+              showBadges={showBadges}
+              showPhotos={showPhotos}
+              showFeatures={showFeatures}
+              showColors={showColors}
+              nameDisplay={currentNameDisplay}
+              zoom={zoom}
+              panX={pan.x}
+              panY={pan.y}
+              isDark={isDark}
+              contrast={contrast}
+              spotlight={
+                picker.picked
+                  ? {
+                      tableIndex: picker.picked.tableIndex,
+                      seatIndex: picker.picked.seatIndex,
+                    }
+                  : null
+              }
+            />
+          ) : (
+            <div className="flex h-full flex-col items-center justify-center gap-4 text-center text-(--text-muted)">
+              <p className="text-lg font-medium">{t('present.empty')}</p>
+              <button
+                type="button"
+                onClick={backToPlan}
+                className={`${primaryButtonClass} h-10 gap-2 px-4`}
+                title={t('present.backTitle')}
+              >
+                <ArrowLeftIcon size={20} aria-hidden />
+                <span className="text-sm font-semibold">
+                  {t('present.back')}
+                </span>
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* One bar, floating over the plan: everything the teacher reaches for
           while standing in front of the projection. In fullscreen it lies over
           the plan instead of beside it, so coming and going does not resize
           the plan under it, and it waits below the edge until the pointer
           comes near, a tap lands there or the keyboard moves into it. */}
-      {hasContent ? (
-        <div
-          {...barProps}
-          className={
-            isFullscreen
-              ? `absolute inset-x-0 bottom-0 z-20 transition duration-200 ease-out motion-reduce:transition-none ${
-                  barVisible
-                    ? 'translate-y-0 opacity-100'
-                    : 'pointer-events-none translate-y-full opacity-0'
-                }`
-              : undefined
-          }
-          data-testid="present-bar"
-          data-visible={barVisible}
-        >
-          <PresentationToolbar
-            perspective={perspective}
-            onPerspectiveChange={setPerspective}
-            mode={mode}
-            onModeChange={setMode}
-            isTeacher={isTeacher}
-            showBadges={showBadges}
-            onToggleBadges={() => setShowBadges((value) => !value)}
-            showPhotos={showPhotos}
-            onTogglePhotos={() => setShowPhotos((value) => !value)}
-            showColors={showColors}
-            onToggleColors={() => setShowColors((value) => !value)}
-            showFeatures={showFeatures}
-            onToggleFeatures={() => setShowFeatures((value) => !value)}
-            contrast={contrast}
-            onToggleContrast={() => setContrast((value) => !value)}
-            nameDisplay={currentNameDisplay}
-            onCycleNameDisplay={cycleNameDisplay}
-            onPick={picker.total > 0 ? picker.pick : undefined}
-            onOpenGroups={() => openTool('/gruppen')}
-            onOpenDuties={() => openTool('/dienste')}
-            zoom={zoom}
-            minZoom={PRESENT_MIN_ZOOM}
-            maxZoom={PRESENT_MAX_ZOOM}
-            onZoomChange={setZoomLevel}
-            onResetView={reset}
-            fullscreenSupported={fullscreenSupported}
-            isFullscreen={isFullscreen}
-            onToggleFullscreen={toggleFullscreen}
-            onExit={backToPlan}
-          />
-        </div>
-      ) : (
-        <div className="h-4" aria-hidden />
-      )}
-    </main>
+        {hasContent ? (
+          <div
+            {...barProps}
+            className={
+              isFullscreen
+                ? `absolute inset-x-0 bottom-0 z-20 transition duration-200 ease-out motion-reduce:transition-none ${
+                    barVisible
+                      ? 'translate-y-0 opacity-100'
+                      : 'pointer-events-none translate-y-full opacity-0'
+                  }`
+                : undefined
+            }
+            data-testid="present-bar"
+            data-visible={barVisible}
+          >
+            <PresentationToolbar
+              perspective={perspective}
+              onPerspectiveChange={setPerspective}
+              mode={mode}
+              onModeChange={setMode}
+              isTeacher={isTeacher}
+              showBadges={showBadges}
+              onToggleBadges={() => setShowBadges((value) => !value)}
+              showPhotos={showPhotos}
+              onTogglePhotos={() => setShowPhotos((value) => !value)}
+              showColors={showColors}
+              onToggleColors={() => setShowColors((value) => !value)}
+              showFeatures={showFeatures}
+              onToggleFeatures={() => setShowFeatures((value) => !value)}
+              contrast={contrast}
+              onToggleContrast={() => setContrast((value) => !value)}
+              nameDisplay={currentNameDisplay}
+              onCycleNameDisplay={cycleNameDisplay}
+              onPick={picker.total > 0 ? picker.pick : undefined}
+              onOpenGroups={() => openTool('/gruppen')}
+              onOpenDuties={() => openTool('/dienste')}
+              zoom={zoom}
+              minZoom={PRESENT_MIN_ZOOM}
+              maxZoom={PRESENT_MAX_ZOOM}
+              onZoomChange={setZoomLevel}
+              onResetView={reset}
+              fullscreenSupported={fullscreenSupported}
+              isFullscreen={isFullscreen}
+              onToggleFullscreen={toggleFullscreen}
+              onExit={backToPlan}
+            />
+          </div>
+        ) : (
+          <div className="h-4" aria-hidden />
+        )}
+      </main>
+    </div>
   );
 }

@@ -19,6 +19,7 @@ import UpdateCheckButton from '@/components/pwa/UpdateCheckButton';
 import MenuCheckRow from '@/components/ui/controls/MenuCheckRow';
 import { LegalPageLink } from '@/components/LegalPageLink';
 import { LocalizedLink } from '@/components/LocalizedLink';
+import { headerHitAreaClass } from '@/components/shell/shellTokens';
 import { GITHUB_REPO_URL } from '@/config/links';
 import { APP_RETURN_STATE } from '@/hooks/useReturnToApp';
 import { useClickOutside } from '@/hooks/ui/useClickOutside';
@@ -154,7 +155,7 @@ export default function AppSettingsMenu() {
         // early enough.
         onPointerEnter={preloadSettingsItems}
         onFocus={preloadSettingsItems}
-        className={`${secondaryButtonClass} h-9 w-9 justify-center p-0`}
+        className={`${secondaryButtonClass} ${headerHitAreaClass} h-9 w-9 justify-center p-0`}
         title={t('footer.settings')}
         aria-label={t('footer.settings')}
         aria-haspopup="dialog"

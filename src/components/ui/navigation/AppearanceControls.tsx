@@ -10,11 +10,8 @@ interface AppearanceControlsProps {
 }
 
 /**
- * Theme toggle and language switch as a single unit.
- *
- * Rendered in the footer and in the fullscreen surfaces (presentation mode,
- * name game), which hide the footer and would otherwise offer no way to change
- * theme or language.
+ * Theme toggle and language switch as a single unit, at the top of the
+ * settings menu every page's head carries (`AppSettingsMenu`).
  */
 const AppearanceControls: React.FC<AppearanceControlsProps> = ({
   className = '',

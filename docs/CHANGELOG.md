@@ -25,9 +25,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - The menu on tables and room elements lists its actions with words and shortcuts
 - Saved plans, mixes and rooms take far less space on the device and in backups
 - "Back" on the export page and in the presentation works like the browser's back button
+- Every page has the same header, with "Back" at the top right on the class tools and the pages beside the app
+- On a phone the presentation's bar takes one row, and on a large screen a class tool's main button no longer spans the window
 
 ### Fixed
 
+- On a phone, the FAQ, the legal pages and the other pages beside the app no longer run past the edge of the screen
 - Naming a plan in the inspector saves it
 - A student can no longer be added twice under the same name
 - Large backups can always be restored, and backups are about half the size

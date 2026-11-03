@@ -3,7 +3,7 @@
 import type React from 'react';
 import { useTranslation } from 'react-i18next';
 import { TranslateIcon } from '@phosphor-icons/react';
-import PublicPageHeader from '@/components/publicPage/PublicPageHeader';
+import PublicPage from '@/components/publicPage/PublicPage';
 import {
   pageEyebrowClass,
   pageTitleClass,
@@ -36,40 +36,36 @@ export function LegalPage({
   const textLang = germanOnly ? 'de' : undefined;
 
   return (
-    <main id="main" tabIndex={-1} className="bg-(--surface-page) px-4 sm:px-6">
-      <div className="mx-auto max-w-6xl">
-        <PublicPageHeader bannerLabel={bannerLabel} />
-
-        <div className="max-w-3xl pt-4 pb-10 lg:pb-14">
-          <p className={pageEyebrowClass}>{t('legal.eyebrow')}</p>
-          <h1 lang={textLang} className={pageTitleClass}>
-            {title}
-          </h1>
-          {lead && (
-            <p
-              lang={textLang}
-              className="mt-4 text-lg text-pretty text-(--text-muted)"
-            >
-              {lead}
-            </p>
-          )}
-          {germanOnly && i18n.language === 'en' && (
-            <p className="mt-6 flex items-start gap-3 rounded-(--radius-card) bg-(--surface-sunken) p-4 text-sm text-(--text-muted)">
-              <TranslateIcon
-                size={18}
-                aria-hidden="true"
-                className="mt-0.5 shrink-0"
-              />
-              {t('legal.germanOnlyNote')}
-            </p>
-          )}
-        </div>
-
-        <div lang={textLang} className="pb-16 lg:pb-24">
-          {children}
-        </div>
+    <PublicPage bannerLabel={bannerLabel}>
+      <div className="max-w-3xl pt-4 pb-10 lg:pb-14">
+        <p className={pageEyebrowClass}>{t('legal.eyebrow')}</p>
+        <h1 lang={textLang} className={pageTitleClass}>
+          {title}
+        </h1>
+        {lead && (
+          <p
+            lang={textLang}
+            className="mt-4 text-lg text-pretty text-(--text-muted)"
+          >
+            {lead}
+          </p>
+        )}
+        {germanOnly && i18n.language === 'en' && (
+          <p className="mt-6 flex items-start gap-3 rounded-(--radius-card) bg-(--surface-sunken) p-4 text-sm text-(--text-muted)">
+            <TranslateIcon
+              size={18}
+              aria-hidden="true"
+              className="mt-0.5 shrink-0"
+            />
+            {t('legal.germanOnlyNote')}
+          </p>
+        )}
       </div>
-    </main>
+
+      <div lang={textLang} className="pb-16 lg:pb-24">
+        {children}
+      </div>
+    </PublicPage>
   );
 }
 
@@ -96,7 +92,7 @@ export function LegalSection({
       <div className="lg:col-span-4">
         <h2
           id={id}
-          className="text-lg font-semibold text-balance text-(--text-page) lg:sticky lg:top-8"
+          className="text-lg font-semibold text-balance text-(--text-page) lg:sticky lg:top-22"
         >
           {title}
         </h2>

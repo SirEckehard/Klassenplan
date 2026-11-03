@@ -1,6 +1,6 @@
 # Design System – Klassenplan
 
-> **Status:** current · **Last reviewed:** 2026-11-02 · **Maintainer:** Eike
+> **Status:** current · **Last reviewed:** 2026-11-03 · **Maintainer:** Eike
 > Schäfer · **Describes:** Klassenplan 3.1.2
 
 This document describes the binding design tokens for Klassenplan. All values live in `src/index.css` and are reachable from TypeScript through `src/utils/ui/designTokens.ts`.
@@ -477,11 +477,11 @@ own out of the stage.
 
 The pages beside it — FAQ, support, contact, changelog, Impressum,
 Datenschutzerklärung and the 404 page — share its type
-(`components/publicPage/pageTokens.ts`) and a header of their own
-(`PublicPageHeader`: the lockup, and on the right "Zurück" when the visitor
-came from inside the site — the app, the start page, the footer, another of
-these pages — beside the settings gear, the workspace's own `AppSettingsMenu`
-row for row; the start page carries the same gear beside its lockup).
+(`components/publicPage/pageTokens.ts`) and, like the start page, the head
+every page wears (`PublicPage` around `AppHeader`, decision 0039): the mark
+with the wordmark, and on the right "Zurück" when the visitor came from inside
+the site — the app, the start page, the footer, another of these pages — beside
+the settings gear, the workspace's own `AppSettingsMenu` row for row.
 Each opens with small caps, a serif title and a muted lead; what follows is
 divided by hairlines, never framed in cards, and a page has at most one blue
 button — the donation, the mail address, the way to the generator, the way
