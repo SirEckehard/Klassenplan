@@ -30,7 +30,6 @@ import {
   setMixPresetOverride,
   updateMixPreset,
 } from '@/repositories/mixPresetStore';
-import { confirmDialog } from '@/services/ui/dialogs';
 import { useMixPresets } from '@/hooks/ui/useMixPresets';
 import type { CriterionFulfillment } from '@/utils/algorithm/seatingStatistics';
 import {
@@ -177,7 +176,7 @@ function ImportanceScale({
             title={`${levelLabel} – ${t(`mix.importance.${level}Hint`)}`}
             // Bars share a baseline, as a signal meter's do. A finger gets
             // the 44px of every inspector control.
-            className="flex h-7 w-4.5 cursor-pointer items-end justify-center rounded-sm pb-1.5 transition hover:bg-(--surface-sunken) disabled:cursor-default disabled:hover:bg-transparent pointer-coarse:h-11 pointer-coarse:w-7 pointer-coarse:pb-3.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary)"
+            className="flex h-7 w-4.5 cursor-pointer items-end justify-center rounded-sm pb-1.5 transition hover:bg-(--surface-sunken) disabled:cursor-default disabled:hover:bg-transparent pointer-coarse:h-11 pointer-coarse:w-7 pointer-coarse:pb-3.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring)"
           >
             <span
               aria-hidden="true"
@@ -272,7 +271,7 @@ function FulfillmentBadge({
         { label, value },
       )}
       title={statusLabel}
-      className={`${shapeClass} cursor-pointer transition hover:bg-(--surface-sunken) focus:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary)`}
+      className={`${shapeClass} cursor-pointer transition hover:bg-(--surface-sunken) focus:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring)`}
     >
       {body}
     </button>
@@ -505,17 +504,8 @@ export function MixRecipeSection({
     if (!written) showToast('error', 'toast:mixPresets.saveFailed');
   };
 
-  // Deleting a preset is in no undo history, so it asks.
-  const requestDelete = async (recipe: MixRecipe) => {
-    const name = text.label(recipe);
-    const confirmed = await confirmDialog(
-      t('mix.recipes.deleteMessage', { name }),
-      {
-        title: t('mix.recipes.deleteTitle'),
-        confirmLabel: t('common.delete'),
-      },
-    );
-    if (!confirmed) return;
+  // Its row has asked: deleting a preset is in no undo history.
+  const remove = async (recipe: MixRecipe) => {
     if (!(await deleteMixPreset(recipe.id))) {
       showToast('error', 'toast:mixPresets.saveFailed');
     }
@@ -544,7 +534,7 @@ export function MixRecipeSection({
         }}
         onRename={(recipe) => setRenamingId(recipe.id)}
         onDelete={(recipe) => {
-          void requestDelete(recipe);
+          void remove(recipe);
         }}
       />
       {/* Nothing to keep while every criterion is off: that is the

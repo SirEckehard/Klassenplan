@@ -6,7 +6,7 @@ import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import '@/i18n';
 import type { RoomRecord, SavedPlan } from '@/types';
-import { createMockSavedPlan } from '@/__tests__/utils';
+import { confirmInlineQuestion, createMockSavedPlan } from '@/__tests__/utils';
 import { RoomListControls } from '../RoomSetupSections';
 
 const mocks = vi.hoisted(() => ({
@@ -27,6 +27,7 @@ vi.mock('@/contexts/seatingPlan/seatingPlanSelectors', () => ({
     rooms: mocks.rooms,
     activeRoomId: mocks.activeRoomId,
     seatingHistory: mocks.seatingHistory,
+    mixHistory: [],
   }),
   useOptionalSeatingPlanActions: () => ({
     openRoom: mocks.openRoom,
@@ -170,8 +171,10 @@ describe('RoomListControls', () => {
     );
 
     expect(mocks.confirmDialog).toHaveBeenCalledWith(
-      expect.stringMatching(/2/),
-      expect.anything(),
+      expect.objectContaining({
+        title: expect.stringMatching(/Labor/),
+        facts: expect.arrayContaining([expect.objectContaining({ count: 2 })]),
+      }),
     );
     expect(mocks.deleteRoom).toHaveBeenCalledWith('b');
     // The list shows it gone; a screen reader hears it.
@@ -179,8 +182,26 @@ describe('RoomListControls', () => {
     expect(mocks.showToast).not.toHaveBeenCalled();
   });
 
+  it('asks in its row before an empty room goes', async () => {
+    const user = userEvent.setup();
+    render(<RoomListControls />);
+
+    await user.click(roomMenu());
+    await user.click(
+      screen.getByRole('button', { name: /„Labor“ löschen|Delete “Labor”/ }),
+    );
+
+    expect(mocks.confirmDialog).not.toHaveBeenCalled();
+    expect(mocks.deleteRoom).not.toHaveBeenCalled();
+    await confirmInlineQuestion(/„Labor“ löschen|Delete “Labor”/);
+
+    expect(mocks.deleteRoom).toHaveBeenCalledWith('b');
+    expect(mocks.announce).toHaveBeenCalledWith(expect.stringMatching(/Labor/));
+  });
+
   it('keeps a room when the question is declined', async () => {
     const user = userEvent.setup();
+    mocks.seatingHistory = [createMockSavedPlan({ id: 'p1', roomId: 'b' })];
     mocks.confirmDialog.mockResolvedValue(false);
     render(<RoomListControls />);
 
@@ -189,6 +210,7 @@ describe('RoomListControls', () => {
       screen.getByRole('button', { name: /„Labor“ löschen|Delete “Labor”/ }),
     );
 
+    expect(mocks.confirmDialog).toHaveBeenCalled();
     expect(mocks.deleteRoom).not.toHaveBeenCalled();
   });
 

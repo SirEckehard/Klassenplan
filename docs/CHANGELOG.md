@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 - Tables pushed together count as one group when mixing, and in a row of desks the neighbours at each join count too
 - Fewer messages, and those left appear above the status bar instead of over your work
+- Deleting asks less: students and photos come back with "Undo", a plan asks right at its button, and deleting a class shows what goes with it
+- The frame around the focused button is calmer
 - Dragging a student shows the swap before you let go
 - A blocked button or an entry that cannot be used says why, right where it happens
 - The status bar offers a new version quietly, confirms saving and looks alike on every layer

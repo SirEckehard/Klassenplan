@@ -128,10 +128,12 @@
   /* What a modal lays over the page. Ink in both modes, never a surface. */
   --scrim: rgba(23, 24, 26, 0.45);
 
-  /* A focus ring is a solid 2px contour, never a soft glow. */
-  --focus-ring-primary: #2563eb;
-  --focus-ring-danger: #be123c;
-  --focus-ring-success: #15803d;
+  /*
+   * A focus ring is a solid contour, never a soft glow, and always this one
+   * ink: it says where the keyboard is, which is no action. Blue is kept for
+   * what can be pressed and what is selected.
+   */
+  --focus-ring: var(--text-muted);
 
   --button-primary-bg: #2563eb;
   --button-primary-bg-hover: #1d4ed8;
@@ -179,6 +181,8 @@
   --menu-bg: #ffffff;
   --menu-border: #e3dfd6;
   --menu-shadow: 0 8px 24px -12px rgba(23, 24, 26, 0.22);
+  --dialog-shadow:
+    0 1px 2px rgba(23, 24, 26, 0.06), 0 18px 44px -20px rgba(23, 24, 26, 0.35);
   --floating-status-bg: #ffffff;
   --floating-status-border: #e3dfd6;
   --floating-status-shadow: 0 1px 2px rgba(23, 24, 26, 0.06);
@@ -234,10 +238,10 @@
    * blue of the drawing's own. Guides stay amber so they never read as a
    * selection, a predicted photo collision is the alert.
    */
-  --canvas-selection: var(--focus-ring-primary);
+  --canvas-selection: var(--border-option-selected);
   --canvas-selection-fill: color-mix(
     in srgb,
-    var(--focus-ring-primary) 15%,
+    var(--border-option-selected) 15%,
     transparent
   );
   --canvas-guide: #f59e0b;
@@ -307,10 +311,6 @@
     --present-bar-muted: #c9cbcf;
     --text-badge: #93b4fb;
 
-    --focus-ring-primary: #4f86f7;
-    --focus-ring-danger: #f87a96;
-    --focus-ring-success: #5ec07f;
-
     --button-primary-bg: #2563eb;
     --button-primary-bg-hover: #4f86f7;
     --button-primary-shadow: none;
@@ -355,6 +355,8 @@
     --menu-bg: #1c1f23;
     --menu-border: #2a2d31;
     --menu-shadow: 0 8px 24px -12px rgba(0, 0, 0, 0.7);
+    --dialog-shadow:
+      0 1px 2px rgba(0, 0, 0, 0.4), 0 18px 44px -20px rgba(0, 0, 0, 0.85);
     --floating-status-bg: #181a1d;
     --floating-status-border: #2a2d31;
     --floating-status-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
@@ -496,7 +498,7 @@
 
   /* The radio itself is visually small; surface its focus on the whole card. */
   &:has(input:focus-visible) {
-    outline: 2px solid var(--focus-ring-primary);
+    outline: 2px solid var(--focus-ring);
     outline-offset: 2px;
   }
 }
@@ -622,7 +624,7 @@
 .primary-button:focus-visible {
   outline: none;
   box-shadow:
-    0 0 0 2px var(--focus-ring-primary),
+    0 0 0 2px var(--focus-ring),
     var(--button-primary-shadow);
 }
 
@@ -661,7 +663,7 @@
 .secondary-button:focus-visible {
   outline: none;
   box-shadow:
-    0 0 0 2px var(--focus-ring-primary),
+    0 0 0 2px var(--focus-ring),
     var(--button-secondary-shadow);
 }
 
@@ -707,7 +709,7 @@
 
 .neutral-button:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px var(--focus-ring-primary);
+  box-shadow: 0 0 0 2px var(--focus-ring);
 }
 
 .neutral-button:disabled {
@@ -751,7 +753,7 @@
 .danger-button:focus-visible {
   outline: none;
   box-shadow:
-    0 0 0 2px var(--focus-ring-danger),
+    0 0 0 2px var(--focus-ring),
     var(--button-danger-shadow);
 }
 
@@ -761,25 +763,21 @@
 }
 
 /*
- * In a modal dialog the focused button is the one Enter presses, so it must
- * be seen. A dialog focuses its button by script (ConfirmDialog takes
- * "Abbrechen"), which `:focus-visible` ignores after a mouse click, so the
- * ring follows `:focus` here — and stands 2px off the button, where it reads
- * against the card in both themes rather than melting into the button's edge.
+ * In a dialog or a question the focused button is the one Enter presses, so it
+ * must be seen. A question focuses its button by script (it takes "Abbrechen"),
+ * which `:focus-visible` ignores after a mouse click, so the ring follows
+ * `:focus` here: a thin line 2px off the button, in the same quiet ink.
  */
-[aria-modal='true']
+:is([aria-modal='true'], [role='alertdialog'])
   :is(
     .primary-button,
     .secondary-button,
     .neutral-button,
     .danger-button
   ):focus {
-  outline: 2px solid var(--focus-ring-primary);
+  outline: 1.5px solid var(--focus-ring);
   outline-offset: 2px;
-}
-
-[aria-modal='true'] .danger-button:focus {
-  outline-color: var(--focus-ring-danger);
+  box-shadow: none;
 }
 
 @utility icon-button {
@@ -807,7 +805,7 @@
 .icon-button:focus-visible {
   outline: none;
   box-shadow:
-    0 0 0 2px var(--focus-ring-primary),
+    0 0 0 2px var(--focus-ring),
     var(--button-icon-shadow);
 }
 
@@ -836,7 +834,7 @@
 
 .quiet-link:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px var(--focus-ring-primary);
+  box-shadow: 0 0 0 2px var(--focus-ring);
 }
 
 @utility quiet-icon-button {
@@ -860,7 +858,7 @@
 
 .quiet-icon-button:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px var(--focus-ring-primary);
+  box-shadow: 0 0 0 2px var(--focus-ring);
 }
 
 .quiet-icon-button:disabled {
@@ -892,7 +890,7 @@
 
 .quiet-danger-icon-button:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px var(--focus-ring-danger);
+  box-shadow: 0 0 0 2px var(--focus-ring);
 }
 
 .quiet-danger-icon-button:disabled {
@@ -920,7 +918,7 @@
 
 .danger-icon-button:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px var(--focus-ring-danger);
+  box-shadow: 0 0 0 2px var(--focus-ring);
 }
 
 .danger-icon-button:disabled {
@@ -948,7 +946,7 @@
 
 .success-icon-button:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px var(--focus-ring-success);
+  box-shadow: 0 0 0 2px var(--focus-ring);
 }
 
 .success-icon-button:disabled {
@@ -978,7 +976,7 @@
 
 .muted-icon-button:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px var(--focus-ring-primary);
+  box-shadow: 0 0 0 2px var(--focus-ring);
 }
 
 .muted-icon-button:disabled {
@@ -1009,7 +1007,7 @@
   border-color: var(--button-secondary-border);
   box-shadow:
     var(--input-shadow),
-    0 0 0 2px var(--focus-ring-primary);
+    0 0 0 2px var(--focus-ring);
 }
 
 .input-field:disabled {
@@ -1051,7 +1049,7 @@
 
 .pill-tab-base:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px var(--focus-ring-primary);
+  box-shadow: 0 0 0 2px var(--focus-ring);
 }
 
 .pill-tab-base:disabled {
@@ -1119,7 +1117,7 @@
 
 .menu-item:focus-visible {
   outline: none;
-  box-shadow: inset 0 0 0 2px var(--focus-ring-primary);
+  box-shadow: inset 0 0 0 2px var(--focus-ring);
 }
 
 .menu-item:disabled {
@@ -1152,7 +1150,7 @@
 
 .menu-item-danger:focus-visible {
   outline: none;
-  box-shadow: inset 0 0 0 2px var(--focus-ring-danger);
+  box-shadow: inset 0 0 0 2px var(--focus-ring);
 }
 
 @utility floating-status {
@@ -1225,7 +1223,7 @@
 
 .toast-action:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px var(--focus-ring-primary);
+  box-shadow: 0 0 0 2px var(--focus-ring);
 }
 
 /* The time a toast has left, as a hairline along its bottom edge. It runs in

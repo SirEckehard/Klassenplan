@@ -11,6 +11,8 @@ import {
   type Icon,
 } from '@phosphor-icons/react';
 import HintTooltip from '@/components/ui/feedback/HintTooltip';
+import InlineQuestion from '@/components/ui/modals/InlineQuestion';
+import type { DeleteQuestion } from '@/components/ui/modals/InlineQuestion';
 import { useRefusalHint } from '@/hooks/ui/useRefusalHint';
 import { LocalizedLink } from '@/components/LocalizedLink';
 import FloatingDropdown from '@/components/students/FloatingDropdown';
@@ -413,7 +415,7 @@ export function InspectorChoice<T extends string>({
               title={
                 isMixed ? t('bulkEdit.choiceMixed', { label: title }) : title
               }
-              className={`flex w-full cursor-pointer items-center gap-2 px-2.5 py-1.5 text-left text-control transition pointer-coarse:min-h-11 focus-visible:relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-(--focus-ring-primary) ${
+              className={`flex w-full cursor-pointer items-center gap-2 px-2.5 py-1.5 text-left text-control transition pointer-coarse:min-h-11 focus-visible:relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-(--focus-ring) ${
                 isActive
                   ? 'bg-(--surface-option-selected) font-medium text-(--text-page)'
                   : 'text-(--text-page) hover:bg-(--surface-sunken)'
@@ -473,7 +475,7 @@ export function InspectorChoice<T extends string>({
             // A fingertip needs 44px; with the mouse the chips stay compact.
             // The same height and padding as the buttons that open a menu
             // (`familyValueControl`), so chips and menus line up.
-            className={`inline-flex min-h-7 cursor-pointer items-center gap-1 rounded-md border px-2 py-1 text-xs transition pointer-coarse:min-h-11 pointer-coarse:px-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) ${
+            className={`inline-flex min-h-7 cursor-pointer items-center gap-1 rounded-md border px-2 py-1 text-xs transition pointer-coarse:min-h-11 pointer-coarse:px-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring) ${
               isActive && option.tint
                 ? 'font-medium text-(--text-page)'
                 : isActive
@@ -583,19 +585,80 @@ export function InspectorDeleteFooter({
   label,
   onDelete,
   blockedHint,
+  question,
+  askRequest = 0,
 }: {
   label: string;
   onDelete: () => void;
   blockedHint?: string | null;
+  /**
+   * What the foot asks in place before `onDelete`, for a deletion that loses
+   * only itself. Without one, `onDelete` is called at once: a deletion that
+   * takes more with it asks in a dialog of its own (decision 0041).
+   */
+  question?: DeleteQuestion;
+  /** Counts up whenever the question is asked for from elsewhere (Entf). */
+  askRequest?: number;
 }) {
   const hintId = React.useId();
   const refusal = useRefusalHint(blockedHint);
+  const [asking, setAsking] = React.useState(false);
+  const buttonRef = React.useRef<HTMLButtonElement | null>(null);
+
+  // Where the focus was when the question came: the row Entf was pressed on.
+  // A press on the button itself leaves nothing here, the button is gone.
+  const returnFocusRef = React.useRef<HTMLElement | null>(null);
+
+  // During the render, so the first drawing is already the question, and from
+  // nought, so a panel that opened for the request answers it.
+  const [seenRequest, setSeenRequest] = React.useState(0);
+  if (askRequest !== seenRequest) {
+    setSeenRequest(askRequest);
+    if (askRequest > 0 && question && !blockedHint) setAsking(true);
+  }
+
+  const answered = React.useRef(false);
+  React.useEffect(() => {
+    if (asking || !answered.current) return;
+    answered.current = false;
+    const back = returnFocusRef.current;
+    (back?.isConnected ? back : buttonRef.current)?.focus();
+  }, [asking]);
+
+  if (asking && question) {
+    return (
+      <InlineQuestion
+        question={question}
+        className="shrink-0 border-t border-(--border-card) px-4 py-3"
+        returnFocusRef={returnFocusRef}
+        onConfirm={() => {
+          answered.current = true;
+          setAsking(false);
+          onDelete();
+        }}
+        onCancel={(end) => {
+          answered.current = end === 'answered';
+          setAsking(false);
+        }}
+      />
+    );
+  }
+
   return (
     <InspectorFooter>
       <div className="group relative">
         <button
+          ref={buttonRef}
           type="button"
-          onClick={blockedHint ? refusal.show : onDelete}
+          onClick={() => {
+            if (blockedHint) {
+              refusal.show();
+            } else if (question) {
+              setAsking(true);
+            } else {
+              onDelete();
+            }
+          }}
           aria-disabled={blockedHint ? true : undefined}
           aria-describedby={blockedHint ? hintId : undefined}
           className={`${dangerButtonClass} h-8 gap-2 px-3 text-xs ${
@@ -637,9 +700,16 @@ export type InspectorMenuRow = {
   rename?: { label: string; onSelect: () => void };
   /**
    * Removing the entry, as a bin beside it. `blockedHint` keeps the bin in
-   * its place but says why it cannot be used — the open room.
+   * its place but says why it cannot be used — the open room. With a `question`
+   * the row itself asks first and the menu stays open meanwhile; without one
+   * the menu closes and `onSelect` runs, which asks in a dialog of its own.
    */
-  remove?: { label: string; onSelect: () => void; blockedHint?: string };
+  remove?: {
+    label: string;
+    onSelect: () => void;
+    blockedHint?: string;
+    question?: DeleteQuestion;
+  };
   /** A rule above the row: where the teacher's own presets begin. */
   separatorBefore?: boolean;
 };
@@ -677,8 +747,23 @@ export function InspectorMenuButton({
   const triggerRef = React.useRef<HTMLButtonElement | null>(null);
   const contentRef = React.useRef<HTMLDivElement | null>(null);
   const outsideRefs = React.useMemo(() => [anchorRef, contentRef], []);
-  const close = React.useCallback(() => setOpen(false), []);
+  // The row that asks whether to delete it, and the one its question has just
+  // given the focus back to.
+  const [askingKey, setAskingKey] = React.useState<string | null>(null);
+  const returnToKeyRef = React.useRef<string | null>(null);
+  const close = React.useCallback(() => {
+    setOpen(false);
+    setAskingKey(null);
+  }, []);
   useClickOutside(outsideRefs, close, open);
+  React.useEffect(() => {
+    const key = returnToKeyRef.current;
+    if (askingKey !== null || key === null) return;
+    returnToKeyRef.current = null;
+    contentRef.current
+      ?.querySelector<HTMLElement>(`[data-menu-remove="${CSS.escape(key)}"]`)
+      ?.focus();
+  }, [askingKey]);
   // Portalled to the end of the page: the focus moves in onto the row that
   // is chosen, the arrow keys step through the rows, Escape closes the menu
   // with the focus back on the button.
@@ -699,7 +784,7 @@ export function InspectorMenuButton({
   }, [focusRequest]);
 
   const choose = (onSelect: () => void) => {
-    setOpen(false);
+    close();
     triggerRef.current?.focus();
     onSelect();
   };
@@ -709,12 +794,15 @@ export function InspectorMenuButton({
       <button
         type="button"
         ref={triggerRef}
-        onClick={() => setOpen((previous) => !previous)}
+        onClick={() => {
+          setAskingKey(null);
+          setOpen((previous) => !previous);
+        }}
         aria-haspopup="dialog"
         aria-expanded={open}
         aria-label={ariaLabel}
         aria-describedby={describedBy}
-        className="flex min-h-7 w-full cursor-pointer items-center gap-2 rounded-md border border-(--border-card) bg-(--surface-card) px-2 py-1 text-left text-control text-(--text-page) transition hover:border-(--border-option-hover) pointer-coarse:min-h-11 pointer-coarse:px-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary)"
+        className="flex min-h-7 w-full cursor-pointer items-center gap-2 rounded-md border border-(--border-card) bg-(--surface-card) px-2 py-1 text-left text-control text-(--text-page) transition hover:border-(--border-option-hover) pointer-coarse:min-h-11 pointer-coarse:px-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring)"
       >
         <span className="min-w-0 flex-1 truncate">{label}</span>
         <CaretDownIcon
@@ -795,6 +883,23 @@ export function InspectorMenuButton({
                 );
               }
               const { rename, remove } = row;
+              if (remove?.question && askingKey === row.key) {
+                return (
+                  <React.Fragment key={row.key}>
+                    {separator}
+                    <InlineQuestion
+                      question={remove.question}
+                      className="my-0.5 rounded-md p-2"
+                      onConfirm={() => choose(remove.onSelect)}
+                      onCancel={(end) => {
+                        if (end === 'answered')
+                          returnToKeyRef.current = row.key;
+                        setAskingKey(null);
+                      }}
+                    />
+                  </React.Fragment>
+                );
+              }
               return (
                 <React.Fragment key={row.key}>
                   {separator}
@@ -804,7 +909,7 @@ export function InspectorMenuButton({
                       <button
                         type="button"
                         onClick={() => {
-                          setOpen(false);
+                          close();
                           rename.onSelect();
                         }}
                         title={rename.label}
@@ -820,9 +925,14 @@ export function InspectorMenuButton({
                     {remove && (
                       <button
                         type="button"
+                        data-menu-remove={row.key}
                         onClick={() => {
                           if (remove.blockedHint) return;
-                          setOpen(false);
+                          if (remove.question) {
+                            setAskingKey(row.key);
+                            return;
+                          }
+                          close();
                           remove.onSelect();
                         }}
                         aria-disabled={remove.blockedHint ? true : undefined}

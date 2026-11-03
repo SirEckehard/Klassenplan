@@ -18,7 +18,7 @@ import type {
   ClassroomTable,
   ClassroomTemplate,
 } from '@/types';
-import { confirmDialog } from '@/services/ui/dialogs';
+import { confirmInlineQuestion, getButton } from '@/__tests__/utils';
 import type {
   SceneTransactionRunner,
   SceneTransactionState,
@@ -468,8 +468,8 @@ describe('SceneInspector', () => {
     );
   });
 
-  // A template is not part of the room's undo history, so removing one asks.
-  it('deletes a template from the menu only once that is confirmed', async () => {
+  // A template is not part of the room's undo history, so its row asks.
+  it('deletes a template from the menu only once its row is answered', async () => {
     const { onDeleteTemplate } = renderInspector({
       templates: [template(3, 'Raum 104', [])],
     });
@@ -478,15 +478,22 @@ describe('SceneInspector', () => {
         name: /„Raum 104“ löschen|Delete “Raum 104”/,
       });
 
-    vi.mocked(confirmDialog).mockResolvedValueOnce(false);
     fireEvent.click(templateMenu());
     fireEvent.click(binOf());
-    await waitFor(() => expect(confirmDialog).toHaveBeenCalledTimes(1));
+    const question = await screen.findByRole('alertdialog', {
+      name: /„Raum 104“ löschen|Delete “Raum 104”/,
+    });
     expect(onDeleteTemplate).not.toHaveBeenCalled();
 
-    fireEvent.click(templateMenu());
+    // Declining leaves the menu open, with the bin back in its row.
+    fireEvent.click(getButton(/^(Abbrechen|Cancel)$/));
+    expect(question).not.toBeInTheDocument();
+    expect(onDeleteTemplate).not.toHaveBeenCalled();
+    await waitFor(() => expect(binOf()).toHaveFocus());
+
     fireEvent.click(binOf());
-    await waitFor(() => expect(onDeleteTemplate).toHaveBeenCalledWith(3));
+    await confirmInlineQuestion(/„Raum 104“ löschen|Delete “Raum 104”/);
+    expect(onDeleteTemplate).toHaveBeenCalledWith(3);
   });
 
   it('names the selected table and states its seats', () => {

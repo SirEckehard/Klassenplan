@@ -603,7 +603,7 @@ export default function FAQ() {
                   <a
                     href={`#${section.id}`}
                     onClick={(event) => goToSection(event, section.id)}
-                    className="flex items-center gap-3 rounded-lg px-2 py-2 text-(--text-page) transition-colors hover:bg-(--surface-sunken) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary)"
+                    className="flex items-center gap-3 rounded-lg px-2 py-2 text-(--text-page) transition-colors hover:bg-(--surface-sunken) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring)"
                   >
                     <section.icon
                       size={18}
@@ -644,7 +644,7 @@ export default function FAQ() {
                         key={item.question}
                         className="group border-b border-(--border-card)"
                       >
-                        <summary className="flex cursor-pointer list-none items-start justify-between gap-4 rounded-sm py-4 text-left marker:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary)">
+                        <summary className="flex cursor-pointer list-none items-start justify-between gap-4 rounded-sm py-4 text-left marker:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring)">
                           <h3 className="text-base font-medium text-(--text-page) sm:text-lg">
                             {item.question}
                           </h3>

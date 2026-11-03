@@ -21,6 +21,8 @@ import {
 import TablePreview from '@/components/TablePreview';
 import { TOUR_ANCHORS } from '@/components/onboarding/tours';
 import { confirmDialog } from '@/services/ui/dialogs';
+import { roomFacts } from '@/components/ui/modals/confirmFacts';
+import { ENTITY_ICONS } from '@/components/shell/entityIcons';
 import { announce } from '@/utils/ui/toast';
 import {
   checkName,
@@ -385,18 +387,6 @@ export function RoomTemplatesSection({
     state?.rooms.find((room) => room.id === state.activeRoomId)?.name ??
     t('sceneInspector.room');
 
-  // Deleting a template is not part of the room's undo history, so it asks.
-  const requestDelete = async (template: ClassroomTemplate) => {
-    const confirmed = await confirmDialog(
-      t('sceneInspector.deleteTemplateMessage', { name: template.name }),
-      {
-        title: t('sceneInspector.deleteTemplateTitle'),
-        confirmLabel: t('common.delete'),
-      },
-    );
-    if (confirmed) onDelete(template.id);
-  };
-
   return (
     <InspectorSection title={t('sceneInspector.templates')}>
       {templates.length === 0 && (
@@ -456,9 +446,15 @@ export function RoomTemplatesSection({
                 label: t('sceneInspector.deleteTemplateNamed', {
                   name: template.name,
                 }),
-                onSelect: () => {
-                  void requestDelete(template);
+                // Not part of the room's undo history, so the row asks.
+                question: {
+                  title: t('common.deleteNamedQuestion', {
+                    name: template.name,
+                  }),
+                  detail: t('common.cannotUndo'),
+                  confirmLabel: t('common.delete'),
                 },
+                onSelect: () => onDelete(template.id),
               },
             };
           })}
@@ -573,28 +569,30 @@ export function RoomListControls() {
   const [renamingId, setRenamingId] = React.useState<string | null>(null);
   const [naming, setNaming] = React.useState(false);
   if (!state || !actions) return null;
-  const { rooms, activeRoomId, seatingHistory } = state;
+  const { rooms, activeRoomId, seatingHistory, mixHistory } = state;
   const renaming = rooms.find((room) => room.id === renamingId);
 
-  // Not part of the room's undo history, so it asks — as "Bibliothek"
-  // does, in the same words.
-  const requestDelete = async (room: { id: string; name: string }) => {
-    const count = seatingHistory.filter(
-      (plan) => plan.roomId === room.id,
-    ).length;
-    const confirmed = await confirmDialog(
-      count === 0
-        ? t('library.room.deleteMessageEmpty', { name: room.name })
-        : t('library.room.deleteMessage', { name: room.name, count }),
-      {
-        title: t('library.room.delete'),
-        confirmLabel: t('common.delete'),
-      },
-    );
-    if (!confirmed) return;
+  const removeRoom = (room: { id: string; name: string }) => {
     if (actions.deleteRoom(room.id) === null) {
       announce(t('library.room.deleted', { name: room.name }));
     }
+  };
+
+  // Not part of the room's undo history, so it asks, as "Bibliothek" does: a
+  // room with plans in a dialog that counts them, an empty one in its row.
+  const requestDelete = async (room: { id: string; name: string }) => {
+    const confirmed = await confirmDialog({
+      icon: ENTITY_ICONS.room,
+      title: t('common.deleteNamedQuestion', { name: room.name }),
+      meta: t('shell.layers.room'),
+      facts: roomFacts(
+        seatingHistory.filter((plan) => plan.roomId === room.id).length,
+        mixHistory.filter((mix) => mix.roomId === room.id).length,
+      ),
+      message: t('common.cannotUndo'),
+      confirmLabel: t('common.delete'),
+    });
+    if (confirmed) removeRoom(room);
   };
 
   return (
@@ -629,8 +627,21 @@ export function RoomListControls() {
                 blockedHint: isOpen
                   ? t('library.room.deleteOpenHint')
                   : undefined,
+                question: seatingHistory.some((plan) => plan.roomId === room.id)
+                  ? undefined
+                  : {
+                      title: t('common.deleteNamedQuestion', {
+                        name: room.name,
+                      }),
+                      detail: t('common.cannotUndo'),
+                      confirmLabel: t('common.delete'),
+                    },
                 onSelect: () => {
-                  void requestDelete(room);
+                  if (seatingHistory.some((plan) => plan.roomId === room.id)) {
+                    void requestDelete(room);
+                  } else {
+                    removeRoom(room);
+                  }
                 },
               },
             };

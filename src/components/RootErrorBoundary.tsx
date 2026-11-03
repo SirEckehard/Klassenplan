@@ -22,7 +22,7 @@ function RootErrorFallback({ error }: { error: Error }) {
           <button
             type="button"
             onClick={() => window.location.reload()}
-            className="rounded-xl bg-(--button-danger-bg) px-5 py-2.5 text-sm font-semibold text-(--button-danger-text) shadow-sm transition hover:bg-(--button-danger-bg-hover) focus:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-danger)"
+            className="rounded-xl bg-(--button-danger-bg) px-5 py-2.5 text-sm font-semibold text-(--button-danger-text) shadow-sm transition hover:bg-(--button-danger-bg-hover) focus:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring)"
           >
             {t('common.reloadPage', 'Seite neu laden')}
           </button>

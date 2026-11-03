@@ -335,7 +335,7 @@ export default function ColumnBrowser({
                           onKeyDown={(event) =>
                             handleKeyDown(event, columnIndex, item.key)
                           }
-                          className={`relative mx-1 flex min-h-9 cursor-pointer items-center gap-2.5 rounded-md px-3 py-1.5 text-sm outline-none select-none [-webkit-touch-callout:none] hover:bg-(--surface-sunken) focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-(--focus-ring-primary) data-quiet-focus:focus-visible:ring-0 pointer-coarse:min-h-11 ${
+                          className={`relative mx-1 flex min-h-9 cursor-pointer items-center gap-2.5 rounded-md px-3 py-1.5 text-sm outline-none select-none [-webkit-touch-callout:none] hover:bg-(--surface-sunken) focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-(--focus-ring) data-quiet-focus:focus-visible:ring-0 pointer-coarse:min-h-11 ${
                             selected ? 'bg-(--surface-sunken)' : ''
                           }`}
                         >

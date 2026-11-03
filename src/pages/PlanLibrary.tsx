@@ -78,6 +78,7 @@ import { usePageSeo } from '@/hooks/usePageSeo';
 import { useLayoutMode } from '@/hooks/ui/useLayoutMode';
 import { isAnyDialogOpen } from '@/hooks/ui/useDialogLayer';
 import { confirmDialog } from '@/services/ui/dialogs';
+import { roomFacts } from '@/components/ui/modals/confirmFacts';
 import type { ClassroomTemplate } from '@/types';
 import {
   cardSurfaceClass,
@@ -223,23 +224,27 @@ function PlanLibraryPage() {
   // the request go.
   const [renameRequest, setRenameRequest] = React.useState<{
     key: string;
-    kind: 'rename' | 'template';
+    kind: 'rename' | 'template' | 'delete';
     count: number;
   } | null>(null);
-  const requestPanelPart = (key: string, kind: 'rename' | 'template') =>
+  const requestPanelPart = (
+    key: string,
+    kind: 'rename' | 'template' | 'delete',
+  ) =>
     setRenameRequest((previous) => ({
       key,
       kind,
       count: (previous?.count ?? 0) + 1,
     }));
   const requestRenameOf = (key: string) => requestPanelPart(key, 'rename');
-  const requestCountFor = (kind: 'rename' | 'template') =>
+  const requestCountFor = (kind: 'rename' | 'template' | 'delete') =>
     renameRequest &&
     renameRequest.key === currentKey &&
     renameRequest.kind === kind
       ? renameRequest.count
       : 0;
   const renameRequestCount = requestCountFor('rename');
+  const deleteRequestCount = requestCountFor('delete');
 
   const choose = (columnIndex: number, key: string) => {
     setRenameRequest(null);
@@ -463,25 +468,72 @@ function PlanLibraryPage() {
     }
   };
 
+  // What a deletion takes along decides where it asks (decision 0041): what
+  // loses only itself asks at its panel's foot, which opens for it; a class or
+  // a room with plans in a dialog that counts what goes.
+  const askAtFoot = (node: LibraryNode) => {
+    const key = libraryKey(node);
+    showInspector(key);
+    requestPanelPart(key, 'delete');
+  };
+
   const requestRemoval = async (node: LibraryNode | undefined) => {
     if (!node) return;
     switch (node.kind) {
       case 'class':
         requestDelete(node.classId);
         return;
+      case 'plan':
+      case 'mix':
+      case 'template':
+        askAtFoot(node);
+        return;
+      case 'preset':
+        if (!presetOf(node.presetId)?.builtin) askAtFoot(node);
+        return;
+      case 'room': {
+        const blocked = roomRemovalHint(node);
+        if (blocked) {
+          showToast('info', blocked);
+          return;
+        }
+        const room = classLibrary?.rooms.find(
+          (entry) => entry.id === node.roomId,
+        );
+        if (!room || !classLibrary) return;
+        const planCount = classLibrary.plans.filter(
+          (plan) => plan.roomId === room.id,
+        ).length;
+        if (planCount === 0) {
+          askAtFoot(node);
+          return;
+        }
+        const confirmed = await confirmDialog({
+          icon: ENTITY_ICONS.room,
+          title: t('common.deleteNamedQuestion', { name: room.name }),
+          meta: t('shell.layers.room'),
+          facts: roomFacts(
+            planCount,
+            classLibrary.mixes.filter((mix) => mix.roomId === room.id).length,
+          ),
+          message: t('common.cannotUndo'),
+          confirmLabel: t('common.delete'),
+        });
+        if (confirmed) await removeEntry(node);
+        return;
+      }
+      default:
+    }
+  };
+
+  // What was asked and answered.
+  const removeEntry = async (node: LibraryNode) => {
+    switch (node.kind) {
       case 'plan': {
         const plan = classLibrary?.plans.find(
           (entry) => entry.id === node.planId,
         );
         if (!plan) return;
-        const confirmed = await confirmDialog(
-          t('planList.deleteDialogMessage', { name: plan.name }),
-          {
-            title: t('planList.deleteDialogTitle'),
-            confirmLabel: t('common.delete'),
-          },
-        );
-        if (!confirmed) return;
         const outcome = await edit(node.classId, {
           kind: 'deletePlan',
           planId: node.planId,
@@ -494,20 +546,6 @@ function PlanLibraryPage() {
         return;
       }
       case 'mix': {
-        const mix = classLibrary?.mixes.find(
-          (entry) => entry.id === node.mixId,
-        );
-        if (!mix) return;
-        const confirmed = await confirmDialog(
-          t('mixHistory.deleteDialogMessage', {
-            time: formatTime(mix.timestamp),
-          }),
-          {
-            title: t('mixHistory.deleteDialogTitle'),
-            confirmLabel: t('common.delete'),
-          },
-        );
-        if (!confirmed) return;
         const outcome = await edit(node.classId, {
           kind: 'deleteMix',
           mixId: node.mixId,
@@ -519,28 +557,10 @@ function PlanLibraryPage() {
         return;
       }
       case 'room': {
-        const blocked = roomRemovalHint(node);
-        if (blocked) {
-          showToast('info', blocked);
-          return;
-        }
         const room = classLibrary?.rooms.find(
           (entry) => entry.id === node.roomId,
         );
-        if (!room || !classLibrary) return;
-        const count = classLibrary.plans.filter(
-          (plan) => plan.roomId === room.id,
-        ).length;
-        const confirmed = await confirmDialog(
-          count === 0
-            ? t('library.room.deleteMessageEmpty', { name: room.name })
-            : t('library.room.deleteMessage', { name: room.name, count }),
-          {
-            title: t('library.room.delete'),
-            confirmLabel: t('common.delete'),
-          },
-        );
-        if (!confirmed) return;
+        if (!room) return;
         const outcome = await edit(node.classId, {
           kind: 'deleteRoom',
           roomId: node.roomId,
@@ -552,19 +572,7 @@ function PlanLibraryPage() {
         return;
       }
       case 'template': {
-        const template = templates.find(
-          (entry) => entry.id === node.templateId,
-        );
-        if (!template) return;
-        const confirmed = await confirmDialog(
-          t('sceneInspector.deleteTemplateMessage', { name: template.name }),
-          {
-            title: t('sceneInspector.deleteTemplateTitle'),
-            confirmLabel: t('common.delete'),
-          },
-        );
-        if (!confirmed) return;
-        if (!(await actions.deleteTemplate(template.id))) {
+        if (!(await actions.deleteTemplate(node.templateId))) {
           showToast('error', TOAST_MESSAGES.DELETE_TEMPLATE_ERROR);
           return;
         }
@@ -577,14 +585,6 @@ function PlanLibraryPage() {
         const preset = presetOf(node.presetId);
         if (!preset || preset.builtin) return;
         const name = presetLabel(preset, t);
-        const confirmed = await confirmDialog(
-          t('mix.recipes.deleteMessage', { name }),
-          {
-            title: t('mix.recipes.deleteTitle'),
-            confirmLabel: t('common.delete'),
-          },
-        );
-        if (!confirmed) return;
         if (!(await deleteMixPreset(preset.id))) {
           showToast('error', 'toast:mixPresets.saveFailed');
           return;
@@ -941,9 +941,14 @@ function PlanLibraryPage() {
                 return false;
               }
             }}
-            onDelete={() => void requestRemoval(current)}
+            onDelete={() =>
+              void (classLibrary.plans.some((plan) => plan.roomId === room.id)
+                ? requestRemoval(current)
+                : removeEntry(current))
+            }
             deleteBlockedHint={roomRemovalHint(current)}
             renameRequest={renameRequestCount}
+            deleteRequest={deleteRequestCount}
             templateRequest={requestCountFor('template')}
           />
         );
@@ -1011,8 +1016,9 @@ function PlanLibraryPage() {
                 planId: plan.id,
               });
             }}
-            onDelete={() => void requestRemoval(current)}
+            onDelete={() => void removeEntry(current)}
             renameRequest={renameRequestCount}
+            deleteRequest={deleteRequestCount}
           />
         );
       }
@@ -1023,12 +1029,14 @@ function PlanLibraryPage() {
         if (!mix || !classLibrary) return null;
         return (
           <MixPanel
+            key={mix.id}
             mix={mix}
             roomName={
               classLibrary.rooms.find((room) => room.id === mix.roomId)?.name
             }
             fits={mixFits(current)}
-            onDelete={() => void requestRemoval(current)}
+            onDelete={() => void removeEntry(current)}
+            deleteRequest={deleteRequestCount}
           />
         );
       }
@@ -1143,9 +1151,10 @@ function PlanLibraryPage() {
                 if (!ok) showToast('error', 'toast:mixPresets.saveFailed');
               });
             }}
-            onDelete={() => void requestRemoval(current)}
+            onDelete={() => void removeEntry(current)}
             onRestore={() => void restorePreset(preset)}
             renameRequest={renameRequestCount}
+            deleteRequest={deleteRequestCount}
           />
         );
       }
@@ -1167,8 +1176,9 @@ function PlanLibraryPage() {
               }
               return result.error === 'duplicate' ? 'taken' : null;
             }}
-            onDelete={() => void requestRemoval(current)}
+            onDelete={() => void removeEntry(current)}
             renameRequest={renameRequestCount}
+            deleteRequest={deleteRequestCount}
           />
         );
       }

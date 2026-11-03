@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { InfoIcon, TableIcon, XIcon } from '@phosphor-icons/react';
 
@@ -9,7 +9,6 @@ import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { useLocalizedNavigate } from '@/hooks/useLocalizedNavigate';
 import { downloadCsvTemplate } from '@/utils/csv/csvTemplateDownload';
 import { openCsvFormatHelp } from '@/utils/ui/csvFormatHelp';
-import ConfirmDialog from '@/components/ui/modals/ConfirmDialog';
 import { announce, showToast, TOAST_MESSAGES } from '@/utils/ui/toast';
 import {
   cardSurfaceClass,
@@ -54,6 +53,10 @@ import { useIsLgUp } from '@/hooks/ui/useIsLgUp';
 import { useIsPhone } from '@/hooks/ui/useLayoutMode';
 import { useCsvImportWithDialog } from '@/hooks/csv/useCsvImportWithDialog';
 import { isAnyDialogOpen } from '@/hooks/ui/useDialogLayer';
+import {
+  offerStudentUndo,
+  withdrawStudentUndoOffer,
+} from '@/hooks/student/studentUndoOffer';
 import { useDemoClass } from '@/hooks/onboarding/useDemoClass';
 import { FROM_WORKSPACE_STATE } from '@/hooks/useReturnToApp';
 
@@ -275,7 +278,6 @@ function StudentInput({
   // on a phone the sheet an opened student gets — from the status bar's
   // switch alone, since a sheet that came with every tick would cover the
   // list being ticked.
-  const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
 
   // The bulk panel needs the students themselves, not just the count: its
   // switches show whether a flag holds for all, none or only some of them.
@@ -336,9 +338,12 @@ function StudentInput({
     const ids = [...selection.selectedIds];
     removeStudents(ids);
     selection.clear();
-    setBulkDeleteOpen(false);
-    announce(t('bulkEdit.deleted', { count: ids.length }));
-  }, [selection, removeStudents, setBulkDeleteOpen, t]);
+    // No question: the undo brings them back (decision 0041).
+    offerStudentUndo(t('bulkEdit.deleted', { count: ids.length }));
+  }, [selection, removeStudents, t]);
+
+  // The class list's undo is this layer's: elsewhere the bar undoes other steps.
+  useEffect(() => () => withdrawStudentUndoOffer(), []);
 
   // The note list needs no plan: it opens on the list, and its way back leads
   // here rather than to the plan.
@@ -456,7 +461,7 @@ function StudentInput({
               <StudentBulkInspector
                 selectedStudents={selectedStudents}
                 onApply={handleBulkApply}
-                onRemove={() => setBulkDeleteOpen(true)}
+                onRemove={handleBulkDelete}
                 onClear={selection.clear}
               />
             )}
@@ -615,17 +620,6 @@ function StudentInput({
         </StatusBarPortal>
       )}
 
-      <ConfirmDialog
-        open={bulkDeleteOpen}
-        title={t('bulkEdit.deleteTitle')}
-        message={t('bulkEdit.deleteMessage', {
-          count: selection.selectedCount,
-        })}
-        confirmLabel={t('bulkEdit.deleteSelected')}
-        cancelLabel={t('common.cancel')}
-        onConfirm={handleBulkDelete}
-        onCancel={() => setBulkDeleteOpen(false)}
-      />
       {importState.nameInfo && (
         <NameColumnSelectionDialog
           open={importState.showDialog}

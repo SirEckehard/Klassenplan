@@ -196,4 +196,4 @@ export default function ClassEmptyState({
 
 /** The secondary ways in: sample class and backup import. */
 const optionClass =
-  'flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-(--border-card) bg-(--surface-card) px-4 py-2.5 text-sm font-medium transition hover:bg-(--surface-sunken) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary)';
+  'flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-(--border-card) bg-(--surface-card) px-4 py-2.5 text-sm font-medium transition hover:bg-(--surface-sunken) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring)';

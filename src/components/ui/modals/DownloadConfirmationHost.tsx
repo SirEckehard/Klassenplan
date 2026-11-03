@@ -1,14 +1,9 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DownloadSimpleIcon } from '@phosphor-icons/react';
-import Modal from './Modal';
-import {
-  cardSurfaceClass,
-  primaryButtonClass,
-  secondaryButtonClass,
-} from '@/utils/ui/designTokens';
+import ConfirmDialog from './ConfirmDialog';
 import { registerDownloadConfirmationHandler } from '@/utils/ui/downloadConfirmation';
 
 type PendingRequest = {
@@ -24,7 +19,6 @@ type PendingRequest = {
 export default function DownloadConfirmationHost() {
   const { t } = useTranslation('common');
   const [request, setRequest] = useState<PendingRequest | null>(null);
-  const confirmButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     return registerDownloadConfirmationHandler(
@@ -39,12 +33,6 @@ export default function DownloadConfirmationHost() {
     );
   }, []);
 
-  useEffect(() => {
-    if (request) {
-      confirmButtonRef.current?.focus();
-    }
-  }, [request]);
-
   const settle = (confirmed: boolean) => {
     setRequest((current) => {
       current?.resolve(confirmed);
@@ -53,37 +41,18 @@ export default function DownloadConfirmationHost() {
   };
 
   return (
-    <Modal
+    <ConfirmDialog
       open={request !== null}
-      onClose={() => settle(false)}
+      tone="primary"
+      icon={DownloadSimpleIcon}
       title={t('downloadConfirm.title')}
-      icon={<DownloadSimpleIcon size={24} aria-hidden="true" />}
-      size="sm"
-    >
-      <div
-        className={`${cardSurfaceClass} p-4 text-sm text-(--text-muted) shadow-sm`}
-      >
-        {t('downloadConfirm.message', {
-          filename: request?.filename ?? '',
-        })}
-      </div>
-      <div className="flex flex-wrap justify-end gap-2">
-        <button
-          type="button"
-          onClick={() => settle(false)}
-          className={secondaryButtonClass}
-        >
-          {t('downloadConfirm.cancel')}
-        </button>
-        <button
-          ref={confirmButtonRef}
-          type="button"
-          onClick={() => settle(true)}
-          className={primaryButtonClass}
-        >
-          {t('downloadConfirm.confirm')}
-        </button>
-      </div>
-    </Modal>
+      message={t('downloadConfirm.message', {
+        filename: request?.filename ?? '',
+      })}
+      confirmLabel={t('downloadConfirm.confirm')}
+      cancelLabel={t('downloadConfirm.cancel')}
+      onConfirm={() => settle(true)}
+      onCancel={() => settle(false)}
+    />
   );
 }

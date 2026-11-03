@@ -201,7 +201,7 @@ function StudentPhotoCropModal({
   };
 
   const iconButtonClass =
-    'flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-(--border-card) bg-(--surface-card) text-(--text-muted) transition hover:border-(--border-option-selected) hover:text-(--text-badge) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary)';
+    'flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border border-(--border-card) bg-(--surface-card) text-(--text-muted) transition hover:border-(--border-option-selected) hover:text-(--text-badge) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring)';
 
   return (
     <Modal
@@ -268,7 +268,7 @@ function StudentPhotoCropModal({
               type="button"
               onClick={onReplace}
               disabled={busy}
-              className="flex h-10 cursor-pointer items-center gap-2 rounded-full border border-(--border-card) bg-(--surface-card) px-4 text-sm font-medium text-(--text-muted) transition hover:border-(--border-option-selected) hover:text-(--text-badge) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) disabled:cursor-not-allowed disabled:opacity-60"
+              className="flex h-10 cursor-pointer items-center gap-2 rounded-full border border-(--border-card) bg-(--surface-card) px-4 text-sm font-medium text-(--text-muted) transition hover:border-(--border-option-selected) hover:text-(--text-badge) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring) disabled:cursor-not-allowed disabled:opacity-60"
             >
               <UploadSimpleIcon size={18} aria-hidden="true" />
               {t('photo.replaceImage')}

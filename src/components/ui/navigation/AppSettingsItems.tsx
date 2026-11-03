@@ -1,10 +1,13 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DeviceMobileIcon, TrashIcon } from '@phosphor-icons/react';
 import ConfirmDialog from '@/components/ui/modals/ConfirmDialog';
 import { useSeatingPlanActions } from '@/contexts/SeatingPlanContext';
+import { useSeatingRepository } from '@/hooks/useSeatingRepository';
+import { allDataFacts } from '@/components/ui/modals/confirmFacts';
+import type { ConfirmFact } from '@/components/ui/modals/ConfirmDialog';
 import { useInstallPrompt } from '@/hooks/useInstallPrompt';
 import { isRunningInstalled } from '@/utils/ui/installGuide';
 import {
@@ -107,7 +110,34 @@ export function ClearAllDataDialog({
   onClose: () => void;
 }) {
   const { t } = useTranslation('common');
-  const { clearAllData } = useSeatingPlanActions();
+  const { clearAllData, handleExportAll, loadTemplate } =
+    useSeatingPlanActions();
+  const repository = useSeatingRepository();
+  // What goes; the question comes once that has been counted.
+  const [facts, setFacts] = useState<ConfirmFact[] | null>(null);
+
+  useEffect(() => {
+    if (!open) return undefined;
+    let current = true;
+    Promise.all([repository.loadClassCollection(), loadTemplate()])
+      .then(([collection, templates]) => {
+        if (!current) return;
+        setFacts(
+          allDataFacts(
+            collection.success ? collection.data.classes : [],
+            templates.length,
+          ),
+        );
+      })
+      .catch((error: unknown) => {
+        logError('Failed to count the data', { error }, 'AppSettingsItems');
+        if (current) setFacts([]);
+      });
+    return () => {
+      current = false;
+      setFacts(null);
+    };
+  }, [loadTemplate, open, repository]);
 
   const handleConfirm = async () => {
     try {
@@ -121,9 +151,21 @@ export function ClearAllDataDialog({
 
   return (
     <ConfirmDialog
-      open={open}
+      open={open && facts !== null}
+      icon={TrashIcon}
       title={t('dialogs.clearAllData.title')}
-      message={t('dialogs.clearAllData.message')}
+      meta={t('dialogs.clearAllData.meta')}
+      facts={facts ?? []}
+      message={t('dialogs.cannotUndo')}
+      way={{
+        label: t('dialogs.backupFirst'),
+        onSelect: () => {
+          onClose();
+          handleExportAll().catch((error: unknown) => {
+            logError('Backup export failed', { error }, 'AppSettingsItems');
+          });
+        },
+      }}
       confirmLabel={t('dialogs.clearAllData.confirm')}
       cancelLabel={t('dialogs.clearAllData.cancel')}
       onConfirm={handleConfirm}

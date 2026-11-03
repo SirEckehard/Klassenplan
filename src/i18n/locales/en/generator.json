@@ -285,11 +285,10 @@
       "importHint": "Restore previously backed up classes, students, and seating plans."
     },
     "deleteDialog": {
-      "title": "Delete Class",
-      "message": "Do you want to permanently delete {{className}}? All students, seating plans and saved data for this class will be lost.",
+      "title": "Delete {{className}}?",
       "confirmLabel": "Delete Class",
       "cancelLabel": "Cancel",
-      "fallbackName": "the current class"
+      "fallbackName": "This class"
     }
   },
   "classPanel": {
@@ -341,13 +340,13 @@
       "renameNamed": "Rename “{{name}}”",
       "deleteNamed": "Delete “{{name}}”",
       "deleteTitle": "Delete preset?",
-      "deleteMessage": "“{{name}}” will be deleted. The criteria of your classes stay as they are.",
       "saved": "Preset “{{name}}” saved.",
       "kept": "Changes saved to “{{name}}”.",
       "restored": "“{{name}}” restored.",
       "summary": "{{level}}: {{names}}",
       "summaryMore": "{{level}}: {{names}} +{{count}}",
-      "adjustedSummary": "Adjusted · {{summary}}"
+      "adjustedSummary": "Adjusted · {{summary}}",
+      "deleteDetail": "The criteria of your classes stay as they are."
     },
     "enableAll": "Enable all criteria",
     "disableAll": "Disable all criteria",
@@ -672,15 +671,9 @@
     "pl": "Seats",
     "defaultClassName": "My Class",
     "newClassName": "New Class",
-    "importedClassName": "Imported Class"
-  },
-  "mixHistory": {
-    "deleteDialogTitle": "Delete Mix Result",
-    "deleteDialogMessage": "Do you really want to delete the mix result from {{time}}?"
-  },
-  "planList": {
-    "deleteDialogTitle": "Delete Seating Plan",
-    "deleteDialogMessage": "Do you really want to delete the seating plan “{{name}}”?"
+    "importedClassName": "Imported Class",
+    "cannotUndo": "This cannot be undone.",
+    "deleteNamedQuestion": "Delete “{{name}}”?"
   },
   "circleStatus": {
     "preparing": "Preparing seating circle…",
@@ -1033,8 +1026,6 @@
     "templateSaved": "Saved as a template",
     "templateName": "Template name",
     "replaceTemplate": "Replace template “{{name}}”",
-    "deleteTemplateTitle": "Delete template",
-    "deleteTemplateMessage": "Do you really want to delete the template “{{name}}”? This cannot be undone.",
     "rooms": "Rooms",
     "newRoom": "New room",
     "openRoom": "Open a room …",
@@ -1245,10 +1236,8 @@
       "delete": "Delete room",
       "deleteOpenHint": "The open room cannot be deleted. Open another one first.",
       "deleteLastHint": "A class keeps at least one room.",
-      "deleteMessage_one": "“{{name}}” and its saved plan will be deleted. This cannot be undone.",
-      "deleteMessage_other": "“{{name}}” and its {{count}} saved plans will be deleted. This cannot be undone.",
-      "deleteMessageEmpty": "Delete the room “{{name}}”?",
-      "deleted": "Room “{{name}}” deleted."
+      "deleted": "Room “{{name}}” deleted.",
+      "deleteQuestion": "Delete room?"
     },
     "plan": {
       "section": "Plan",
@@ -1266,19 +1255,22 @@
       "detectOn": "Applies to every plan of this class: a plan counts as used as soon as you present it, export it or save it under a name of its own.",
       "detectOff": "Applies to every plan of this class: only the plans you mark as used yourself count.",
       "delete": "Delete plan",
-      "otherTables": "This plan has other tables than “{{room}}”. Does it belong in a room of its own?"
+      "otherTables": "This plan has other tables than “{{room}}”. Does it belong in a room of its own?",
+      "deleteQuestion": "Delete plan?"
     },
     "mix": {
       "criteria": "Criteria",
       "random": "Mixed purely at random.",
-      "delete": "Delete mix"
+      "delete": "Delete mix",
+      "deleteQuestion": "Delete mix?"
     },
     "template": {
       "newName": "New room template",
       "section": "Template",
       "hint": "“Open as a room” at the bottom right adds this template as a new room of the open class.",
       "emptyHint": "No tables yet. Open the template as a room, place the tables and replace it there in the inspector under “Templates”.",
-      "delete": "Delete template"
+      "delete": "Delete template",
+      "deleteQuestion": "Delete template?"
     },
     "presets": "Presets",
     "presetsCount_one": "{{count}} preset",

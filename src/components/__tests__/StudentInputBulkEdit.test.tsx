@@ -662,7 +662,8 @@ describe('StudentInput bulk editing in the inspector', () => {
     });
   });
 
-  it('asks before removing the selection from the inspector', async () => {
+  // The undo brings them back, so nothing asks (decision 0041).
+  it('removes the selection from the inspector at once', async () => {
     const removeStudents = vi.fn();
     renderWithInspector({ removeStudents });
     const user = userEvent.setup();
@@ -674,11 +675,8 @@ describe('StudentInput bulk editing in the inspector', () => {
     await user.click(
       within(panel).getByRole('button', { name: /^(Löschen|Delete)$/i }),
     );
-    const dialog = screen.getByRole('dialog');
-    await user.click(
-      within(dialog).getByRole('button', { name: /^(Löschen|Delete)$/i }),
-    );
 
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     expect(removeStudents).toHaveBeenCalledExactlyOnceWith(['1', '2']);
   });
 
@@ -704,25 +702,6 @@ describe('StudentInput bulk editing in the inspector', () => {
     expect(updateStudents).toHaveBeenCalledExactlyOnceWith(['1', '4'], {
       restless: true,
     });
-  });
-
-  it('keeps the selection when Escape closes the delete dialog', async () => {
-    renderWithInspector();
-    const user = userEvent.setup();
-
-    await tick(user, 1, 2);
-    const panel = await screen.findByRole('complementary', {
-      name: /Mehrfachbearbeitung|Bulk editing/i,
-    });
-    await user.click(
-      within(panel).getByRole('button', { name: /^(Löschen|Delete)$/i }),
-    );
-    expect(screen.getByRole('dialog')).toBeInTheDocument();
-
-    await user.keyboard('{Escape}');
-
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-    expect(selectionPanel()).toBeInTheDocument();
   });
 
   // With no student open, the inspector shows the class itself.
@@ -810,7 +789,8 @@ describe('StudentInput with a single ticked student', () => {
     ).toBeInTheDocument();
   });
 
-  it('asks by name before removing the student', async () => {
+  // The undo brings the student back, so nothing asks (decision 0041).
+  it('removes the student at once', async () => {
     const removeStudents = vi.fn();
     renderWithInspector({ removeStudents });
     const user = userEvent.setup();
@@ -822,16 +802,8 @@ describe('StudentInput with a single ticked student', () => {
         name: /^(Schüler löschen|Delete student)$/i,
       }),
     );
-    const dialog = await screen.findByRole('dialog');
-    expect(dialog).toHaveTextContent(/Anna/);
-    expect(removeStudents).not.toHaveBeenCalled();
 
-    await user.click(
-      within(dialog).getByRole('button', {
-        name: /^(Schüler löschen|Delete student)$/i,
-      }),
-    );
-
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     await waitFor(() =>
       expect(removeStudents).toHaveBeenCalledExactlyOnceWith(['1']),
     );

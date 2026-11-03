@@ -12,6 +12,7 @@ import {
   withoutUnavailableWeights,
 } from '@/utils';
 import { confirmDialog } from '@/services/ui/dialogs';
+import { WarningIcon } from '@phosphor-icons/react';
 import i18n from '@/i18n';
 import { countActiveSeats } from '@/utils/math/scene';
 import { triggerScrollToTop } from '@/utils/ui/scroll';
@@ -179,9 +180,17 @@ export function useSeatingWizard(
           markClassroomSynced(classroomScene);
         } else {
           showToast('error', TOAST_MESSAGES.PLAN_SAVE_FAILED);
-          const shouldContinue = await confirmDialog(
-            i18n.t('dialogs.savePlanFailedConfirm', { ns: 'common' }),
-          );
+          const shouldContinue = await confirmDialog({
+            tone: 'neutral',
+            icon: WarningIcon,
+            title: i18n.t('dialogs.savePlanFailed.title', { ns: 'common' }),
+            confirmLabel: i18n.t('dialogs.savePlanFailed.confirm', {
+              ns: 'common',
+            }),
+            cancelLabel: i18n.t('dialogs.savePlanFailed.cancel', {
+              ns: 'common',
+            }),
+          });
           if (!shouldContinue) {
             return false;
           }

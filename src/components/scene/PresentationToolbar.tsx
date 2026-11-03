@@ -39,7 +39,7 @@ import {
  */
 
 const barBaseClass =
-  'inline-flex h-11 cursor-pointer items-center justify-center rounded-card border-0 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) focus-visible:ring-offset-2 focus-visible:ring-offset-(--present-bar-bg)';
+  'inline-flex h-11 cursor-pointer items-center justify-center rounded-card border-0 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring) focus-visible:ring-offset-2 focus-visible:ring-offset-(--present-bar-bg)';
 
 /**
  * Every button carries its word under the icon. At the board no tooltip

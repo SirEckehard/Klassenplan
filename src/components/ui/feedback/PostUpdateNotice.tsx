@@ -130,7 +130,7 @@ export default function PostUpdateNotice() {
             <button
               type="button"
               onClick={acknowledgePostUpdateNotice}
-              className="inline-flex items-center justify-center rounded-xl bg-(--button-primary-bg) px-4 py-2 text-sm font-medium text-(--button-primary-text) transition hover:bg-(--button-primary-bg-hover) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) focus-visible:ring-offset-2"
+              className="inline-flex items-center justify-center rounded-xl bg-(--button-primary-bg) px-4 py-2 text-sm font-medium text-(--button-primary-text) transition hover:bg-(--button-primary-bg-hover) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring) focus-visible:ring-offset-2"
             >
               {t('updateNotice.dismiss')}
             </button>
@@ -140,7 +140,7 @@ export default function PostUpdateNotice() {
               to={CHANGELOG_ROUTE}
               state={APP_RETURN_STATE}
               onClick={handleOpenChangelog}
-              className="inline-flex items-center gap-1 text-sm font-medium text-(--text-badge) underline decoration-(--border-card) underline-offset-4 transition hover:text-(--text-page) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) focus-visible:ring-offset-2"
+              className="inline-flex items-center gap-1 text-sm font-medium text-(--text-badge) underline decoration-(--border-card) underline-offset-4 transition hover:text-(--text-page) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring) focus-visible:ring-offset-2"
             >
               {t('updateNotice.link')}
               <ArrowRightIcon aria-hidden="true" className="h-4 w-4" />

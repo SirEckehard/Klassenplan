@@ -186,7 +186,7 @@ export default function SeatFinder() {
                   <button
                     type="button"
                     onClick={() => setSelectedId(student.id)}
-                    className="flex h-14 w-full cursor-pointer items-center px-4 text-left text-base text-(--text-page) transition hover:bg-(--surface-sunken) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) focus-visible:-outline-offset-2"
+                    className="flex h-14 w-full cursor-pointer items-center px-4 text-left text-base text-(--text-page) transition hover:bg-(--surface-sunken) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring) focus-visible:-outline-offset-2"
                   >
                     {student.name}
                   </button>

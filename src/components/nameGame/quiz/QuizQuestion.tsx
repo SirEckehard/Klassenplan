@@ -29,10 +29,10 @@ function optionStateClass(
     return 'border-(--border-card) bg-(--surface-card) hover:border-(--border-option-selected)';
   }
   if (optionId === targetId) {
-    return 'border-(--button-success-bg) bg-(--surface-sunken) ring-2 ring-(--focus-ring-success)';
+    return 'border-(--button-success-bg) bg-(--surface-sunken) ring-2 ring-(--status-ok)';
   }
   if (optionId === picked) {
-    return 'border-(--button-danger-bg) bg-(--button-icon-danger-bg) ring-2 ring-(--focus-ring-danger)';
+    return 'border-(--button-danger-bg) bg-(--button-icon-danger-bg) ring-2 ring-(--status-alert)';
   }
   return 'border-(--border-card) bg-(--surface-card) opacity-50';
 }
@@ -72,7 +72,7 @@ export default function QuizQuestion({
                 type="button"
                 disabled={picked !== null}
                 onClick={() => onPick(optionId)}
-                className={`cursor-pointer rounded-xl border-2 px-4 py-3 text-lg font-semibold text-(--text-page) transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) motion-reduce:transition-none disabled:cursor-not-allowed ${optionStateClass(optionId, picked, question.targetId)}`}
+                className={`cursor-pointer rounded-xl border-2 px-4 py-3 text-lg font-semibold text-(--text-page) transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring) motion-reduce:transition-none disabled:cursor-not-allowed ${optionStateClass(optionId, picked, question.targetId)}`}
               >
                 {option.name}
               </button>
@@ -104,7 +104,7 @@ export default function QuizQuestion({
               aria-label={t('nameGame.quiz.photoOption', {
                 letter: OPTION_LETTERS[index] ?? String(index + 1),
               })}
-              className={`aspect-square cursor-pointer overflow-hidden rounded-xl border-2 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) motion-reduce:transition-none disabled:cursor-not-allowed ${optionStateClass(optionId, picked, question.targetId)}`}
+              className={`aspect-square cursor-pointer overflow-hidden rounded-xl border-2 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring) motion-reduce:transition-none disabled:cursor-not-allowed ${optionStateClass(optionId, picked, question.targetId)}`}
             >
               <PhotoCard
                 student={option}

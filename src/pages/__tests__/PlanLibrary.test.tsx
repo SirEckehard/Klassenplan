@@ -26,6 +26,7 @@ import {
   createMockMixResult,
   createMockSavedPlan,
   createMockStudent,
+  confirmInlineQuestion,
 } from '@/__tests__/utils';
 import {
   fullRecipeWeights,
@@ -322,6 +323,8 @@ describe('PlanLibrary', () => {
     await user.click(
       screen.getByRole('button', { name: /Plan löschen|Delete plan/ }),
     );
+    expect(mocks.edit).not.toHaveBeenCalled();
+    await confirmInlineQuestion(/Plan löschen|Delete plan/);
 
     await waitFor(() =>
       expect(mocks.edit).toHaveBeenCalledWith('7b', {
@@ -329,7 +332,31 @@ describe('PlanLibrary', () => {
         planId: 'sept',
       }),
     );
-    expect(mocks.confirmDialog).toHaveBeenCalled();
+    // A plan loses only itself: its foot asks, no window.
+    expect(mocks.confirmDialog).not.toHaveBeenCalled();
+  });
+
+  it('asks at the foot on Entf, with the focus on the cancel', async () => {
+    const user = userEvent.setup();
+    renderPage();
+
+    const row = await screen.findByRole('option', { name: /^September/ });
+    await user.click(row);
+    row.focus();
+    await user.keyboard('{Delete}');
+
+    const question = await screen.findByRole('alertdialog', {
+      name: /Plan löschen|Delete plan/,
+    });
+    expect(
+      within(question).getByRole('button', { name: /^(Abbrechen|Cancel)$/ }),
+    ).toHaveFocus();
+
+    // Escape takes it back, and the focus returns to the row.
+    await user.keyboard('{Escape}');
+    expect(question).not.toBeInTheDocument();
+    expect(mocks.edit).not.toHaveBeenCalled();
+    await waitFor(() => expect(row).toHaveFocus());
   });
 
   describe('with the inspector folded away', () => {
@@ -469,6 +496,7 @@ describe('PlanLibrary', () => {
     await user.click(
       screen.getByRole('menuitem', { name: /^(Löschen|Delete)$/ }),
     );
+    await confirmInlineQuestion(/Plan löschen|Delete plan/);
     await waitFor(() =>
       expect(mocks.edit).toHaveBeenCalledWith('7b', {
         kind: 'deletePlan',
@@ -706,6 +734,7 @@ describe('PlanLibrary when a change is not made', () => {
     await user.click(
       screen.getByRole('button', { name: /Plan löschen|Delete plan/ }),
     );
+    await confirmInlineQuestion(/Plan löschen|Delete plan/);
 
     await waitFor(() =>
       expect(toasts.map((toast) => toast.type)).toEqual(['error']),
@@ -732,6 +761,7 @@ describe('PlanLibrary when a change is not made', () => {
     await user.click(
       screen.getByRole('button', { name: /Vorlage löschen|Delete template/ }),
     );
+    await confirmInlineQuestion(/Vorlage löschen|Delete template/);
 
     await waitFor(() =>
       expect(mocks.actions.deleteTemplate).toHaveBeenCalledWith(4),

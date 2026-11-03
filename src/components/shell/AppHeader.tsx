@@ -84,7 +84,7 @@ export default function AppHeader({
       // Both halves of the lockup are decorative, so without a label the link
       // has no accessible name at all.
       aria-label={t('pages:header.homeLink')}
-      className="kp-lockup focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) focus-visible:ring-offset-2"
+      className="kp-lockup focus-visible:ring-2 focus-visible:ring-(--focus-ring) focus-visible:ring-offset-2"
       {...brandHoverHandlers}
     >
       <KpLockup size={inColumn ? 'md' : 'sm'} markOnly={brand === 'mark'} />

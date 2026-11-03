@@ -99,7 +99,7 @@ function SeatingStatisticsBadge({
         const isPersistent = isActive && activeHighlightMode === 'persistent';
 
         const stateClass = isPersistent
-          ? 'bg-(--surface-option-selected) ring-1 ring-(--focus-ring-primary)'
+          ? 'bg-(--surface-option-selected) ring-1 ring-(--border-option-selected)'
           : isActive
             ? 'bg-(--surface-option-selected)'
             : isFullscreen
@@ -138,7 +138,7 @@ function SeatingStatisticsBadge({
           <button
             key={criterion.key}
             type="button"
-            className={`flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left transition cursor-pointer focus:outline-none focus-visible:ring-1 focus-visible:ring-(--focus-ring-primary) ${stateClass}`}
+            className={`flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left transition cursor-pointer focus:outline-none focus-visible:ring-1 focus-visible:ring-(--focus-ring) ${stateClass}`}
             onMouseEnter={() => onHighlightHover?.(criterion)}
             onMouseLeave={onHighlightLeave}
             onFocus={() => onHighlightHover?.(criterion)}

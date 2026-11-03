@@ -74,7 +74,7 @@ const statusBarPressedClass =
 export const statusBarHistoryGroupClass =
   'flex h-9 items-center divide-x divide-(--button-secondary-border) rounded-full border border-(--button-secondary-border) bg-(--button-secondary-bg) shadow-(--button-secondary-shadow)';
 export const statusBarHistoryButtonClass =
-  'relative inline-flex h-full w-9 cursor-pointer items-center justify-center first:rounded-l-full last:rounded-r-full sm:w-11 pointer-coarse:after:absolute pointer-coarse:after:inset-x-0 pointer-coarse:after:-inset-y-1.25 pointer-coarse:first:after:-left-1.25 pointer-coarse:last:after:-right-1.25 text-(--button-secondary-text) transition hover:not-disabled:bg-(--button-secondary-bg-hover) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-(--focus-ring-primary) disabled:cursor-not-allowed disabled:text-(--text-muted) disabled:opacity-50';
+  'relative inline-flex h-full w-9 cursor-pointer items-center justify-center first:rounded-l-full last:rounded-r-full sm:w-11 pointer-coarse:after:absolute pointer-coarse:after:inset-x-0 pointer-coarse:after:-inset-y-1.25 pointer-coarse:first:after:-left-1.25 pointer-coarse:last:after:-right-1.25 text-(--button-secondary-text) transition hover:not-disabled:bg-(--button-secondary-bg-hover) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-(--focus-ring) disabled:cursor-not-allowed disabled:text-(--text-muted) disabled:opacity-50';
 
 /** The way back to the previous layer, beside the way on. */
 export const statusBarBackButtonClass = `${secondaryButtonClass} ${touchHitAreaClass} h-9 shrink-0 gap-2 px-3 whitespace-nowrap max-sm:w-9 max-sm:px-0`;

@@ -28,14 +28,24 @@ function ReturnToAppLink() {
 }
 
 const clearAllData = vi.hoisted(() => vi.fn(async () => {}));
+const loadTemplate = vi.hoisted(() => vi.fn(async () => []));
 
 vi.mock('@/contexts/SeatingPlanContext', () => ({
   useSeatingPlanActions: () => ({
     clearAllData,
+    loadTemplate,
     handleExportAll: vi.fn(),
     triggerImport: vi.fn(),
   }),
 }));
+
+vi.mock('@/hooks/useSeatingRepository', () => {
+  const repository = {
+    loadClassCollection: () =>
+      Promise.resolve({ success: true, data: { classes: [] } }),
+  };
+  return { useSeatingRepository: () => repository };
+});
 
 const installPromptMock = vi.hoisted(() => ({
   isInstallable: false,
@@ -185,14 +195,16 @@ describe('AppSettingsMenu', () => {
       screen.getByRole('button', { name: /alle daten löschen|clear all/i }),
     );
 
-    const dialog = await screen.findByRole('dialog', {
-      name: /alle daten löschen|clear all/i,
+    const dialog = await screen.findByRole('alertdialog', {
+      name: /alle daten löschen|delete all data/i,
     });
     expect(
       screen.queryByRole('dialog', { name: /einstellungen|settings/i }),
     ).not.toBeInTheDocument();
     await user.click(
-      within(dialog).getByRole('button', { name: /^(löschen|delete)$/i }),
+      within(dialog).getByRole('button', {
+        name: /^(alle daten löschen|delete all data)$/i,
+      }),
     );
     expect(clearAllData).toHaveBeenCalledTimes(1);
   });

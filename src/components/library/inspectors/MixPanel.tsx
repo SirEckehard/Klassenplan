@@ -37,12 +37,14 @@ export default function MixPanel({
   roomName,
   fits,
   onDelete,
+  deleteRequest,
 }: {
   mix: MixResult;
   roomName?: string;
   /** Whether it still fits the tables of the room it was made in. */
   fits: boolean;
   onDelete: () => void;
+  deleteRequest?: number;
 }) {
   const { t } = useTranslation('generator');
   // Only what carried weight, in the criteria panel's order and families.
@@ -127,6 +129,12 @@ export default function MixPanel({
       <InspectorDeleteFooter
         label={t('library.mix.delete')}
         onDelete={onDelete}
+        question={{
+          title: t('library.mix.deleteQuestion'),
+          detail: t('common.cannotUndo'),
+          confirmLabel: t('common.delete'),
+        }}
+        askRequest={deleteRequest}
       />
     </>
   );

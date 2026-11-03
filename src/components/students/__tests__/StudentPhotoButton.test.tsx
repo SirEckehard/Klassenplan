@@ -15,12 +15,10 @@ const {
   getStudentPhotoMock,
   loadImageBitmapFromBlobMock,
   schedulePhotoDeletionMock,
-  confirmDialogMock,
 } = vi.hoisted(() => ({
   getStudentPhotoMock: vi.fn(),
   loadImageBitmapFromBlobMock: vi.fn(),
   schedulePhotoDeletionMock: vi.fn(),
-  confirmDialogMock: vi.fn(),
 }));
 
 vi.mock('@/hooks/student/useStudentPhoto', () => ({
@@ -34,10 +32,6 @@ vi.mock('@/hooks/student/useStudentPhoto', () => ({
 
 vi.mock('@/hooks/student/studentPhotoTrash', () => ({
   schedulePhotoDeletion: schedulePhotoDeletionMock,
-}));
-
-vi.mock('@/services/ui/dialogs', () => ({
-  confirmDialog: confirmDialogMock,
 }));
 
 vi.mock('@/utils/image/processStudentPhoto', async (importOriginal) => ({
@@ -121,8 +115,8 @@ test('falls back to the file picker when the stored photo is missing', async () 
   expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
 });
 
+// The undo brings it back, so nothing asks (decision 0041).
 test('removing a photo only schedules the deletion', async () => {
-  confirmDialogMock.mockResolvedValue(true);
   const updateStudent = vi.fn();
   renderButton(true, updateStudent);
 
@@ -134,16 +128,4 @@ test('removing a photo only schedules the deletion', async () => {
   expect(updateStudent).toHaveBeenCalledWith(expect.any(String), {
     hasPhoto: false,
   });
-});
-
-test('keeps the photo when the removal is cancelled', async () => {
-  confirmDialogMock.mockResolvedValue(false);
-  const updateStudent = vi.fn();
-  renderButton(true, updateStudent);
-
-  fireEvent.click(getButton(/Foto löschen|Delete photo/i));
-
-  await waitFor(() => expect(confirmDialogMock).toHaveBeenCalled());
-  expect(schedulePhotoDeletionMock).not.toHaveBeenCalled();
-  expect(updateStudent).not.toHaveBeenCalled();
 });

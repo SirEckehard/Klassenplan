@@ -141,7 +141,7 @@ export default function App() {
     <div className="flex min-h-dvh flex-col">
       <a
         href="#main"
-        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-(--button-primary-bg) focus:px-4 focus:py-2 focus:text-(--button-primary-text) focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-(--focus-ring-primary)"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-(--button-primary-bg) focus:px-4 focus:py-2 focus:text-(--button-primary-text) focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-(--focus-ring)"
       >
         {t('skipToContent')}
       </a>

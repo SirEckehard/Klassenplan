@@ -384,7 +384,10 @@ describe('useSeatingWizard', () => {
         { autoSave: false },
       );
       expect(confirmDialog).toHaveBeenCalledWith(
-        i18n.t('dialogs.savePlanFailedConfirm', { ns: 'common' }),
+        expect.objectContaining({
+          tone: 'neutral',
+          title: i18n.t('dialogs.savePlanFailed.title', { ns: 'common' }),
+        }),
       );
       expect(result.current.step).toBe(2);
       expect(markClassroomSyncedMock).not.toHaveBeenCalled();

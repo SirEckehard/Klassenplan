@@ -3,8 +3,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Student } from '@/types';
-import { announce } from '@/utils';
-import { confirmDialog } from '@/services/ui/dialogs';
+import { offerStudentUndo } from '@/hooks/student/studentUndoOffer';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { isAnyDialogOpen } from '@/hooks/ui/useDialogLayer';
 import StudentInspector from './StudentInspector';
@@ -117,23 +116,12 @@ export default function StudentInspectorPanel({
   // The list rows gave up their delete button, so this is the only way a
   // single student leaves the class; several at once go through the bulk
   // panel.
-  const handleRemove = React.useCallback(async () => {
+  const handleRemove = React.useCallback(() => {
     const name = student.name.trim();
-    const label = name
-      ? t('common:quoted', { text: name })
-      : t('studentInput.thisStudent');
-    const confirmed = await confirmDialog(
-      t('studentInput.removeStudentMessage', { studentName: label }),
-      {
-        title: t('studentInput.removeStudentTitle'),
-        confirmLabel: t('studentList.delete'),
-      },
-    );
-    if (!confirmed) return;
     removeStudent(student.id);
     onClose();
-    // Its row is gone, and the status bar's undo brings it back.
-    announce(
+    // No question: the undo brings the student back (decision 0041).
+    offerStudentUndo(
       t('studentInput.studentRemoved', {
         studentName: name || t('studentList.newStudent'),
       }),

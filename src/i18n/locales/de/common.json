@@ -39,7 +39,8 @@
     "cancel": "Abbrechen"
   },
   "buttons": {
-    "cancel": "Abbrechen"
+    "cancel": "Abbrechen",
+    "undo": "Rückgängig"
   },
   "quoted": "„{{text}}“",
   "gender": {
@@ -104,13 +105,32 @@
     "clearAllData": "Alle Daten löschen"
   },
   "dialogs": {
-    "confirmTitle": "Bestätigung",
-    "savePlanFailedConfirm": "Sitzplan konnte nicht gespeichert werden. Trotzdem zurückkehren?",
     "clearAllData": {
-      "title": "Alle Daten löschen",
-      "message": "Möchtest du wirklich alle Daten (Klassenliste, Vorlagen etc.) löschen?",
-      "confirm": "Löschen",
-      "cancel": "Abbrechen"
+      "title": "Alle Daten löschen?",
+      "confirm": "Alle Daten löschen",
+      "cancel": "Abbrechen",
+      "meta": "Alles in diesem Browser"
+    },
+    "cannotUndo": "Das lässt sich nicht rückgängig machen.",
+    "backupFirst": "Backup sichern",
+    "savePlanFailed": {
+      "title": "Sitzplan nicht gespeichert. Trotzdem wechseln?",
+      "confirm": "Trotzdem wechseln",
+      "cancel": "Hierbleiben"
+    },
+    "facts": {
+      "classes_one": "Klasse",
+      "classes_other": "Klassen",
+      "students_one": "Schüler",
+      "students_other": "Schüler",
+      "rooms_one": "Raum",
+      "rooms_other": "Räume",
+      "plans_one": "Sitzplan",
+      "plans_other": "Sitzpläne",
+      "mixes_one": "Mischergebnis",
+      "mixes_other": "Mischergebnisse",
+      "templates_one": "Vorlage",
+      "templates_other": "Vorlagen"
     }
   },
   "backupPassword": {

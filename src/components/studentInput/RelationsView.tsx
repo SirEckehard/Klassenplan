@@ -238,4 +238,4 @@ export default function RelationsView({ students }: { students: Student[] }) {
 
 /** A face and the name under it, one button that opens the student. */
 const personButtonClass =
-  'flex min-w-0 flex-1 cursor-pointer flex-col items-center gap-1.5 rounded-lg px-1 py-1.5 text-center text-(--text-page) transition hover:bg-(--surface-sunken) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary)';
+  'flex min-w-0 flex-1 cursor-pointer flex-col items-center gap-1.5 rounded-lg px-1 py-1.5 text-center text-(--text-page) transition hover:bg-(--surface-sunken) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring)';

@@ -285,11 +285,10 @@
       "importHint": "Stelle zuvor gesicherte Klassen, Schüler und Sitzpläne wieder her."
     },
     "deleteDialog": {
-      "title": "Klasse löschen",
-      "message": "Soll {{className}} dauerhaft gelöscht werden? Alle Schüler, Sitzpläne und gespeicherten Daten dieser Klasse gehen verloren.",
+      "title": "{{className}} löschen?",
       "confirmLabel": "Klasse löschen",
       "cancelLabel": "Abbrechen",
-      "fallbackName": "die aktuelle Klasse"
+      "fallbackName": "Diese Klasse"
     }
   },
   "classPanel": {
@@ -341,13 +340,13 @@
       "renameNamed": "„{{name}}“ umbenennen",
       "deleteNamed": "„{{name}}“ löschen",
       "deleteTitle": "Voreinstellung löschen?",
-      "deleteMessage": "„{{name}}“ wird gelöscht. Die Kriterien deiner Klassen bleiben, wie sie sind.",
       "saved": "Voreinstellung „{{name}}“ gespeichert.",
       "kept": "Änderungen in „{{name}}“ übernommen.",
       "restored": "„{{name}}“ wiederhergestellt.",
       "summary": "{{level}}: {{names}}",
       "summaryMore": "{{level}}: {{names}} +{{count}}",
-      "adjustedSummary": "Angepasst · {{summary}}"
+      "adjustedSummary": "Angepasst · {{summary}}",
+      "deleteDetail": "Die Kriterien deiner Klassen bleiben, wie sie sind."
     },
     "enableAll": "Alle Kriterien aktivieren",
     "disableAll": "Alle Kriterien deaktivieren",
@@ -672,15 +671,9 @@
     "pl": "Pl.",
     "defaultClassName": "Meine Klasse",
     "newClassName": "Neue Klasse",
-    "importedClassName": "Importierte Klasse"
-  },
-  "mixHistory": {
-    "deleteDialogTitle": "Mischergebnis löschen",
-    "deleteDialogMessage": "Möchtest du das Mischergebnis vom {{time}} wirklich löschen?"
-  },
-  "planList": {
-    "deleteDialogTitle": "Sitzplan löschen",
-    "deleteDialogMessage": "Möchtest du den Sitzplan „{{name}}“ wirklich löschen?"
+    "importedClassName": "Importierte Klasse",
+    "cannotUndo": "Das lässt sich nicht rückgängig machen.",
+    "deleteNamedQuestion": "„{{name}}“ löschen?"
   },
   "circleStatus": {
     "preparing": "Sitzkreis wird vorbereitet…",
@@ -1033,8 +1026,6 @@
     "templateSaved": "Als Vorlage gespeichert",
     "templateName": "Name der Vorlage",
     "replaceTemplate": "Vorlage „{{name}}“ ersetzen",
-    "deleteTemplateTitle": "Vorlage löschen",
-    "deleteTemplateMessage": "Möchtest du die Vorlage „{{name}}“ wirklich löschen? Das lässt sich nicht rückgängig machen.",
     "rooms": "Räume",
     "newRoom": "Neuer Raum",
     "openRoom": "Raum öffnen …",
@@ -1245,10 +1236,8 @@
       "delete": "Raum löschen",
       "deleteOpenHint": "Den offenen Raum kannst du nicht löschen. Öffne zuerst einen anderen.",
       "deleteLastHint": "Eine Klasse behält mindestens einen Raum.",
-      "deleteMessage_one": "„{{name}}“ und sein gespeicherter Plan werden gelöscht. Das lässt sich nicht rückgängig machen.",
-      "deleteMessage_other": "„{{name}}“ und seine {{count}} gespeicherten Pläne werden gelöscht. Das lässt sich nicht rückgängig machen.",
-      "deleteMessageEmpty": "Soll der Raum „{{name}}“ gelöscht werden?",
-      "deleted": "Raum „{{name}}“ gelöscht."
+      "deleted": "Raum „{{name}}“ gelöscht.",
+      "deleteQuestion": "Raum löschen?"
     },
     "plan": {
       "section": "Plan",
@@ -1266,19 +1255,22 @@
       "detectOn": "Gilt für alle Pläne dieser Klasse: Ein Plan zählt als genutzt, sobald du ihn präsentierst, exportierst oder unter eigenem Namen speicherst.",
       "detectOff": "Gilt für alle Pläne dieser Klasse: Es zählen nur Pläne, die du selbst als genutzt markierst.",
       "delete": "Plan löschen",
-      "otherTables": "Dieser Plan hat andere Tische als „{{room}}“. Gehört er in einen eigenen Raum?"
+      "otherTables": "Dieser Plan hat andere Tische als „{{room}}“. Gehört er in einen eigenen Raum?",
+      "deleteQuestion": "Plan löschen?"
     },
     "mix": {
       "criteria": "Kriterien",
       "random": "Rein zufällig gemischt.",
-      "delete": "Mischung löschen"
+      "delete": "Mischung löschen",
+      "deleteQuestion": "Mischung löschen?"
     },
     "template": {
       "newName": "Neue Raumvorlage",
       "section": "Vorlage",
       "hint": "„Als Raum öffnen“ unten rechts legt diese Vorlage als neuen Raum der offenen Klasse an.",
       "emptyHint": "Noch ohne Tische. Öffne die Vorlage als Raum, stelle die Tische auf und ersetze sie dort im Inspektor unter „Vorlagen“.",
-      "delete": "Vorlage löschen"
+      "delete": "Vorlage löschen",
+      "deleteQuestion": "Vorlage löschen?"
     },
     "presets": "Voreinstellungen",
     "presetsCount_one": "{{count}} Voreinstellung",

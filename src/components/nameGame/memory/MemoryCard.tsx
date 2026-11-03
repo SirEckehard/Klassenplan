@@ -56,7 +56,7 @@ export default function MemoryCard({
       disabled={disabled || matched || faceUp}
       aria-label={label}
       aria-pressed={faceUp}
-      className={`aspect-square cursor-pointer overflow-hidden rounded-xl border-2 bg-(--surface-card) transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) motion-reduce:transition-none disabled:cursor-not-allowed ${surface}`}
+      className={`aspect-square cursor-pointer overflow-hidden rounded-xl border-2 bg-(--surface-card) transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring) motion-reduce:transition-none disabled:cursor-not-allowed ${surface}`}
     >
       {faceUp ? (
         card.face === 'photo' ? (

@@ -121,7 +121,7 @@ export default function RedesignWelcome({
             to={CHANGELOG_ROUTE}
             state={APP_RETURN_STATE}
             onClick={onDone}
-            className="inline-flex items-center gap-1 rounded text-sm font-medium text-(--text-muted) underline-offset-4 hover:text-(--text-page) hover:underline focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) focus-visible:outline-none"
+            className="inline-flex items-center gap-1 rounded text-sm font-medium text-(--text-muted) underline-offset-4 hover:text-(--text-page) hover:underline focus-visible:ring-2 focus-visible:ring-(--focus-ring) focus-visible:outline-none"
           >
             {t('redesign.changelog')}
             <ArrowRightIcon className="h-4 w-4" aria-hidden="true" />

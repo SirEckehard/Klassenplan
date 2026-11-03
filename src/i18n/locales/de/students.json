@@ -3,8 +3,6 @@
     "add": "Foto hinzufügen",
     "change": "Foto ändern",
     "remove": "Foto löschen",
-    "removeConfirm": "Dieses Foto wirklich löschen?",
-    "removeConfirmNamed": "Foto von {{name}} wirklich löschen?",
     "privacyHint": "Fotos werden ausschließlich lokal auf diesem Gerät gespeichert und nie übertragen.",
     "cropTitle": "Foto zuschneiden",
     "cropSubtitle": "Ziehen zum Verschieben, Zoomen und Drehen – dann übernehmen.",
@@ -21,7 +19,9 @@
       "dontShowAgain": "Verstanden – diesen Hinweis nicht mehr anzeigen",
       "confirm": "Fortfahren",
       "cancel": "Abbrechen"
-    }
+    },
+    "removed": "Foto gelöscht.",
+    "removedNamed": "Foto von {{name}} gelöscht."
   },
   "classManagement": {
     "activeClass": "Aktive Klasse",
@@ -234,9 +234,6 @@
     "emptyClassTitle": "{{className}} ist noch leer.",
     "emptyClassHint": "Lege Schüler an, indem du Platzhalter anlegst, sie einzeln hinzufügst oder eine bestehende CSV-Datei importierst. Alle Eingaben gelten nur für diese Klasse.",
     "emptyClassImportHint": "Hast du schon eine Liste aus deinem Schulverwaltungsprogramm – etwa WebUntis, Schulmanager oder SchILD? Die kannst du meist direkt hochladen: Klassenplan erkennt die üblichen Spaltennamen und Umlaute von selbst, umbenennen musst du nichts.",
-    "removeStudentTitle": "Schüler löschen",
-    "removeStudentMessage": "Möchtest du {{studentName}} wirklich löschen? Du kannst das mit Strg/⌘+Z rückgängig machen.",
-    "thisStudent": "diesen Schüler",
     "studentRemoved": "{{studentName}} wurde gelöscht.",
     "yourClass": "deine Klasse",
     "placeholdersCreated_one": "1 Platzhalter angelegt – tippe den Namen ein.",
@@ -293,9 +290,6 @@
     "clearSelection": "Auswahl aufheben",
     "applied_one": "{{count}} Schüler aktualisiert.",
     "applied_other": "{{count}} Schüler aktualisiert.",
-    "deleteTitle": "Ausgewählte Schüler löschen",
-    "deleteMessage_one": "Möchtest du {{count}} ausgewählten Schüler wirklich löschen? Du kannst das mit Strg/⌘+Z rückgängig machen.",
-    "deleteMessage_other": "Möchtest du {{count}} ausgewählte Schüler wirklich löschen? Du kannst das mit Strg/⌘+Z rückgängig machen.",
     "deleted_one": "{{count}} Schüler gelöscht.",
     "deleted_other": "{{count}} Schüler gelöscht."
   },

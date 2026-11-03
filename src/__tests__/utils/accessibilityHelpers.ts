@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import '@testing-library/jest-dom/vitest';
-import { screen } from '@testing-library/react';
+import { fireEvent, screen, waitFor, within } from '@testing-library/react';
+import { expect } from 'vitest';
 
 /**
  * Accessibility-focused test helpers for robust component testing
@@ -38,4 +39,16 @@ export function getDialog(title?: string | RegExp) {
     return screen.getByRole('dialog', { name: title });
   }
   return screen.getByRole('dialog');
+}
+
+/**
+ * Answers a question at its button with yes, once it takes a press: its confirm
+ * ignores the second click of the double click that asked (`InlineQuestion`).
+ */
+export async function confirmInlineQuestion(name: RegExp): Promise<void> {
+  const question = await screen.findByRole('alertdialog', { name });
+  const buttons = within(question).getAllByRole('button');
+  const confirm = buttons[buttons.length - 1];
+  await waitFor(() => expect(confirm).not.toHaveAttribute('aria-disabled'));
+  fireEvent.click(confirm);
 }

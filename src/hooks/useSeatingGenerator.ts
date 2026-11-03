@@ -27,6 +27,7 @@ import {
 import { usePlanUsageTracking } from './plan/usePlanUsageTracking';
 import { usePlanUsageRecords } from './plan/usePlanUsageRecords';
 import { useStudentHistory } from './student/useStudentHistory';
+import { useStudentUndoOfferHost } from './student/studentUndoOffer';
 import type {
   ClassRecord,
   ClassroomScene as ClassroomSceneT,
@@ -260,6 +261,7 @@ export function useSeatingGenerator() {
     getStudents,
     applySnapshot: applyStudentSnapshot,
   });
+  useStudentUndoOfferHost(students, getStudents, undoStudents);
 
   // Every write to the class list runs as one undo step. The history drops the
   // step again if the write turned out to change nothing.

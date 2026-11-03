@@ -24,6 +24,19 @@ vi.mock('@/contexts/seatingPlan/ClassManagementContext', () => ({
   }),
 }));
 vi.mock('@/components/shell/Inspector', () => ({ default: () => null }));
+vi.mock('@/contexts/SeatingPlanContext', () => ({
+  useSeatingPlanActions: () => ({ handleExportAll: vi.fn() }),
+}));
+vi.mock('@/hooks/useSeatingRepository', () => {
+  const repository = {
+    loadClassRecord: () =>
+      Promise.resolve({
+        success: true,
+        data: { students: [], rooms: [], seatingHistory: [], mixHistory: [] },
+      }),
+  };
+  return { useSeatingRepository: () => repository };
+});
 
 function Page() {
   const { requestDelete } = useClassDialogs();
@@ -48,8 +61,8 @@ describe('ShellProviders', () => {
       screen.getByRole('button', { name: 'Klasse löschen' }),
     );
 
-    expect(await screen.findByRole('dialog')).toBeInTheDocument();
+    expect(await screen.findByRole('alertdialog')).toBeInTheDocument();
     // One set of dialogs, not one per provider.
-    expect(screen.getAllByRole('dialog')).toHaveLength(1);
+    expect(screen.getAllByRole('alertdialog')).toHaveLength(1);
   });
 });

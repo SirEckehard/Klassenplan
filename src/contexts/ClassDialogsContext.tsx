@@ -3,7 +3,13 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import ConfirmDialog from '@/components/ui/modals/ConfirmDialog';
+import type { ConfirmFact } from '@/components/ui/modals/ConfirmDialog';
+import { classFacts } from '@/components/ui/modals/confirmFacts';
+import { ENTITY_ICONS } from '@/components/shell/entityIcons';
 import { useClassManagementContext } from '@/contexts/seatingPlan/ClassManagementContext';
+import { useSeatingPlanActions } from '@/contexts/SeatingPlanContext';
+import { useSeatingRepository } from '@/hooks/useSeatingRepository';
+import { logError } from '@/utils';
 
 /**
  * Creating and deleting a class, in one place.
@@ -42,7 +48,14 @@ export function ClassDialogsProvider({
   const { classSummaries, activeClass, createClass, deleteClass } =
     useClassManagementContext();
 
+  const { handleExportAll } = useSeatingPlanActions();
+  const repository = useSeatingRepository();
+
   const [deleteTarget, setDeleteTarget] = React.useState<string | null>(null);
+  // What goes with it; the question comes once that has been counted.
+  const [deleteFacts, setDeleteFacts] = React.useState<ConfirmFact[] | null>(
+    null,
+  );
   const [isBusy, setIsBusy] = React.useState(false);
 
   const run = React.useCallback(async <T,>(handler: () => Promise<T>) => {
@@ -58,6 +71,23 @@ export function ClassDialogsProvider({
     (name: string, options?: { activate?: boolean }) =>
       run(() => createClass({ name }, { activate: options?.activate ?? true })),
     [createClass, run],
+  );
+
+  const requestDelete = React.useCallback(
+    (classId: string) => {
+      setDeleteFacts(null);
+      setDeleteTarget(classId);
+      repository
+        .loadClassRecord(classId)
+        .then((result) => {
+          setDeleteFacts(result.success ? classFacts(result.data) : []);
+        })
+        .catch((error: unknown) => {
+          logError('Failed to count a class', { error }, 'ClassDialogs');
+          setDeleteFacts([]);
+        });
+    },
+    [repository],
   );
 
   const handleDeleteConfirmed = React.useCallback(async () => {
@@ -82,21 +112,33 @@ export function ClassDialogsProvider({
   const value = React.useMemo(
     () => ({
       create,
-      requestDelete: setDeleteTarget,
+      requestDelete,
       isBusy,
     }),
-    [create, isBusy],
+    [create, requestDelete, isBusy],
   );
 
   return (
     <ClassDialogsContext.Provider value={value}>
       {children}
       <ConfirmDialog
-        open={deleteTarget !== null}
-        title={t('classActions.deleteDialog.title')}
-        message={t('classActions.deleteDialog.message', {
+        open={deleteTarget !== null && deleteFacts !== null}
+        icon={ENTITY_ICONS.class}
+        title={t('classActions.deleteDialog.title', {
           className: deleteLabel,
         })}
+        meta={t('shell.layers.class')}
+        facts={deleteFacts ?? []}
+        message={t('common.cannotUndo')}
+        way={{
+          label: t('common:dialogs.backupFirst'),
+          onSelect: () => {
+            setDeleteTarget(null);
+            handleExportAll().catch((error: unknown) => {
+              logError('Backup export failed', { error }, 'ClassDialogs');
+            });
+          },
+        }}
         confirmLabel={t('classActions.deleteDialog.confirmLabel')}
         cancelLabel={t('classActions.deleteDialog.cancelLabel')}
         onConfirm={handleDeleteConfirmed}

@@ -21,7 +21,7 @@ export default function ModeSelect({
   const { t } = useTranslation('pages');
 
   const modeButtonClass =
-    'flex h-full w-full cursor-pointer items-start gap-3 rounded-lg border border-(--border-card) bg-(--surface-card) p-4 text-left transition hover:border-(--border-option-hover) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) motion-reduce:transition-none';
+    'flex h-full w-full cursor-pointer items-start gap-3 rounded-lg border border-(--border-card) bg-(--surface-card) p-4 text-left transition hover:border-(--border-option-hover) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring) motion-reduce:transition-none';
 
   return (
     <div className="mx-auto flex min-h-full max-w-2xl flex-col justify-center gap-4">

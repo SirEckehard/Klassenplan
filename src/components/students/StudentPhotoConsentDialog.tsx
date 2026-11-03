@@ -8,11 +8,7 @@ import {
   UsersThreeIcon,
 } from '@phosphor-icons/react';
 import Modal from '@/components/ui/modals/Modal';
-import {
-  cardSurfaceClass,
-  primaryButtonClass,
-  secondaryButtonClass,
-} from '@/utils';
+import { primaryButtonClass, secondaryButtonClass } from '@/utils';
 
 type Props = {
   open: boolean;
@@ -64,9 +60,7 @@ export default function StudentPhotoConsentDialog({
       icon={<CameraIcon size={24} aria-hidden="true" />}
       size="sm"
     >
-      <div
-        className={`${cardSurfaceClass} space-y-3 p-4 text-sm text-(--text-muted) shadow-sm`}
-      >
+      <div className="space-y-3 text-sm text-(--text-muted)">
         <p className="flex items-start gap-2">
           <ShieldCheckIcon
             size={18}

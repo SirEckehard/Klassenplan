@@ -39,7 +39,8 @@
     "cancel": "Cancel"
   },
   "buttons": {
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "undo": "Undo"
   },
   "quoted": "“{{text}}”",
   "gender": {
@@ -104,13 +105,32 @@
     "clearAllData": "Clear all data"
   },
   "dialogs": {
-    "confirmTitle": "Confirmation",
-    "savePlanFailedConfirm": "Seating plan could not be saved. Return anyway?",
     "clearAllData": {
-      "title": "Clear all data",
-      "message": "Do you really want to delete all data (class list, templates, etc.)?",
-      "confirm": "Delete",
-      "cancel": "Cancel"
+      "title": "Delete all data?",
+      "confirm": "Delete all data",
+      "cancel": "Cancel",
+      "meta": "Everything in this browser"
+    },
+    "cannotUndo": "This cannot be undone.",
+    "backupFirst": "Save a backup",
+    "savePlanFailed": {
+      "title": "Seating plan not saved. Switch anyway?",
+      "confirm": "Switch anyway",
+      "cancel": "Stay here"
+    },
+    "facts": {
+      "classes_one": "Class",
+      "classes_other": "Classes",
+      "students_one": "Student",
+      "students_other": "Students",
+      "rooms_one": "Room",
+      "rooms_other": "Rooms",
+      "plans_one": "Seating plan",
+      "plans_other": "Seating plans",
+      "mixes_one": "Mix",
+      "mixes_other": "Mixes",
+      "templates_one": "Template",
+      "templates_other": "Templates"
     }
   },
   "backupPassword": {

@@ -12,23 +12,18 @@ import {
 } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-const { memory, confirm } = vi.hoisted(() => ({
+const { memory } = vi.hoisted(() => ({
   memory: new Map<string, unknown>(),
-  confirm: vi.fn(),
 }));
 vi.mock('idb-keyval', async () =>
   (await import('@/__tests__/utils/memoryIdbKeyval')).createMemoryIdbKeyval(
     memory,
   ),
 );
-vi.mock('@/services/ui/dialogs', () => ({
-  confirmDialog: (...args: unknown[]) => confirm(...args),
-}));
-
 import '@/i18n/i18n';
 import SmartMixControls, { MixRecipeSection } from '../SmartMixControls';
 import { createSuspendedWeights } from '@/hooks/ui/useMixCriteria';
-import { createMockStudent } from '@/__tests__/utils';
+import { confirmInlineQuestion, createMockStudent } from '@/__tests__/utils';
 import type { MixSettings, Student } from '@/types';
 import { neutralSettings, normalizeMixSettings } from '@/utils';
 import { loadMixPresets } from '@/repositories/mixPresetStore';
@@ -106,7 +101,6 @@ const restless = () => Number(screen.getByTestId('restless').textContent);
 
 beforeEach(() => {
   memory.clear();
-  confirm.mockReset();
   vi.stubGlobal('indexedDB', {});
 });
 
@@ -229,7 +223,6 @@ describe('MixRecipeSection — presets (decision 0038)', () => {
 
     await waitFor(() => expect(recipeButton()).toHaveTextContent(/^Lesezeit$/));
 
-    confirm.mockResolvedValue(true);
     // Opened outside `act`, which would hold the menu back until it ends.
     const bin = openMenu().getByRole('button', {
       name: /„Lesezeit“ löschen|Delete “Lesezeit”/,
@@ -237,10 +230,10 @@ describe('MixRecipeSection — presets (decision 0038)', () => {
     await act(async () => {
       fireEvent.click(bin);
     });
+    await confirmInlineQuestion(/„Lesezeit“ löschen|Delete “Lesezeit”/);
 
     await waitFor(async () =>
       expect((await loadMixPresets()).presets).toEqual([]),
     );
-    expect(confirm).toHaveBeenCalledOnce();
   });
 });

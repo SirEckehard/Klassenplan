@@ -19,7 +19,7 @@ import {
 } from '@/utils/image/processStudentPhoto';
 import StudentPhotoCropModal from './StudentPhotoCropModal';
 import StudentPhotoConsentDialog from './StudentPhotoConsentDialog';
-import { confirmDialog } from '@/services/ui/dialogs';
+import { offerStudentUndo } from '@/hooks/student/studentUndoOffer';
 import {
   getAvatarFrame,
   getStudentAppearance,
@@ -195,18 +195,16 @@ function StudentPhotoButton({ student, updateStudent }: Props) {
     }
   };
 
-  const handleRemove = async (e: React.MouseEvent) => {
+  const handleRemove = (e: React.MouseEvent) => {
     e.stopPropagation();
     const name = student.name.trim();
-    const confirmed = await confirmDialog(
-      name ? t('photo.removeConfirmNamed', { name }) : t('photo.removeConfirm'),
-      { confirmLabel: t('photo.remove') },
-    );
-    if (!confirmed) return;
     // Scheduled, not deleted: `hasPhoto: false` is an undoable student edit,
     // so the blob has to survive until no undo step can bring it back.
     schedulePhotoDeletion(student.id);
     updateStudent(student.id, { hasPhoto: false });
+    offerStudentUndo(
+      name ? t('photo.removedNamed', { name }) : t('photo.removed'),
+    );
   };
 
   const initial = student.name.trim().charAt(0).toUpperCase();
@@ -220,7 +218,7 @@ function StudentPhotoButton({ student, updateStudent }: Props) {
           disabled={busy}
           title={`${uploadLabel} – ${privacyHint}`}
           aria-label={`${uploadLabel} – ${student.name || ''}`.trim()}
-          className="group flex h-10 w-10 cursor-pointer rounded-full border-solid bg-(--surface-card) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) disabled:opacity-60"
+          className="group flex h-10 w-10 cursor-pointer rounded-full border-solid bg-(--surface-card) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring) disabled:opacity-60"
           // The frame the student's photo wears on the plan; the camera badge
           // is what answers a hover.
           style={getAvatarFrame(student, isDark, 40)}

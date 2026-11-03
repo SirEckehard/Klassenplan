@@ -40,7 +40,7 @@ const toneClasses: Record<
 };
 
 const actionClass =
-  'inline-flex items-center gap-1.5 rounded-md font-medium underline underline-offset-2 transition hover:opacity-80 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-(--focus-ring-primary)';
+  'inline-flex items-center gap-1.5 rounded-md font-medium underline underline-offset-2 transition hover:opacity-80 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-(--focus-ring)';
 
 /**
  * Offers the one thing a teacher can do with an error: report it.

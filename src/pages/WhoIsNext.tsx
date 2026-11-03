@@ -229,7 +229,7 @@ export default function WhoIsNext() {
               <button
                 type="button"
                 onClick={picker.reset}
-                className="inline-flex cursor-pointer items-center gap-1.5 rounded-md px-2 py-1 font-medium transition hover:text-(--text-page) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary)"
+                className="inline-flex cursor-pointer items-center gap-1.5 rounded-md px-2 py-1 font-medium transition hover:text-(--text-page) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring)"
               >
                 <ArrowCounterClockwiseIcon size={14} aria-hidden />
                 {t('tools.whoIsNext.reset')}

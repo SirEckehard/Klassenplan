@@ -106,7 +106,7 @@ export default function Groups() {
                     aria-label={t('tools.groups.sizeOption', {
                       size: option,
                     })}
-                    className={`h-11 flex-1 cursor-pointer rounded-lg border text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary) ${
+                    className={`h-11 flex-1 cursor-pointer rounded-lg border text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring) ${
                       isActive
                         ? 'border-(--border-option-selected) bg-(--surface-option-selected) text-(--text-badge)'
                         : 'border-(--border-card) bg-(--surface-card) text-(--text-page) hover:border-(--border-option-hover)'

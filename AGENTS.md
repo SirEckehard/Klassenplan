@@ -25,7 +25,7 @@ it for Antigravity — edit this file, never those two.
 - Check modified files with `npx eslint <files>`
 - TypeScript compilation check: `npm run typecheck` (app) and `npm run typecheck:test` (tests); both via `npm run typecheck:all`
 - Check for unused exports: `npm run check:unused` — a ratchet against the baseline in `scripts/check-unused-exports.mjs`; the count may fall, never rise. For the full list run `npx ts-unused-exports tsconfig.ts-unused.json --allowUnusedTypes --ignoreFiles='vite-env.d.ts|index.tsx|App.tsx'`
-- E2E: Playwright specs live in `e2e/` — smoke, the core flow, the rooms of a class and the mixing presets in "Bibliothek" (`plans-library.spec.ts`) and the first-visit onboarding (sample class and tours) on a desktop, the tablet and phone layouts and the desktop layout worked by a finger on an interactive whiteboard (`touch-layouts.spec.ts`, projects `tablet`, `phone` and `whiteboard`, picked by the tags `@tablet` / `@phone` / `@whiteboard`), and on all four the head every page wears (`page-header.spec.ts`) (`npm run test:e2e`; needs `npx playwright install chromium`)
+- E2E: Playwright specs live in `e2e/` — smoke, the core flow, the rooms of a class and the mixing presets in "Bibliothek" (`plans-library.spec.ts`) the questions before a deletion (`questions.spec.ts`) and the first-visit onboarding (sample class and tours) on a desktop, the tablet and phone layouts and the desktop layout worked by a finger on an interactive whiteboard (`touch-layouts.spec.ts`, projects `tablet`, `phone` and `whiteboard`, picked by the tags `@tablet` / `@phone` / `@whiteboard`), and on all four the head every page wears (`page-header.spec.ts`) (`npm run test:e2e`; needs `npx playwright install chromium`)
 - i18n consistency: `npm run check:i18n` (DE/EN key parity + no `t(key, 'default')` inline default + no key that no code refers to)
 - Bundle budgets: `npm run check:bundle` (after a build; part of `npm run build:static`)
 - Live addressing: `npm run check:live-seo` (after a deploy, by hand: every sitemap address answers 200 and is its own canonical, slash/`http://`/`www.` spellings redirect permanently, unknown addresses are 404; decision 0029)
@@ -429,7 +429,9 @@ factories in `testHelpers.ts`, `createMemoryIdbKeyval` and
 - **Keyboard navigation** support throughout the application
 - **aria-label** and **aria-pressed** attributes for screen readers
 - **Focus management**: modals trap focus and restore it to the trigger element on close (`Modal.tsx`)
-- **No global Enter-to-confirm** on destructive dialogs — `ConfirmDialog` focuses "Abbrechen", so Enter on a destructive dialog cancels unless the confirm button was chosen on purpose
+- **A deletion asks as near its button as what it takes along allows** (decision 0041): what comes back asks nothing and offers "Rückgängig" (`offerStudentUndo`), what loses only itself asks in place (`question` on `InspectorDeleteFooter` and on a row of `InspectorMenuButton`, `InlineQuestion`), what takes more along asks in `ConfirmDialog`, which counts what goes (`confirmFacts`)
+- **No global Enter-to-confirm** on destructive questions — `InlineQuestion` and `ConfirmDialog` focus "Abbrechen", so Enter cancels unless the confirm button was chosen on purpose
+- **One focus ring**: `--focus-ring`, quiet ink, for every control; blue stays with what can be pressed and what is selected
 - **Responsive design** that works at 200% zoom
 - **Breakpoints are rem, in CSS and JS alike**: Tailwind's `md:` is `48rem`, which moves with the browser's default text size (18px puts it at 864px). A layout decision in JS goes through `useBreakpointUp` / `useLayoutMode` / `isBreakpointUp` (`hooks/ui/useBreakpoint.ts`), which compare in rem too — never `window.innerWidth` against a px number, or the two disagree in between
 - **Touch-optimized** interactions for mobile devices: on a coarse pointer a control is a 44px target (`pointer-coarse:` in the markup, `useIsCoarsePointer` in an SVG, where a transparent hit area around the painted shape grows), the toolbar starts with its labels from `xl` up (`ToolRailContext`), and a choice that needs hover is left out (`buildPhotoDisplayGroup`'s `hasHover`)
@@ -452,7 +454,8 @@ Colour is split in two, and the split is the rule that matters (see
 one accent:
 
 - **Blue (`#2563eb`, `--button-primary-bg`)** - the only colour that means "you
-  can act here": the one primary button per screen, selection, focus ring.
+  can act here": the one primary button per screen, selection. The focus ring is
+  quiet ink (`--focus-ring`), not blue.
 - **Rose (`#be123c`, `--button-danger-bg`)** - destructive actions only, never
   next to the primary button.
 - **Green (`#15803d`, `--button-success-bg`)** - confirmation of a completed

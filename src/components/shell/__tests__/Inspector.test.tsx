@@ -19,7 +19,6 @@ const mocks = vi.hoisted(() => ({
   state: { step: 1, students: [] as Student[] },
   updateStudent: vi.fn(),
   removeStudent: vi.fn(),
-  confirm: vi.fn(),
 }));
 
 vi.mock('@/contexts/SeatingPlanContext', () => ({
@@ -28,10 +27,6 @@ vi.mock('@/contexts/SeatingPlanContext', () => ({
     updateStudent: mocks.updateStudent,
     removeStudent: mocks.removeStudent,
   }),
-}));
-
-vi.mock('@/services/ui/dialogs', () => ({
-  confirmDialog: (...args: unknown[]) => mocks.confirm(...args),
 }));
 
 const ada = createMockStudent({ id: 'a', name: 'Ada' });
@@ -124,8 +119,8 @@ describe('Inspector', () => {
     ).toBeVisible();
   });
 
-  it('removes the student it is showing, once that is confirmed', async () => {
-    mocks.confirm.mockResolvedValue(true);
+  // The undo brings the student back, so nothing asks (decision 0041).
+  it('removes the student it is showing at once', async () => {
     renderInspector();
     fireEvent.click(screen.getByRole('button', { name: 'pick-grace' }));
 
@@ -135,16 +130,6 @@ describe('Inspector', () => {
     expect(
       screen.getByText(/Kein Schüler ausgewählt|No student selected/i),
     ).toBeVisible();
-  });
-
-  it('keeps the student when the question is answered with no', async () => {
-    mocks.confirm.mockResolvedValue(false);
-    renderInspector();
-    fireEvent.click(screen.getByRole('button', { name: 'pick-grace' }));
-
-    fireEvent.click(getButton(/^(Schüler löschen|Delete student)$/i));
-    await waitFor(() => expect(mocks.confirm).toHaveBeenCalled());
-    expect(mocks.removeStudent).not.toHaveBeenCalled();
   });
 
   it('opens the name field for a student who has none', () => {

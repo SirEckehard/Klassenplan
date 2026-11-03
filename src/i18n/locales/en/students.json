@@ -3,8 +3,6 @@
     "add": "Add photo",
     "change": "Change photo",
     "remove": "Delete photo",
-    "removeConfirm": "Really delete this photo?",
-    "removeConfirmNamed": "Really delete {{name}}'s photo?",
     "privacyHint": "Photos are stored only locally on this device and never uploaded.",
     "cropTitle": "Crop photo",
     "cropSubtitle": "Drag to move, zoom and rotate – then apply.",
@@ -21,7 +19,9 @@
       "dontShowAgain": "Understood – don't show this notice again",
       "confirm": "Continue",
       "cancel": "Cancel"
-    }
+    },
+    "removed": "Photo deleted.",
+    "removedNamed": "Photo of {{name}} deleted."
   },
   "classManagement": {
     "activeClass": "Active Class",
@@ -234,9 +234,6 @@
     "emptyClassTitle": "{{className}} is still empty.",
     "emptyClassHint": "Add students by creating placeholders, adding them individually, or importing an existing CSV file. All entries apply only to this class.",
     "emptyClassImportHint": "Already have a list from your school administration software – WebUntis, Schulmanager or SchILD, say? You can usually upload it as it is: Klassenplan recognises the usual column names and accented characters on its own, so there is nothing to rename.",
-    "removeStudentTitle": "Delete Student",
-    "removeStudentMessage": "Do you really want to delete {{studentName}}? You can undo this with Ctrl/⌘+Z.",
-    "thisStudent": "this student",
     "studentRemoved": "{{studentName}} has been deleted.",
     "yourClass": "your class",
     "placeholdersCreated_one": "1 placeholder added – type the name.",
@@ -293,9 +290,6 @@
     "clearSelection": "Clear selection",
     "applied_one": "{{count}} student updated.",
     "applied_other": "{{count}} students updated.",
-    "deleteTitle": "Delete selected students",
-    "deleteMessage_one": "Do you really want to delete {{count}} selected student? You can undo this with Ctrl/⌘+Z.",
-    "deleteMessage_other": "Do you really want to delete {{count}} selected students? You can undo this with Ctrl/⌘+Z.",
     "deleted_one": "{{count}} student deleted.",
     "deleted_other": "{{count}} students deleted."
   },

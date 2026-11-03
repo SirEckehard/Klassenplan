@@ -137,6 +137,11 @@ export function MixRecipePanel({
             },
             remove: {
               label: t('mix.recipes.deleteNamed', { name }),
+              question: {
+                title: t('common.deleteNamedQuestion', { name }),
+                detail: t('mix.recipes.deleteDetail'),
+                confirmLabel: t('common.delete'),
+              },
               onSelect: () => onDelete(recipe),
             },
           }),

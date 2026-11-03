@@ -41,7 +41,7 @@ const entryStateClass = (active: boolean, disabled: boolean) =>
       ? 'bg-(--surface-option-selected) text-(--text-badge)'
       : 'text-(--text-page) hover:bg-(--surface-sunken)',
     disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer',
-    'transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring-primary)',
+    'transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring)',
   ].join(' ');
 
 /**
