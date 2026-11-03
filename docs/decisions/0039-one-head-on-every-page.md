@@ -7,7 +7,8 @@
   page's, "Zurück" where one does not have to look for it, the layers, the
   export page and "Bibliothek" keeping theirs in the status bar, "Beenden"
   staying in the projection's bar, "Zurück" up to the gear where a page has no
-  help), `src/components/shell/AppHeader.tsx`,
+  help, a better head and title for the start page that still fits the others),
+  `src/components/shell/AppHeader.tsx`,
   `src/components/publicPage/PublicPage.tsx`,
   `src/components/tools/ToolPage.tsx`, `src/pages/Present.tsx`,
   `e2e/page-header.spec.ts`, [UI.md](../UI.md)
@@ -42,6 +43,12 @@ bar, beside the way on, the projection as "Beenden" in its bar, within reach at
 a board. So "Zurück" stands in the head on the class tools and the pages beside
 the app. Where each way back leads did not change.
 
+The start page keeps the same row but not the band (`inColumn`): logo and gear
+stand in the page's column, over the title and the preview's edge, on a hairline
+as wide as those between its sections, and the row scrolls away with the page.
+Its title opens as on the pages beside it, with small caps above the serif. The
+band across the window had left the logo far from the title on a wide window.
+
 `e2e/page-header.spec.ts` holds the positions on all four devices, and that no
 page scrolls sideways.
 
@@ -62,7 +69,10 @@ page scrolls sideways.
 ## Consequences
 
 - On a wide window the logo of the pages beside the app no longer stands over
-  their column, and those pages and the start page are less airy on top.
+  their column, and those pages are less airy on top.
+- On a wide window logo and gear move outward when the start page opens one of
+  those pages; on a phone and a tablet, where the column is the window, the two
+  heads stand nearly alike.
 - What stays in view while a page is read sticks below the head (`lg:top-22`),
   and the head costs a phone held sideways 57 of about 400px.
 - The class tools and the projection reach theme and language through the gear,

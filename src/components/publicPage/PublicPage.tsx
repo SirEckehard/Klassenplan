@@ -16,10 +16,13 @@ import { useReturnToApp } from '@/hooks/useReturnToApp';
  */
 export default function PublicPage({
   bannerLabel,
+  headInColumn = false,
   children,
 }: {
   /** Names the banner landmark, e.g. "FAQ Überblick". */
   bannerLabel: string;
+  /** The start page's head, in the page's column (`AppHeader`'s `inColumn`). */
+  headInColumn?: boolean;
   children: React.ReactNode;
 }) {
   const goBack = useReturnToApp();
@@ -28,6 +31,7 @@ export default function PublicPage({
     <>
       <AppHeader
         brand="lockup"
+        inColumn={headInColumn}
         ariaLabel={bannerLabel}
         back={goBack ? { onClick: goBack } : undefined}
       />

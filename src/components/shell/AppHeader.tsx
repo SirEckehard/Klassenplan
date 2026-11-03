@@ -25,10 +25,16 @@ export interface HeaderBack {
  * A page with a bar of its own at the bottom keeps its way back there, not
  * twice: the layers, the export page and "Bibliothek" in the status bar, the
  * projection as "Beenden" in its bar.
+ *
+ * The start page keeps the same row but not the band (`inColumn`): it sells
+ * rather than works, so the row stands in the page's column, the logo over the
+ * title and the gear over the preview's edge, on a hairline as wide as the
+ * ones between its sections, and it scrolls away with the page.
  */
 export default function AppHeader({
   brand = 'mark',
   brandIsHeading = false,
+  inColumn = false,
   ariaLabel,
   start,
   center,
@@ -40,6 +46,8 @@ export default function AppHeader({
   brand?: 'mark' | 'lockup';
   /** The workspace names no page of its own, so its mark is the heading. */
   brandIsHeading?: boolean;
+  /** The row in the page's column instead of a band across the window. */
+  inColumn?: boolean;
   /** Names the banner landmark, e.g. "FAQ Überblick". */
   ariaLabel?: string;
   /** What this page is about: a title, or the class menu. */
@@ -69,9 +77,19 @@ export default function AppHeader({
   return (
     <header
       aria-label={ariaLabel}
-      className="sticky top-0 z-30 shrink-0 border-b border-(--border-card) bg-(--surface-card) pt-[env(safe-area-inset-top)]"
+      className={
+        inColumn
+          ? 'shrink-0 px-4 pt-[env(safe-area-inset-top)] sm:px-6'
+          : 'sticky top-0 z-30 shrink-0 border-b border-(--border-card) bg-(--surface-card) pt-[env(safe-area-inset-top)]'
+      }
     >
-      <div className="flex h-14 items-center justify-between gap-3 px-4">
+      <div
+        className={`flex h-14 items-center justify-between gap-3 ${
+          inColumn
+            ? 'mx-auto box-content max-w-6xl border-b border-(--border-card)'
+            : 'px-4'
+        }`}
+      >
         <div
           className={`flex min-w-0 items-center gap-3 ${
             center ? 'shrink lg:w-95' : 'flex-1'

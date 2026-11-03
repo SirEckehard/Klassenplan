@@ -192,6 +192,24 @@ test(
 );
 
 test(
+  "the start page's head stands in the page's column",
+  EVERY_DEVICE,
+  async ({ page }) => {
+    await page.goto('/');
+
+    const logo = await boxOf(head(page).getByRole('link'));
+    const title = await boxOf(page.getByRole('heading', { level: 1 }));
+    expect(logo.x).toBeCloseTo(title.x, 0);
+
+    const gear = await boxOf(gearInHead(page));
+    const column = await boxOf(page.locator('main section').first());
+    expect(gear.x + gear.width).toBeCloseTo(column.x + column.width, 0);
+
+    await expectNoSidewaysScroll(page);
+  },
+);
+
+test(
   'the projection has its way out in the bar, in sight on every device',
   EVERY_DEVICE,
   async ({ page }, testInfo) => {

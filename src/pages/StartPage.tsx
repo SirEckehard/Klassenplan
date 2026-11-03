@@ -24,6 +24,7 @@ import {
 import {
   pageEyebrowClass,
   pageSectionTitleClass,
+  pageTitleClass,
 } from '@/components/publicPage/pageTokens';
 import {
   CRITERIA_FAMILY_MAP,
@@ -149,7 +150,7 @@ export default function StartPage() {
   ];
 
   return (
-    <PublicPage bannerLabel={t('header.banner.start')}>
+    <PublicPage bannerLabel={t('header.banner.start')} headInColumn>
       <Seo
         {...metadata}
         structuredData={[
@@ -177,9 +178,8 @@ export default function StartPage() {
       />
       <div className="grid items-center gap-10 pt-2 pb-10 lg:grid-cols-12 lg:gap-12 lg:pt-8 lg:pb-16">
         <div className="flex flex-col items-start lg:col-span-5">
-          <h1 className="font-serif text-5xl leading-tight text-balance text-(--text-page) sm:text-6xl">
-            {t('startPage.heroTitle')}
-          </h1>
+          <p className={pageEyebrowClass}>{t('startPage.heroEyebrow')}</p>
+          <h1 className={pageTitleClass}>{t('startPage.heroTitle')}</h1>
 
           <p className="mt-5 max-w-md text-lg text-pretty text-(--text-muted)">
             {t('startPage.heroDescription')}

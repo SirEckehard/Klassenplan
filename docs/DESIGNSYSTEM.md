@@ -459,7 +459,11 @@ does so with the workspace's own means. The hero title and each section's
 claim are set in `--font-serif`; above a claim, small caps name what the
 section is about. Sections are divided by a hairline, not by cards, and the
 page carries one blue button — "Plane jetzt deine Klasse!". FAQ, contact and
-support are quiet links in ink.
+support are quiet links in ink. Its head is the row every page has, the lockup
+and the gear at the same height, but in the page's column rather than a band
+across the window (`AppHeader inColumn`): the logo over the title, the gear over
+the preview's edge, on a hairline as wide as those between the sections. It
+scrolls away with the page.
 
 The criteria section is the only place on the page with colour, and it may
 have it because every colour there describes pedagogy: each family is a
@@ -477,9 +481,8 @@ own out of the stage.
 
 The pages beside it — FAQ, support, contact, changelog, Impressum,
 Datenschutzerklärung and the 404 page — share its type
-(`components/publicPage/pageTokens.ts`) and, like the start page, the head
-every page wears (`PublicPage` around `AppHeader`, decision 0039): the mark
-with the wordmark, and on the right "Zurück" when the visitor came from inside
+(`components/publicPage/pageTokens.ts`) and the head every page wears
+(`PublicPage` around `AppHeader`, decision 0039): the mark with the wordmark, and on the right "Zurück" when the visitor came from inside
 the site — the app, the start page, the footer, another of these pages — beside
 the settings gear, the workspace's own `AppSettingsMenu` row for row.
 Each opens with small caps, a serif title and a muted lead; what follows is
