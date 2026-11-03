@@ -375,17 +375,14 @@ function translationPattern(text) {
  * shows a named lesson rather than the settings a first shuffle left behind.
  */
 async function mixWithRecipe(page, t, recipe) {
+  const title = t('generator:mix.recipes.title');
+  await page.getByRole('button', { name: new RegExp(`^${title}: `) }).click();
   await page
-    .getByRole('button', { expanded: false })
-    .filter({
-      hasText: translationPattern(t('generator:mix.recipes.activeCount')),
-    })
-    .click();
-  await page
-    .getByRole('group', { name: t('generator:mix.recipes.title') })
+    .getByRole('dialog', { name: title })
     .getByRole('button', {
       name: translationPattern(t(`generator:mix.recipes.${recipe}.label`)),
     })
+    .first()
     .click();
   await page.locator('[data-tour="mix-button"]').first().click();
   await waitForPlan(page, t);
@@ -442,7 +439,7 @@ async function prepareClass(page, baseUrl, prefix, t, germanPlan) {
   await openGenerator(page, baseUrl, prefix, t);
   await goToLayer(page, t, 'plan');
   await waitForPlan(page, t);
-  await mixWithRecipe(page, t, 'recommended');
+  await mixWithRecipe(page, t, 'standard');
   // Opening the circle view generates the circle in the worker. Nothing on
   // screen marks the end of that run, hence the fixed wait; the check below
   // fails loudly if it was not enough.
