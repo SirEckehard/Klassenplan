@@ -46,7 +46,7 @@ const NOTICE_TEXT: Record<StatusNoticeKind, string> = {
 };
 
 /** The toolbar's switch: quiet, and as high as the bar's other controls. */
-const statusBarIconButtonClass = `${quietIconButtonClass} ${touchHitAreaBorderlessClass} h-9 w-9`;
+const statusBarIconButtonClass = `${quietIconButtonClass} ${touchHitAreaBorderlessClass} h-9 w-9 shrink-0`;
 
 /** A phone's drawer switch while its drawer is open. */
 const statusBarPressedClass =

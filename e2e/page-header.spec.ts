@@ -282,6 +282,33 @@ test(
 );
 
 test(
+  'a long path in the status bar leaves its buttons their size',
+  EVERY_DEVICE,
+  async ({ page }) => {
+    const coarse = await page.evaluate(
+      () => window.matchMedia('(pointer: coarse)').matches,
+    );
+    test.skip(!coarse, 'A mouse keeps the size it sees.');
+
+    await openPlan(page);
+    await goInside(page, '/bibliothek');
+    const path = page
+      .getByRole('region', { name: 'Statusleiste' })
+      .getByRole('navigation');
+    await expect(path).toBeVisible();
+
+    // A class or room with a long name: the path gives way, nothing else does.
+    await path
+      .getByRole('button')
+      .last()
+      .evaluate((crumb) => {
+        crumb.textContent = 'Ein sehr langer Name für einen Raum '.repeat(4);
+      });
+    expect(await buttonsTooSmallToHit(page)).toEqual([]);
+  },
+);
+
+test(
   'the head stays in view while a long page is read',
   EVERY_DEVICE,
   async ({ page }) => {
