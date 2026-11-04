@@ -1,7 +1,7 @@
 # 0041 – A question stands as near its button as it can
 
 - **Status:** accepted
-- **In place since:** unreleased
+- **In place since:** v3.3.0 (2026-11-04)
 - **Sources:** the maintainer's choices of 2026-11-03 on the concept page
   "Klassenplan Rückfragen" (no question for what can be undone, the question at
   the button, the backup in the dialog, a quieter focus ring),

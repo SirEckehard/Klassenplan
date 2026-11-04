@@ -1,7 +1,7 @@
 # 0034 – A sheet for the substitute, with names and nothing else
 
 - **Status:** accepted
-- **In place since:** unreleased
+- **In place since:** v3.2.3 (2026-10-30)
 - **Sources:** the maintainer's decisions of 2026-10-30 (a view of its own on
   the export page; no badges, no gender tint, no lines in the circle, without
   a switch; photos and the class info only when asked for; a note for this

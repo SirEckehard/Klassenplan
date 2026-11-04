@@ -1,7 +1,7 @@
 # 0032 – Repetition counts the plans in use, never a mix
 
 - **Status:** accepted
-- **In place since:** unreleased
+- **In place since:** v3.2.0 (2026-10-22)
 - **Sources:** the maintainer's report and decisions of 2026-10-19 (the
   "Wiederholung" bar falls while mixing again and again; only plans in use
   count, and chance with the other criteria is enough to vary the next mix),

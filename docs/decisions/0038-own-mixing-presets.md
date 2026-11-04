@@ -1,7 +1,7 @@
 # 0038 – Presets of one's own, and the shipped ones changeable
 
 - **Status:** accepted
-- **In place since:** unreleased
+- **In place since:** v3.3.0 (2026-11-04)
 - **Sources:** the maintainer's decisions of 2026-11-02 (presets kept for
   every class, managed in the criteria panel and in "Bibliothek", the shipped
   presets but "Standard" changeable with "Original wiederherstellen",

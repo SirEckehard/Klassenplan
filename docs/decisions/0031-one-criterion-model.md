@@ -1,7 +1,7 @@
 # 0031 – One criterion model for mixing, fulfilment and highlights
 
 - **Status:** accepted
-- **In place since:** unreleased
+- **In place since:** v3.2.0 (2026-10-22)
 - **Sources:** the review of the mixing algorithm of 2026-10-18 and the
   maintainer's decisions of the same day,
   [ALGORITHM.md](../ALGORITHM.md), [PEDAGOGY.md](../PEDAGOGY.md),

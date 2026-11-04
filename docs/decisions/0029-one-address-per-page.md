@@ -1,7 +1,7 @@
 # 0029 – One address per page
 
 - **Status:** accepted
-- **In place since:** not yet released
+- **In place since:** v3.1.3 (2026-10-15)
 - **Sources:** [SEO.md](../SEO.md#one-address-per-page), `nginx.conf`,
   `scripts/prerender.mjs`, `scripts/verify-prerender.mjs`,
   `scripts/check-live-seo.mjs`; Search Console report of 2026-10-10

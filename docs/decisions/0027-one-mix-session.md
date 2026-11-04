@@ -1,7 +1,7 @@
 # 0027 – A mix is one session: construction and refinement decide by the same facts
 
 - **Status:** accepted
-- **In place since:** unreleased
+- **In place since:** v3.1.1 (2026-10-11)
 - **Sources:** the code review of 2026-10-10 (findings M6, M7, N5, N6, and the
   second refinement found while carrying them out), the maintainer's decisions
   of 2026-10-10 (one session; the refinement after a restore goes as well),

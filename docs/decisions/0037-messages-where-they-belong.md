@@ -1,7 +1,7 @@
 # 0037 – Fewer toasts, and the rest over the stage
 
 - **Status:** accepted
-- **In place since:** unreleased
+- **In place since:** v3.3.0 (2026-11-04)
 - **Sources:** the review of 3.2.3 on 2026-11-01 (finding N22 and the
   maintainer's note on it), the concept page "Klassenplan Toast-Konzept" of
   the same day with the maintainer's choices D1–D6, commits `8139a170` and

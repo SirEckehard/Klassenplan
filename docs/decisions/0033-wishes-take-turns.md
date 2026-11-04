@@ -1,7 +1,7 @@
 # 0033 – Wishes take turns, friends who wish each other hold longer
 
 - **Status:** accepted
-- **In place since:** unreleased
+- **In place since:** v3.2.3 (2026-10-30)
 - **Sources:** the maintainer's decisions of 2026-10-29 (wishes take turns; a
   mutual wish counts more than a one-sided one; the order of a wish list
   stays; one rule, no switch; the fulfilment leaves friends who stay together

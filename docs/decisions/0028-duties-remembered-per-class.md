@@ -1,7 +1,7 @@
 # 0028 – Class duties are handed out in turns and remembered per class
 
 - **Status:** accepted
-- **In place since:** not yet released
+- **In place since:** v3.1.2 (2026-10-12)
 - **Sources:** maintainer decision of 2026-10-11, `src/pages/Duties.tsx`,
   `src/utils/dutyDraw.ts`, `src/repositories/dutyStore.ts`,
   [decision 0019](0019-classroom-tools-as-routes.md)
