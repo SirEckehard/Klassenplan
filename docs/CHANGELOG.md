@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [3.3.0] - 2026-11-04
+
 ### Added
 
 - Save your own presets for mixing and adjust the built-in ones; "Recommended mix" is now called "Default" and "New class" "Getting to know each other"
