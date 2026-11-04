@@ -13,6 +13,7 @@ import { useDialogA11y } from '@/hooks/ui/useDialogA11y';
 import { useOutsideTap } from '@/hooks/ui/useOutsideTap';
 import { usePanelMotion } from '@/hooks/ui/usePanelMotion';
 import { useContainedTouchScroll } from '@/hooks/ui/useContainedTouchScroll';
+import { useSwipeToClose } from '@/hooks/ui/useSwipeToClose';
 import {
   isAnyDialogOpen,
   isTopDialogLayer,
@@ -164,18 +165,15 @@ export default function Inspector() {
   const setStudentPanel = React.useCallback((node: HTMLElement | null) => {
     studentPanelRef.current = node;
   }, []);
-  useOutsideTap(
-    studentPanelRef,
-    clear,
-    isOpen && !isDesktop && !hasPortal && !suspended && !helpOpen,
-    {
-      ignoreSelector: student
-        ? `[data-row-part="open"][data-student-id="${student.id.replace(/["\\]/g, '\\$&')}"]`
-        : undefined,
-      isBlocked: () =>
-        isPhone ? !isTopDialogLayer(sheetLayer) : isAnyDialogOpen(),
-    },
-  );
+  const studentPanelOpen =
+    isOpen && !isDesktop && !hasPortal && !suspended && !helpOpen;
+  useOutsideTap(studentPanelRef, clear, studentPanelOpen, {
+    ignoreSelector: student
+      ? `[data-row-part="open"][data-student-id="${student.id.replace(/["\\]/g, '\\$&')}"]`
+      : undefined,
+    isBlocked: () =>
+      isPhone ? !isTopDialogLayer(sheetLayer) : isAnyDialogOpen(),
+  });
 
   // Another layer brings another panel; the drawer opens again when asked.
   // Before paint and before the layer's own effects, so a layer that opens
@@ -237,16 +235,27 @@ export default function Inspector() {
   );
   usePanelMotion(
     studentPanelRef,
-    isOpen && !isDesktop && !hasPortal && !suspended && !helpOpen,
+    studentPanelOpen,
     isPhone ? 'bottom' : 'right',
     layoutMode,
   );
   // Below `lg` the page under a drawer or the sheet scrolls; a swipe on them
   // stays theirs.
   useContainedTouchScroll(drawerRef, showsDrawer || showsSheet);
-  useContainedTouchScroll(
+  useContainedTouchScroll(studentPanelRef, studentPanelOpen);
+  // Students being edited can be pulled away by the panel's head, over the
+  // edge it came from — opened from the list or ticked in it.
+  useSwipeToClose(
     studentPanelRef,
-    isOpen && !isDesktop && !hasPortal && !suspended && !helpOpen,
+    clear,
+    studentPanelOpen,
+    isPhone ? 'bottom' : 'right',
+  );
+  useSwipeToClose(
+    drawerRef,
+    closeDrawer,
+    portalPresentation.sheet === true && (showsLayerDrawer || showsSheet),
+    showsSheet ? 'bottom' : 'right',
   );
   // The help in the class layer's place below `lg`, where no layer portals a
   // panel in: a drawer of its own, from the same edge.

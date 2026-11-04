@@ -93,7 +93,10 @@ export function InspectorHeader({
   actions?: React.ReactNode;
 }) {
   return (
-    <div className="flex shrink-0 items-center gap-3 border-b border-(--border-card) px-4 py-3">
+    <div
+      data-inspector-head=""
+      className="flex shrink-0 items-center gap-3 border-b border-(--border-card) px-4 py-3"
+    >
       {media}
       {/* Takes the width between the media and the actions: a title that is
           a field — the student's name — has to fit whole, not be cut off by

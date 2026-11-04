@@ -41,6 +41,27 @@ const DURATION: Record<PanelEdge, { in: number; out: number }> = {
   column: { in: MOTION_DURATION.column, out: MOTION_DURATION.column },
 };
 
+/** The edges a finger can pull a panel over. */
+export type SwipeEdge = 'right' | 'bottom';
+
+/** A panel pulled `offset` px towards its edge. */
+export function swipedPanelTransform(edge: SwipeEdge, offset: number): string {
+  return edge === 'right'
+    ? `translateX(${offset}px)`
+    : `translateY(${offset}px)`;
+}
+
+/** How far a finger had pulled a panel when it let go (px). */
+const swiped = new WeakMap<HTMLElement, number>();
+
+/**
+ * A finger has put the panel away from `offset` px towards its edge: it leaves
+ * from there.
+ */
+export function notePanelSwiped(node: HTMLElement, offset: number): void {
+  swiped.set(node, offset);
+}
+
 interface OpenPanel {
   node: HTMLElement;
   parent: Node;
@@ -107,6 +128,8 @@ export function usePanelMotion(
 
     const leaving = last.current;
     last.current = null;
+    const swipedBy = leaving ? swiped.get(leaving.node) : undefined;
+    if (leaving) swiped.delete(leaving.node);
     if (!before || !leaving || !sameLayout) return;
     if (!leaving.parent.isConnected || !motionEnabled(leaving.node)) return;
     const copy = inertCopy(leaving.node);
@@ -121,16 +144,29 @@ export function usePanelMotion(
     });
     // It leaves over the edge it came in from, whatever the next panel is.
     const { edge: from, width } = leaving;
-    copy
-      .animate([inPlace(from), outside(from, width)], {
-        duration: DURATION[from].out,
-        easing: from === 'column' ? MOTION_EASE.arrive : MOTION_EASE.leave,
-        fill: 'forwards',
-      })
-      .finished.then(
-        () => copy.remove(),
-        () => copy.remove(),
-      );
+    const animation =
+      swipedBy === undefined || from === 'left' || from === 'column'
+        ? copy.animate([inPlace(from), outside(from, width)], {
+            duration: DURATION[from].out,
+            easing: from === 'column' ? MOTION_EASE.arrive : MOTION_EASE.leave,
+            fill: 'forwards',
+          })
+        : // It is moving already, so it does not start from a standstill.
+          copy.animate(
+            [
+              { transform: swipedPanelTransform(from, swipedBy) },
+              outside(from, width),
+            ],
+            {
+              duration: DURATION[from].out,
+              easing: MOTION_EASE.settle,
+              fill: 'forwards',
+            },
+          );
+    animation.finished.then(
+      () => copy.remove(),
+      () => copy.remove(),
+    );
   });
 
   // Note where its parts are scrolled while it is open.

@@ -322,6 +322,81 @@ test(
 );
 
 test(
+  'a finger pulls the student away by the head of the panel, over its edge',
+  { tag: ['@phone', '@tablet'] },
+  async ({ page }, testInfo) => {
+    await loadSampleClass(page);
+    await editStudent(page);
+    const gender = page.getByRole('group', { name: 'Geschlecht' });
+    const head = await boxOf(page.locator('[data-inspector-head]').first());
+    const start = {
+      x: head.x + head.width / 2,
+      y: head.y + head.height / 2,
+      id: 1,
+      radiusX: 8,
+      radiusY: 8,
+      force: 1,
+    };
+    const cdp = await page.context().newCDPSession(page);
+    const swipe = async (axis: 'x' | 'y') => {
+      await cdp.send('Input.dispatchTouchEvent', {
+        type: 'touchStart',
+        touchPoints: [start],
+      });
+      for (const by of [20, 60, 120, 200]) {
+        await cdp.send('Input.dispatchTouchEvent', {
+          type: 'touchMove',
+          touchPoints: [{ ...start, [axis]: start[axis] + by }],
+        });
+      }
+      await cdp.send('Input.dispatchTouchEvent', {
+        type: 'touchEnd',
+        touchPoints: [],
+      });
+    };
+
+    // A phone's sheet came from the bottom, a tablet's drawer from the right.
+    const isPhone = testInfo.project.name === 'phone';
+    await swipe(isPhone ? 'x' : 'y');
+    await expect(gender).toBeVisible();
+
+    await swipe(isPhone ? 'y' : 'x');
+    await expect(gender).toBeHidden();
+    await expect(
+      page.getByRole('button', { name: /^Emma Becker im Inspektor/ }),
+    ).toBeVisible();
+  },
+);
+
+test(
+  'a drawer ends where the status bar begins, whatever the safe area does',
+  { tag: '@phone' },
+  async ({ page }) => {
+    await loadSampleClass(page);
+    await page.getByRole('button', { name: 'Weiter zum Raum' }).click();
+    await statusBar(page)
+      .getByRole('button', { name: 'Eigenschaften einblenden' })
+      .click();
+    const drawer = page.getByRole('complementary', { name: 'Eigenschaften' });
+    await expect(drawer).toBeVisible();
+
+    // Safari gives the bar its bottom safe area only while its own toolbar is
+    // collapsed: the bar grows by its padding alone, its content stays as high.
+    await statusBar(page).evaluate((bar) => {
+      bar.style.paddingBottom = '34px';
+    });
+
+    await expect
+      .poll(async () => {
+        const drawerBox = await boxOf(drawer);
+        const barBox = await boxOf(statusBar(page));
+        return Math.round(drawerBox.y + drawerBox.height - barBox.y);
+      })
+      .toBe(0);
+  },
+);
+
+test(
   'a phone reaches the toolbar as a drawer and the inspector as a sheet',
   { tag: '@phone' },
   async ({ page }) => {

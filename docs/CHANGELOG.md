@@ -31,6 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Every page has the same header, with "Back" at the top right on the class tools and the pages beside the app
 - The logo moves: pointing at it mixes the letters of its name, and on the way into the workspace they take their seats in it
 - On a phone the presentation's bar takes one row, and on a large screen a class tool's main button no longer spans the window
+- On a phone and a tablet, swipe a student's panel away by its head, the way it came
 
 ### Fixed
 

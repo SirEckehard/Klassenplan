@@ -1,6 +1,6 @@
 # Design System – Klassenplan
 
-> **Status:** current · **Last reviewed:** 2026-11-03 · **Maintainer:** Eike
+> **Status:** current · **Last reviewed:** 2026-11-04 · **Maintainer:** Eike
 > Schäfer · **Describes:** Klassenplan 3.1.2
 
 This document describes the binding design tokens for Klassenplan. All values live in `src/index.css` and are reachable from TypeScript through `src/utils/ui/designTokens.ts`.
@@ -390,7 +390,9 @@ the right, between the two bars, where the column stands from `lg` up. What a
 layer portals in — the room's properties, the plan's criteria, the circle's
 summary — opens as the same drawer from the switch at the right end of the
 status bar, the mirror of the toolbar's switch at the left end. The drawer is
-not modal: the stage beside it stays in reach, and Escape closes it.
+not modal: the stage beside it stays in reach, and Escape closes it. A student
+being edited also leaves by a finger on the panel's head, over the edge it came
+from: down from the sheet, to the right from the drawer.
 
 The toolbar loses its column on a phone as well. There it is a drawer from the
 left, the mirror of the inspector's, and the same place at the left end of the

@@ -3,7 +3,11 @@
 import React from 'react';
 import { act, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { usePanelMotion, type PanelEdge } from '@/hooks/ui/usePanelMotion';
+import {
+  notePanelSwiped,
+  usePanelMotion,
+  type PanelEdge,
+} from '@/hooks/ui/usePanelMotion';
 
 function Drawer({
   open,
@@ -91,6 +95,20 @@ describe('usePanelMotion', () => {
     await act(async () => finish());
 
     expect(screen.getByTestId('shell').querySelector('.drawer')).toBeNull();
+  });
+
+  it('leaves over its edge from where a finger let it go', () => {
+    const { rerender } = render(<Drawer open={false} />);
+    rerender(<Drawer open />);
+    const drawer = screen.getByRole('complementary');
+
+    notePanelSwiped(drawer, 120);
+    rerender(<Drawer open={false} />);
+
+    expect(animate).toHaveBeenLastCalledWith(
+      [{ transform: 'translateX(120px)' }, { transform: 'translateX(100%)' }],
+      expect.objectContaining({ duration: 160, fill: 'forwards' }),
+    );
   });
 
   it('does not move when the layout itself changes', () => {

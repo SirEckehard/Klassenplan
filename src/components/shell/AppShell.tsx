@@ -88,7 +88,10 @@ export default function AppShell({
       const height = entry?.borderBoxSize?.[0]?.blockSize;
       if (height) setStatusBarHeight(Math.ceil(height));
     });
-    observer.observe(bar);
+    // The border box, not the default content box: when Safari collapses its
+    // toolbar only the bar's padding grows, by the safe area, and a content box
+    // would report nothing.
+    observer.observe(bar, { box: 'border-box' });
     return () => observer.disconnect();
   }, [statusBar]);
   // The toasts stand above the bar's middle: the provider is outside
