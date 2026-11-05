@@ -1,7 +1,7 @@
 # 0035 – Stored seats name their students by id
 
 - **Status:** accepted
-- **In place since:** v3.3.0 (2026-11-04)
+- **In place since:** v3.3.0 (2026-11-05)
 - **Sources:** the review of 3.2.3 on 2026-11-01 (findings H4 and E2, the
   maintainer's choice of "only ids in storage"), the review of 3.1.0 on
   2026-10-10 (D5, set aside until measured), `src/utils/data/storedSeating.ts`,

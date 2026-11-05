@@ -1,7 +1,7 @@
 # 0040 – The logo takes its seats, and runs to its end
 
 - **Status:** accepted
-- **In place since:** v3.3.0 (2026-11-04)
+- **In place since:** v3.3.0 (2026-11-05)
 - **Sources:** the maintainer's decisions of 2026-11-03 (the swap of equal letters
   as long as the mark's animation, "Die Klasse nimmt Platz" without fading the
   old page out, only between the start page and the workspace, the logo's

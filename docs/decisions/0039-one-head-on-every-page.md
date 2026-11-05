@@ -1,7 +1,7 @@
 # 0039 – One head on every page, the way back beside the page's bar
 
 - **Status:** accepted
-- **In place since:** v3.3.0 (2026-11-04)
+- **In place since:** v3.3.0 (2026-11-05)
 - **Sources:** the maintainer's decisions of 2026-11-03 (the head of the
   projection and the class tools to follow the workspace's and the support
   page's, "Zurück" where one does not have to look for it, the layers, the
