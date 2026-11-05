@@ -1194,6 +1194,8 @@
     "history": "Verlauf",
     "loading": "Wird geladen …",
     "path": "Pfad",
+    "pathMenu": "{{name}} – Pfad zeigen",
+    "up": "Zurück zu {{name}}",
     "open": "Öffnen",
     "openAsRoom": "Als Raum öffnen",
     "openTitle": "Öffnen (Eingabetaste)",

@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Improved
+
+- On phones and tablets in portrait, the "Library" shows as many columns as fit and has a way up above them
+
 ## [3.3.0] - 2026-11-05
 
 ### Added

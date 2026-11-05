@@ -28,6 +28,7 @@ import ContextMenu, {
   type ContextMenuItem,
   type ContextMenuRequest,
 } from '@/components/ui/navigation/ContextMenu';
+import LibraryPathHead from '@/components/library/LibraryPathHead';
 import LibraryStatusBar from '@/components/library/LibraryStatusBar';
 import LibraryToolPanel from '@/components/library/LibraryToolPanel';
 import { TOUR_ANCHORS } from '@/components/onboarding/tours';
@@ -1304,12 +1305,18 @@ function PlanLibraryPage() {
       header={<SeatingPlanHeader view="library" />}
       statusBar={
         <LibraryStatusBar
-          rootLabel={t('storage.historyTitle')}
-          crumbs={path.map((key) => ({
-            key,
-            label: built.labels.get(key) ?? '',
-          }))}
-          onCrumb={(index) => goUp(index)}
+          path={
+            isDesktop
+              ? {
+                  rootLabel: t('storage.historyTitle'),
+                  crumbs: path.map((key) => ({
+                    key,
+                    label: built.labels.get(key) ?? '',
+                  })),
+                  onCrumb: (index) => goUp(index),
+                }
+              : undefined
+          }
           onBack={goBack}
           history={{
             onUndo: history.undo,
@@ -1355,7 +1362,18 @@ function PlanLibraryPage() {
             <ColumnBrowser
               className="flex-1"
               columns={built.columns}
-              single={layoutMode === 'phone'}
+              // Below `lg` the columns that fit stand, and a head above them
+              // leads up to the rest — the status bar has no room for the path.
+              fit={!isDesktop}
+              onReveal={(columnIndex) => goUp(columnIndex - 1)}
+              head={(firstShown) => (
+                <LibraryPathHead
+                  columns={built.columns}
+                  firstShown={firstShown}
+                  rootLabel={t('storage.historyTitle')}
+                  onReveal={(columnIndex) => goUp(columnIndex - 1)}
+                />
+              )}
               onSelect={choose}
               onItemClick={handleItemClick}
               onItemStep={handleItemStep}

@@ -64,13 +64,61 @@ interface ColumnBrowserProps {
     request: ContextMenuRequest,
     row: HTMLElement,
   ) => void;
-  /** Only the last column, the full width (a phone). */
-  single?: boolean;
+  /**
+   * Only the last columns that fit side by side, each at least 16rem wide and
+   * sharing the width between them — one on a phone, two on an iPad in
+   * portrait — rather than a row that scrolls sideways under the finger.
+   */
+  fit?: boolean;
+  /**
+   * The way to the columns `fit` leaves out, above the columns while it
+   * leaves out any; given the index of the first column on screen.
+   */
+  head?: (firstShown: number) => React.ReactNode;
+  /**
+   * Cuts the path back so that this column is the last one: ← from the first
+   * column on screen while `fit` leaves out the one before asks for the one
+   * before the last, one step up.
+   */
+  onReveal?: (columnIndex: number) => void;
   className?: string;
 }
 
+/** The narrowest a column may get beside another one, in rem (`w-64`). */
+const MIN_COLUMN_REM = 16;
+
 const itemsOf = (column: BrowserColumn) =>
   column.groups.flatMap((group) => group.items);
+
+/**
+ * How many columns of at least `MIN_COLUMN_REM` fit into `frame`, never fewer
+ * than one; rem, as the breakpoints are, so a larger text size fits fewer.
+ */
+function useFittingColumns(
+  frameRef: React.RefObject<HTMLDivElement | null>,
+  fit: boolean,
+): number {
+  const [count, setCount] = React.useState(1);
+  React.useLayoutEffect(() => {
+    const frame = frameRef.current;
+    if (!fit || !frame) return;
+    const measure = () => {
+      const rem =
+        Number.parseFloat(
+          getComputedStyle(document.documentElement).fontSize,
+        ) || 16;
+      setCount(
+        Math.max(1, Math.floor(frame.clientWidth / (MIN_COLUMN_REM * rem))),
+      );
+    };
+    measure();
+    if (typeof ResizeObserver === 'undefined') return;
+    const observer = new ResizeObserver(measure);
+    observer.observe(frame);
+    return () => observer.disconnect();
+  }, [frameRef, fit]);
+  return count;
+}
 
 /**
  * Folders in columns, as a file manager shows them (decision 0024): each
@@ -84,6 +132,10 @@ const itemsOf = (column: BrowserColumn) =>
  * The row of the item the inspector shows — the deepest one selected — sits
  * on paper with a blue bar at its edge, as an opened student does; the rows
  * on the path to it are sunken.
+ *
+ * Where the columns do not all fit (`fit`), the last ones stand and `head`
+ * leads to the rest, as a phone's file manager has a way up above its list;
+ * ← from the first column on screen goes up as well.
  */
 export default function ColumnBrowser({
   columns,
@@ -94,10 +146,13 @@ export default function ColumnBrowser({
   onRename,
   onDelete,
   onContextMenu,
-  single = false,
+  fit = false,
+  head,
+  onReveal,
   className = '',
 }: ColumnBrowserProps) {
   const optionRefs = React.useRef(new Map<string, HTMLDivElement>());
+  const frameRef = React.useRef<HTMLDivElement | null>(null);
   const scrollerRef = React.useRef<HTMLDivElement | null>(null);
   const idPrefix = React.useId();
 
@@ -105,20 +160,19 @@ export default function ColumnBrowser({
     (deepest, column, index) => (column.selectedKey ? index : deepest),
     -1,
   );
-  const shownColumns = single
-    ? columns.slice(-1).map((column) => ({
-        column,
-        index: columns.length - 1,
-      }))
-    : columns.map((column, index) => ({ column, index }));
+  const fittingColumns = useFittingColumns(frameRef, fit);
+  const firstShown = fit ? Math.max(0, columns.length - fittingColumns) : 0;
+  const shownColumns = columns
+    .slice(firstShown)
+    .map((column, offset) => ({ column, index: firstShown + offset }));
 
   // A column that appears is brought into view, as the next step of the path.
   const columnCount = columns.length;
   React.useEffect(() => {
     const scroller = scrollerRef.current;
-    if (!scroller || single) return;
+    if (!scroller || fit) return;
     scroller.scrollTo?.({ left: scroller.scrollWidth, behavior: 'smooth' });
-  }, [columnCount, single]);
+  }, [columnCount, fit]);
 
   // Every way here selects the row first, so it carries the blue bar that
   // already says where the focus is; the ring would say it twice, as in the
@@ -129,6 +183,16 @@ export default function ColumnBrowser({
     element?.focus();
     element?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
   };
+
+  // ← up into a column `fit` left out lands on the folder it came from, once
+  // that column is on screen.
+  const pendingFocusRef = React.useRef<string | null>(null);
+  React.useEffect(() => {
+    const key = pendingFocusRef.current;
+    if (!key || !optionRefs.current.has(key)) return;
+    pendingFocusRef.current = null;
+    focusItem(key);
+  });
 
   // A row that goes with the focus on it (Entf, an undo) hands it to what is
   // chosen now, or the keyboard would be left with nothing to step from.
@@ -233,6 +297,14 @@ export default function ColumnBrowser({
       case 'ArrowLeft': {
         const previous = columns[columnIndex - 1];
         if (!previous?.selectedKey) return;
+        if (columnIndex - 1 < firstShown) {
+          if (!onReveal) return;
+          event.preventDefault();
+          pendingFocusRef.current = previous.selectedKey;
+          // One step up, so the column before comes in on the left.
+          onReveal(columns.length - 2);
+          return;
+        }
         event.preventDefault();
         // The column left keeps its place in the path: choosing its folder
         // again keeps this column on screen.
@@ -262,144 +334,152 @@ export default function ColumnBrowser({
 
   return (
     <div
-      ref={scrollerRef}
-      className={`flex min-h-0 overflow-x-auto ${className}`}
+      ref={frameRef}
+      className={`flex min-h-0 min-w-0 flex-col ${className}`}
     >
-      {shownColumns.map(({ column, index: columnIndex }) => {
-        const items = itemsOf(column);
-        // One option per column takes the Tab key: the chosen one, or the
-        // first while none is.
-        const tabbableKey =
-          items.find((item) => item.key === column.selectedKey)?.key ??
-          items[0]?.key;
-        return (
-          <div
-            key={column.key}
-            className={`flex min-h-0 flex-col border-r border-(--border-card) last:border-r-0 ${
-              single ? 'w-full' : 'w-64 shrink-0'
-            }`}
-          >
-            {items.length === 0 && column.emptyText && (
-              <p className="px-4 py-6 text-center text-sm text-(--text-muted)">
-                {column.emptyText}
-              </p>
-            )}
+      {firstShown > 0 && head?.(firstShown)}
+      <div
+        ref={scrollerRef}
+        className={`flex min-h-0 flex-1 ${fit ? '' : 'overflow-x-auto'}`}
+      >
+        {shownColumns.map(({ column, index: columnIndex }) => {
+          const items = itemsOf(column);
+          // One option per column takes the Tab key: the chosen one, or the
+          // first while none is.
+          const tabbableKey =
+            items.find((item) => item.key === column.selectedKey)?.key ??
+            items[0]?.key;
+          return (
             <div
-              role="listbox"
-              aria-label={column.label}
-              aria-orientation="vertical"
-              className="flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto py-1"
+              key={column.key}
+              className={`flex min-h-0 flex-col border-r border-(--border-card) last:border-r-0 ${
+                fit ? 'min-w-0 flex-1' : 'w-64 shrink-0'
+              }`}
             >
-              {column.groups.map((group, groupIndex) =>
-                group.items.length === 0 ? null : (
-                  <div
-                    key={group.key}
-                    role="group"
-                    aria-label={group.label}
-                    className={
-                      groupIndex > 0
-                        ? 'mt-1 border-t border-(--border-card) pt-1'
-                        : undefined
-                    }
-                  >
-                    {group.label && (
-                      <div
-                        aria-hidden="true"
-                        className="px-4 pt-2 pb-1 text-caption font-semibold tracking-wider text-(--text-muted) uppercase"
-                      >
-                        {group.label}
-                      </div>
-                    )}
-                    {group.items.map((item) => {
-                      const selected = item.key === column.selectedKey;
-                      const current =
-                        selected && columnIndex === currentColumnIndex;
-                      return (
+              {items.length === 0 && column.emptyText && (
+                <p className="px-4 py-6 text-center text-sm text-(--text-muted)">
+                  {column.emptyText}
+                </p>
+              )}
+              <div
+                role="listbox"
+                aria-label={column.label}
+                aria-orientation="vertical"
+                className="flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto py-1"
+              >
+                {column.groups.map((group, groupIndex) =>
+                  group.items.length === 0 ? null : (
+                    <div
+                      key={group.key}
+                      role="group"
+                      aria-label={group.label}
+                      className={
+                        groupIndex > 0
+                          ? 'mt-1 border-t border-(--border-card) pt-1'
+                          : undefined
+                      }
+                    >
+                      {group.label && (
                         <div
-                          key={item.key}
-                          id={`${idPrefix}-${item.key}`}
-                          ref={(node) => {
-                            if (node) optionRefs.current.set(item.key, node);
-                            else optionRefs.current.delete(item.key);
-                          }}
-                          role="option"
-                          aria-selected={selected}
-                          tabIndex={item.key === tabbableKey ? 0 : -1}
-                          onFocus={() => {
-                            focusedKeyRef.current = item.key;
-                          }}
-                          onClick={(event) => {
-                            onSelect(columnIndex, item.key);
-                            focusItem(item.key);
-                            // The second click of a double click is the
-                            // opening's, not a click of its own.
-                            if (event.detail < 2) {
-                              onItemClick?.(columnIndex, item.key);
-                            }
-                          }}
-                          onDoubleClick={() => onOpen?.(columnIndex, item.key)}
-                          data-option-key={item.key}
-                          onContextMenu={(event) => {
-                            if (!onContextMenu) return;
-                            event.preventDefault();
-                            // A finger's is the long press's to answer.
-                            if (isTouchContextMenu(event)) return;
-                            askForMenu(columnIndex, item.key, {
-                              x: event.clientX,
-                              y: event.clientY,
-                              pointer: 'mouse',
-                            });
-                          }}
-                          {...(onContextMenu ? longPress : {})}
-                          onKeyDown={(event) =>
-                            handleKeyDown(event, columnIndex, item.key)
-                          }
-                          className={`relative mx-1 flex min-h-9 cursor-pointer items-center gap-2.5 rounded-md px-3 py-1.5 text-sm outline-none select-none [-webkit-touch-callout:none] hover:bg-(--surface-sunken) focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-(--focus-ring) data-quiet-focus:focus-visible:ring-0 pointer-coarse:min-h-11 ${
-                            selected ? 'bg-(--surface-sunken)' : ''
-                          }`}
+                          aria-hidden="true"
+                          className="px-4 pt-2 pb-1 text-caption font-semibold tracking-wider text-(--text-muted) uppercase"
                         >
-                          {current && (
-                            <span
-                              aria-hidden="true"
-                              className="absolute inset-y-1 left-0 w-1 rounded-full bg-(--border-option-selected)"
-                            />
-                          )}
-                          {item.leading && (
-                            <span
-                              aria-hidden="true"
-                              className="flex shrink-0 items-center text-(--text-muted)"
-                            >
-                              {item.leading}
-                            </span>
-                          )}
-                          <span className="flex min-w-0 flex-1 flex-col">
-                            <span className="truncate text-(--text-page)">
-                              {item.label}
-                            </span>
-                            {item.meta && (
-                              <span className="truncate text-xs text-(--text-muted) tabular-nums">
-                                {item.meta}
+                          {group.label}
+                        </div>
+                      )}
+                      {group.items.map((item) => {
+                        const selected = item.key === column.selectedKey;
+                        const current =
+                          selected && columnIndex === currentColumnIndex;
+                        return (
+                          <div
+                            key={item.key}
+                            id={`${idPrefix}-${item.key}`}
+                            ref={(node) => {
+                              if (node) optionRefs.current.set(item.key, node);
+                              else optionRefs.current.delete(item.key);
+                            }}
+                            role="option"
+                            aria-selected={selected}
+                            tabIndex={item.key === tabbableKey ? 0 : -1}
+                            onFocus={() => {
+                              focusedKeyRef.current = item.key;
+                            }}
+                            onClick={(event) => {
+                              onSelect(columnIndex, item.key);
+                              focusItem(item.key);
+                              // The second click of a double click is the
+                              // opening's, not a click of its own.
+                              if (event.detail < 2) {
+                                onItemClick?.(columnIndex, item.key);
+                              }
+                            }}
+                            onDoubleClick={() =>
+                              onOpen?.(columnIndex, item.key)
+                            }
+                            data-option-key={item.key}
+                            onContextMenu={(event) => {
+                              if (!onContextMenu) return;
+                              event.preventDefault();
+                              // A finger's is the long press's to answer.
+                              if (isTouchContextMenu(event)) return;
+                              askForMenu(columnIndex, item.key, {
+                                x: event.clientX,
+                                y: event.clientY,
+                                pointer: 'mouse',
+                              });
+                            }}
+                            {...(onContextMenu ? longPress : {})}
+                            onKeyDown={(event) =>
+                              handleKeyDown(event, columnIndex, item.key)
+                            }
+                            className={`relative mx-1 flex min-h-9 cursor-pointer items-center gap-2.5 rounded-md px-3 py-1.5 text-sm outline-none select-none [-webkit-touch-callout:none] hover:bg-(--surface-sunken) focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-(--focus-ring) data-quiet-focus:focus-visible:ring-0 pointer-coarse:min-h-11 ${
+                              selected ? 'bg-(--surface-sunken)' : ''
+                            }`}
+                          >
+                            {current && (
+                              <span
+                                aria-hidden="true"
+                                className="absolute inset-y-1 left-0 w-1 rounded-full bg-(--border-option-selected)"
+                              />
+                            )}
+                            {item.leading && (
+                              <span
+                                aria-hidden="true"
+                                className="flex shrink-0 items-center text-(--text-muted)"
+                              >
+                                {item.leading}
                               </span>
                             )}
-                          </span>
-                          {item.badges}
-                          {item.isFolder && (
-                            <CaretRightIcon
-                              size={14}
-                              aria-hidden="true"
-                              className="shrink-0 text-(--text-muted)"
-                            />
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                ),
-              )}
+                            <span className="flex min-w-0 flex-1 flex-col">
+                              <span className="truncate text-(--text-page)">
+                                {item.label}
+                              </span>
+                              {item.meta && (
+                                <span className="truncate text-xs text-(--text-muted) tabular-nums">
+                                  {item.meta}
+                                </span>
+                              )}
+                            </span>
+                            {item.badges}
+                            {item.isFolder && (
+                              <CaretRightIcon
+                                size={14}
+                                aria-hidden="true"
+                                className="shrink-0 text-(--text-muted)"
+                              />
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ),
+                )}
+              </div>
             </div>
-          </div>
-        );
-      })}
+          );
+        })}
+      </div>
     </div>
   );
 }

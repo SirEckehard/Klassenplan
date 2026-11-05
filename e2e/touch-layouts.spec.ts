@@ -369,6 +369,59 @@ test(
 );
 
 test(
+  '"Bibliothek" shows the columns that fit and leads up to the rest above them',
+  { tag: ['@phone', '@tablet'] },
+  async ({ page }, testInfo) => {
+    await loadSampleClass(page);
+    await page.goto('/bibliothek');
+    const isPhone = testInfo.project.name === 'phone';
+    const path = page.getByRole('navigation', { name: 'Pfad' });
+    const column = (name: string) =>
+      page.getByRole('listbox', { name, exact: true });
+
+    await test.step('the path stands above the columns, not in the bar', async () => {
+      await expect(column('Klassenraum')).toBeVisible();
+      await expect(path).toHaveCount(1);
+      await expect(statusBar(page).getByRole('navigation')).toHaveCount(0);
+      // A phone has room for one column, an iPad in portrait for two, which
+      // share the card's width rather than scroll sideways.
+      await expect(column('Beispielklasse')).toHaveCount(isPhone ? 0 : 1);
+      await expect(column('Klassen')).toHaveCount(0);
+      const card = await boxOf(page.locator('[data-tour="library-columns"]'));
+      const shown = await boxOf(column('Klassenraum'));
+      expect(shown.x + shown.width).toBeGreaterThan(card.x + card.width - 4);
+      expect(shown.width).toBeGreaterThanOrEqual(
+        isPhone ? card.width - 4 : 256,
+      );
+    });
+
+    await test.step('the way up names the folder above', async () => {
+      await path
+        .getByRole('button', {
+          name: isPhone ? 'Zurück zu Beispielklasse' : 'Zurück zu Bibliothek',
+        })
+        .click();
+      await expect(
+        column(isPhone ? 'Beispielklasse' : 'Klassen'),
+      ).toBeVisible();
+    });
+
+    await test.step('the path opens as a menu of its steps', async () => {
+      await page.getByRole('option', { name: /^Klassenraum/ }).click();
+      await expect(column('Klassenraum')).toBeVisible();
+      await path.getByRole('button', { name: /– Pfad zeigen$/ }).click();
+      const menu = page.getByRole('dialog', { name: 'Pfad' });
+      await expect(
+        menu.getByRole('button', { name: 'Klassenraum' }),
+      ).toHaveAttribute('aria-current', 'location');
+      await menu.getByRole('button', { name: 'Bibliothek' }).click();
+      await expect(column('Klassen')).toBeVisible();
+      await expect(path).toHaveCount(0);
+    });
+  },
+);
+
+test(
   'a drawer ends where the status bar begins, whatever the safe area does',
   { tag: '@phone' },
   async ({ page }) => {

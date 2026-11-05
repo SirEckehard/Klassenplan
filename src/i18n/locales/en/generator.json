@@ -1194,6 +1194,8 @@
     "history": "History",
     "loading": "Loading …",
     "path": "Path",
+    "pathMenu": "{{name}} – show the path",
+    "up": "Back to {{name}}",
     "open": "Open",
     "openAsRoom": "Open as a room",
     "openTitle": "Open (Enter)",

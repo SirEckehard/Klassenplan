@@ -13,13 +13,13 @@ function Harness({
   onRename = vi.fn(),
   onDelete = vi.fn(),
   onContextMenu,
-  single = false,
+  fit = false,
 }: {
   onOpen?: (column: number, key: string) => void;
   onRename?: (column: number, key: string) => void;
   onDelete?: (column: number, key: string) => void;
   onContextMenu?: React.ComponentProps<typeof ColumnBrowser>['onContextMenu'];
-  single?: boolean;
+  fit?: boolean;
 }) {
   const [path, setPath] = React.useState<string[]>(['7a']);
   const columns: BrowserColumn[] = [
@@ -95,7 +95,16 @@ function Harness({
       onRename={onRename}
       onDelete={onDelete}
       onContextMenu={onContextMenu}
-      single={single}
+      fit={fit}
+      onReveal={(column) => setPath(path.slice(0, column))}
+      head={(firstShown) => (
+        <button
+          type="button"
+          onClick={() => setPath(path.slice(0, firstShown - 1))}
+        >
+          {`Zurück zu ${columns[firstShown - 1].label}`}
+        </button>
+      )}
     />
   );
 }
@@ -310,10 +319,37 @@ describe('ColumnBrowser', () => {
     ).toBeInTheDocument();
   });
 
-  it('shows only the last column on a phone', () => {
-    render(<Harness single />);
+  it('shows only the column that fits, with the way up above it', async () => {
+    const user = userEvent.setup();
+    // jsdom lays nothing out: no width fits more than one column.
+    render(<Harness fit />);
 
     expect(screen.queryByRole('listbox', { name: 'Klassen' })).toBeNull();
     expect(screen.getByRole('listbox', { name: '7a' })).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Zurück zu Klassen' }));
+
+    expect(
+      screen.getByRole('listbox', { name: 'Klassen' }),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole('listbox', { name: '7a' })).toBeNull();
+    // Nothing is left out any more, so there is no way up.
+    expect(screen.queryByRole('button', { name: /^Zurück zu/ })).toBeNull();
+  });
+
+  it('goes up with ← from the column that fits, onto the folder it came from', async () => {
+    const user = userEvent.setup();
+    render(<Harness fit />);
+
+    await user.click(option('Klassenraum'));
+    expect(
+      screen.getByRole('listbox', { name: 'Klassenraum' }),
+    ).toBeInTheDocument();
+
+    act(() => option('Oktober').focus());
+    await user.keyboard('{ArrowLeft}');
+
+    expect(screen.getByRole('listbox', { name: '7a' })).toBeInTheDocument();
+    expect(option('Klassenraum')).toHaveFocus();
   });
 });
