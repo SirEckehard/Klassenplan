@@ -7,6 +7,7 @@ import {
   WORDMARK_UNITS_PER_EM,
 } from '@/components/kpWordmarkPaths';
 import { measureNameWidth } from '@/utils/ui/seatLabelLayout';
+import { SHEET_INK } from '@/utils/ui/sheetInk';
 import { svgFontFamily } from '@/utils';
 
 /**
@@ -233,7 +234,7 @@ export function ExportPageHeader({
           textAnchor="middle"
           fontSize={SMALL_SIZE}
           fontWeight="500"
-          fill="#475569"
+          fill={SHEET_INK.muted}
         >
           {line}
         </text>

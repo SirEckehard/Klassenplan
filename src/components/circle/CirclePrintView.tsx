@@ -34,6 +34,7 @@ import {
 } from '@/components/scene/ExportPageFrame';
 import { computeTokenPhotoLayout } from '@/utils/ui/studentTokenLayout';
 import { buildLegendLayout } from '@/utils/ui/classBadgeLegend';
+import { SHEET_INK } from '@/utils/ui/sheetInk';
 import { summarizeCircle } from '@/utils/algorithm/circleSummary';
 import ExportLegend from '@/components/scene/ExportLegend';
 import SheetNotesBand from '@/components/scene/SheetNotesBand';
@@ -72,7 +73,8 @@ interface CirclePrintViewProps {
   notes?: SheetNotes;
 }
 
-const CONNECTION_STROKE = '#16a34a';
+// Table neighbours still side by side: quiet ink, no colour of their own.
+const CONNECTION_STROKE = SHEET_INK.muted;
 
 /**
  * Optimized circle view for PDF export
@@ -413,7 +415,7 @@ export default function CirclePrintView({
               fit={nameFit}
               title={displayName}
               fontWeight={400}
-              fill="#0f172a"
+              fill={SHEET_INK.text}
               style={{ userSelect: 'none' }}
             />
 

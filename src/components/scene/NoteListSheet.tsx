@@ -32,14 +32,17 @@ import {
   type ExportClassInfo,
   type ExportPageLayout,
 } from '@/components/scene/ExportPageFrame';
+import { SHEET_INK } from '@/utils/ui/sheetInk';
 
 // Ink on paper: the list is printed, so it keeps to a few greys.
-const INK = '#000';
-const MUTED = '#57534e';
-const RULE_STRONG = '#44403c';
-const RULE = '#a8a29e';
-const RULE_FAINT = '#d6d3d1';
-const ZEBRA = '#f5f5f4';
+const {
+  ink: INK,
+  muted: MUTED,
+  ruleStrong: RULE_STRONG,
+  rule: RULE,
+  ruleFaint: RULE_FAINT,
+  zebra: ZEBRA,
+} = SHEET_INK;
 
 const NAME_SIZE = 10;
 const MIN_NAME_SIZE = 7;

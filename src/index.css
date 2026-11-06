@@ -149,6 +149,10 @@
   --button-danger-text: #ffffff;
   --button-danger-shadow: none;
   --button-success-bg: #15803d;
+  /* A filled neutral button: as clear against a card in both themes. */
+  --button-neutral-bg: #e3dfd6;
+  --button-neutral-bg-hover: #cec8bb;
+  --button-neutral-text: #43464b;
   --button-icon-bg: #ffffff;
   --button-icon-bg-hover: #f3f1ec;
   --button-icon-text: #43464b;
@@ -246,6 +250,7 @@
   );
   --canvas-guide: #f59e0b;
   --canvas-alert: var(--status-alert);
+  --canvas-alert-fill: color-mix(in srgb, var(--canvas-alert) 12%, transparent);
 
   /*
    * The glass look is gone; the variables stay so the utilities that reference
@@ -323,6 +328,9 @@
     --button-danger-bg-hover: #be123c;
     --button-danger-shadow: none;
     --button-success-bg: #14622f;
+    --button-neutral-bg: #2a2d31;
+    --button-neutral-bg-hover: #3a3d42;
+    --button-neutral-text: #c9cbcf;
     --button-icon-bg: #181a1d;
     --button-icon-bg-hover: #202327;
     --button-icon-text: #c9cbcf;
@@ -693,8 +701,8 @@
   line-height: 1.25rem;
   font-weight: 500;
   border-radius: var(--radius-pill);
-  background-color: var(--color-gray-200);
-  color: var(--color-gray-700);
+  background-color: var(--button-neutral-bg);
+  color: var(--button-neutral-text);
   transition:
     background-color 150ms ease,
     color 150ms ease,
@@ -704,7 +712,8 @@
 }
 
 .neutral-button:hover:not(:disabled) {
-  background-color: var(--color-gray-300);
+  background-color: var(--button-neutral-bg-hover);
+  color: var(--text-page);
 }
 
 .neutral-button:focus-visible {
@@ -715,15 +724,6 @@
 .neutral-button:disabled {
   cursor: not-allowed;
   opacity: 0.6;
-}
-
-.dark .neutral-button {
-  background-color: var(--color-gray-700);
-  color: var(--color-gray-200);
-}
-
-.dark .neutral-button:hover:not(:disabled) {
-  background-color: var(--color-gray-600);
 }
 
 @utility danger-button {
@@ -1412,22 +1412,13 @@ html.dark {
 @utility skeleton-base {
   background: linear-gradient(
     90deg,
-    rgba(226, 232, 240, 0.6) 0%,
-    rgba(241, 245, 249, 0.8) 50%,
-    rgba(226, 232, 240, 0.6) 100%
+    var(--surface-sunken) 0%,
+    color-mix(in srgb, var(--border-option-hover) 60%, var(--surface-sunken))
+      50%,
+    var(--surface-sunken) 100%
   );
   background-size: 200% 100%;
   border-radius: 0.5rem;
-}
-
-.dark .skeleton-base {
-  background: linear-gradient(
-    90deg,
-    rgba(30, 41, 59, 0.6) 0%,
-    rgba(51, 65, 85, 0.8) 50%,
-    rgba(30, 41, 59, 0.6) 100%
-  );
-  background-size: 200% 100%;
 }
 
 @utility skeleton-shimmer {

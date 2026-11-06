@@ -192,7 +192,9 @@ way (`SceneSvg`), within margins of 10 mm and a header of one line — brand,
 title, date — in both orientations (`ExportPageFrame`); its switch "Anzeige
 vergrößern", switched off, brings back the whole room in its outline, everything
 where it stands. The note list ("Liste", `NoteListSheet`) wears the same frame
-on every page it runs to: grey rules on paper, no colour but a badge's ink when
+on every page it runs to: grey rules on paper — the light ramp's warm greys,
+spelled out in `utils/ui/sheetInk` for every printed sheet, since serialised
+SVG carries no variable —, no colour but a badge's ink when
 switched on, a stronger rule where a table begins, and the room to write —
 ruled lines at 22pt (about 8 mm), or a grid whose empty heads take a date.
 

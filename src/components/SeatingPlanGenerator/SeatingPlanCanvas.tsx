@@ -406,8 +406,8 @@ const SeatingPlanCanvas = React.memo(
               y={selectionBox.y}
               width={selectionBox.width}
               height={selectionBox.height}
-              fill="rgba(59, 130, 246, 0.1)"
-              stroke="rgba(59, 130, 246, 0.5)"
+              fill="var(--canvas-selection-fill)"
+              stroke="var(--canvas-selection)"
               strokeWidth="1"
               strokeDasharray="4 4"
             />

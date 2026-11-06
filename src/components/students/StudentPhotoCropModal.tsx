@@ -102,7 +102,7 @@ function StudentPhotoCropModal({
     // Dim everything outside the circular crop and draw the guide outline.
     const radius = VIEWPORT / 2 - 1;
     ctx.save();
-    ctx.fillStyle = 'rgba(15, 23, 42, 0.5)';
+    ctx.fillStyle = 'rgba(23, 24, 26, 0.5)'; // the ink of --scrim
     ctx.beginPath();
     ctx.rect(0, 0, VIEWPORT, VIEWPORT);
     ctx.arc(VIEWPORT / 2, VIEWPORT / 2, radius, 0, Math.PI * 2, true);

@@ -2,6 +2,7 @@
 // Copyright (C) 2026 Eike Schäfer
 import { useTranslation } from 'react-i18next';
 import { svgFontFamily } from '@/utils';
+import { SHEET_INK } from '@/utils/ui/sheetInk';
 import {
   SHEET_NOTES_METRICS,
   type SheetNotesLayout,
@@ -40,7 +41,7 @@ export default function SheetNotesBand({
           key={`note-${index}`}
           y={baseline}
           fontSize={SHEET_NOTES_METRICS.textSize}
-          fill="#0f172a"
+          fill={SHEET_INK.text}
         >
           {line}
         </text>
@@ -52,7 +53,7 @@ export default function SheetNotesBand({
           x2={width}
           y1={ruleY}
           y2={ruleY}
-          stroke="#94a3b8"
+          stroke={SHEET_INK.rule}
           strokeWidth={0.5}
         />
       ))}

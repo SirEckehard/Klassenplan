@@ -15,6 +15,7 @@ import { buildDemoClassroomScene } from '@/utils/demo/demoClass';
 import type { ClassroomScene, SeatingArrangement, Student } from '@/types';
 import type { CircleLayout } from '@/types/Circle';
 import { STUDENT_COLORS } from '@/utils/ui/studentAppearance';
+import { SHEET_INK } from '@/utils/ui/sheetInk';
 import {
   DEFAULT_SUBSTITUTE_SETTINGS,
   substituteRenderOptions,
@@ -598,7 +599,8 @@ describe('the substitute sheet', () => {
     dateLabel: 'Vertretung am 3. November 2026',
   };
   const ruledLines = (svg: string) =>
-    (svg.match(/<line[^>]*stroke="#94a3b8"/g) ?? []).length;
+    (svg.match(new RegExp(`<line[^>]*stroke="${SHEET_INK.rule}"`, 'g')) ?? [])
+      .length;
   const scaleOf = (svg: string) =>
     Number(/rotate\(\d+\) scale\(([\d.]+)\)/.exec(svg)?.[1]);
 

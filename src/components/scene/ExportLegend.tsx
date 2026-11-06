@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import type { LegendLayout } from '@/utils/ui/classBadgeLegend';
+import { SHEET_INK } from '@/utils/ui/sheetInk';
 
 interface ExportLegendProps {
   layout: LegendLayout;
@@ -38,7 +39,7 @@ export default function ExportLegend({
         y={layout.titleY}
         fontSize={fontSize}
         fontWeight="bold"
-        fill="#334155"
+        fill={SHEET_INK.textStrong}
       >
         {title}
       </text>
@@ -61,7 +62,7 @@ export default function ExportLegend({
                 y={0}
                 fontSize={fontSize}
                 dominantBaseline="central"
-                fill="#475569"
+                fill={SHEET_INK.muted}
               >
                 {item.label}
               </text>
@@ -82,7 +83,7 @@ export default function ExportLegend({
               y={0}
               fontSize={fontSize}
               dominantBaseline="central"
-              fill="#475569"
+              fill={SHEET_INK.muted}
             >
               {item.label}
             </text>

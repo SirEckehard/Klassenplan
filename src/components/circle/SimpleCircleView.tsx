@@ -733,7 +733,7 @@ function SimpleCircleView({
                 key={`${firstId}-${secondId}`}
                 d={pathData}
                 fill="none"
-                stroke={isDark ? '#22c55e' : '#16a34a'}
+                stroke="var(--text-muted)"
                 strokeWidth="2"
                 opacity="0.4"
                 strokeLinecap="round"
@@ -1173,17 +1173,16 @@ function SimpleCircleView({
                   )}
                 </g>
               ) : (
-                /* Empty slot */
+                /* Empty slot: the contour of an empty seat in the plan */
                 <g>
                   <circle
                     cx={slot.x}
                     cy={slot.y}
                     r="25"
                     fill="none"
-                    stroke={isDark ? '#555' : '#ccc'}
+                    stroke="var(--border-option-hover)"
                     strokeWidth="2"
                     strokeDasharray="3,3"
-                    opacity="0.5"
                   />
                 </g>
               )}

@@ -9,12 +9,15 @@ import {
   getExportPageLayout,
   type ExportClassInfo,
 } from '@/components/scene/ExportPageFrame';
+import { SHEET_INK } from '@/utils/ui/sheetInk';
 
 // Ink on paper, the note list's greys.
-const INK = '#000';
-const MUTED = '#57534e';
-const RULE_STRONG = '#44403c';
-const RULE = '#a8a29e';
+const {
+  ink: INK,
+  muted: MUTED,
+  ruleStrong: RULE_STRONG,
+  rule: RULE,
+} = SHEET_INK;
 
 const SMALL_SIZE = 7.5;
 const HEAD_ROW = 18;

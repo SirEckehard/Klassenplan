@@ -762,7 +762,7 @@ export default function Export() {
       body.pages {
         display: block;
         overflow-y: auto;
-        background: #e7e5e4;
+        background: #e8e5de;
       }
       body.pages #print-root {
         height: auto;
