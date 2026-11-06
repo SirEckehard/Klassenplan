@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Improved
+
+- In the seating plan, the presentation, "Where does who sit?", "Who's next?" and the export the room steps back behind the students: furniture only as an outline, thinner lines, no grid
+
 ## [3.3.1] - 2026-11-06
 
 ### Improved

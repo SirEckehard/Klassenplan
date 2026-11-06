@@ -11,6 +11,12 @@ import { FEATURE_TYPE_ICONS, FEATURE_TYPE_LABEL_KEYS } from '@/utils/ui';
 const MIN_ICON_EDGE = 20;
 /** Uniform glyph size so podium/cabinet icons match the thin wall elements. */
 const ICON_SIZE = 16;
+/** Glyph size behind the seating plan (`FeatureStyles.quiet`). */
+const QUIET_ICON_SIZE = 12;
+/** Contour width; half of it falls outside the clip (see below). */
+const STROKE_WIDTH = 3;
+/** A hairline behind the seating plan (`FeatureStyles.quiet`). */
+const QUIET_STROKE_WIDTH = 1.5;
 /** Selection stroke matching the table selection color. */
 const ACTIVE_STROKE = 'var(--canvas-selection)';
 
@@ -69,7 +75,7 @@ export default function FeatureShape({
   const name = t(FEATURE_TYPE_LABEL_KEYS[feature.type], feature.label ?? '');
   const IconGlyph = FEATURE_TYPE_ICONS[feature.type];
   const minEdge = Math.min(width, height);
-  const iconSize = ICON_SIZE;
+  const iconSize = styles.quiet ? QUIET_ICON_SIZE : ICON_SIZE;
   const iconRotation = ((-(rotation + extraIconRotation) % 360) + 360) % 360;
 
   return (
@@ -98,7 +104,9 @@ export default function FeatureShape({
         rx={FEATURE_CORNER_RADIUS}
         fill={styles.fill}
         stroke={isActive ? ACTIVE_STROKE : styles.stroke}
-        strokeWidth={isActive ? 4.8 : 3}
+        strokeWidth={
+          isActive ? 4.8 : styles.quiet ? QUIET_STROKE_WIDTH : STROKE_WIDTH
+        }
         clipPath={`url(#feature-clip-${feature.id})`}
         {...rectProps}
       />

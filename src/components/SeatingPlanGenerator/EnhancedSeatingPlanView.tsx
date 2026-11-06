@@ -77,10 +77,6 @@ export default function EnhancedSeatingPlanView(
     batchSwapStudentPositions,
     toggleCircleLock,
   } = useSeatingPlanActions();
-  // Read from the shared context rather than a second `usePersistentState` on
-  // the same key: two instances only agreed because nothing toggled the grid
-  // while both were mounted.
-  const { showGrid } = useCanvasPreferences();
   const isDark = useIsDarkMode();
   // Marks the visit (`spg.hasVisitedApp`) for the onboarding tour record.
   useFirstVisit();
@@ -311,7 +307,6 @@ export default function EnhancedSeatingPlanView(
                   turn={circleTurn}
                   onStudentMove={handleStudentPositionChange}
                   showSpecialNeeds={true}
-                  showGrid={showGrid}
                   isDark={isDark}
                   connectionMode={connectionMode}
                   onConnectionModeChange={setConnectionMode}

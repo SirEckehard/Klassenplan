@@ -54,10 +54,6 @@
     "performanceStrong": "Leistungsstark",
     "performanceWeak": "Leistungsschwach"
   },
-  "heightCategories": {
-    "small": "Klein",
-    "tall": "Groß"
-  },
   "theme": {
     "toggle": "Design wechseln",
     "followSystem": "Design wie das System"

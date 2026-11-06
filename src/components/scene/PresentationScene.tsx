@@ -13,7 +13,7 @@ import {
   type NameDisplayMode,
   svgFontFamily,
 } from '@/utils';
-import { getFeatureStyles } from '@/utils/ui';
+import { getBackdropFeatureStyles, getFeatureStyles } from '@/utils/ui';
 import {
   featuresForTableFrame,
   frameContentBounds,
@@ -137,7 +137,11 @@ export default function PresentationScene({
     const shown = (scene.features ?? [])
       .map((feature) => ({
         feature,
-        styles: getFeatureStyles(feature, dark, undefined, !colors),
+        // The room recedes behind the students as on the plan layer; the
+        // contrast mode, made for a weak beamer, keeps the full contour.
+        styles: contrast
+          ? getFeatureStyles(feature, dark, undefined, true)
+          : getBackdropFeatureStyles(feature, dark, { neutralColors: !colors }),
       }))
       .filter(({ styles }) => styles.shouldRender);
     const stylesById = new Map(
@@ -150,7 +154,7 @@ export default function PresentationScene({
       const styles = stylesById.get(feature.id);
       return styles ? [{ feature, styles }] : [];
     });
-  }, [scene.features, scene.tables, dark, showFeatures, colors]);
+  }, [scene.features, scene.tables, dark, showFeatures, colors, contrast]);
 
   // The drawn content, mapped through the same rotation the classroom group
   // gets, becomes the visible area. Without content (an empty room) the whole

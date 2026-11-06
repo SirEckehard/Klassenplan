@@ -6,7 +6,6 @@ import {
   ChartBarIcon,
   WarningIcon,
   InfoIcon,
-  GridNineIcon,
   ShuffleIcon,
   SpinnerGapIcon,
 } from '@phosphor-icons/react';
@@ -26,13 +25,11 @@ import StatusBarPortal from '@/components/shell/StatusBarPortal';
 import { statusBarWordClass } from '@/components/shell/StatusBarFrame';
 import { useInspector } from '@/contexts/InspectorContext';
 import { isBreakpointUp } from '@/hooks/ui/useBreakpoint';
-import { useCanvasPreferences } from '@/contexts/seatingPlan/CanvasPreferencesContext';
 import SeatingPlanCanvas from '@/components/SeatingPlanGenerator/SeatingPlanCanvas';
 import FulfillmentBand from '@/components/SeatingPlanGenerator/FulfillmentBand';
 import HighlightStatus from '@/components/SeatingPlanGenerator/HighlightStatus';
 import { TOUR_ANCHORS } from '@/components/onboarding/tours';
 import {
-  GRID_SIZE,
   getDisplayNameForMode,
   type NameDisplayMode,
   canvasFrameClass,
@@ -284,7 +281,6 @@ export default function SeatingPlanEditorView({
 }: Props) {
   const isDark = useIsDarkMode();
   const { t } = useTranslation('generator');
-  const { showGrid, setShowGrid } = useCanvasPreferences();
   // Marks the visit (`spg.hasVisitedApp`) for the onboarding tour record.
   useFirstVisit();
   const layoutMode = useLayoutMode();
@@ -321,16 +317,11 @@ export default function SeatingPlanEditorView({
       sceneTables,
     ],
   );
-  // The floor takes the canvas surface and the grid the hairline, both as
-  // custom properties so light and dark come from the one place that defines
-  // them — an inline style resolves `var()` like any other declaration.
+  // The floor takes the canvas surface as a custom property, so light and
+  // dark come from the one place that defines it. No grid: it helps to align
+  // on the room layer and would only add noise behind the students.
   const backgroundColor = 'var(--canvas-bg)';
-  const gridColor = 'var(--border-card)';
 
-  const handleToggleGrid = React.useCallback(
-    (checked: boolean) => setShowGrid(() => checked),
-    [setShowGrid],
-  );
   const handlePhotoDisplayModeChange = React.useCallback(
     (next: PhotoDisplayMode) => setPhotoDisplayMode(() => next),
     [setPhotoDisplayMode],
@@ -362,26 +353,6 @@ export default function SeatingPlanEditorView({
 
   const seatingSettingsGroups = React.useMemo(
     () => [
-      {
-        id: 'editor-canvas',
-        title: t('editor.workspace'),
-        options: [
-          {
-            kind: 'checkList' as const,
-            id: 'editor-canvas-grid',
-            label: t('editor.workspace'),
-            items: [
-              {
-                id: 'show-grid',
-                label: t('editor.showGrid'),
-                icon: <GridNineIcon size={18} />,
-                checked: showGrid,
-                onChange: handleToggleGrid,
-              },
-            ],
-          },
-        ],
-      },
       buildPhotoDisplayGroup({
         id: 'editor-photos',
         optionId: 'photo-display-mode',
@@ -423,7 +394,6 @@ export default function SeatingPlanEditorView({
       featureVisibility,
       hasHoverPointer,
       setFeatureVisible,
-      handleToggleGrid,
       handlePhotoDisplayModeChange,
       nameDisplay,
       setNameDisplay,
@@ -435,7 +405,6 @@ export default function SeatingPlanEditorView({
       reportBadgeFocus,
       students,
       photoDisplayMode,
-      showGrid,
       t,
     ],
   );
@@ -1028,12 +997,6 @@ export default function SeatingPlanEditorView({
                 <div
                   style={{
                     backgroundColor,
-                    backgroundImage: showGrid
-                      ? `linear-gradient(to right, ${gridColor} 1px, transparent 1px), linear-gradient(to bottom, ${gridColor} 1px, transparent 1px)`
-                      : undefined,
-                    backgroundSize: showGrid
-                      ? `${GRID_SIZE}px ${GRID_SIZE}px`
-                      : undefined,
                   }}
                   className="h-auto w-full rounded-none"
                 >
@@ -1045,7 +1008,6 @@ export default function SeatingPlanEditorView({
                     currentSeating={effectiveSeating}
                     allStudents={students}
                     selectedTableIds={[]}
-                    showGrid={false}
                     featureVisibility={featureVisibility}
                     selectionBox={null}
                     handlePointerMove={() => {}}

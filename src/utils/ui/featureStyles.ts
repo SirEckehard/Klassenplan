@@ -78,6 +78,62 @@ export const DEFAULT_FEATURE_VISIBILITY: Required<FeatureVisibilityFlags> = {
 
 export type FeatureStyles = FeaturePalette & {
   shouldRender: boolean;
+  /**
+   * Drawn as the backdrop of the seating plan: a hairline contour and a
+   * smaller icon (`FeatureShape`), so the room recedes behind the students.
+   */
+  quiet?: boolean;
+};
+
+/*
+ * On the plan layer the room is the backdrop, not the subject. The elements
+ * that orient the plan — the front, the light, the way out — and that
+ * criteria refer to keep their hue; the furniture is left as a bare outline
+ * in the canvas's own quiet ink.
+ */
+const ORIENTATION_FEATURES: ReadonlySet<ClassroomFeatureType> = new Set([
+  'board',
+  'window',
+  'door',
+]);
+
+/*
+ * In the dark the orientation palette above still reads as saturated blocks
+ * with bright contours; behind the plan the fill is only a breath of the hue
+ * over the canvas and the contour steps down. The light palette's near-white
+ * fills already recede, so it stays as it is.
+ */
+const BACKDROP_ORIENTATION_DARK: Partial<
+  Record<ClassroomFeatureType, FeaturePalette>
+> = {
+  window: { fill: '#1a1f29', stroke: '#3f5684', text: '#6f84ad' },
+  board: { fill: '#191f1c', stroke: '#3a6149', text: '#6d947c' },
+  door: { fill: '#1f1b19', stroke: '#6e5141', text: '#a0846f' },
+};
+
+const BACKDROP_FURNITURE_PALETTE: Record<FeatureColorMode, FeaturePalette> = {
+  light: { fill: 'none', stroke: '#c9c4ba', text: '#a29d93' },
+  dark: { fill: 'none', stroke: '#44484e', text: '#6f747a' },
+};
+
+/*
+ * With the colours switched off (the projection's colour switch) the board,
+ * the windows and the door are one muted gray — a step above the furniture,
+ * so they still orient the plan.
+ */
+/*
+ * On paper the screen's furniture outline is too light: a laser printer
+ * dithers it away. The sheet takes a darker ink of the same hue.
+ */
+const BACKDROP_FURNITURE_PAPER: FeaturePalette = {
+  fill: 'none',
+  stroke: '#9c978d',
+  text: '#8a857c',
+};
+
+const BACKDROP_ORIENTATION_NEUTRAL: Record<FeatureColorMode, FeaturePalette> = {
+  light: { fill: '#f6f5f2', stroke: '#9a968e', text: '#7a766f' },
+  dark: { fill: '#1c1e21', stroke: '#565a60', text: '#868a90' },
 };
 
 export const getFeatureStyles = (
@@ -100,5 +156,50 @@ export const getFeatureStyles = (
   return {
     ...palette,
     shouldRender,
+  };
+};
+
+export type BackdropFeatureOptions = {
+  visibility?: FeatureVisibilityFlags;
+  /** The projection's colour switch is off: the orientation turns gray. */
+  neutralColors?: boolean;
+  /** Drawn for print (the export sheet), always on the light palette. */
+  paper?: boolean;
+};
+
+/**
+ * The styles of a room element behind the students — on the plan layer, in
+ * the projection, "Wo sitzt wer?", "Wer kommt dran?" and on the export sheet:
+ * the board, the windows and the door in their hue (muted in the dark, gray
+ * without colours), the furniture as an outline, and every one of them with a
+ * hairline instead of the room layer's ink contour.
+ */
+export const getBackdropFeatureStyles = (
+  feature: ClassroomFeature,
+  isDark: boolean,
+  {
+    visibility,
+    neutralColors = false,
+    paper = false,
+  }: BackdropFeatureOptions = {},
+): FeatureStyles => {
+  const dark = isDark && !paper;
+  const mode: FeatureColorMode = dark ? 'dark' : 'light';
+  const styles = getFeatureStyles(feature, dark, visibility);
+  const orientation = neutralColors
+    ? BACKDROP_ORIENTATION_NEUTRAL[mode]
+    : ((dark ? BACKDROP_ORIENTATION_DARK[feature.type] : undefined) ?? styles);
+  const furniture = paper
+    ? BACKDROP_FURNITURE_PAPER
+    : BACKDROP_FURNITURE_PALETTE[mode];
+  const palette = ORIENTATION_FEATURES.has(feature.type)
+    ? orientation
+    : furniture;
+  return {
+    fill: palette.fill,
+    stroke: palette.stroke,
+    text: palette.text,
+    shouldRender: styles.shouldRender,
+    quiet: true,
   };
 };

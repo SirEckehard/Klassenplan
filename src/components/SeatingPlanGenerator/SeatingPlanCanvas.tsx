@@ -11,8 +11,8 @@ import type {
 } from '@/types';
 import type { NameDisplayMode, SeatHighlightLookup } from '@/utils';
 import type { BadgeFocus, SeatBadgeView } from '@/utils/ui/seatBadges';
-import { getDisplayNameForMode, GRID_SIZE } from '@/utils';
-import { getFeatureStyles } from '@/utils/ui';
+import { getDisplayNameForMode } from '@/utils';
+import { getBackdropFeatureStyles } from '@/utils/ui';
 import { computePlanNameFontSize } from '@/utils/ui/planNameSize';
 import { seatLockReservesRoom } from '@/utils/ui/seatLabelLayout';
 import { useHasHoverPointer } from '@/hooks/ui/useHasHoverPointer';
@@ -42,7 +42,6 @@ interface SeatingPlanCanvasProps {
   currentSeating: SeatingArrangement;
   allStudents?: Student[];
   selectedTableIds: number[];
-  showGrid: boolean;
   featureVisibility?: FeatureVisibilityFlags;
   features?: ClassroomFeature[];
   selectionBox: {
@@ -103,7 +102,6 @@ const SeatingPlanCanvas = React.memo(
     currentSeating,
     allStudents,
     selectedTableIds,
-    showGrid,
     featureVisibility,
     features = [],
     selectionBox,
@@ -295,45 +293,14 @@ const SeatingPlanCanvas = React.memo(
       [applySelectionForTable, startTablePointerDrag],
     );
 
-    // Render grid lines
-    const renderGrid = () => {
-      if (!showGrid) return null;
-      const lines = [];
-      for (let x = 0; x <= canvasWidth; x += GRID_SIZE) {
-        lines.push(
-          <line
-            key={`v${x}`}
-            x1={x}
-            y1={0}
-            x2={x}
-            y2={classroomHeight}
-            stroke="#e5e7eb"
-            strokeWidth="0.5"
-          />,
-        );
-      }
-      for (let y = 0; y <= classroomHeight; y += GRID_SIZE) {
-        lines.push(
-          <line
-            key={`h${y}`}
-            x1={0}
-            y1={y}
-            x2={canvasWidth}
-            y2={y}
-            stroke="#e5e7eb"
-            strokeWidth="0.5"
-          />,
-        );
-      }
-      return <g className="grid">{lines}</g>;
-    };
-
     const featureViewModels = React.useMemo(
       () =>
         features
           .map((feature) => ({
             feature,
-            styles: getFeatureStyles(feature, isDark, featureVisibility),
+            styles: getBackdropFeatureStyles(feature, isDark, {
+              visibility: featureVisibility,
+            }),
           }))
           .filter(({ styles }) => styles.shouldRender),
       [features, featureVisibility, isDark],
@@ -390,8 +357,6 @@ const SeatingPlanCanvas = React.memo(
             to   { opacity: 1; transform: scale(1); }
           }
         `}</style>
-          {renderGrid()}
-
           <g style={{ pointerEvents: 'none' }}>
             {featureViewModels.map(({ feature, styles }) => (
               <FeatureShape

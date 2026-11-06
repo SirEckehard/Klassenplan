@@ -31,7 +31,6 @@ vi.mock('@/contexts/SeatingPlanContext', () => ({
 }));
 vi.mock('@/contexts/seatingPlan/CanvasPreferencesContext', () => ({
   useCanvasPreferences: () => ({
-    showGrid: false,
     photoDisplayMode: 'off',
     setPhotoDisplayMode: vi.fn(),
     nameDisplay: 'firstName',

@@ -239,6 +239,8 @@ They are drawn like a floor plan: a barely tinted fill carrying a strong ink con
 
 These are deliberately _not_ the `--data-*` families: a window is furniture, not a pedagogical fact.
 
+Behind the seating plan — on the plan layer, in the projection with its tools outside the contrast mode, and on the export sheet — the room is the backdrop, not the subject (`getBackdropFeatureStyles`): every element is drawn with a hairline and a 12px icon instead of the 16px one, the board, the windows and the door keep the palette above in the light and a muted one in the dark (a breath of the hue over the canvas, the contour a step down: window `#3f5684`, board `#3a6149`, door `#6e5141`; with the colours off one gray, `#9a968e` / dark `#565a60`), and the furniture — teacher's desk, whiteboard, cabinet, divider — loses its fill and takes a quiet ink (`#c9c4ba` / dark `#44484e`, icon `#a29d93` / `#6f747a`; on paper `#9c978d`, which a laser printer does not dither away). The plan layer shows no grid; it is the room layer's aid for aligning.
+
 Drag indicators use `--button-primary-bg` for a table template and `--text-muted` for a room feature.
 
 Every layer's toolbar is a `ToolRail` (`src/components/shell/ToolRail.tsx`) inside `SmartSidebar`. An entry adds layout classes only; its two densities — the 208px labelled column and the 60px icon rail — come from the rail, so a new tool cannot invent a look of its own. An entry is a row, not a card: 36px tall, `rounded-lg`, paper on hover (`--surface-sunken`) and `--surface-option-selected` when it is the view on screen, with the icon taking `--text-badge` so the state has a second channel.

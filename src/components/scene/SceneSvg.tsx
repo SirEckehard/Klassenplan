@@ -18,7 +18,7 @@ import {
   svgFontFamily,
 } from '@/utils';
 import type { DataFamily, NameDisplayMode } from '@/utils';
-import { getFeatureStyles } from '@/utils/ui';
+import { getBackdropFeatureStyles, getFeatureStyles } from '@/utils/ui';
 import {
   createHiddenFamiliesFilter,
   type SeatBadgeView,
@@ -58,11 +58,6 @@ const PHOTO_HALO = 3;
 const MAX_SCALE = 1.8;
 /** Scales this close count as equal, against floating-point noise. */
 const SCALE_TOLERANCE = 1e-6;
-/**
- * Framed on the tables, the room elements stand close to them; drawn a little
- * lighter, they do not compete with the seats.
- */
-const FRAMED_FEATURE_OPACITY = 0.7;
 const ROOM_BOX: FrameBox = {
   minX: 0,
   minY: 0,
@@ -285,7 +280,12 @@ export default function SceneSvg({
   const { content, scale } = frame;
   const featureViewModels = frame.features.map((feature) => ({
     feature,
-    styles: getFeatureStyles(feature, false, featureVisibility),
+    // Behind the students as on the screen, in the paper's ink; framed on
+    // the tables they need no fading of their own on top.
+    styles: getBackdropFeatureStyles(feature, false, {
+      visibility: featureVisibility,
+      paper: true,
+    }),
   }));
   const classroomTransform =
     `translate(${page.area.x + page.area.width / 2} ${page.area.y + page.area.height / 2}) ` +
@@ -360,9 +360,6 @@ export default function SceneSvg({
             feature={feature}
             styles={styles}
             extraIconRotation={classroomRotation}
-            groupProps={
-              frameOnTables ? { opacity: FRAMED_FEATURE_OPACITY } : undefined
-            }
           />
         ))}
         {scene.tables.map((t, i) => (

@@ -8,7 +8,6 @@ import { angleToPosition, CLASSROOM_BOUNDS } from '@/utils/math/circleGeometry';
 import { turnPoint, type PlanTurn } from '@/utils/canvas/turn';
 import { summarizeCircle } from '@/utils/algorithm/circleSummary';
 import {
-  GRID_SIZE,
   getDisplayNameForMode,
   getTooltipName,
   isSilencedCharacterKey,
@@ -75,7 +74,6 @@ type SimpleCircleViewProps = {
   showSpecialNeeds?: boolean;
   /** When false, the gender tint is dropped for a paper seat (the beamer's colour switch). */
   showGenderColors?: boolean;
-  showGrid?: boolean;
   /** Drop the canvas background so the circle blends into the page (present mode). */
   transparentBackground?: boolean;
   editable?: boolean;
@@ -149,7 +147,6 @@ function SimpleCircleView({
   isDark = false,
   showSpecialNeeds = true,
   showGenderColors = true,
-  showGrid = false,
   transparentBackground = false,
   editable = false,
   onStudentMove,
@@ -711,12 +708,6 @@ function SimpleCircleView({
           backgroundColor: transparentBackground
             ? 'transparent'
             : 'var(--canvas-bg)',
-          backgroundImage: showGrid
-            ? 'linear-gradient(to right, var(--border-card) 1px, transparent 1px), linear-gradient(to bottom, var(--border-card) 1px, transparent 1px)'
-            : undefined,
-          backgroundSize: showGrid
-            ? `${GRID_SIZE}px ${GRID_SIZE}px`
-            : undefined,
           touchAction: editable ? 'none' : 'auto',
         }}
       >

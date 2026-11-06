@@ -230,14 +230,19 @@ describe('renderSceneSvg', () => {
       expect(scaleOf(svg)).toBeGreaterThan(0.757);
     });
 
-    it('draws the room elements lighter only while framed on the tables', async () => {
+    it('draws the room elements as the backdrop, framed or not', async () => {
       const framed = await renderSceneSvg(sampleRoom, [], 'Test');
       const whole = await renderSceneSvg(sampleRoom, [], 'Test', {
         frameOnTables: false,
       });
-      const lighter = /<g data-feature-id="board-main"[^>]*opacity="0.7"/;
-      expect(framed).toMatch(lighter);
-      expect(whole).not.toMatch(lighter);
+      const hairline =
+        /<g data-feature-id="board-main"[^>]*>(?:(?!<\/g>).)*?stroke-width="1.5"/s;
+      for (const sheet of [framed, whole]) {
+        expect(sheet).toMatch(hairline);
+        expect(sheet).not.toMatch(
+          /<g data-feature-id="board-main"[^>]*opacity=/,
+        );
+      }
     });
 
     it('never draws the framed plan smaller than the whole room', async () => {

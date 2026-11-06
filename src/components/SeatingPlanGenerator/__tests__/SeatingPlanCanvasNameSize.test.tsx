@@ -47,7 +47,6 @@ const nameSizes = (lockedSeat: [number, number] | null) => {
       currentSeating={seating}
       allStudents={students}
       selectedTableIds={[]}
-      showGrid={false}
       featureVisibility={{
         board: false,
         window: false,

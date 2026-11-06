@@ -135,11 +135,6 @@
     "presetNote": "The column names and values of this format are mapped automatically.",
     "presetIgnore": "Import without the preset"
   },
-  "viewMode": {
-    "showLabels": "Show labels",
-    "hideLabels": "Hide labels",
-    "labels": "Labels"
-  },
   "partners": {
     "wishPartner": "Preferred Partner",
     "wishPartners": "Preferred Partners",
@@ -164,7 +159,6 @@
     "title": "Height",
     "small": "Short",
     "tall": "Tall",
-    "noHeight": "Not specified",
     "smallTooltip": "Shorter students are preferably placed at the front",
     "tallTooltip": "Taller students are preferably placed at the back"
   },

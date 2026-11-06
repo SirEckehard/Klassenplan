@@ -27,7 +27,7 @@ type Props = {
   seatingMode?: 'table' | 'circle';
   onModeChange?: (mode: 'table' | 'circle') => void;
   showModeToggle?: boolean;
-  /** What the canvas shows: names, photos, room elements, the grid. */
+  /** What the canvas shows: names, photos, badges, room elements. */
   settingsGroups: CanvasSettingsGroup[];
 };
 
@@ -40,7 +40,6 @@ const {
   connections: ConnectionsIcon,
 } = VIEW_SETTING_ICONS;
 const GROUP_ICONS: Record<string, React.ReactNode> = {
-  'editor-canvas': <GridNineIcon size={18} />,
   'editor-photos': <PhotosIcon size={18} />,
   'editor-names': <NamesIcon size={18} />,
   'editor-badges': <BadgesIcon size={18} />,

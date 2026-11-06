@@ -135,11 +135,6 @@
     "presetNote": "Die Spaltennamen und Werte dieses Formats werden automatisch zugeordnet.",
     "presetIgnore": "Ohne Vorlage importieren"
   },
-  "viewMode": {
-    "showLabels": "Beschriftung anzeigen",
-    "hideLabels": "Beschriftung ausblenden",
-    "labels": "Beschriftung"
-  },
   "partners": {
     "wishPartner": "Wunschpartner",
     "wishPartners": "Wunschpartner",
@@ -164,7 +159,6 @@
     "title": "Körpergröße",
     "small": "Klein",
     "tall": "Groß",
-    "noHeight": "Keine Angabe",
     "smallTooltip": "Kleinere Schüler werden bevorzugt vorne platziert",
     "tallTooltip": "Größere Schüler werden bevorzugt hinten platziert"
   },

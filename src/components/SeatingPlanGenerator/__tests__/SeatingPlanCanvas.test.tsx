@@ -37,7 +37,6 @@ const renderCanvas = (
       currentSeating={currentSeating}
       allStudents={[studentAda]}
       selectedTableIds={[]}
-      showGrid={false}
       featureVisibility={{
         board: false,
         window: false,

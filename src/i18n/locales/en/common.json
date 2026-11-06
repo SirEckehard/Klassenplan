@@ -54,10 +54,6 @@
     "performanceStrong": "High performer",
     "performanceWeak": "Needs support"
   },
-  "heightCategories": {
-    "small": "Short",
-    "tall": "Tall"
-  },
   "theme": {
     "toggle": "Toggle theme",
     "followSystem": "Theme as the system"
