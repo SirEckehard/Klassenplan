@@ -19,6 +19,20 @@ describe('planGroupSizes', () => {
     expect(planGroupSizes(0, 4)).toEqual([]);
   });
 
+  it('never leaves a group of one, pairs included', () => {
+    // 25 in twos: eleven pairs and one group of three, not twelve and one.
+    expect(planGroupSizes(25, 2)).toEqual([3, ...Array(11).fill(2)]);
+    expect(planGroupSizes(3, 2)).toEqual([3]);
+    expect(planGroupSizes(1, 2)).toEqual([1]);
+    for (let total = 2; total <= 36; total += 1) {
+      for (const size of [2, 3, 4, 5, 6]) {
+        expect(Math.min(...planGroupSizes(total, size))).toBeGreaterThanOrEqual(
+          2,
+        );
+      }
+    }
+  });
+
   it('keeps everyone in a group', () => {
     for (const total of [3, 7, 13, 24, 31]) {
       for (const size of [2, 3, 4, 5, 6]) {

@@ -15,7 +15,10 @@ import { getAvoidPartnerIds } from './student/partnerUtils';
  */
 
 export type GroupDrawOptions = {
-  /** Students per group; the last groups take one fewer where it does not divide. */
+  /**
+   * Students per group; where it does not divide, the first groups take one
+   * more or the last one fewer — never a group of one beside others.
+   */
   size: number;
   /** Injectable random source, so a test can assert an exact draw. */
   rng?: () => number;
@@ -35,7 +38,10 @@ export type GroupDrawResult = {
 /** Group sizes for `total` students: as even as the size allows, largest first. */
 export function planGroupSizes(total: number, size: number): number[] {
   if (total <= 0 || size <= 0) return [];
-  const count = Math.max(1, Math.round(total / size));
+  let count = Math.max(1, Math.round(total / size));
+  // Rounding pairs up: 25 in twos makes 13 groups, one of them a single
+  // student. One group fewer turns that student into a third member instead.
+  while (count > 1 && Math.floor(total / count) < 2) count -= 1;
   const base = Math.floor(total / count);
   const remainder = total % count;
   return Array.from({ length: count }, (_, index) =>
