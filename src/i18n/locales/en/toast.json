@@ -34,6 +34,8 @@
     "mergedClasses_other": "{{count}} classes added from the backup.",
     "mergedTemplates_one": "The backup's classes are already here; {{count}} template was added.",
     "mergedTemplates_other": "The backup's classes are already here; {{count}} templates were added.",
+    "presetsLeftOut_one": "{{count}} preset of your own from the backup was not added: there can be no more than {{max}}.",
+    "presetsLeftOut_other": "{{count}} presets of your own from the backup were not added: there can be no more than {{max}}.",
     "mergedNothing": "The backup's classes and templates are already here."
   },
   "backupValidation": {

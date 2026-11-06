@@ -84,8 +84,10 @@ export const BACKUP_LIMITS = {
   maxDutyNameLength: MAX_DUTY_NAME_LENGTH,
   maxDutyCount: MAX_DUTY_COUNT,
   maxDutyRounds: MAX_DUTY_ROUNDS,
-  // The teacher's own presets (decision 0038), held to what the app allows.
-  maxMixPresets: MAX_MIX_PRESETS,
+  // The teacher's own presets (decision 0038). Twice what the app allows: a
+  // merge before 2026-11-06 could pass the app's limit, and a device in that
+  // state must still be able to save a backup.
+  maxMixPresets: MAX_MIX_PRESETS * 2,
   // Bounds for KDF iteration counts declared in the encrypted envelope: the
   // lower bound rejects deliberately weakened files, the upper bound prevents
   // a tampered envelope from stalling the browser during key derivation.

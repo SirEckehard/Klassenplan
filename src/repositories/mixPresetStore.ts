@@ -24,6 +24,7 @@ import {
   isOriginalWeights,
   logError,
   logWarn,
+  MAX_MIX_PRESETS,
   MIX_CRITERIA_VERSION,
   normalizeMixPresetData,
 } from '@/utils';
@@ -259,30 +260,38 @@ export async function getMixPresetsForBackup(): Promise<
  *
  * A full import replaces them, as it replaces everything else. A merge keeps
  * what is here: an own preset of the backup joins when neither its id nor its
- * name is taken — as templates join — and a change to a shipped preset only
- * where this device has none.
+ * name is taken — as templates join — and while the device holds fewer than
+ * `MAX_MIX_PRESETS`; a change to a shipped preset only where this device has
+ * none. Resolves to the number of the backup's presets the limit kept out.
  */
 export async function restoreMixPresets(
   value: MixPresetData | undefined,
   options?: { merge?: boolean },
-): Promise<void> {
+): Promise<number> {
   const restored = normalizeMixPresetData(value);
 
   if (!options?.merge) {
     // Replaces the store, so nothing is read first.
     await enqueue(() => writeData(restored));
-    return;
+    return 0;
   }
 
+  let leftOut = 0;
   await mutate((data) => {
     const ids = new Set(data.presets.map((preset) => preset.id));
     const names = new Set(data.presets.map((preset) => preset.name));
-    const added = restored.presets.filter((preset) => {
-      if (ids.has(preset.id) || names.has(preset.name)) return false;
+    const added: OwnMixPreset[] = [];
+    leftOut = 0;
+    for (const preset of restored.presets) {
+      if (ids.has(preset.id) || names.has(preset.name)) continue;
+      if (data.presets.length + added.length >= MAX_MIX_PRESETS) {
+        leftOut += 1;
+        continue;
+      }
       ids.add(preset.id);
       names.add(preset.name);
-      return true;
-    });
+      added.push(preset);
+    }
     const overrides = { ...data.overrides };
     let overridden = false;
     for (const [id, override] of Object.entries(restored.overrides)) {
@@ -294,4 +303,5 @@ export async function restoreMixPresets(
     if (added.length === 0 && !overridden) return null;
     return { ...data, overrides, presets: [...data.presets, ...added] };
   });
+  return leftOut;
 }

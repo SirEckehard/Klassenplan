@@ -26,9 +26,15 @@ const resetApplicationStateMock = vi.hoisted(() => vi.fn());
 // jsdom has no IndexedDB, so the photo wipe is only reached with both mocked.
 const { clearAllPhotosMock, hasIndexedDBMock, setStudentPhotoMock } =
   vi.hoisted(() => ({
-    clearAllPhotosMock: vi.fn(),
+    clearAllPhotosMock: vi.fn<() => Promise<unknown>>(async () => ({
+      success: true,
+      data: undefined,
+    })),
     hasIndexedDBMock: vi.fn(() => false),
-    setStudentPhotoMock: vi.fn(),
+    setStudentPhotoMock: vi.fn(async () => ({
+      success: true,
+      data: undefined,
+    })),
   }));
 
 vi.mock('idb-keyval', () => ({
@@ -376,6 +382,7 @@ describe('importAllFromJson', () => {
         merge: true,
         addedClasses: 1,
         addedTemplates: 0,
+        leftOutPresets: 0,
       });
       expect(setters.setClassCollection).toHaveBeenCalledTimes(1);
       const [merged] = setters.setClassCollection.mock.calls[0];
@@ -444,6 +451,7 @@ describe('importAllFromJson', () => {
         merge: true,
         addedClasses: 0,
         addedTemplates: 0,
+        leftOutPresets: 0,
       });
       expect(setters.setClassCollection).not.toHaveBeenCalled();
       expect(setters.setTemplates).not.toHaveBeenCalled();

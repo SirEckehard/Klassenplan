@@ -365,19 +365,21 @@ describe('backupValidation: mix presets', () => {
     ).toThrow(BackupValidationError);
   });
 
-  it('rejects more presets than the app keeps', () => {
-    expect(() =>
-      parseExportBundle(
-        withPresets({
-          version: 1,
-          overrides: {},
-          presets: Array.from({ length: 31 }, (_, index) => ({
-            ...preset,
-            id: `own-${index}`,
-          })),
-        }),
-      ),
-    ).toThrow(BackupValidationError);
+  it('takes what a merge once let past the limit, and no more than twice it', () => {
+    const presets = (length: number) =>
+      withPresets({
+        version: 1,
+        overrides: {},
+        presets: Array.from({ length }, (_, index) => ({
+          ...preset,
+          id: `own-${index}`,
+        })),
+      });
+
+    // 20 here and 20 from a backup made 40 before merges stopped at 30: such
+    // a device must still be able to save a backup.
+    expect(() => parseExportBundle(presets(40))).not.toThrow();
+    expect(() => parseExportBundle(presets(61))).toThrow(BackupValidationError);
   });
 });
 

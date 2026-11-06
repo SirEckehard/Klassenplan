@@ -34,6 +34,8 @@
     "mergedClasses_other": "{{count}} Klassen aus dem Backup hinzugefügt.",
     "mergedTemplates_one": "Die Klassen aus dem Backup gibt es hier schon; {{count}} Vorlage kam hinzu.",
     "mergedTemplates_other": "Die Klassen aus dem Backup gibt es hier schon; {{count}} Vorlagen kamen hinzu.",
+    "presetsLeftOut_one": "{{count}} eigene Voreinstellung aus dem Backup konnte nicht hinzugefügt werden: Mehr als {{max}} gehen nicht.",
+    "presetsLeftOut_other": "{{count}} eigene Voreinstellungen aus dem Backup konnten nicht hinzugefügt werden: Mehr als {{max}} gehen nicht.",
     "mergedNothing": "Die Klassen und Vorlagen aus dem Backup gibt es hier schon."
   },
   "backupValidation": {

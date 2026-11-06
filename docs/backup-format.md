@@ -144,9 +144,11 @@ too large, with its size, or not restorable, which is a bug to report).
   **1,000** pair keys per record; at most **200** classes in `planUsageResetAt`,
   each a parseable timestamp; at most **200** class ids in
   `planUsageManualClassIds`.
-- At most **30** presets of the teacher's own in `mixPresets`
-  (`MAX_MIX_PRESETS`), each named in at most 120 characters, every weight
-  from 0 to 10.
+- At most **60** presets of the teacher's own in `mixPresets`, twice the 30
+  the app keeps (`MAX_MIX_PRESETS`): a merge before 2026-11-06 could pass 30,
+  and such a device must still be able to save a backup. Each is named in at
+  most 120 characters, every weight from 0 to 10. A merge adds presets only
+  up to 30 and counts the ones left out.
 
 ## Encryption
 

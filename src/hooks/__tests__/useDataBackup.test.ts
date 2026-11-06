@@ -352,9 +352,12 @@ describe('useDataBackup', () => {
   });
 
   it('merges into existing data when the restore dialog returns "merge"', async () => {
-    const importFn = vi
-      .fn()
-      .mockResolvedValue({ merge: true, addedClasses: 2, addedTemplates: 1 });
+    const importFn = vi.fn().mockResolvedValue({
+      merge: true,
+      addedClasses: 2,
+      addedTemplates: 1,
+      leftOutPresets: 0,
+    });
     mockPromptRestoreMode.mockResolvedValue('merge');
 
     await runImport(importFn);
@@ -370,9 +373,12 @@ describe('useDataBackup', () => {
   });
 
   it('names the templates when a merge brought templates but no class', async () => {
-    const importFn = vi
-      .fn()
-      .mockResolvedValue({ merge: true, addedClasses: 0, addedTemplates: 1 });
+    const importFn = vi.fn().mockResolvedValue({
+      merge: true,
+      addedClasses: 0,
+      addedTemplates: 1,
+      leftOutPresets: 0,
+    });
     mockPromptRestoreMode.mockResolvedValue('merge');
 
     await runImport(importFn);
@@ -386,9 +392,12 @@ describe('useDataBackup', () => {
   });
 
   it('says so when a merge found nothing this device lacks', async () => {
-    const importFn = vi
-      .fn()
-      .mockResolvedValue({ merge: true, addedClasses: 0, addedTemplates: 0 });
+    const importFn = vi.fn().mockResolvedValue({
+      merge: true,
+      addedClasses: 0,
+      addedTemplates: 0,
+      leftOutPresets: 0,
+    });
     mockPromptRestoreMode.mockResolvedValue('merge');
 
     await runImport(importFn);
@@ -402,6 +411,25 @@ describe('useDataBackup', () => {
     expect(showToastMock).not.toHaveBeenCalledWith(
       'success',
       TOAST_MESSAGES.BACKUP_IMPORT_SUCCESS,
+    );
+  });
+
+  it('says how many own presets the limit kept out', async () => {
+    const importFn = vi.fn().mockResolvedValue({
+      merge: true,
+      addedClasses: 1,
+      addedTemplates: 0,
+      leftOutPresets: 3,
+    });
+    mockPromptRestoreMode.mockResolvedValue('merge');
+
+    await runImport(importFn);
+
+    await waitFor(() =>
+      expect(showToastMock).toHaveBeenCalledWith(
+        'warning',
+        expect.stringMatching(/3/),
+      ),
     );
   });
 

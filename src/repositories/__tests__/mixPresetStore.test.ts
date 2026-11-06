@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { findMixRecipe, fullRecipeWeights } from '@/utils';
+import { findMixRecipe, fullRecipeWeights, MAX_MIX_PRESETS } from '@/utils';
 
 const { memory } = vi.hoisted(() => ({ memory: new Map<string, unknown>() }));
 vi.mock('idb-keyval', async () =>
@@ -162,6 +162,26 @@ describe('mixPresetStore', () => {
     // The change made here stays; the one this device lacked joins.
     expect(data.overrides.exam?.weights.preferGenderMix).toBe(5);
     expect(data.overrides.quietWork).toBeDefined();
+  });
+
+  it('stops a merge at the limit and counts what stayed out', async () => {
+    const own = (prefix: string) =>
+      Array.from({ length: 20 }, (_, index) => ({
+        id: `${prefix}${index}`,
+        name: `${prefix} ${index}`,
+        weights: exam,
+        criteriaVersion: 2,
+        createdAt: '',
+      }));
+    await restoreMixPresets({ version: 1, overrides: {}, presets: own('a') });
+
+    const leftOut = await restoreMixPresets(
+      { version: 1, overrides: {}, presets: own('b') },
+      { merge: true },
+    );
+
+    expect(leftOut).toBe(10);
+    expect((await loadMixPresets()).presets).toHaveLength(MAX_MIX_PRESETS);
   });
 
   it('puts one own preset back in its place and leaves the others', async () => {

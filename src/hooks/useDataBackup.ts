@@ -24,6 +24,7 @@ import {
   isWebCryptoAvailable,
   WebCryptoUnavailableError,
   downloadBlob,
+  MAX_MIX_PRESETS,
 } from '@/utils';
 
 const encoder = new TextEncoder();
@@ -181,6 +182,15 @@ function showMergeOutcome(
     );
   } else {
     showToast('info', 'toast:backup.mergedNothing');
+  }
+  if (outcome.leftOutPresets) {
+    showToast(
+      'warning',
+      i18n.t('toast:backup.presetsLeftOut', {
+        count: outcome.leftOutPresets,
+        max: MAX_MIX_PRESETS,
+      }),
+    );
   }
 }
 

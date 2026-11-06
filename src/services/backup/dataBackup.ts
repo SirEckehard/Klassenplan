@@ -176,7 +176,15 @@ async function restoreStudentPhotos(
   await Promise.all(
     entries.map(async ([id, dataUrl]) => {
       try {
-        await setStudentPhoto(id, dataUrlToBlob(dataUrl));
+        const written = await setStudentPhoto(id, dataUrlToBlob(dataUrl));
+        if (!written.success) {
+          logError(
+            'Failed to restore student photo',
+            { error: written.error, id },
+            'dataBackup',
+          );
+          return;
+        }
         invalidatePhoto(id);
       } catch (error) {
         logError(
@@ -282,7 +290,13 @@ export async function exportAllAsJson(
 /** What an import did, for the message after it. */
 export type BackupImportOutcome =
   | { merge: false }
-  | { merge: true; addedClasses: number; addedTemplates: number };
+  | {
+      merge: true;
+      addedClasses: number;
+      addedTemplates: number;
+      /** Own presets of the backup the limit of the device kept out. */
+      leftOutPresets: number;
+    };
 
 /**
  * Import all data from a JSON string.
@@ -405,14 +419,23 @@ export async function importAllFromJson(
       await setters.setCircleLayouts(data.circleLayouts);
     }
 
-    // A full import replaces the photo store entirely.
-    await clearAllPhotos();
+    // A full import replaces the photo store entirely. The classes are in
+    // place already, so a store that cannot be emptied stops nothing: what it
+    // keeps belongs to no student and goes with the next clean-up.
+    const photosCleared = await clearAllPhotos();
+    if (!photosCleared.success) {
+      logError(
+        'Failed to clear the photo store before restoring',
+        { error: photosCleared.error },
+        'dataBackup',
+      );
+    }
     clearPhotoCache();
     clearPhotoTrash();
     await restoreStudentPhotos(data.studentPhotos);
 
-    // Plan usage records (export version ≥ 2). Absent in older backups, which
-    // simply leaves the store as it is.
+    // Plan usage records (export version ≥ 2). They are replaced as well: an
+    // older backup without them leaves none, and its saved plans stand in.
     await restorePlanUsage(data.planUsage, {
       merge: false,
       resetAtByClass: data.planUsageResetAt,
@@ -473,7 +496,7 @@ async function mergeIntoStored(
     ? mergeClassCollections(existing, incoming)
     : { collection: existing, addedClassIds: [] };
   if (addedClassIds.length === 0) {
-    return { merge: true, addedClasses: 0, addedTemplates };
+    return { merge: true, addedClasses: 0, addedTemplates, leftOutPresets: 0 };
   }
 
   await setters.setClassCollection(collection);
@@ -501,11 +524,14 @@ async function mergeIntoStored(
     manualClassIds: data.planUsageManualClassIds,
   });
   await restoreDuties(data.duties, { merge: true });
-  await restoreMixPresets(data.mixPresets, { merge: true });
+  const leftOutPresets = await restoreMixPresets(data.mixPresets, {
+    merge: true,
+  });
   return {
     merge: true,
     addedClasses: addedClassIds.length,
     addedTemplates,
+    leftOutPresets,
   };
 }
 
