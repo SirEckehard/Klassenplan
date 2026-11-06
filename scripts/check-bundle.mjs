@@ -36,8 +36,8 @@ const KB = 1024;
  * fails, either the growth is justified and the number moves in the same
  * commit, or it isn't and the import gets fixed.
  *
- * For context on the initial payload (195 KB brotli over 17 files): about
- * 86 KB of that is react-dom plus the German i18n bundle, neither of which can
+ * For context on the initial payload (212 KB brotli over 37 files on
+ * 2026-11-06, 195 KB over 17 on 2026-09-16): about 86 KB of that is react-dom plus the German i18n bundle, neither of which can
  * be deferred — react-dom renders the first frame and German is the fallback
  * language. The storage history, the backup flow and the CSV import load on
  * demand since 2026-09-16 (223 KB before). What generator-only code remains —

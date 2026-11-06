@@ -6,7 +6,15 @@ import type { ConfirmFact } from './ConfirmDialog';
 
 /** What a question counts, in the words of the language on screen. */
 type FactKind =
-  'classes' | 'students' | 'rooms' | 'plans' | 'mixes' | 'templates';
+  | 'classes'
+  | 'students'
+  | 'rooms'
+  | 'plans'
+  | 'mixes'
+  | 'templates'
+  | 'presets'
+  | 'duties'
+  | 'photos';
 
 function fact(kind: FactKind, count: number): ConfirmFact {
   return {
@@ -35,10 +43,22 @@ export function roomFacts(planCount: number, mixCount: number): ConfirmFact[] {
   return [fact('plans', planCount), fact('mixes', mixCount)];
 }
 
-/** What goes with everything: each class's contents, and the templates. */
+/** What is kept beside the classes, counted for a wipe of everything. */
+export type StoredBesideClasses = {
+  templates: number;
+  /** The teacher's own presets (decision 0038). */
+  presets: number;
+  duties: number;
+  photos: number;
+};
+
+/**
+ * What goes with everything: each class's contents, the templates, the own
+ * presets, the duties and the photos.
+ */
 export function allDataFacts(
   classes: readonly ClassContents[],
-  templateCount: number,
+  beside: StoredBesideClasses,
 ): ConfirmFact[] {
   const sum = (count: (entry: ClassContents) => number) =>
     classes.reduce((total, entry) => total + count(entry), 0);
@@ -56,6 +76,9 @@ export function allDataFacts(
       'mixes',
       sum((entry) => entry.mixHistory.length),
     ),
-    fact('templates', templateCount),
+    fact('templates', beside.templates),
+    fact('presets', beside.presets),
+    fact('duties', beside.duties),
+    fact('photos', beside.photos),
   ];
 }

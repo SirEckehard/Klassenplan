@@ -77,7 +77,7 @@ import Seo from '@/components/Seo';
 import { useLocalizedNavigate } from '@/hooks/useLocalizedNavigate';
 import { usePageSeo } from '@/hooks/usePageSeo';
 import { useBackToWorkspace } from '@/hooks/useReturnToApp';
-import primaryFontWoff2Url from '@fontsource-variable/atkinson-hyperlegible-next/files/atkinson-hyperlegible-next-latin-wght-normal.woff2?url';
+import { FONT_SUBSETS, fontFaceRule } from '@/utils/export/fontSubsets';
 import AppShell from '@/components/shell/AppShell';
 import InspectorPortal from '@/components/shell/InspectorPortal';
 import {
@@ -706,9 +706,12 @@ export default function Export() {
     // Inline stylesheet - Safari print fix v4
     // Screen preview uses original working CSS
     // Print mode has aggressive Safari-specific overrides
-    const fontUrl = new URL(primaryFontWoff2Url, window.location.href).href;
-    const styles =
-      `@font-face{font-family:'Atkinson Hyperlegible Next Variable';src:url('${fontUrl}') format('woff2');font-weight:400 700;font-style:normal;}
+    // Both subsets, as the files carry them: a name such as Łukasz looks in
+    // the preview as it will on paper.
+    const fontFaces = FONT_SUBSETS.map(({ url, unicodeRange }) =>
+      fontFaceRule(new URL(url, window.location.href).href, unicodeRange),
+    ).join('');
+    const styles = `${fontFaces}
 
       :root { color-scheme: light; }
       @page {

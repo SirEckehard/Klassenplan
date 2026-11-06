@@ -64,7 +64,7 @@
   },
   "settings": {
     "characterKeys": "Kürzel mit einer Taste",
-    "characterKeysHint": "?, P, F, 1–3, Q/E abschalten."
+    "characterKeysHint": "Kürzel aus einer Taste abschalten, etwa ?, P, F, 1–3."
   },
   "errors": {
     "generic": "Ein Fehler ist aufgetreten",
@@ -130,7 +130,13 @@
       "mixes_one": "Mischergebnis",
       "mixes_other": "Mischergebnisse",
       "templates_one": "Vorlage",
-      "templates_other": "Vorlagen"
+      "templates_other": "Vorlagen",
+      "presets_one": "Eigene Voreinstellung",
+      "presets_other": "Eigene Voreinstellungen",
+      "duties_one": "Dienst",
+      "duties_other": "Dienste",
+      "photos_one": "Foto",
+      "photos_other": "Fotos"
     }
   },
   "backupPassword": {

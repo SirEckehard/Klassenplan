@@ -175,8 +175,9 @@ function ImportanceScale({
             })}
             title={`${levelLabel} – ${t(`mix.importance.${level}Hint`)}`}
             // Bars share a baseline, as a signal meter's do. A finger gets
-            // the 44px of every inspector control.
-            className="flex h-7 w-4.5 cursor-pointer items-end justify-center rounded-sm pb-1.5 transition hover:bg-(--surface-sunken) disabled:cursor-default disabled:hover:bg-transparent pointer-coarse:h-11 pointer-coarse:w-7 pointer-coarse:pb-3.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring)"
+            // the 44px of every inspector control, a mouse the 24px of
+            // WCAG 2.5.8.
+            className="flex h-7 w-6 cursor-pointer items-end justify-center rounded-sm pb-1.5 transition hover:bg-(--surface-sunken) disabled:cursor-default disabled:hover:bg-transparent pointer-coarse:h-11 pointer-coarse:w-7 pointer-coarse:pb-3.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring)"
           >
             <span
               aria-hidden="true"

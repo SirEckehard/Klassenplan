@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
-import latinFontUrl from '@fontsource-variable/atkinson-hyperlegible-next/files/atkinson-hyperlegible-next-latin-wght-normal.woff2?url';
-import latinExtFontUrl from '@fontsource-variable/atkinson-hyperlegible-next/files/atkinson-hyperlegible-next-latin-ext-wght-normal.woff2?url';
+import { FONT_SUBSETS, fontFaceRule } from './fontSubsets';
 
 /**
  * Shared SVG → raster pipeline for every file export.
@@ -9,24 +8,6 @@ import latinExtFontUrl from '@fontsource-variable/atkinson-hyperlegible-next/fil
  * The PDF export and the PNG export must produce pixel-identical output, so
  * font embedding and rasterization live here once instead of in each exporter.
  */
-
-/**
- * The subsets of the UI font a file carries, with the ranges fontsource
- * declares for them (`wght.css`): Latin, and Latin Extended for names such as
- * Gülşen, Łukasz or Ödön, whose letters fell back to a system font without it.
- */
-const FONT_SUBSETS = [
-  {
-    url: latinExtFontUrl,
-    unicodeRange:
-      'U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF',
-  },
-  {
-    url: latinFontUrl,
-    unicodeRange:
-      'U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD',
-  },
-] as const;
 
 let cachedFontCss: string | null = null;
 
@@ -48,9 +29,11 @@ const fetchAsBase64 = async (url: string): Promise<string> => {
 export async function getEmbeddedFontCss(): Promise<string> {
   if (cachedFontCss) return cachedFontCss;
   const faces = await Promise.all(
-    FONT_SUBSETS.map(
-      async ({ url, unicodeRange }) =>
-        `@font-face{font-family:'Atkinson Hyperlegible Next Variable';src:url('data:font/woff2;base64,${await fetchAsBase64(url)}');font-weight:400 700;font-style:normal;unicode-range:${unicodeRange};}`,
+    FONT_SUBSETS.map(async ({ url, unicodeRange }) =>
+      fontFaceRule(
+        `data:font/woff2;base64,${await fetchAsBase64(url)}`,
+        unicodeRange,
+      ),
     ),
   );
   cachedFontCss = faces.join('');

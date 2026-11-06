@@ -7,6 +7,9 @@ import ConfirmDialog from '@/components/ui/modals/ConfirmDialog';
 import { useSeatingPlanActions } from '@/contexts/SeatingPlanContext';
 import { useSeatingRepository } from '@/hooks/useSeatingRepository';
 import { allDataFacts } from '@/components/ui/modals/confirmFacts';
+import { loadMixPresets } from '@/repositories/mixPresetStore';
+import { getAllPhotoIds } from '@/repositories/studentPhotoStore';
+import { getAllDuties } from '@/repositories/dutyStore';
 import type { ConfirmFact } from '@/components/ui/modals/ConfirmDialog';
 import { useInstallPrompt } from '@/hooks/useInstallPrompt';
 import { isRunningInstalled } from '@/utils/ui/installGuide';
@@ -119,14 +122,25 @@ export function ClearAllDataDialog({
   useEffect(() => {
     if (!open) return undefined;
     let current = true;
-    Promise.all([repository.loadClassCollection(), loadTemplate()])
-      .then(([collection, templates]) => {
+    Promise.all([
+      repository.loadClassCollection(),
+      loadTemplate(),
+      loadMixPresets(),
+      getAllPhotoIds(),
+      getAllDuties(),
+    ])
+      .then(([collection, templates, presets, photoIds, duties]) => {
         if (!current) return;
         setFacts(
-          allDataFacts(
-            collection.success ? collection.data.classes : [],
-            templates.length,
-          ),
+          allDataFacts(collection.success ? collection.data.classes : [], {
+            templates: templates.length,
+            presets: presets.presets.length,
+            duties: Object.values(duties ?? {}).reduce(
+              (total, entry) => total + entry.duties.length,
+              0,
+            ),
+            photos: photoIds.success ? photoIds.data.length : 0,
+          }),
         );
       })
       .catch((error: unknown) => {

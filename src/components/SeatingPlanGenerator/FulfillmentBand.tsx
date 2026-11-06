@@ -38,7 +38,7 @@ const chipPinnedClass =
  *
  * The weakest criterion comes first, a fulfilled one last — what a teacher
  * looks for is where the plan falls short. A tap marks a criterion's seats
- * and the notice above the plan names them; a second tap takes the marking
+ * and the status bar names the criterion; a second tap takes the marking
  * off. The overall figure is the status bar's, which opens the band, so it
  * is not said again here.
  */
