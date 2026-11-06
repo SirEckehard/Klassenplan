@@ -143,6 +143,30 @@ export function startDutyRound(
 }
 
 /**
+ * The round on the wall drawn once more — for a teacher who does not like how
+ * it fell. It replaces that round instead of going into the history: a round
+ * nobody did does not count for the rotation.
+ */
+export function redrawDutyRound(
+  state: ClassDuties,
+  students: readonly Student[],
+  options: { rng?: () => number; now?: Date } = {},
+): ClassDuties {
+  return {
+    ...state,
+    current: {
+      at: (options.now ?? new Date()).toISOString(),
+      assignments: drawDuties(
+        students,
+        state.duties,
+        state.rounds,
+        options.rng,
+      ),
+    },
+  };
+}
+
+/**
  * A round as it stands now: students that left the class are gone, a duty that
  * was removed is gone, and a duty whose number was lowered keeps that many.
  * The page shows this, and changes it — a place the teacher cannot see must not

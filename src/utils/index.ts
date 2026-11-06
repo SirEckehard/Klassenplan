@@ -179,7 +179,13 @@ export { buildGroups, planGroupSizes } from './groupDraw';
 export type { GroupDrawOptions, GroupDrawResult } from './groupDraw';
 
 // ===== Handing out class duties =====
-export { drawDuties, pickForDuty, startDutyRound, trimRound } from './dutyDraw';
+export {
+  drawDuties,
+  pickForDuty,
+  redrawDutyRound,
+  startDutyRound,
+  trimRound,
+} from './dutyDraw';
 
 // ===== Seating Utilities =====
 export { addSeatingForTables } from './seating/seatingOperations';

@@ -1157,7 +1157,8 @@
       "roundEmptyHeading": "Rota",
       "hint": "From {{total}} students — tap “Hand out duties” below.",
       "draw": "Hand out duties",
-      "again": "Hand out again",
+      "nextRound": "Next round",
+      "redraw": "Draw again",
       "replace": "Replace {{name}} with someone else",
       "open": "Open",
       "fill": "Draw someone",
@@ -1174,6 +1175,7 @@
       "emptyBody": "Create a class with students first.",
       "help1": "Whoever has had the fewest duties so far goes first; on a tie, whoever has had this duty less often.",
       "help2": "Each person gets at most one duty per round.",
+      "helpRounds": "“Next round” counts the round and hands out the next one. “Draw again” hands out the same round once more and counts nothing.",
       "help3": "If someone drops out, the arrows beside the name let you hand out the duty again.",
       "help4": "The duties and the last 20 rounds are kept with the class and are part of the backup."
     },

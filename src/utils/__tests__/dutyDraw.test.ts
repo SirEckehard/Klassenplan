@@ -5,6 +5,7 @@ import { createRng } from '@/utils/algorithm/rng';
 import {
   drawDuties,
   pickForDuty,
+  redrawDutyRound,
   startDutyRound,
   trimRound,
 } from '../dutyDraw';
@@ -142,6 +143,26 @@ describe('startDutyRound', () => {
     const next = startDutyRound(state, classOf(4), { rng: createRng(1) });
     expect(next.rounds).toHaveLength(20);
     expect(next.rounds.at(-1)).toEqual(state.current);
+  });
+});
+
+describe('redrawDutyRound', () => {
+  it('draws the round on the wall again without counting it', () => {
+    const earlier = round({ board: ['s1', 's2'] });
+    const state: ClassDuties = {
+      duties: [board],
+      current: round({ board: ['s3', 's4'] }),
+      rounds: [earlier],
+    };
+    const next = redrawDutyRound(state, classOf(4), {
+      rng: createRng(1),
+      now: new Date('2026-10-12T08:00:00.000Z'),
+    });
+
+    // The rotation still reads only the round before: s3 and s4 had none.
+    expect(next.rounds).toEqual([earlier]);
+    expect(next.current?.at).toBe('2026-10-12T08:00:00.000Z');
+    expect([...next.current!.assignments.board!].sort()).toEqual(['s3', 's4']);
   });
 });
 

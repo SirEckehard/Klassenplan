@@ -32,6 +32,7 @@ import {
   quietIconButtonClass,
   secondaryButtonClass,
   showToast,
+  redrawDutyRound,
   startDutyRound,
   trimRound,
 } from '@/utils';
@@ -131,15 +132,44 @@ export default function Duties() {
     });
   };
 
+  /**
+   * Takes the duty and its place in the round away. What comes back asks
+   * nothing (decision 0041): the card takes it back, rotation included — a
+   * duty made anew would get another id and start its turns afresh.
+   */
   const removeDuty = (id: string) => {
     if (!state) return;
+    const index = state.duties.findIndex((duty) => duty.id === id);
+    if (index < 0) return;
+    const before = state;
     update({ ...state, duties: state.duties.filter((duty) => duty.id !== id) });
+    showToast(
+      'info',
+      t('toast:duties.removed', {
+        name: dutyName(state.duties[index], index),
+      }),
+      {
+        duration: 8000,
+        action: {
+          label: t('common:buttons.undo'),
+          onClick: () => update(before),
+        },
+      },
+    );
   };
 
-  const distribute = () => {
+  /**
+   * "Nächste Runde" counts the round on the wall and draws the next one;
+   * "Neu würfeln" draws the same round again and counts nothing. Both can be
+   * taken back for a moment.
+   */
+  const distribute = (again = false) => {
     if (!state) return;
     const before = state;
-    update(startDutyRound({ ...state, current: round }, named));
+    const trimmed = { ...state, current: round };
+    update(
+      again ? redrawDutyRound(trimmed, named) : startDutyRound(trimmed, named),
+    );
     if (!before.current) return;
     showToast('info', 'toast:duties.redistributed', {
       duration: 8000,
@@ -226,6 +256,7 @@ export default function Duties() {
     <ul className="list-disc space-y-1 pl-4">
       <li>{t('tools.duties.help1')}</li>
       <li>{t('tools.duties.help2')}</li>
+      <li>{t('tools.duties.helpRounds')}</li>
       <li>{t('tools.duties.help3')}</li>
       <li>{t('tools.duties.help4')}</li>
     </ul>
@@ -251,14 +282,26 @@ export default function Duties() {
       help={help}
       footer={
         named.length > 0 && state && state.duties.length > 0 ? (
-          <button
-            type="button"
-            onClick={distribute}
-            className={`${primaryButtonClass} h-12 w-full gap-2 text-base font-semibold`}
-          >
-            <BroomIcon size={20} aria-hidden />
-            {round ? t('tools.duties.again') : t('tools.duties.draw')}
-          </button>
+          <div className="flex gap-2">
+            {round && (
+              <button
+                type="button"
+                onClick={() => distribute(true)}
+                className={`${secondaryButtonClass} h-12 shrink-0 gap-2 px-4 text-sm font-semibold`}
+              >
+                <ArrowsClockwiseIcon size={18} aria-hidden />
+                {t('tools.duties.redraw')}
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={() => distribute()}
+              className={`${primaryButtonClass} h-12 flex-1 gap-2 text-base font-semibold`}
+            >
+              <BroomIcon size={20} aria-hidden />
+              {round ? t('tools.duties.nextRound') : t('tools.duties.draw')}
+            </button>
+          </div>
         ) : undefined
       }
     >

@@ -1157,7 +1157,8 @@
       "roundEmptyHeading": "Verteilung",
       "hint": "Aus {{total}} Schülern — tippe unten auf „Dienste verteilen“.",
       "draw": "Dienste verteilen",
-      "again": "Neu verteilen",
+      "nextRound": "Nächste Runde",
+      "redraw": "Neu würfeln",
       "replace": "{{name}} durch jemand anderen ersetzen",
       "open": "Frei",
       "fill": "Jemanden ziehen",
@@ -1174,6 +1175,7 @@
       "emptyBody": "Lege zuerst eine Klasse mit Schülern an.",
       "help1": "Wer bisher die wenigsten Dienste hatte, kommt zuerst dran; bei Gleichstand, wer diesen Dienst seltener hatte.",
       "help2": "Jede Person bekommt pro Runde höchstens einen Dienst.",
+      "helpRounds": "„Nächste Runde“ zählt die Verteilung und verteilt die nächste. „Neu würfeln“ verteilt dieselbe Runde noch einmal und zählt nichts.",
       "help3": "Fällt jemand aus, kannst du über die Pfeile neben dem Namen den Dienst neu verteilen.",
       "help4": "Die Dienste und die letzten 20 Runden bleiben bei der Klasse gespeichert und sind Teil des Backups."
     },

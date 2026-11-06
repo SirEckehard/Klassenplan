@@ -187,6 +187,7 @@
     "saveFailed": "Die Dienste konnten nicht gespeichert werden.",
     "redistributed": "Dienste neu verteilt.",
     "redistributedAction": "Rückgängig",
+    "removed": "Dienst „{{name}}“ entfernt.",
     "nobodyLeft": "Niemand mehr frei – alle anderen haben schon einen Dienst."
   },
   "mixPresets": {

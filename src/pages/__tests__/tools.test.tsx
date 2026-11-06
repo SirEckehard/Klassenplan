@@ -44,6 +44,12 @@ vi.mock('@/repositories/dutyStore', () => ({
     return true;
   },
 }));
+// The toasts are seen through their calls; no provider renders them here.
+const showToast = vi.hoisted(() => vi.fn());
+vi.mock('@/utils', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@/utils')>()),
+  showToast,
+}));
 const exportDutyRosterToPdf = vi.hoisted(() => vi.fn(async () => {}));
 vi.mock('@/services/export/pdfExportFunctions', () => ({
   exportDutyRosterToPdf,
@@ -355,6 +361,66 @@ describe('Dienste verteilen', () => {
 
     expect(screen.getByText(ben.name)).toBeInTheDocument();
     expect(screen.queryByText(ada.name)).not.toBeInTheDocument();
+  });
+
+  it('draws the round again without counting it, or counts it and goes on', async () => {
+    seatingState.current = { ...seatingState.current, students: [ada, ben] };
+    const current = {
+      at: '2026-10-11T08:00:00.000Z',
+      assignments: { board: ['ada'] },
+    };
+    dutyMemory.set('class-1', {
+      duties: [{ id: 'board', name: 'Tafeldienst', count: 1 }],
+      current,
+      rounds: [],
+    });
+
+    renderPage(<Duties />);
+    fireEvent.click(
+      await screen.findByRole('button', { name: /Neu würfeln|Draw again/ }),
+    );
+    await vi.waitFor(() =>
+      expect(dutyMemory.get('class-1')).toMatchObject({ rounds: [] }),
+    );
+
+    fireEvent.click(
+      screen.getByRole('button', { name: /Nächste Runde|Next round/ }),
+    );
+    await vi.waitFor(() =>
+      expect(
+        (dutyMemory.get('class-1') as { rounds: unknown[] }).rounds,
+      ).toHaveLength(1),
+    );
+  });
+
+  it('takes a removed duty back, its round included', async () => {
+    seatingState.current = { ...seatingState.current, students: [ada, ben] };
+    const stored = {
+      duties: [{ id: 'board', name: 'Tafeldienst', count: 1 }],
+      current: {
+        at: '2026-10-11T08:00:00.000Z',
+        assignments: { board: ['ada'] },
+      },
+      rounds: [],
+    };
+    dutyMemory.set('class-1', stored);
+
+    renderPage(<Duties />);
+    fireEvent.click(
+      await screen.findByRole('button', {
+        name: /Tafeldienst entfernen|Remove Tafeldienst/,
+      }),
+    );
+
+    await vi.waitFor(() =>
+      expect(dutyMemory.get('class-1')).toMatchObject({ duties: [] }),
+    );
+    const [, message, options] = showToast.mock.calls.at(-1)!;
+    expect(message).toMatch(/Tafeldienst/);
+    act(() => options.action.onClick());
+
+    await vi.waitFor(() => expect(dutyMemory.get('class-1')).toEqual(stored));
+    expect(screen.getByText(ada.name)).toBeInTheDocument();
   });
 });
 

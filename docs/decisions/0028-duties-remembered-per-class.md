@@ -69,3 +69,19 @@ projection's bar — but it keeps what it does:
   with the brand, title and date, the note list's greys — so it hangs beside a
   printed seating plan as one of a set. It has no export settings, and like
   every export it is not encrypted.
+
+## Addendum of 2026-11-06: drawing again is not the next round
+
+Every "Neu verteilen" began a new round and counted the one on the wall as
+done. A teacher who only wanted the same day drawn again, because the draw
+fell badly, bent the rotation, and the card's "Rückgängig" helped for eight
+seconds only. The maintainer chose two buttons once a round stands:
+
+- **"Nächste Runde"** (`startDutyRound`) does what "Neu verteilen" did: the
+  round on the wall goes into the history, and the next one is drawn.
+- **"Neu würfeln"** (`redrawDutyRound`) draws the round on the wall again from
+  the same history and replaces it; nothing is counted.
+
+Both can be taken back from their card. A duty that is removed goes the same
+way (decision 0041): at once, and a card brings it back with its place in the
+round — made anew, it would get another id and start its turns afresh.

@@ -187,6 +187,7 @@
     "saveFailed": "The duties could not be saved.",
     "redistributed": "Duties handed out again.",
     "redistributedAction": "Undo",
+    "removed": "Duty “{{name}}” removed.",
     "nobodyLeft": "Nobody left – everyone else already has a duty."
   },
   "mixPresets": {
