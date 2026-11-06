@@ -55,7 +55,9 @@ vi.mock('@/services/export/pdfExportFunctions', () => ({
   exportDutyRosterToPdf,
 }));
 vi.mock('@/components/scene/PresentationScene', () => ({
-  default: () => <div data-testid="presentation-scene" />,
+  default: ({ spotlight }: { spotlight?: unknown }) => (
+    <div data-testid="presentation-scene" data-spotlit={String(!!spotlight)} />
+  ),
 }));
 vi.mock('@/components/circle/SimpleCircleView', () => ({
   default: ({ spotlightStudentId }: { spotlightStudentId?: string | null }) => (
@@ -170,15 +172,19 @@ describe('Wer kommt dran?', () => {
   });
 
   // The plan with the drawn seat lit, as "Wo sitzt wer?" shows a found one —
-  // and only once somebody is drawn, since there is nothing to light before.
-  it('shows the plan with the drawn seat', () => {
+  // there before the first draw, so the draw does not push it in.
+  it('shows the plan from the start and lights the drawn seat', () => {
     withPlan();
 
     renderPage(<WhoIsNext />);
-    expect(screen.queryByTestId('presentation-scene')).not.toBeInTheDocument();
+    const scene = screen.getByTestId('presentation-scene');
+    expect(scene).toHaveAttribute('data-spotlit', 'false');
     fireEvent.click(screen.getByRole('button', { name: /Ziehen|Draw/ }));
 
-    expect(screen.getByTestId('presentation-scene')).toBeInTheDocument();
+    expect(screen.getByTestId('presentation-scene')).toHaveAttribute(
+      'data-spotlit',
+      'true',
+    );
   });
 
   it('draws from the class list while the plan is for tables that are gone', () => {

@@ -7,7 +7,7 @@ import type {
 } from '@/types';
 import type { StatisticStatus } from '@/utils';
 
-export type SeatHighlightTone = 'focus' | 'confirm';
+export type SeatHighlightTone = 'focus' | 'confirm' | 'spotlight';
 
 export type SeatHighlightInfo = {
   status: StatisticStatus;
@@ -18,6 +18,8 @@ export type SeatHighlightInfo = {
    * `focus` marks a seat a hovered badge points at. That is no verdict on the
    * seat, so it takes the selection colour rather than a status colour.
    * `confirm` marks the seats a student has just moved between, for a moment.
+   * `spotlight` is the seat "Wer kommt dran?" drew or "Wo sitzt wer?" found:
+   * lit rather than marked — its fill and its name, no ring inside it.
    */
   tone?: SeatHighlightTone;
 };
@@ -112,6 +114,26 @@ export function buildDropConfirmLookup(
     });
   }
   return lookup;
+}
+
+/** The one seat a spotlight lights (`PresentationScene`'s `spotlight`). */
+export function buildSpotlightLookup(
+  seat: { tableIndex: number; seatIndex: number } | null,
+): SeatHighlightLookup | null {
+  if (!seat) return null;
+  const { tableIndex, seatIndex } = seat;
+  return new Map([
+    [
+      `${tableIndex}-${seatIndex}`,
+      {
+        status: 'ok',
+        percentage: 100,
+        mode: 'persistent',
+        tone: 'spotlight',
+        target: { type: 'seat', tableIndex, seatIndex },
+      },
+    ],
+  ]);
 }
 
 export type { SeatHighlightLookup };

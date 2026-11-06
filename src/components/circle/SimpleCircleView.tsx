@@ -60,6 +60,7 @@ import { useTapGesture } from '@/hooks/ui/useDragGesture';
 import { useDwellKey } from '@/hooks/ui/useDragDropState';
 import DragGhost from '@/components/scene/DragGhost';
 import CircleSpotlight from '@/components/circle/CircleSpotlight';
+import { spotlightSeatFill } from '@/components/scene/PresentationSpotlight';
 import { useLayoutMode } from '@/hooks/ui/useLayoutMode';
 import { useIsCoarsePointer } from '@/hooks/ui/useCoarsePointer';
 import { useStudentPhotoUrls } from '@/hooks/student/useStudentPhoto';
@@ -110,8 +111,10 @@ type SimpleCircleViewProps = {
    * tokens, names and photos stand upright as they always do.
    */
   turn?: PlanTurn | null;
-  /** The student "Wer kommt dran?" drew: lit, the rest dimmed. */
+  /** The student "Wer kommt dran?" drew: lit, ringed, the rest dimmed unless `spotlightDims` is false. */
   spotlightStudentId?: string | null;
+  /** Whether the spotlight darkens the rest of the circle (the projection does). */
+  spotlightDims?: boolean;
   /**
    * The projection's contrast mode, as the table plan draws it: black on
    * white whatever the theme, thicker contours and bold names.
@@ -162,6 +165,7 @@ function SimpleCircleView({
   fit = false,
   turn = null,
   spotlightStudentId = null,
+  spotlightDims = true,
   contrast = false,
 }: SimpleCircleViewProps) {
   const { t } = useTranslation('generator');
@@ -768,13 +772,17 @@ function SimpleCircleView({
             : '';
           // The place the student was lifted from fades until the drag rests.
           const seatOpacity = isOrigin && !previewing ? 0.3 : 1;
+          // The drawn student's token lights up, as a lit seat of the plan.
+          const spotlit =
+            spotlightStudentId !== null && student?.id === spotlightStudentId;
+          const tokenNameWeight = spotlit ? 700 : nameWeight;
           const locked = student ? lockedIds.has(student.id) : false;
           const badgeFit = fitTokenBadges(appearance.flags);
           const nameFit = fitNameInCircle(
             studentDisplayName,
             nameBandFor(badgeFit),
             {
-              weight: nameWeight,
+              weight: tokenNameWeight,
               maxFont: Math.min(tokenNameMax, circleNameFontSize ?? Infinity),
               split: nameDisplay === 'full',
             },
@@ -917,7 +925,11 @@ function SimpleCircleView({
                     cx={slot.x}
                     cy={slot.y}
                     r={TOKEN_RADIUS}
-                    fill={appearance.fill}
+                    fill={
+                      spotlit
+                        ? spotlightSeatFill(isDark && !contrast)
+                        : appearance.fill
+                    }
                     stroke={appearance.stroke}
                     strokeWidth={tokenEdgeWidth}
                     pointerEvents="none"
@@ -1047,7 +1059,7 @@ function SimpleCircleView({
                     y={slot.y}
                     fit={nameFit}
                     title={studentTooltip}
-                    fontWeight={nameWeight}
+                    fontWeight={tokenNameWeight}
                     fill={appearance.text}
                     style={{ userSelect: 'none', pointerEvents: 'none' }}
                   />
@@ -1195,6 +1207,7 @@ function SimpleCircleView({
             cy={spotlightSlot.y}
             tokenRadius={seatRadius}
             viewBox={viewBox}
+            dim={spotlightDims}
           />
         )}
       </svg>

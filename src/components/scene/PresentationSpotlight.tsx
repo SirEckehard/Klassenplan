@@ -36,6 +36,17 @@ export const DIM_BLEED = 10000;
 /** The ring round the drawn seat: amber, lit, never the interface's blue. */
 export const SPOTLIGHT_RING_COLOR = '#f59e0b';
 
+/**
+ * The lit seat's own fill, the ring's amber made into a surface. Dimming the
+ * rest alone left the seat as dark as it was — in the dark theme a grey seat
+ * among grey seats — so the seat itself lights up, its name in bold.
+ * Literal colours, as the ring's: the plan is drawn for the projection's
+ * contrast mode and the export too, where the theme's tokens do not reach.
+ */
+export function spotlightSeatFill(isDark: boolean): string {
+  return isDark ? '#5c4511' : '#fde7b0';
+}
+
 export interface SpotlightTarget {
   tableIndex: number;
   seatIndex: number;
@@ -49,6 +60,12 @@ interface PresentationSpotlightProps {
   viewBox: { x: number; y: number; width: number; height: number };
   /** Transform applied to the classroom group, so the hole lines up with it. */
   groupTransform: string;
+  /**
+   * Whether the rest of the classroom is darkened. The projection does, for
+   * the back row; a phone held close keeps every name readable and lets the
+   * lit seat and its ring speak.
+   */
+  dim?: boolean;
 }
 
 /**
@@ -70,6 +87,7 @@ export default function PresentationSpotlight({
   target,
   viewBox,
   groupTransform,
+  dim = true,
 }: PresentationSpotlightProps) {
   const maskId = React.useId();
 
@@ -108,27 +126,31 @@ export default function PresentationSpotlight({
   };
 
   return (
-    <g pointerEvents="none" aria-hidden="true">
-      <mask id={maskId}>
-        {/* White keeps the dimming, black lets the classroom shine through. */}
-        <rect {...dimArea} fill="white" />
-        <g transform={groupTransform}>
-          <ellipse
-            cx={seat.center.x}
-            cy={seat.center.y}
-            rx={seat.radiusX}
-            ry={seat.radiusY}
-            transform={seatTransform}
-            fill="black"
+    <g pointerEvents="none" aria-hidden="true" data-spotlight="">
+      {dim && (
+        <>
+          <mask id={maskId}>
+            {/* White keeps the dimming, black lets the classroom shine through. */}
+            <rect {...dimArea} fill="white" />
+            <g transform={groupTransform}>
+              <ellipse
+                cx={seat.center.x}
+                cy={seat.center.y}
+                rx={seat.radiusX}
+                ry={seat.radiusY}
+                transform={seatTransform}
+                fill="black"
+              />
+            </g>
+          </mask>
+          <rect
+            {...dimArea}
+            fill={DIM_COLOR}
+            opacity={DIM_STRENGTH}
+            mask={`url(#${maskId})`}
           />
-        </g>
-      </mask>
-      <rect
-        {...dimArea}
-        fill={DIM_COLOR}
-        opacity={DIM_STRENGTH}
-        mask={`url(#${maskId})`}
-      />
+        </>
+      )}
       <g transform={groupTransform}>
         <ellipse
           cx={seat.center.x}

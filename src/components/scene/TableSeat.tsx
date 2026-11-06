@@ -24,6 +24,7 @@ import {
 } from '@/utils/ui/seatLabelLayout';
 import SeatBadgePill from '@/components/scene/SeatBadgePill';
 import SeatNameText from '@/components/scene/SeatNameText';
+import { spotlightSeatFill } from '@/components/scene/PresentationSpotlight';
 import type { SeatHighlightTone } from '@/utils/ui/statisticsHighlight';
 import {
   insetSeatPath,
@@ -329,7 +330,11 @@ function TableSeat({
     ],
   );
 
-  const seatFill = appearance.fill;
+  // The seat a spotlight lights is no mark: its own fill lights up and its
+  // name turns bold (`PresentationSpotlight` draws the ring round it).
+  const spotlit = highlightTone === 'spotlight';
+  const seatFill = spotlit ? spotlightSeatFill(isDark) : appearance.fill;
+  const nameWeight = contrast || spotlit ? 700 : 400;
   const seatStroke = appearance.stroke;
   const textColor = appearance.text;
 
@@ -349,9 +354,8 @@ function TableSeat({
       : undefined;
   // The seat itself carries the highlight — never its table, which would
   // mark the neighbours at a double or group table as well.
-  const highlightKind = highlightStatus
-    ? (highlightTone ?? highlightStatus)
-    : null;
+  const highlightKind =
+    highlightStatus && !spotlit ? (highlightTone ?? highlightStatus) : null;
   const { t } = useTranslation('generator');
 
   const highlightTitle =
@@ -414,7 +418,7 @@ function TableSeat({
     };
     const pill = layoutSeatBadgePill(shownFlags, shape, badgeView);
     return fitNameOnSeat(displayName, shape, pill?.rect ?? null, {
-      weight: contrast ? 700 : 400,
+      weight: nameWeight,
       maxFont: Math.min(
         seatNameMaxFontSize(seatWidth, seatHeight),
         nameFontSize ?? Infinity,
@@ -432,7 +436,7 @@ function TableSeat({
     lockRevealOnHover,
     locked,
     displayName,
-    contrast,
+    nameWeight,
     nameFontSize,
     nameDisplay,
   ]);
@@ -677,7 +681,7 @@ function TableSeat({
               y={seatHeight / 2}
               fit={nameFit}
               title={getTooltipName(shownStudent.name)}
-              fontWeight={contrast ? 700 : 400}
+              fontWeight={nameWeight}
               transform={seatLabelTransform}
               fill={textColor}
               style={{

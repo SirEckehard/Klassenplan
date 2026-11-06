@@ -20,6 +20,7 @@ import {
 } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import SimpleCircleView from '../SimpleCircleView';
+import { spotlightSeatFill } from '@/components/scene/PresentationSpotlight';
 import type { CircleLayout } from '../../../types/Circle';
 import { createMockStudent } from '../../../__tests__/utils/testHelpers';
 
@@ -570,6 +571,23 @@ describe('SimpleCircleView', () => {
     rerender(
       <SimpleCircleView layout={mockLayout} fit spotlightStudentId="2" />,
     );
-    expect(container.querySelector('[data-circle-spotlight]')).not.toBeNull();
+    const spotlight = container.querySelector('[data-circle-spotlight]');
+    expect(spotlight).not.toBeNull();
+    expect(spotlight?.querySelector('mask')).not.toBeNull();
+    // The drawn student's token lights up in its own fill.
+    expect(
+      container.querySelector(`circle[fill="${spotlightSeatFill(false)}"]`),
+    ).not.toBeNull();
+
+    // Held close, the tools leave the rest of the circle undimmed.
+    rerender(
+      <SimpleCircleView
+        layout={mockLayout}
+        fit
+        spotlightStudentId="2"
+        spotlightDims={false}
+      />,
+    );
+    expect(container.querySelector('[data-circle-spotlight] mask')).toBeNull();
   });
 });

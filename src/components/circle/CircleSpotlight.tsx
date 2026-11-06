@@ -20,12 +20,15 @@ export default function CircleSpotlight({
   cy,
   tokenRadius,
   viewBox,
+  dim = true,
 }: {
   cx: number;
   cy: number;
   tokenRadius: number;
   /** Visible area, in the circle's own units — the SVG's viewBox. */
   viewBox: { x: number; y: number; width: number; height: number };
+  /** Whether the rest of the circle is darkened (see `PresentationSpotlight`). */
+  dim?: boolean;
 }) {
   const maskId = React.useId();
   const radius = tokenRadius + SPOTLIGHT_MARGIN;
@@ -38,17 +41,21 @@ export default function CircleSpotlight({
 
   return (
     <g pointerEvents="none" aria-hidden="true" data-circle-spotlight="">
-      <mask id={maskId}>
-        {/* White keeps the dimming, black lets the circle shine through. */}
-        <rect {...dimArea} fill="white" />
-        <circle cx={cx} cy={cy} r={radius} fill="black" />
-      </mask>
-      <rect
-        {...dimArea}
-        fill={DIM_COLOR}
-        opacity={DIM_STRENGTH}
-        mask={`url(#${maskId})`}
-      />
+      {dim && (
+        <>
+          <mask id={maskId}>
+            {/* White keeps the dimming, black lets the circle shine through. */}
+            <rect {...dimArea} fill="white" />
+            <circle cx={cx} cy={cy} r={radius} fill="black" />
+          </mask>
+          <rect
+            {...dimArea}
+            fill={DIM_COLOR}
+            opacity={DIM_STRENGTH}
+            mask={`url(#${maskId})`}
+          />
+        </>
+      )}
       <circle
         cx={cx}
         cy={cy}

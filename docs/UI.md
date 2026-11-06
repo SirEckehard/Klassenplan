@@ -869,8 +869,14 @@ afterwards.
   where they were opened from — the projection in the view it was left in. While
   the class sits in the circle, "Wer kommt dran?" draws from the circle and
   names who sits on either side (`findCircleLocation`) instead of a table; under
-  the name it shows the plan or the circle with the drawn place lit, as "Wo
-  sitzt wer?" does. An empty state's button names the layer that supplies what
+  the name it shows the plan or the circle, there before the first draw, with
+  the drawn place lit, as "Wo sitzt wer?" does. Only the plan's height gives:
+  the answer's card keeps one height, and who has been asked is one line that
+  slides sideways, so the plan does not jump at a draw. Both name cards show
+  the student's photo where there is one, and neither tool dims the rest of
+  the plan (`spotlightDims={false}`): held close, the lit seat — amber,
+  `spotlightSeatFill`, its name bold, the ring round it — is enough, while the
+  projection darkens the rest for the back row. An empty state's button names the layer that supplies what
   is missing (`ToolEmptyState`'s `step`, read by `useSeatingWizard`), since the
   tool may have been opened from any layer. A new one of them needs a route, a
   `seoRoutes.json` entry, a `hidesFooter` entry and a `routeComponents` key —

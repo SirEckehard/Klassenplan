@@ -6,6 +6,7 @@ import { MagnifyingGlassIcon, XIcon } from '@phosphor-icons/react';
 import ToolPage, { ToolEmptyState } from '@/components/tools/ToolPage';
 import SeatLocationLine from '@/components/tools/SeatLocationLine';
 import PresentationScene from '@/components/scene/PresentationScene';
+import StudentAvatar from '@/components/students/StudentAvatar';
 import { useSeatingPlanState } from '@/contexts/SeatingPlanContext';
 import { useIsDarkMode } from '@/hooks/useIsDarkMode';
 import {
@@ -141,11 +142,18 @@ export default function SeatFinder() {
 
           {selected && location ? (
             <div className="flex flex-1 flex-col gap-3 rounded-xl border border-(--border-card) bg-(--surface-card) p-4">
-              <div className="flex flex-col gap-1">
-                <span className="text-xl font-semibold text-(--text-page)">
-                  {selected.name}
-                </span>
-                <SeatLocationLine location={location} />
+              <div className="flex items-center gap-3">
+                {/* The face, where there is one, is what a substitute
+                    matches against the room; no stand-in without a photo. */}
+                {selected.hasPhoto && (
+                  <StudentAvatar student={selected} size={48} />
+                )}
+                <div className="flex min-w-0 flex-col gap-1">
+                  <span className="text-xl font-semibold text-(--text-page)">
+                    {selected.name}
+                  </span>
+                  <SeatLocationLine location={location} />
+                </div>
               </div>
               {/* The same drawing the beamer shows, with the seat lit: the
                   sentence above is only useful if it can be checked. It fills
@@ -170,6 +178,8 @@ export default function SeatFinder() {
                       tableIndex: location.tableIndex,
                       seatIndex: location.seatIndex,
                     }}
+                    // Held close, nothing is dimmed: the seat lights up.
+                    spotlightDims={false}
                   />
                 </div>
               </div>

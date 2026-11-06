@@ -5,6 +5,7 @@ import React from 'react';
 import { render, fireEvent } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import TableSeat, { TableSeatBadgeOverlay } from '../TableSeat';
+import { spotlightSeatFill } from '@/components/scene/PresentationSpotlight';
 import type { Student } from '../../../types';
 
 const baseStudent: Student = {
@@ -546,6 +547,46 @@ describe('TableSeat component', () => {
     expect(focus?.querySelector('.animate-pulse')).toBeNull();
     // A badge is no verdict: no fulfilment in the tooltip.
     expect(focus?.querySelector('title')).toBeNull();
+  });
+
+  // "Wer kommt dran?" and "Wo sitzt wer?": the seat itself lights up, its
+  // name in bold — no mark inside it, the spotlight rings it from outside.
+  it('lights a spotlit seat instead of marking it', () => {
+    const { container } = render(
+      <svg>
+        <TableSeat
+          student={baseStudent}
+          seatIndex={0}
+          tableIndex={0}
+          col={0}
+          row={0}
+          seatWidth={55}
+          seatHeight={65}
+          isDark={true}
+          locked={false}
+          isOriginSeat={false}
+          isHoverSeat={false}
+          isHoverLockedSeat={false}
+          isLockedFeedbackSeat={false}
+          showSpecialNeeds={false}
+          lockSeatLabelOrientation={true}
+          seatTextRotation={0}
+          highlightStatus="ok"
+          highlightMode="persistent"
+          highlightTone="spotlight"
+        />
+      </svg>,
+    );
+
+    expect(container.querySelector('[data-seat-highlight]')).toBeNull();
+    expect(container.querySelector('[data-seat-shape]')).toHaveAttribute(
+      'fill',
+      spotlightSeatFill(true),
+    );
+    expect(container.querySelector('text')).toHaveAttribute(
+      'font-weight',
+      '700',
+    );
   });
 
   it('draws the swap a resting drag would make, and rings a landing green', () => {

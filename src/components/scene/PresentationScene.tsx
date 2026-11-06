@@ -20,6 +20,7 @@ import {
   turnBox,
 } from '@/utils/ui/presentationFrame';
 import { computePlanNameFontSize } from '@/utils/ui/planNameSize';
+import { buildSpotlightLookup } from '@/utils/ui/statisticsHighlight';
 import {
   getPresentationRotation,
   type PresentationPerspective,
@@ -71,8 +72,10 @@ type PresentationSceneProps = {
   panX?: number;
   panY?: number;
   isDark?: boolean;
-  /** Seat to spotlight; the rest of the classroom is dimmed. */
+  /** Seat to spotlight: lit, ringed, and the rest dimmed unless `spotlightDims` is false. */
   spotlight?: SpotlightTarget | null;
+  /** Whether the spotlight darkens the rest of the classroom (the projection does). */
+  spotlightDims?: boolean;
   /**
    * Contrast mode for a bright room: black on white whatever the theme, with
    * thicker contours and no photos, badges or room colours. A projector
@@ -99,6 +102,7 @@ export default function PresentationScene({
   panY = 0,
   isDark = false,
   spotlight = null,
+  spotlightDims = true,
   contrast = false,
 }: PresentationSceneProps) {
   // Contrast mode brings its own palette, so the theme stands down; what is
@@ -206,6 +210,18 @@ export default function PresentationScene({
     ],
   );
 
+  // The lit seat, handed to its table alone so the others keep their memo.
+  const spotTable = spotlight?.tableIndex;
+  const spotSeat = spotlight?.seatIndex;
+  const spotlightLookup = React.useMemo(
+    () =>
+      spotTable === undefined || spotSeat === undefined
+        ? null
+        : buildSpotlightLookup({ tableIndex: spotTable, seatIndex: spotSeat }),
+    [spotTable, spotSeat],
+  );
+  const spotlitTableIndex = spotlight?.tableIndex ?? -1;
+
   return (
     <>
       <svg
@@ -252,6 +268,9 @@ export default function PresentationScene({
               nameDisplay={nameDisplay}
               nameLabels={nameLabels}
               nameFontSize={nameFontSize}
+              seatHighlights={
+                spotlitTableIndex === index ? spotlightLookup : null
+              }
             />
           ))}
         </g>
@@ -261,6 +280,7 @@ export default function PresentationScene({
           target={spotlight}
           viewBox={viewBox}
           groupTransform={groupTransform}
+          dim={spotlightDims}
         />
       </svg>
       {showSpecialNeeds && (

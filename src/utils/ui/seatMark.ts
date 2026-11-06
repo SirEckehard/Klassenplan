@@ -18,7 +18,10 @@ import { TABLE_CORNER_RADIUS } from '@/utils';
 import type { SeatHighlightTone } from './statisticsHighlight';
 
 export type SeatMarkKind =
-  StatisticStatus | SeatHighlightTone | 'target' | 'blocked';
+  | StatisticStatus
+  | Exclude<SeatHighlightTone, 'spotlight'>
+  | 'target'
+  | 'blocked';
 
 /**
  * A criterion's verdict speaks in the status colours the fulfilment uses; a

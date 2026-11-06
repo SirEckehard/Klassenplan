@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Importing a class list again adds only the students who are not in the class yet
 - "Hand out duties" can draw the same round again without counting it, and a deleted duty comes back with "Undo"
 - Deleting all data also lists your own presets, the duties and the photos
+- "Who's next?" and "Where does who sit?" show the student's photo and light up their seat instead of dimming the plan, and the plan no longer changes size between draws
 - The page loads a little faster
 
 ### Fixed

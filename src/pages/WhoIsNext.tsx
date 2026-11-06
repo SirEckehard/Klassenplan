@@ -11,6 +11,7 @@ import ToolPage, { ToolEmptyState } from '@/components/tools/ToolPage';
 import SeatLocationLine from '@/components/tools/SeatLocationLine';
 import PresentationScene from '@/components/scene/PresentationScene';
 import SimpleCircleView from '@/components/circle/SimpleCircleView';
+import StudentAvatar from '@/components/students/StudentAvatar';
 import { useSeatingPlanState } from '@/contexts/SeatingPlanContext';
 import { useRandomStudentPicker } from '@/hooks/ui/useRandomStudentPicker';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
@@ -141,21 +142,36 @@ export default function WhoIsNext() {
         />
       ) : (
         // At least as tall as the page, so the plan under the answer can take
-        // whatever height the rest leaves.
+        // whatever height the rest leaves. Every zone but the plan keeps one
+        // height whoever is drawn — a longer line, a row of badges or one more
+        // name already asked made the plan jump at every draw.
         <div className="mx-auto flex min-h-full max-w-xl flex-col gap-4 lg:max-w-3xl">
           <div
             role="status"
             aria-live="polite"
-            className="flex min-h-40 flex-col items-center justify-center gap-2 rounded-xl border border-(--border-card) bg-(--surface-card) px-4 py-8 text-center"
+            className="flex h-44 shrink-0 flex-col items-center justify-center gap-2 overflow-hidden rounded-xl border border-(--border-card) bg-(--surface-card) px-4 text-center"
           >
             {picked ? (
               <>
-                <span className="text-3xl font-semibold text-(--text-page)">
-                  {picked.student.name}
+                <span className="flex max-w-full items-center justify-center gap-3">
+                  {/* The face, where there is one: the name is read out, the
+                      photo is what a teacher still new to the class looks
+                      for. No stand-in without a photo. */}
+                  {picked.student.hasPhoto && (
+                    <StudentAvatar student={picked.student} size={56} />
+                  )}
+                  <span className="min-w-0 truncate text-3xl font-semibold text-(--text-page)">
+                    {picked.student.name}
+                  </span>
                 </span>
-                {location && <SeatLocationLine location={location} />}
+                {location && (
+                  <SeatLocationLine
+                    location={location}
+                    className="line-clamp-2"
+                  />
+                )}
                 {badges.length > 0 && (
-                  <span className="mt-1 flex flex-wrap justify-center gap-1.5">
+                  <span className="mt-1 flex h-6 flex-wrap justify-center gap-1.5 overflow-hidden">
                     {badges.map((badge) => (
                       <span
                         key={badge.key}
@@ -176,15 +192,17 @@ export default function WhoIsNext() {
             )}
           </div>
 
-          {/* The drawn student lit in the plan, as "Wo sitzt wer?" shows a
-              found one: the line above is quicker to take in with the room
-              beside it. Outside the live region, so only the name and the
-              line are read out. The scene sits in an absolute box so its 100%
-              size resolves against what the flex layout handed out. */}
-          {picked && location && (
+          {/* The plan, there from the start so the first draw does not push
+              it in, with the drawn student lit: the line above is quicker to
+              take in with the room beside it. Nothing is dimmed — held close,
+              every name stays readable and the lit seat speaks for itself.
+              Outside the live region, so only the name and the line are read
+              out. The scene sits in an absolute box so its 100% size resolves
+              against what the flex layout handed out. */}
+          {(usesCircle || tableSeating.length > 0) && (
             <div className="relative min-h-72 w-full flex-1 overflow-hidden rounded-xl border border-(--border-card) bg-(--surface-sunken)">
               <div className="absolute inset-0">
-                {'kind' in location && circleLayout ? (
+                {usesCircle && circleLayout ? (
                   <SimpleCircleView
                     layout={circleLayout}
                     editable={false}
@@ -195,9 +213,14 @@ export default function WhoIsNext() {
                     connectionMode="off"
                     transparentBackground
                     fit
-                    spotlightStudentId={picked.student.id}
+                    spotlightStudentId={
+                      location && 'kind' in location
+                        ? (picked?.student.id ?? null)
+                        : null
+                    }
+                    spotlightDims={false}
                   />
-                ) : 'tableIndex' in location ? (
+                ) : (
                   <PresentationScene
                     scene={classroomScene}
                     seating={tableSeating}
@@ -208,17 +231,22 @@ export default function WhoIsNext() {
                     showFeatures
                     nameDisplay="firstName"
                     isDark={isDark}
-                    spotlight={{
-                      tableIndex: location.tableIndex,
-                      seatIndex: location.seatIndex,
-                    }}
+                    spotlight={
+                      location && 'tableIndex' in location
+                        ? {
+                            tableIndex: location.tableIndex,
+                            seatIndex: location.seatIndex,
+                          }
+                        : null
+                    }
+                    spotlightDims={false}
                   />
-                ) : null}
+                )}
               </div>
             </div>
           )}
 
-          <div className="flex items-center justify-between gap-3 text-xs text-(--text-muted)">
+          <div className="flex h-8 shrink-0 items-center justify-between gap-3 text-xs text-(--text-muted)">
             <span>
               {t('tools.whoIsNext.remaining', {
                 remaining: picker.remaining,
@@ -237,23 +265,30 @@ export default function WhoIsNext() {
             )}
           </div>
 
-          {picker.recent.length > 1 && (
-            <div>
-              <span className="mb-1.5 block text-xs font-semibold tracking-wider text-(--text-muted) uppercase">
-                {t('tools.whoIsNext.already')}
-              </span>
-              <ul className="flex flex-wrap gap-1.5">
-                {picker.recent.slice(1).map((student) => (
-                  <li
-                    key={student.id}
-                    className="rounded-md border border-(--border-card) bg-(--surface-card) px-2 py-1 text-xs text-(--text-muted)"
-                  >
-                    {student.name}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
+          {/* Who has been asked, one line the newest first, sliding sideways
+              rather than growing: its height is the plan's to keep. */}
+          <div className="flex h-10 shrink-0 items-center gap-2">
+            {picker.recent.length > 1 && (
+              <>
+                <span className="shrink-0 text-xs font-semibold tracking-wider text-(--text-muted) uppercase">
+                  {t('tools.whoIsNext.already')}
+                </span>
+                <ul
+                  aria-label={t('tools.whoIsNext.already')}
+                  className="flex min-w-0 flex-1 gap-1.5 overflow-x-auto overscroll-x-contain"
+                >
+                  {picker.recent.slice(1).map((student) => (
+                    <li
+                      key={student.id}
+                      className="shrink-0 rounded-md border border-(--border-card) bg-(--surface-card) px-2 py-1 text-xs whitespace-nowrap text-(--text-muted)"
+                    >
+                      {student.name}
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
+          </div>
         </div>
       )}
     </ToolPage>
