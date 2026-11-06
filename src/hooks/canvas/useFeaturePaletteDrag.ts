@@ -1127,6 +1127,12 @@ export function useFeaturePaletteDrag({
 
   const handleFeaturePointerDown = React.useCallback(
     (feature: ClassroomFeature, event: React.PointerEvent<SVGRectElement>) => {
+      // Right-click (button 2) is the contextmenu's, as on a table. The
+      // installed Safari web app on a Mac sends no pointerup after its menu,
+      // so a pending press would turn the next mouse move into a drag.
+      if (event.button === 2) {
+        return;
+      }
       event.stopPropagation();
       event.preventDefault();
       const additive = event.shiftKey || event.ctrlKey || event.metaKey;
@@ -1176,6 +1182,12 @@ export function useFeaturePaletteDrag({
         }
         const pending = pendingFeatureRef.current;
         if (!pending) {
+          return;
+        }
+        // A mouse that moves with no button held lost its pointerup (Ctrl+click
+        // opens the menu on a Mac): the press is over, nothing is dragged.
+        if (moveEvent.pointerType === 'mouse' && moveEvent.buttons === 0) {
+          cancelPendingFeatureInteraction();
           return;
         }
         const deltaX = Math.abs(moveEvent.clientX - pending.startClientX);

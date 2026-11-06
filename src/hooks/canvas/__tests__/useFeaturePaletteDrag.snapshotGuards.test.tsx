@@ -52,7 +52,13 @@ const makePointerEvent = <T extends Element>(
 
 const dispatchWindowPointerEvent = (
   type: 'pointermove' | 'pointerup' | 'pointercancel',
-  init: { pointerId: number; clientX: number; clientY: number },
+  init: {
+    pointerId: number;
+    clientX: number;
+    clientY: number;
+    pointerType?: string;
+    buttons?: number;
+  },
 ) => {
   const event = new Event(type);
   Object.assign(event, init);
@@ -273,6 +279,56 @@ describe('useFeaturePaletteDrag snapshot guards', () => {
 
       expect(snapshot).toHaveBeenCalledTimes(1);
       expect(runSceneTransaction).toHaveBeenCalledTimes(1);
+    });
+
+    // The installed Safari web app on a Mac sends no pointerup after a
+    // contextmenu, so the press must not wait for one.
+    it('leaves a right-click to the context menu', () => {
+      const { result } = renderPaletteDragHook();
+      const event = makePointerEvent<SVGRectElement>({ button: 2 });
+
+      act(() => {
+        result.current.handleFeaturePointerDown(features[0], event);
+        dispatchWindowPointerEvent('pointermove', {
+          pointerId: 1,
+          clientX: 260,
+          clientY: 80,
+          pointerType: 'mouse',
+          buttons: 0,
+        });
+      });
+
+      expect(event.stopPropagation).not.toHaveBeenCalled();
+      expect(selectFeature).not.toHaveBeenCalled();
+      expect(setSceneFeatures).not.toHaveBeenCalled();
+    });
+
+    it('drags nothing when the mouse moves with no button held', () => {
+      const { result } = renderPaletteDragHook();
+
+      act(() => {
+        result.current.handleFeaturePointerDown(
+          features[0],
+          makePointerEvent<SVGRectElement>({ ctrlKey: true }),
+        );
+        dispatchWindowPointerEvent('pointermove', {
+          pointerId: 1,
+          clientX: 260,
+          clientY: 80,
+          pointerType: 'mouse',
+          buttons: 0,
+        });
+        dispatchWindowPointerEvent('pointermove', {
+          pointerId: 1,
+          clientX: 300,
+          clientY: 80,
+          pointerType: 'mouse',
+          buttons: 1,
+        });
+      });
+
+      expect(setSceneFeatures).not.toHaveBeenCalled();
+      expect(features[0].x).toBe(100);
     });
   });
 });

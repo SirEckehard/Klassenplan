@@ -27,6 +27,8 @@ function RotationHandle({
     <g
       transform={`translate(${width - 5} ${height - 5}) rotate(${inverseRotation})`}
       onPointerDown={(e) => {
+        // A right-click opens the menu; it never starts a turn.
+        if (e.button === 2) return;
         e.stopPropagation();
         e.preventDefault();
         // Capture the pointer so no pointerleave fires on the parent while

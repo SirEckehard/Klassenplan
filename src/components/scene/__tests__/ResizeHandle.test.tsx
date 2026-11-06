@@ -81,4 +81,12 @@ describe('ResizeHandle', () => {
     // stopPropagation keeps the canvas selection machinery out of the gesture
     expect(onSvgPointerDown).not.toHaveBeenCalled();
   });
+
+  it('leaves a right-click to the context menu', () => {
+    const { group, onResizeStart } = renderHandle();
+
+    fireEvent.pointerDown(group, { pointerId: 7, button: 2 });
+
+    expect(onResizeStart).not.toHaveBeenCalled();
+  });
 });

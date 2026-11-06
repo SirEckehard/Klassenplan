@@ -53,6 +53,8 @@ function ResizeHandle({
     <g
       transform={`translate(${x} ${y})`}
       onPointerDown={(e) => {
+        // A right-click opens the menu; it never starts a resize.
+        if (e.button === 2) return;
         e.stopPropagation();
         e.preventDefault();
         // Capture the pointer so no pointerleave fires on the parent while
