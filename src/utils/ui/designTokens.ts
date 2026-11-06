@@ -84,7 +84,7 @@ export const inspectorTitleTextClass = 'text-[1.0625rem] font-semibold';
  * into, wrapping rather than cut off, in the heading's own type.
  */
 export const editableTitleClass =
-  'block min-w-0 wrap-break-word cursor-text select-text rounded-xl border border-(--border-card) bg-(--surface-card) px-3 py-1 text-left text-(--text-page) shadow-sm transition-colors hover:bg-(--surface-option-selected) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring) focus-visible:border-(--border-option-selected)';
+  'block min-w-0 max-w-full wrap-anywhere cursor-text select-text rounded-xl border border-(--border-card) bg-(--surface-card) px-3 py-1 text-left text-(--text-page) shadow-sm transition-colors hover:bg-(--surface-option-selected) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring) focus-visible:border-(--border-option-selected)';
 
 export const selectFieldClass = inputFieldClass;
 

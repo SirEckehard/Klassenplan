@@ -106,7 +106,7 @@ export function InspectorHeader({
             test can ask for what is selected by name. It wraps rather than
             truncates: a student's name cut to "Lina Schneid…" names nobody. */}
         <h2
-          className={`min-w-0 wrap-break-word text-(--text-page) ${inspectorTitleTextClass}`}
+          className={`min-w-0 wrap-anywhere text-(--text-page) ${inspectorTitleTextClass}`}
         >
           {typeof title === 'string' ? (
             <span className={staticTitleClass}>{title}</span>

@@ -99,7 +99,7 @@ export default function ConfirmDialog({
         <div className="min-w-0">
           <h2
             id={titleId}
-            className="wrap-break-word text-lg leading-snug font-semibold text-(--text-page)"
+            className="wrap-anywhere text-lg leading-snug font-semibold text-(--text-page)"
           >
             {title}
           </h2>
@@ -126,7 +126,7 @@ export default function ConfirmDialog({
       {message && (
         <p
           id={messageId}
-          className="px-5 pt-3 text-sm wrap-break-word text-(--text-muted)"
+          className="px-5 pt-3 text-sm wrap-anywhere text-(--text-muted)"
         >
           {message}
         </p>

@@ -14,6 +14,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - The seats of a table now meet without a gap, and tables take the app's calmer colours
 - Room elements have the same thin outline in the room editor as in the seating plan
 
+### Fixed
+
+- A very long name no longer runs out of the panel or the class list
+
 ## [3.3.1] - 2026-11-06
 
 ### Improved

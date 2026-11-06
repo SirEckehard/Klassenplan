@@ -122,7 +122,7 @@ const StudentList = ({
     >
       <div
         onKeyDown={handleKeyDown}
-        className="grid content-start lg:min-h-0 lg:overflow-y-auto"
+        className="grid grid-cols-1 content-start lg:min-h-0 lg:overflow-y-auto"
       >
         <StudentListHeader
           allVisibleSelected={allVisibleSelected}

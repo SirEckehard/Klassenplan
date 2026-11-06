@@ -109,7 +109,7 @@ export default function InspectorTitleField({
 
   if (disabled) {
     return (
-      <span className="block min-w-0 wrap-break-word">
+      <span className="block min-w-0 wrap-anywhere">
         {value || placeholder}
       </span>
     );

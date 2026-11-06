@@ -140,7 +140,9 @@ function StudentRow({
         </span>
         <StudentAvatar student={student} size={32} />
         <span
-          className={`shrink-0 truncate text-[0.9375rem] @2xl:w-44 ${
+          // Shrinks below `@2xl`, where the row wraps, so a name wider than
+          // the list is cut there rather than run out of the row.
+          className={`min-w-0 truncate text-[0.9375rem] @2xl:w-44 @2xl:shrink-0 ${
             hasName ? 'text-(--text-page)' : 'text-(--text-muted) italic'
           }`}
         >

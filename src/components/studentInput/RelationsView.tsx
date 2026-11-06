@@ -116,7 +116,7 @@ export default function RelationsView({ students }: { students: Student[] }) {
       }`}
     >
       <StudentAvatar student={student} size={56} />
-      <span className="line-clamp-2 text-sm leading-tight font-medium wrap-break-word">
+      <span className="line-clamp-2 text-sm leading-tight font-medium wrap-anywhere">
         {nameOf(student)}
       </span>
     </button>

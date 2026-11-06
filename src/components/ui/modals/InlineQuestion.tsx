@@ -111,7 +111,7 @@ export default function InlineQuestion({
       <div className="min-w-0 text-control">
         <p
           id={titleId}
-          className="wrap-break-word font-semibold text-(--text-page)"
+          className="wrap-anywhere font-semibold text-(--text-page)"
         >
           {question.title}
         </p>

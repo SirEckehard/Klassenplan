@@ -84,6 +84,8 @@ Numbers that sit in columns or get compared — counts, percentages, times — a
 
 They set no line height, so a row keeps the one it inherits, and they grow with the browser's text size, as rem does. A size used once — a student's name in the class list, an inspector's title — stays where it is, in rem; the lockup's sizes belong to the logo.
 
+**Names a teacher typed.** A class, room, plan, template, preset or student name can be 120 characters long and a single word. It stays inside its box in one of two ways. In a row, a menu, a column or a subtitle it is cut: `truncate` on an element that may shrink (`min-w-0`, never `shrink-0` without a width), inside a grid column that may shrink as well (`grid-cols-1`, not the automatic track that grows to the longest word). Where it is the title, such as the inspector's `h2`, its pill (`editableTitleClass`) or a question that names it, it wraps with `wrap-anywhere`, not `wrap-break-word`. Only `anywhere` lowers the element's minimum width, so a button or a flex item sized to its content breaks the word too, where `break-word` lets the box grow out of the panel.
+
 The central radii live in `@theme`:
 
 | Variable                   | Value (light)      | Used for                                                              |
