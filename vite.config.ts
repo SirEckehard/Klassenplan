@@ -14,6 +14,7 @@ import type { Alias, PluginOption } from 'vite';
 import { readLegalPageUrls } from './src/config/legalPageUrls.ts';
 import { readContactEmail } from './src/config/contactEmail.ts';
 import { thirdPartyLicenses } from './scripts/utils/thirdPartyLicenses.ts';
+import { iconWeightsPlugin } from './scripts/utils/iconWeights.ts';
 import {
   BACKUP_FILE_EXTENSION,
   BACKUP_FILE_MEDIA_TYPE,
@@ -175,6 +176,8 @@ export default defineConfig({
     tailwindcss,
     react(),
     preloadPrimaryFont(),
+    // Only the icon weights the app draws go into the bundle.
+    iconWeightsPlugin(),
     offlineFileList(),
     licenses.plugin,
     VitePWA({
