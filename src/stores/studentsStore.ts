@@ -227,13 +227,12 @@ const createStudentsStore = (
         // only once a file is imported, so it loads then instead of with the app.
         const { importStudentsFromCsv } =
           await import('@/services/csvImportService');
-        const currentCount = get().students.length;
         const acceptedRows = await importStudentsFromCsv({
           file,
           mode: selection?.mode,
           className: selection?.className,
           usePreset: selection?.usePreset,
-          currentStudentCount: currentCount,
+          currentStudents: get().students,
         });
 
         if (acceptedRows.length > 0) {

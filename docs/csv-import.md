@@ -1,6 +1,6 @@
 # CSV Import Format
 
-> **Status:** current · **Last reviewed:** 2026-10-26 · **Source of truth:**
+> **Status:** current · **Last reviewed:** 2026-11-06 · **Source of truth:**
 > `src/utils/csv/`, `src/utils/data/csvUtils.ts`, `src/services/csvImportService.ts`
 
 Which files the class list import accepts, how it recognises columns, and how
@@ -30,7 +30,8 @@ must keep files that imported yesterday importing today.
 5. **Teacher's choices** (`CsvImportSelection`): which name column(s), which
    class, whether to apply the recognised format.
 6. **Import** (`parseCsvFlexible`): apply the format preset, keep the chosen
-   class, reject more than 36 rows, map every row, resolve partner names, and
+   class, reject more than 36 rows, map every row and resolve partner names;
+   then (`importStudentsFromCsv`) skip the names the class already has, and
    accept as many students as the class still has room for.
 
 Files of 40 KB or more are parsed in a dedicated worker
@@ -137,7 +138,8 @@ error.
   so "sehr unruhig" asked for a front seat and set no restlessness.)
 - **Partners:** comma-separated names, matched case-insensitively against the
   names **in the same file**. At most three per student; the student's own name
-  and unknown names are dropped.
+  and unknown names are dropped. A partner whose row is skipped because the
+  class has that name already becomes the classmate of that name.
 
 ## Known export formats
 
@@ -159,6 +161,12 @@ confirms the headings is a data change in `csvPresets.ts`, not a code change.
 
 ## Limits and error messages
 
+- **Names the class has:** the import adds rows to the open class, so a class
+  list read in again after two arrivals would double everyone else. A row
+  whose name the class already has — compared as adding or renaming a student
+  compares it, trimmed and ignoring case — is skipped, and so is a name the
+  file repeats; the message counts both (`csv.importedSkipping`,
+  `csv.allKnown`). Nothing already in the class changes.
 - **36 students** (`MAX_STUDENTS`): a file with more rows — after the class
   filter — is rejected. When the class has fewer free places than the file has
   students, the first ones are imported and the teacher is warned.

@@ -33,6 +33,12 @@ const createCsvFile = () =>
     type: 'text/csv',
   });
 
+/** A class of `count` students named apart from the file's. */
+const classOf = (count: number) =>
+  Array.from({ length: count }, (_, index) =>
+    createMockStudent({ id: `c-${index}`, name: `Klasse ${index}` }),
+  );
+
 /** All error messages shown during a call, already resolved to text. */
 const errorMessages = (): string[] =>
   mockedShowToast.mock.calls
@@ -46,7 +52,7 @@ describe('csvImportService.importStudentsFromCsv', () => {
     });
     const result = await importStudentsFromCsv({
       file,
-      currentStudentCount: 0,
+      currentStudents: [],
     });
 
     expect(result).toEqual([]);
@@ -58,7 +64,7 @@ describe('csvImportService.importStudentsFromCsv', () => {
   test('offers the format example on a rejected file', async () => {
     await importStudentsFromCsv({
       file: new File(['x'], 'liste.pdf', { type: 'application/pdf' }),
-      currentStudentCount: 0,
+      currentStudents: [],
     });
 
     const [, , options] = mockedShowToast.mock.calls[0];
@@ -71,7 +77,7 @@ describe('csvImportService.importStudentsFromCsv', () => {
       file: new File(['{}'], 'klassenplan-backup.json', {
         type: 'application/json',
       }),
-      currentStudentCount: 0,
+      currentStudents: [],
     });
 
     const [, message, options] = mockedShowToast.mock.calls[0];
@@ -86,7 +92,7 @@ describe('csvImportService.importStudentsFromCsv', () => {
 
     const result = await importStudentsFromCsv({
       file: createCsvFile(),
-      currentStudentCount: 0,
+      currentStudents: [],
     });
 
     expect(result).toEqual([]);
@@ -101,7 +107,7 @@ describe('csvImportService.importStudentsFromCsv', () => {
 
     await importStudentsFromCsv({
       file: createCsvFile(),
-      currentStudentCount: 0,
+      currentStudents: [],
     });
 
     expect(errorMessages()[0]).toContain('40');
@@ -116,7 +122,7 @@ describe('csvImportService.importStudentsFromCsv', () => {
 
     const result = await importStudentsFromCsv({
       file: createCsvFile(),
-      currentStudentCount: 0,
+      currentStudents: [],
     });
 
     expect(result).toEqual([]);
@@ -134,7 +140,7 @@ describe('csvImportService.importStudentsFromCsv', () => {
 
     const result = await importStudentsFromCsv({
       file: createCsvFile(),
-      currentStudentCount: MAX_STUDENTS - 1,
+      currentStudents: classOf(MAX_STUDENTS - 1),
     });
 
     expect(result).toHaveLength(1);
@@ -156,7 +162,7 @@ describe('csvImportService.importStudentsFromCsv', () => {
 
     const result = await importStudentsFromCsv({
       file: createCsvFile(),
-      currentStudentCount: MAX_STUDENTS,
+      currentStudents: classOf(MAX_STUDENTS),
     });
 
     expect(result).toEqual([]);
@@ -171,7 +177,7 @@ describe('csvImportService.importStudentsFromCsv', () => {
 
     const result = await importStudentsFromCsv({
       file: createCsvFile(),
-      currentStudentCount: 0,
+      currentStudents: [],
     });
 
     expect(parseSpy).toHaveBeenCalledWith(
@@ -184,5 +190,49 @@ describe('csvImportService.importStudentsFromCsv', () => {
     expect(result).toHaveLength(1);
     expect(errorMessages()).toEqual([]);
     expect(mockedAnnounce).toHaveBeenCalledWith(expect.stringMatching(/1/));
+  });
+
+  test('skips the names the class has and the file repeats', async () => {
+    const anna = createMockStudent({ id: 'here-anna', name: 'Anna' });
+    const parseSpy = vi.spyOn(csvUtils, 'parseCsvFlexible').mockResolvedValue([
+      createMockStudent({ id: 'row-anna', name: 'anna ' }),
+      createMockStudent({
+        id: 'row-ben',
+        name: 'Ben',
+        wishPartnerIds: ['row-anna'],
+        wishPartnerId: 'row-anna',
+      }),
+      createMockStudent({ id: 'row-ben-2', name: 'Ben' }),
+      createMockStudent({ id: 'row-cem', name: 'Cem' }),
+    ]);
+
+    const result = await importStudentsFromCsv({
+      file: createCsvFile(),
+      currentStudents: [anna],
+    });
+
+    expect(result.map((student) => student.name)).toEqual(['Ben', 'Cem']);
+    // A wish aimed at the skipped row is aimed at the classmate of that name.
+    expect(result[0].wishPartnerIds).toEqual(['here-anna']);
+    expect(mockedShowToast).toHaveBeenCalledWith(
+      'info',
+      expect.stringMatching(/2.*2/),
+    );
+    parseSpy.mockRestore();
+  });
+
+  test('adds nothing when every name is in the class already', async () => {
+    const parseSpy = vi
+      .spyOn(csvUtils, 'parseCsvFlexible')
+      .mockResolvedValue([createMockStudent({ id: 'row', name: 'Anna' })]);
+
+    const result = await importStudentsFromCsv({
+      file: createCsvFile(),
+      currentStudents: [createMockStudent({ id: 'here', name: 'Anna' })],
+    });
+
+    expect(result).toEqual([]);
+    expect(mockedShowToast).toHaveBeenCalledWith('info', expect.any(String));
+    parseSpy.mockRestore();
   });
 });

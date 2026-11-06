@@ -17,7 +17,11 @@ import { sniffCsvEncoding } from '@/utils/csv/csvEncoding';
 import { detectCsvPreset } from '@/utils/csv/csvPresetDetection';
 import type { CsvPreset } from '@/utils/csv/csvPresets';
 import { logError, MAX_STUDENTS } from '@/utils';
-import { dropMissingPartners } from '@/utils/student/partnerUtils';
+import {
+  getAvoidPartnerIds,
+  getWishPartnerIds,
+  withoutPartners,
+} from '@/utils/student/partnerUtils';
 import {
   CsvImportError,
   diagnoseCsvStructure,
@@ -59,7 +63,8 @@ export type CsvAnalysisResult = {
 
 type CsvImportParams = {
   file: File;
-  currentStudentCount: number;
+  /** The class the rows join: its names are skipped, its size bounds them. */
+  currentStudents: readonly Student[];
   mode?: NameColumnMode;
   /** Import only this class; set when the file holds several. */
   className?: string;
@@ -133,6 +138,76 @@ const showCsvProblem = (diagnosis: CsvDiagnosis): void => {
       : undefined,
   });
 };
+
+/** A name as adding and renaming a student compare it. */
+const nameKey = (name: string) => name.trim().toLowerCase();
+
+/**
+ * The rows of names the class does not have yet — compared as "Schüler
+ * hinzufügen" does, so a class list read in again after two arrivals adds the
+ * two. A name twice in the file comes once. A wish or a distance aimed at a
+ * skipped row is aimed at the student of that name instead.
+ */
+function skipKnownNames(
+  parsed: Student[],
+  currentStudents: readonly Student[],
+): { fresh: Student[]; skipped: number } {
+  const idByName = new Map(
+    currentStudents.map((student) => [nameKey(student.name), student.id]),
+  );
+  const redirect = new Map<string, string>();
+  const fresh: Student[] = [];
+  for (const student of parsed) {
+    const known = idByName.get(nameKey(student.name));
+    if (known) {
+      redirect.set(student.id, known);
+      continue;
+    }
+    idByName.set(nameKey(student.name), student.id);
+    fresh.push(student);
+  }
+  if (redirect.size === 0) return { fresh, skipped: 0 };
+
+  const aim = (ids: string[]) => [
+    ...new Set(ids.map((id) => redirect.get(id) ?? id)),
+  ];
+  return {
+    fresh: fresh.map((student) => {
+      const wish = getWishPartnerIds(student);
+      const avoid = getAvoidPartnerIds(student);
+      if (![...wish, ...avoid].some((id) => redirect.has(id))) return student;
+      const wishPartnerIds = aim(wish).filter((id) => id !== student.id);
+      const avoidPartnerIds = aim(avoid).filter((id) => id !== student.id);
+      return {
+        ...student,
+        wishPartnerIds,
+        wishPartnerId: wishPartnerIds[0] ?? null,
+        avoidPartnerIds,
+        avoidPartnerId: avoidPartnerIds[0] ?? null,
+      };
+    }),
+    skipped: redirect.size,
+  };
+}
+
+/** Partners are the class's students and the rows that join it, no one else. */
+function dropPartnersOutside(
+  students: Student[],
+  currentStudents: readonly Student[],
+): Student[] {
+  const present = new Set(
+    [...currentStudents, ...students].map((student) => student.id),
+  );
+  const missing = new Set(
+    students
+      .flatMap((student) => [
+        ...getWishPartnerIds(student),
+        ...getAvoidPartnerIds(student),
+      ])
+      .filter((id) => !present.has(id)),
+  );
+  return withoutPartners(students, missing);
+}
 
 /** Toast + throw, so callers stop on a problem the user already knows about. */
 function rejectWith(diagnosis: CsvDiagnosis): never {
@@ -217,7 +292,7 @@ export async function analyzeCsvFile(file: File): Promise<CsvAnalysisResult> {
 
 export async function importStudentsFromCsv({
   file,
-  currentStudentCount,
+  currentStudents,
   mode,
   className,
   usePreset,
@@ -245,26 +320,48 @@ export async function importStudentsFromCsv({
       return [];
     }
 
-    const availableSlots = Math.max(0, MAX_STUDENTS - currentStudentCount);
+    const { fresh, skipped } = skipKnownNames(parsedStudents, currentStudents);
+    if (fresh.length === 0) {
+      showToast(
+        'info',
+        i18n.t('toast:csv.allKnown', { count: parsedStudents.length }),
+      );
+      return [];
+    }
+
+    const availableSlots = Math.max(0, MAX_STUDENTS - currentStudents.length);
     if (availableSlots === 0) {
       showToast('error', TOAST_MESSAGES.STUDENT_MAX_REACHED);
       return [];
     }
 
-    // Partners are names of the same file: one cut off with the rest is no
-    // partner of anyone left.
-    const acceptedStudents = dropMissingPartners(
-      parsedStudents.slice(0, availableSlots),
+    // Partners are names of the same file or of the class: one cut off with
+    // the rest is no partner of anyone left.
+    const acceptedStudents = dropPartnersOutside(
+      fresh.slice(0, availableSlots),
+      currentStudents,
     );
-    if (acceptedStudents.length < parsedStudents.length) {
+    if (acceptedStudents.length < fresh.length) {
       showToast(
         'warning',
         i18n.t('toast:csv.partialImport', {
           imported: acceptedStudents.length,
-          total: parsedStudents.length,
+          total: fresh.length,
           max: MAX_STUDENTS,
         }),
         { duration: CSV_PROBLEM_TOAST_MS },
+      );
+      return acceptedStudents;
+    }
+
+    if (skipped > 0) {
+      // The list shows who came, not who was skipped.
+      showToast(
+        'info',
+        i18n.t('toast:csv.importedSkipping', {
+          count: acceptedStudents.length,
+          known: skipped,
+        }),
       );
       return acceptedStudents;
     }
