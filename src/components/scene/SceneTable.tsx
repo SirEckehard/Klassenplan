@@ -25,7 +25,12 @@ import {
   type SwapPreview,
 } from '@/hooks/ui/useDragDropState';
 import SeatGrid, { type SeatConfig } from '@/components/scene/SeatGrid';
-import { seatTableCorners, seatTableEdges } from '@/utils/ui/seatMark';
+import {
+  seatDividerPath,
+  seatTableCorners,
+  seatTableEdges,
+} from '@/utils/ui/seatMark';
+import { getTableColors } from '@/utils/ui/tableAppearance';
 import RotationHandle from '@/components/scene/RotationHandle';
 import { useSeatDrag } from '@/hooks/scene/useSeatDrag';
 import {
@@ -198,22 +203,35 @@ function SceneTable({
     [templateType, seatCount, width, height],
   );
   const { cols, rows, seatWidth, seatHeight, positions } = seatLayout;
+  // Each seat's cell in the table's grid; a seat the layout has no place for
+  // takes the next cell in reading order.
+  const seatsShown = students.length;
+  const seatCells = useMemo(() => {
+    const fallbackCols = Math.max(cols, 1);
+    return Array.from(
+      { length: seatsShown },
+      (_, seatIndex) =>
+        positions[seatIndex] ?? {
+          col: seatIndex % fallbackCols,
+          row: Math.floor(seatIndex / fallbackCols),
+        },
+    );
+  }, [positions, cols, seatsShown]);
+  const dividerPath = useMemo(
+    () => seatDividerPath(seatCells, cols, rows, seatWidth, seatHeight),
+    [seatCells, cols, rows, seatWidth, seatHeight],
+  );
 
-  const tableFill = contrast ? '#ffffff' : isDark ? '#374151' : '#fff';
-  const tableStroke = contrast
-    ? '#000000'
-    : selected
-      ? 'var(--canvas-selection)'
-      : isDark
-        ? '#d1d5db'
-        : '#000';
+  const tableColors = getTableColors(isDark, contrast);
+  // The selection's blue is on screen only; an export never selects a table.
+  const tableStroke =
+    selected && !contrast ? 'var(--canvas-selection)' : tableColors.stroke;
 
   // Chair dots: one small filled dot per seat, docked just outside the table
   // edge the seat faces. The facing edge is derived per template via
   // determineSeatEdge (the same logic the table-template previews use) so it is
   // correct for every table type, not only the 4-seat group. Drawn outside the
   // seat clip group so they sit against the table border instead of inside it.
-  const chairFill = contrast ? '#767676' : isDark ? '#9ca3af' : '#94a3b8';
   const chairRadius = Math.max(
     2.5,
     Math.min(5, Math.min(seatWidth, seatHeight) * 0.12),
@@ -226,12 +244,7 @@ function SceneTable({
   // agree on the rendered avatar size.
   const photoRadius = getPhotoRadius(seatWidth, seatHeight);
   const chairDots = useMemo(() => {
-    const fallback = Math.max(cols, 1);
-    return students.map((_, seatIndex) => {
-      const position = positions[seatIndex] ?? {
-        col: seatIndex % fallback,
-        row: Math.floor(seatIndex / fallback),
-      };
+    return seatCells.map((position, seatIndex) => {
       const edge = determineSeatEdge(
         templateType,
         position,
@@ -262,8 +275,7 @@ function SceneTable({
       return { key: seatIndex, cx, cy, nx, ny };
     });
   }, [
-    students,
-    positions,
+    seatCells,
     cols,
     rows,
     seatWidth,
@@ -281,12 +293,8 @@ function SceneTable({
     onPointerDown?.(e);
   };
 
-  const fallbackCols = Math.max(cols, 1);
   const seatConfigs: SeatConfig[] = students.map((seatStudent, seatIndex) => {
-    const { col, row } = positions[seatIndex] ?? {
-      col: seatIndex % fallbackCols,
-      row: Math.floor(seatIndex / fallbackCols),
-    };
+    const { col, row } = seatCells[seatIndex];
 
     const locked = isSeatLocked ? isSeatLocked(index, seatIndex) : false;
     const isOriginSeat =
@@ -374,7 +382,7 @@ function SceneTable({
       <rect
         width={table.width}
         height={table.height}
-        fill={tableFill}
+        fill={tableColors.fill}
         rx={TABLE_CORNER_RADIUS}
       />
       {/* Seat rectangles always render so seat colours and the table's seat
@@ -391,6 +399,8 @@ function SceneTable({
         // its seats carry the outline a flight shows (`useSeatFlight`).
         tableEdgeStroke={draggable ? tableStroke : undefined}
         tableEdgeDash={outOfMix ? TABLE_OUT_OF_MIX_DASH : undefined}
+        dividerPath={dividerPath}
+        dividerStroke={tableColors.divider}
         allStudents={allStudents}
         showSpecialNeeds={showSpecialNeeds}
         badgeView={badgeView}
@@ -456,7 +466,7 @@ function SceneTable({
               cx={dot.cx + dot.nx * (chairRadius + TABLE_BORDER_HALF)}
               cy={dot.cy + dot.ny * (chairRadius + TABLE_BORDER_HALF)}
               r={chairRadius}
-              fill={chairFill}
+              fill={tableColors.chair}
               pointerEvents="none"
             />
           );
@@ -510,7 +520,7 @@ function SceneTable({
                 cx={photoCx}
                 cy={photoCy}
                 r={photoRadius}
-                fill={isDark ? '#374151' : '#fff'}
+                fill={tableColors.photoBackdrop}
               />
               <image
                 href={photoUrl}
@@ -526,7 +536,7 @@ function SceneTable({
                 cy={photoCy}
                 r={photoRadius}
                 fill="none"
-                stroke={isDark ? '#1f2937' : '#fff'}
+                stroke={tableColors.photoHalo}
                 strokeWidth={2.5}
               />
               <circle

@@ -3,6 +3,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   insetSeatPath,
+  seatDividerPath,
   seatFocusInset,
   seatMarkInset,
   seatTableCorners,
@@ -34,15 +35,14 @@ describe('seatMark', () => {
   });
 
   it("draws the table's outline along a seat's outer sides, its corners the table's", () => {
-    // The top seat of an upright double table: down the left side, round the
-    // top corners, down the right side — each side ending where the seat's
-    // own corner of 4 begins.
+    // The top seat of an upright double table: up the left side, round the
+    // top corners, down the right side to the seat below.
     expect(seatTableEdgePath(55, 65, [true, true, false, true])).toBe(
-      'M0 61V8A8 8 0 0 1 8 0H47A8 8 0 0 1 55 8V61',
+      'M0 65V8A8 8 0 0 1 8 0H47A8 8 0 0 1 55 8V65',
     );
     // The middle seat of a row: two lines, no corner.
     expect(seatTableEdgePath(55, 65, [true, false, true, false])).toBe(
-      'M4 0H51M51 65H4',
+      'M0 0H55M55 65H0',
     );
     // A single table: the whole outline.
     expect(seatTableEdgePath(55, 65, [true, true, true, true])).toBe(
@@ -52,9 +52,53 @@ describe('seatMark', () => {
   });
 
   it("is, with no inset, the seat's outline as its table cuts it", () => {
+    // Square where the seat meets its neighbour, so the seats tile the table.
     expect(insetSeatPath(55, 65, 0, [true, true, false, false])).toBe(
-      'M8 0H47A8 8 0 0 1 55 8V61A4 4 0 0 1 51 65H4A4 4 0 0 1 0 61V8A8 8 0 0 1 8 0Z',
+      'M8 0H47A8 8 0 0 1 55 8V65H0V8A8 8 0 0 1 8 0Z',
     );
+  });
+
+  it('draws each line between the seats once', () => {
+    // An upright double table: one line across.
+    expect(
+      seatDividerPath(
+        [
+          { col: 0, row: 0 },
+          { col: 0, row: 1 },
+        ],
+        1,
+        2,
+        55,
+        65,
+      ),
+    ).toBe('M0 65H55');
+    // A table for four: one line down and one across, each in one run.
+    const four = [
+      { col: 0, row: 0 },
+      { col: 1, row: 0 },
+      { col: 0, row: 1 },
+      { col: 1, row: 1 },
+    ];
+    expect(seatDividerPath(four, 2, 2, 55, 65)).toBe('M55 0V130M0 65H110');
+    // A single table has nothing to divide.
+    expect(seatDividerPath([{ col: 0, row: 0 }], 1, 1, 55, 65)).toBe('');
+    // A table for six with five seats: the empty cell is divided from its
+    // seats, not from the table's edge.
+    expect(
+      seatDividerPath(
+        [
+          { col: 0, row: 0 },
+          { col: 1, row: 0 },
+          { col: 2, row: 0 },
+          { col: 0, row: 1 },
+          { col: 1, row: 1 },
+        ],
+        3,
+        2,
+        50,
+        60,
+      ),
+    ).toBe('M50 0V120M100 0V120M0 60H150');
   });
 
   it('keeps the ring 2 clear of the inner side of the edge, on a seat and on the circle', () => {

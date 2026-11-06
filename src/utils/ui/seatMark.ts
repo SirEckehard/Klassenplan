@@ -55,9 +55,11 @@ const SEAT_MARK_GAP = 2;
 /** The ring's width, in scene units — the same for every mark. */
 export const SEAT_MARK_WIDTH = 2.5;
 
-/** A seat's own corner radius where it is not a corner of its table. */
-const SEAT_CORNER_RADIUS = 4;
-/** No inset corner gets tighter than this. */
+/**
+ * No inset corner gets tighter than this. A seat's own corners — where it
+ * meets its neighbours — are square, so the seats tile their table without a
+ * gap; a ring or a hairline inside one still rounds its corner this much.
+ */
 const MIN_CORNER_RADIUS = 2;
 /** A held seat's hairline lies this far inside the table's outline. */
 const EDGE_LINE_CLEARANCE = 0.5;
@@ -114,9 +116,9 @@ export function seatTableEdges(
 }
 
 /**
- * The radii of a rectangle `inset` inside a seat, each concentric with the
- * seat's corner: the table's radius where the corner is the table's, the
- * seat's own elsewhere.
+ * The radii of a rectangle `inset` inside a seat: concentric with the table's
+ * corner where the corner is the table's, square on the seat's own corners
+ * and, once inset, never tighter than the minimum.
  */
 function insetCornerRadii(
   w: number,
@@ -127,8 +129,8 @@ function insetCornerRadii(
   const [tl, tr, br, bl] = corners.map((isTableCorner) =>
     Math.min(
       Math.max(
-        (isTableCorner ? TABLE_CORNER_RADIUS : SEAT_CORNER_RADIUS) - inset,
-        MIN_CORNER_RADIUS,
+        isTableCorner ? TABLE_CORNER_RADIUS - inset : 0,
+        inset > 0 ? MIN_CORNER_RADIUS : 0,
       ),
       w / 2,
       h / 2,
@@ -141,10 +143,10 @@ const arcTo = (r: number, x: number, y: number) =>
   r > 0 ? `A${r} ${r} 0 0 1 ${x} ${y}` : '';
 
 /**
- * A rounded rectangle `inset` inside a seat, each corner concentric with the
- * seat's: the table's radius where the corner is the table's, the seat's own
- * elsewhere. With no inset it is the seat's own outline, as its table clips
- * it.
+ * A rectangle `inset` inside a seat, rounded concentrically with the table's
+ * corners and slightly on the seat's own. With no inset it is the seat's own
+ * outline, as its table clips it: the table's radius in the table's corners,
+ * square where it meets its neighbours.
  */
 export function insetSeatPath(
   width: number,
@@ -174,9 +176,69 @@ export function insetSeatPath(
 }
 
 /**
+ * The lines between a table's seats, each drawn once: every side of a seat's
+ * cell that lies inside the table, a run along one grid line as one line.
+ * One path, so a translucent stroke never darkens where two runs cross. A
+ * cell without a seat is table surface, divided from the seat beside it but
+ * not from another empty cell.
+ */
+export function seatDividerPath(
+  cells: readonly { col: number; row: number }[],
+  cols: number,
+  rows: number,
+  seatWidth: number,
+  seatHeight: number,
+): string {
+  // vertical[x][row]: the line left of column x runs along `row`;
+  // horizontal[y][col]: the line above row y runs along `col`.
+  const vertical = Array.from({ length: cols + 1 }, () =>
+    new Array<boolean>(rows).fill(false),
+  );
+  const horizontal = Array.from({ length: rows + 1 }, () =>
+    new Array<boolean>(cols).fill(false),
+  );
+  for (const { col, row } of cells) {
+    if (col < 0 || col >= cols || row < 0 || row >= rows) continue;
+    vertical[col][row] = true;
+    vertical[col + 1][row] = true;
+    horizontal[row][col] = true;
+    horizontal[row + 1][col] = true;
+  }
+  const path: string[] = [];
+  // Joins the runs of one inner grid line into as few lines as there are gaps.
+  const runs = (
+    along: boolean[],
+    line: (from: number, to: number) => string,
+  ) => {
+    let start = -1;
+    for (let i = 0; i <= along.length; i++) {
+      const on = i < along.length && along[i];
+      if (on && start < 0) start = i;
+      if (!on && start >= 0) {
+        path.push(line(start, i));
+        start = -1;
+      }
+    }
+  };
+  for (let x = 1; x < cols; x++) {
+    runs(
+      vertical[x],
+      (from, to) => `M${x * seatWidth} ${from * seatHeight}V${to * seatHeight}`,
+    );
+  }
+  for (let y = 1; y < rows; y++) {
+    runs(
+      horizontal[y],
+      (from, to) => `M${from * seatWidth} ${y * seatHeight}H${to * seatWidth}`,
+    );
+  }
+  return path.join('');
+}
+
+/**
  * The part of a seat's outline that is its table's outline: the table's
- * sides and the table's corners between them, each side ending where a
- * corner of the seat's own begins. Empty for a seat with no side outside.
+ * sides and the table's corners between them. Empty for a seat with no side
+ * outside.
  */
 export function seatTableEdgePath(
   width: number,

@@ -63,6 +63,10 @@ interface SeatGridProps {
   /** The table's outline, which a seat wears on its way to another seat. */
   tableEdgeStroke?: string;
   tableEdgeDash?: string;
+  /** The lines between the seats (`seatDividerPath`), drawn once for all. */
+  dividerPath?: string;
+  /** Their colour; none where every seat draws its own contour (contrast). */
+  dividerStroke?: string | null;
   allStudents: Student[];
   showSpecialNeeds: boolean;
   /** Which badges the seats carry and how they are drawn. */
@@ -105,6 +109,8 @@ function SeatGrid({
   tableEdgeWidth,
   tableEdgeStroke,
   tableEdgeDash,
+  dividerPath,
+  dividerStroke,
   allStudents,
   showSpecialNeeds,
   badgeView,
@@ -180,6 +186,19 @@ function SeatGrid({
             onSeatBlur={onSeatBlur}
           />
         ))}
+        {/* Above the seats, so a seat's fill or mark never covers half of
+            the line; below the badges. */}
+        {dividerPath && dividerStroke && (
+          <path
+            data-seat-dividers=""
+            d={dividerPath}
+            fill="none"
+            stroke={dividerStroke}
+            strokeWidth={0.75}
+            vectorEffect="non-scaling-stroke"
+            pointerEvents="none"
+          />
+        )}
       </g>
       <g clipPath={`url(#${clipPathId})`}>
         {showSeatLabels &&

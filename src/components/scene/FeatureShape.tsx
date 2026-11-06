@@ -13,10 +13,13 @@ const MIN_ICON_EDGE = 20;
 const ICON_SIZE = 16;
 /** Glyph size behind the seating plan (`FeatureStyles.quiet`). */
 const QUIET_ICON_SIZE = 12;
-/** Contour width; half of it falls outside the clip (see below). */
-const STROKE_WIDTH = 3;
-/** A hairline behind the seating plan (`FeatureStyles.quiet`). */
-const QUIET_STROKE_WIDTH = 1.5;
+/**
+ * The contour, a hairline in the room editor and behind the seating plan
+ * alike; half of it falls outside the clip (see below).
+ */
+const STROKE_WIDTH = 1.5;
+/** The contrast mode's contour, for a weak beamer (`FeatureStyles.inkContour`). */
+const INK_STROKE_WIDTH = 3;
 /** Selection stroke matching the table selection color. */
 const ACTIVE_STROKE = 'var(--canvas-selection)';
 
@@ -105,7 +108,7 @@ export default function FeatureShape({
         fill={styles.fill}
         stroke={isActive ? ACTIVE_STROKE : styles.stroke}
         strokeWidth={
-          isActive ? 4.8 : styles.quiet ? QUIET_STROKE_WIDTH : STROKE_WIDTH
+          isActive ? 4.8 : styles.inkContour ? INK_STROKE_WIDTH : STROKE_WIDTH
         }
         clipPath={`url(#feature-clip-${feature.id})`}
         {...rectProps}

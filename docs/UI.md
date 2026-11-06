@@ -491,14 +491,15 @@ afterwards.
 - **Behind the students the room is the backdrop** — on the plan layer, in the
   projection, "Wo sitzt wer?", "Wer kommt dran?" and on the export sheet
   (`getBackdropFeatureStyles`).
-  The room layer draws its elements with their ink contour and its grid where
-  it is switched on; behind the students the board, the windows and the door
-  keep their hue, since criteria refer to them (muted in the dark, one gray
-  with the projection's colours off), the furniture — teacher's desk,
-  whiteboard, cabinet, divider — is a bare outline, every element has a
-  hairline and a smaller icon, and neither the table plan nor the circle shows
-  the grid, which only helps to align. The projection's contrast mode, made for
-  a weak beamer, keeps the full contour; the export sheet draws the room so
+  The room layer draws its elements in their palette, with a hairline as
+  everywhere, and its grid where it is switched on; behind the students the
+  board, the windows and the door keep their hue, since criteria refer to them
+  (muted in the dark, one gray with the projection's colours off), the
+  furniture — teacher's desk, whiteboard, cabinet, divider — is a bare
+  outline, every element has a smaller icon, and neither the table plan nor
+  the circle shows the grid, which only helps to align. The projection's
+  contrast mode, made for a weak beamer, alone draws the contour twice as
+  thick (`inkContour`); the export sheet draws the room so
   too, always light and with the furniture's outline a step darker for print.
 - **A seat's badges explain themselves** (decision 0021). One renderer draws
   them everywhere (`scene/SeatBadgePill`), in family ink and family order

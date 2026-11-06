@@ -1003,17 +1003,23 @@ describe('TableSeat component', () => {
       </svg>,
     );
 
-    // The table's radius of 8 at the top, the seat's own 4 below.
+    // The table's radius of 8 at the top, square below where the seat meets
+    // its neighbour.
     expect(
       container.querySelector('[data-seat-shape]')?.getAttribute('d'),
-    ).toMatch(/^M8 0H47A8 8 0 0 1 55 8V61A4 4 0 0 1 51 65H/);
+    ).toMatch(/^M8 0H47A8 8 0 0 1 55 8V65H0V8A8 8 0 0 1 8 0Z$/);
+    // The table draws the line between its seats; the seat draws none.
+    expect(container.querySelector('[data-seat-shape]')).toHaveAttribute(
+      'stroke',
+      'none',
+    );
     // The table draws its outline here; the seat keeps its own copy hidden
     // for the flight (`useSeatFlight`).
     const edge = container.querySelector('[data-seat-flight-edge]');
     expect(edge).toHaveAttribute('visibility', 'hidden');
     expect(edge).toHaveAttribute('stroke', '#000');
     expect(edge?.getAttribute('d')).toBe(
-      'M0 61V8A8 8 0 0 1 8 0H47A8 8 0 0 1 55 8V61',
+      'M0 65V8A8 8 0 0 1 8 0H47A8 8 0 0 1 55 8V65',
     );
   });
 

@@ -140,7 +140,10 @@ export default function PresentationScene({
         // The room recedes behind the students as on the plan layer; the
         // contrast mode, made for a weak beamer, keeps the full contour.
         styles: contrast
-          ? getFeatureStyles(feature, dark, undefined, true)
+          ? {
+              ...getFeatureStyles(feature, dark, undefined, true),
+              inkContour: true,
+            }
           : getBackdropFeatureStyles(feature, dark, { neutralColors: !colors }),
       }))
       .filter(({ styles }) => styles.shouldRender);

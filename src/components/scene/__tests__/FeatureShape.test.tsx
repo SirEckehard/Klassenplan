@@ -101,7 +101,7 @@ describe('FeatureShape', () => {
       getGroup(inactive.container)
         .querySelector('rect')
         ?.getAttribute('stroke'),
-    ).toBe('#3f3f46');
+    ).toBe('#43464b');
 
     const active = renderShape(feature, { isActive: true });
     expect(
@@ -115,9 +115,9 @@ describe('FeatureShape', () => {
     const rect = getGroup(container).querySelector('rect');
     // Sharp corners distinguish features from the rounded tables
     expect(rect?.getAttribute('rx')).toBe('0');
-    // Doubled stroke clipped to the footprint keeps the border visible
-    // when a feature sits flush against the classroom edge
-    expect(rect?.getAttribute('stroke-width')).toBe('3');
+    // A hairline, doubled and clipped to the footprint, keeps the border
+    // visible when a feature sits flush against the classroom edge
+    expect(rect?.getAttribute('stroke-width')).toBe('1.5');
     expect(rect?.getAttribute('clip-path')).toBe(
       'url(#feature-clip-feature-1)',
     );
@@ -131,6 +131,22 @@ describe('FeatureShape', () => {
         .querySelector('rect')
         ?.getAttribute('stroke-width'),
     ).toBe('4.8');
+
+    // The projection's contrast mode keeps the ink contour for the beamer.
+    const ink = renderShape(feature, {
+      styles: {
+        fill: '#fff',
+        stroke: '#000',
+        text: '#000',
+        shouldRender: true,
+        inkContour: true,
+      },
+    });
+    expect(
+      getGroup(ink.container)
+        .querySelector('rect')
+        ?.getAttribute('stroke-width'),
+    ).toBe('3');
   });
 
   it('renders children inside the rotated feature frame', () => {

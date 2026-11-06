@@ -11,11 +11,12 @@ type FeaturePalette = {
 };
 
 /*
- * Room features are drawn like a floor plan: a barely tinted fill carrying a
- * strong ink contour, not a pastel block. Projectors wash pastel fills out
- * almost completely, so the contour — not the fill — is what has to survive the
- * beamer. The hues stay recognisable (blue window, brown door, green board) but
- * live at ink darkness instead of candy lightness.
+ * Room features are drawn like a floor plan: a barely tinted fill inside an
+ * ink contour, not a pastel block. Projectors wash pastel fills out almost
+ * completely, so the hue lives in the contour and the icon. The hues stay
+ * recognisable (blue window, brown door, green board) but live at ink
+ * darkness instead of candy lightness. The contour is a hairline everywhere
+ * but in the projection's contrast mode (`FeatureStyles.inkContour`).
  */
 const FEATURE_COLOR_SCHEMES: Record<
   ClassroomFeature['type'],
@@ -30,7 +31,7 @@ const FEATURE_COLOR_SCHEMES: Record<
     dark: { fill: '#12261a', stroke: '#57b37a', text: '#b6dcc4' },
   },
   podium: {
-    light: { fill: '#f3f1ec', stroke: '#3f3f46', text: '#3f3f46' },
+    light: { fill: '#f3f1ec', stroke: '#43464b', text: '#43464b' },
     dark: { fill: '#202327', stroke: '#8c9096', text: '#c9cbcf' },
   },
   door: {
@@ -38,7 +39,7 @@ const FEATURE_COLOR_SCHEMES: Record<
     dark: { fill: '#2b1810', stroke: '#d08a5f', text: '#e8c4ab' },
   },
   whiteboard: {
-    light: { fill: '#ffffff', stroke: '#52525b', text: '#43464b' },
+    light: { fill: '#ffffff', stroke: '#54565a', text: '#43464b' },
     dark: { fill: '#202327', stroke: '#a9acb1', text: '#e4e5e7' },
   },
   cabinet: {
@@ -79,10 +80,15 @@ export const DEFAULT_FEATURE_VISIBILITY: Required<FeatureVisibilityFlags> = {
 export type FeatureStyles = FeaturePalette & {
   shouldRender: boolean;
   /**
-   * Drawn as the backdrop of the seating plan: a hairline contour and a
-   * smaller icon (`FeatureShape`), so the room recedes behind the students.
+   * Drawn as the backdrop of the seating plan: a smaller icon
+   * (`FeatureShape`), so the room recedes behind the students.
    */
   quiet?: boolean;
+  /**
+   * A contour twice the hairline's width, for the projection's contrast
+   * mode, made for a weak beamer.
+   */
+  inkContour?: boolean;
 };
 
 /*
@@ -172,7 +178,7 @@ export type BackdropFeatureOptions = {
  * the projection, "Wo sitzt wer?", "Wer kommt dran?" and on the export sheet:
  * the board, the windows and the door in their hue (muted in the dark, gray
  * without colours), the furniture as an outline, and every one of them with a
- * hairline instead of the room layer's ink contour.
+ * smaller icon than on the room layer.
  */
 export const getBackdropFeatureStyles = (
   feature: ClassroomFeature,

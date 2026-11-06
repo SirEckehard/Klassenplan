@@ -363,16 +363,13 @@ function TableSeat({
   // the drag rests on a target it shows, at full strength, who would sit here.
   const lifted = isOriginSeat && !previewing;
   const seatGroupOpacity = lifted ? 0.35 : 1;
-  const dividerStroke = isDark
-    ? 'rgba(226, 232, 240, 0.18)'
-    : 'rgba(30, 41, 59, 0.12)';
   // Empty (unoccupied, unlocked) seats read as "empty" purely via their subtle
   // neutral fill — no dashed outline or texture, so they stay visually calm and
   // don't clash with the table frame in step 3, the PDF export and presentation.
-  // On a wall a 0.75px hairline is not a line; the contrast mode draws the
-  // seat's own contour instead of the table's faint divider. A held seat
-  // keeps the divider and draws its contour inside the table's outline
-  // (below), where the outline cannot cover it.
+  // The table draws the faint lines between its seats once (`SeatGrid`); on a
+  // wall a 0.75px hairline is not a line, so the contrast mode draws each
+  // seat's own contour instead. A held seat draws its contour inside the
+  // table's outline (below), where the outline cannot cover it.
   const seatPath = React.useMemo(
     () => insetSeatPath(seatWidth, seatHeight, 0, tableCorners),
     [seatWidth, seatHeight, tableCorners],
@@ -381,8 +378,6 @@ function TableSeat({
     () => seatTableEdgePath(seatWidth, seatHeight, tableEdges),
     [seatWidth, seatHeight, tableEdges],
   );
-  const seatStrokeWidth = contrast ? 1.5 : 0.75;
-  const seatStrokeValue = contrast ? seatStroke : dividerStroke;
   const showsEdgeLine = locked && !contrast;
   const seatTextOpacity = lifted ? 0.35 : 1;
   const displayName = shownStudent
@@ -571,8 +566,8 @@ function TableSeat({
           data-seat-shape=""
           d={seatPath}
           fill={seatFill}
-          stroke={seatStrokeValue}
-          strokeWidth={seatStrokeWidth}
+          stroke={contrast ? seatStroke : 'none'}
+          strokeWidth={contrast ? 1.5 : undefined}
           strokeLinejoin="round"
           strokeLinecap="round"
           vectorEffect="non-scaling-stroke"

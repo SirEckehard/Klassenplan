@@ -816,4 +816,40 @@ describe('SceneTable seat highlights', () => {
     // No ring around the table: its outline keeps its own width.
     expect(container.querySelector('rect[stroke-width="4.8"]')).toBeNull();
   });
+  it('draws the line between its seats once, and each seat its own on a wall', () => {
+    const neighbour: Student = { ...student, id: 's2', name: 'Ben' };
+    const double = (contrast: boolean) =>
+      render(
+        <svg>
+          <TableIcon
+            table={{
+              ...baseTable,
+              width: 55,
+              height: 130,
+              seatCount: 2,
+              templateType: 'double',
+            }}
+            index={0}
+            students={[student, neighbour]}
+            selected={false}
+            editable={false}
+            contrast={contrast}
+          />
+        </svg>,
+      ).container;
+
+    const screen = double(false);
+    const dividers = screen.querySelectorAll('[data-seat-dividers]');
+    expect(dividers).toHaveLength(1);
+    expect(dividers[0].getAttribute('d')).toMatch(/^M0 [\d.]+H55$/);
+    screen.querySelectorAll('[data-seat-shape]').forEach((seat) => {
+      expect(seat).toHaveAttribute('stroke', 'none');
+    });
+
+    const wall = double(true);
+    expect(wall.querySelector('[data-seat-dividers]')).toBeNull();
+    wall.querySelectorAll('[data-seat-shape]').forEach((seat) => {
+      expect(seat).toHaveAttribute('stroke', '#000000');
+    });
+  });
 });
