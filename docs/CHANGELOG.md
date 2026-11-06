@@ -12,6 +12,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - On phones and tablets in portrait, the "Library" shows as many columns as fit and has a way up above them
 - On phones and tablets the criteria fulfilment appears as a band under the seating plan, and a tap on a criterion marks its seats
 - A marked criterion is named in the status bar, so the seating plan no longer moves
+- New classes and the sample class start with the "Default" preset, so every criterion the class has data for counts from the first mix
+- Importing a class list again adds only the students who are not in the class yet
+- "Hand out duties" can draw the same round again without counting it, and a deleted duty comes back with "Undo"
+- Deleting all data also lists your own presets, the duties and the photos
+- The page loads a little faster
+
+### Fixed
+
+- "Groups of 2" no longer leaves one student alone when the class is odd
+- Merging a backup no longer brings in more than 30 presets of your own, which stopped every later backup
+- Other small fixes
 
 ## [3.3.0] - 2026-11-05
 

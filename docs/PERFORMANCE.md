@@ -6,16 +6,16 @@ Klassenplan approaches performance from two angles: Core Web Vitals at runtime, 
 
 ## Budgets
 
-Klassenplan has no server, so there are no service level objectives in the usual sense. These budgets take their place. Bundle figures from 2026-10-29, algorithm figures from 2026-10-18, Core Web Vitals from 2026-09-14.
+Klassenplan has no server, so there are no service level objectives in the usual sense. These budgets take their place. Bundle figures from 2026-11-06, algorithm figures from 2026-10-18, Core Web Vitals from 2026-09-14, layout shift from 2026-11-06.
 
-| Area                                 | Budget                                                        | Current                                                                   | Checked by                                                  |
-| ------------------------------------ | ------------------------------------------------------------- | ------------------------------------------------------------------------- | ----------------------------------------------------------- |
-| Initial payload                      | ≤ 220 KB brotli, ≤ 840 KB raw                                 | 204.5 KB brotli, 751.7 KB raw                                             | `npm run check:bundle`, part of `build:static` (CI, Docker) |
-| Largest chunk                        | ≤ 78 KB brotli, ≤ 330 KB raw                                  | 57.6 KB brotli, 226.9 KB raw                                              | same                                                        |
-| CSS                                  | ≤ 24 KB brotli, ≤ 200 KB raw                                  | 13.8 KB brotli, 90.9 KB raw                                               | same                                                        |
-| Core Web Vitals                      | "good": LCP ≤ 2.5 s, INP ≤ 200 ms, CLS ≤ 0.1                  | Start page CLS 0.067 after prerendering ([SEO.md](SEO.md)); no field data | Logged in the browser only (`webVitals.ts`)                 |
-| "Mischen" with criteria, 36 students | ≤ 500 ms on the slowest supported device                      | ≈ 72 ms under Vitest 5, Apple M1 Pro (three starts)                       | `npm run bench`, by hand                                    |
-| Offline use                          | The generator works without a connection after the first load | Since v1.2.0                                                              | Not tested automatically                                    |
+| Area                                 | Budget                                                        | Current                                                                                                                  | Checked by                                                                                                          |
+| ------------------------------------ | ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------- |
+| Initial payload                      | ≤ 220 KB brotli, ≤ 840 KB raw                                 | 207.8 KB brotli, 747.7 KB raw                                                                                            | `npm run check:bundle`, part of `build:static` (CI, Docker)                                                         |
+| Largest chunk                        | ≤ 78 KB brotli, ≤ 330 KB raw                                  | 50.9 KB brotli, 195.5 KB raw                                                                                             | same                                                                                                                |
+| CSS                                  | ≤ 24 KB brotli, ≤ 200 KB raw                                  | 14.0 KB brotli, 90.6 KB raw                                                                                              | same                                                                                                                |
+| Core Web Vitals                      | "good": LCP ≤ 2.5 s, INP ≤ 200 ms, CLS ≤ 0.1                  | Start page CLS 0.067 after prerendering ([SEO.md](SEO.md)); the workspace 0 on a first visit and a reload; no field data | Logged in the browser only (`webVitals.ts`); the workspace's layout shift ≤ 0.05 by `e2e/layout-shift.spec.ts` (CI) |
+| "Mischen" with criteria, 36 students | ≤ 500 ms on the slowest supported device                      | ≈ 72 ms under Vitest 5, Apple M1 Pro (three starts)                                                                      | `npm run bench`, by hand                                                                                            |
+| Offline use                          | The generator works without a connection after the first load | Since v1.2.0                                                                                                             | Not tested automatically                                                                                            |
 
 The runtime budget is deliberately not a CI check: timings on a shared runner vary too much for a fixed ceiling. It is re-measured with `npm run bench` when the algorithm changes.
 
@@ -44,16 +44,16 @@ What the numbers show:
 
 ### Mix quality
 
-`src/utils/algorithm/__tests__/mixQuality.test.ts` measures what a mix comes to by the fulfilment a teacher reads — six rooms, 30 seeds each, every criterion's mean percentage and the weighted whole — and runs only on request (`MIX_QUALITY=1 npx vitest run mixQuality --silent=false`; without the flag Vitest 5 hides what a passing test prints). On 2026-10-29:
+`src/utils/algorithm/__tests__/mixQuality.test.ts` measures what a mix comes to by the fulfilment a teacher reads — six rooms, 30 seeds each, every criterion's mean percentage and the weighted whole — and runs only on request (`MIX_QUALITY=1 npx vitest run mixQuality --silent=false`; without the flag Vitest 5 hides what a passing test prints). On 2026-11-06, after the window and door seats and the tables pushed together of 2026-11-02 — every room 0.7 to 1.3 points above 2026-10-29:
 
 | Room                                       | Fulfilment | Time per mix, Vitest 5 |
 | ------------------------------------------ | ---------: | ---------------------: |
-| Single desks close together                |     87.0 % |                  23 ms |
-| Double desks as "Neu einrichten" sets them |     88.1 % |                  28 ms |
-| Group tables of four                       |     89.7 % |                  42 ms |
-| Group tables of six, 28 students           |     87.2 % |                  58 ms |
-| Mixed and turned tables                    |     86.7 % |                  40 ms |
-| Double desks with history and locks        |     84.9 % |                  27 ms |
+| Single desks close together                |     88.0 % |                  24 ms |
+| Double desks as "Neu einrichten" sets them |     89.4 % |                  30 ms |
+| Group tables of four                       |     90.5 % |                  44 ms |
+| Group tables of six, 28 students           |     88.2 % |                  62 ms |
+| Mixed and turned tables                    |     87.7 % |                  42 ms |
+| Double desks with history and locks        |     85.6 % |                  28 ms |
 
 What a run of plans comes to — wishes taking turns, friends staying together, pairs repeating — is measured by `src/utils/algorithm/__tests__/mixRuns.test.ts` (`MIX_RUNS=1 npx vitest run mixRuns --silent=false`): six plans one after the other in three rooms, 30 seeds each, about 20 s; its figures are in [decision 0033](decisions/0033-wishes-take-turns.md).
 
@@ -76,12 +76,12 @@ What keeps the start page light, from a PageSpeed Insights review (Lighthouse 13
 - **Service worker precache.** `preview/**` stays out of the glob; `includeAssets` lists the German 480 and 960 px AVIFs for offline use. The precache holds about 4 MB.
 - **Font.** The Latin Atkinson Hyperlegible Next file is preloaded (`preloadPrimaryFont` in `vite.config.ts`), and `Atkinson Hyperlegible Next Fallback` in `src/index.css` gives Arial its metrics so the swap does not move text. Source Serif 4 (the optical-size variant) carries headings only and stays unpreloaded — it is `font-display: swap` behind `Source Serif 4 Fallback` (Times New Roman).
 - **Entry chunk.** The storage history modal, the backup flow (dialogs, validators, `dataBackup`) and the CSV import pipeline with papaparse load on first use.
+- **Icon weights.** Each Phosphor definition carries all six weights; the app draws `regular` and `bold` only, so the build keeps those two (`scripts/utils/iconWeights.ts`, guarded by `src/__tests__/iconWeights.test.ts`). On 2026-11-06 that took the initial payload from 212.9 to 207.8 KB brotli and 776 to 748 KB raw — brotli had packed the four unused weights well already.
 - **Accessibility.** Carousel dots have 24 × 24 px targets, and the logo link's accessible name starts with its visible text.
 
 Not done, deliberately:
 
 - **Inlining critical CSS.** The usual swap from `media="print"` relies on an inline `onload` handler, which `script-src 'self'` blocks. Worth it only if a new measurement still shows the stylesheet as the render-blocking cost.
-- **Trimming icon weights.** Each Phosphor definition carries all six weights; the 25 icons left in the entry chunk take about 84 KB raw. A subset with only `regular` and `fill` would mean replacing every icon import.
 
 **Measuring:** lab runs of the same build vary widely. In some runs a freshly started headless Chrome painted its first frame one to two seconds late while the main thread sat idle (28–36 ms of work), which moved the mobile score between 81 and 91 without any code change. Compare the median of three to five runs.
 

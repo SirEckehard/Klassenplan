@@ -1,6 +1,6 @@
 # Architecture
 
-> **Status:** current · **Last reviewed:** 2026-11-02 · **Maintainer:** Eike
+> **Status:** current · **Last reviewed:** 2026-11-06 · **Maintainer:** Eike
 > Schäfer · **Describes:** Klassenplan 3.1.2
 
 This is the entry point for anyone who wants to understand _why_ Klassenplan is
@@ -349,17 +349,20 @@ logic moves out once it can be tested on its own; React state and wiring stay
 where they are, because splitting a hook with shared refs and closures changes
 behaviour more easily than it looks.
 
-| File (lines on 2026-09-14)                                       | Owns                                                                                                       | Moved out                                                                                         | Candidates, not done                                                                                                                        |
-| ---------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| `src/pages/Export.tsx` (1,317)                                   | Export page: settings seeded from the editor, the preview document, print, PDF, PNG and SVG                | Toolbar, sheet inspector and status bar → `src/components/SeatingPlanGenerator/Export*.tsx`       | The four output handlers into one hook; they share preview state, so it needs tests first                                                   |
-| `src/hooks/canvas/useFeaturePaletteDrag.ts` (1,238)              | Room elements on the canvas: palette drag and drop, dragging, rotating, group drag with tables, long press | Placement math → `src/utils/canvas/featurePlacement.ts`                                           | Splitting the interaction paths needs the shared drag model missing from [canvas-interactions.md](canvas-interactions.md#known-pain-points) |
-| `src/hooks/useSeatingPersistence.ts` (1,005)                     | Loading and applying a class, saved plans, backups, "delete all data", room templates                      | CSV export → `src/utils/csv/csvExport.ts`                                                         | Backup and template operations as hooks of their own                                                                                        |
-| `src/components/SeatingPlanGenerator/LayoutEditorView.tsx` (986) | Room layer: state and wiring of canvas, palette, context menus, shortcuts and room setup                   | Canvas column rendering → `src/components/SeatingPlanGenerator/views/LayoutEditorMainSection.tsx` | —                                                                                                                                           |
+| File (lines on 2026-11-06)                                         | Owns                                                                                                       | Moved out                                                                                         | Candidates, not done                                                                                                                        |
+| ------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/pages/Export.tsx` (1,487)                                     | Export page: settings seeded from the editor, the preview document, print, PDF, PNG and SVG                | Toolbar, sheet inspector and status bar → `src/components/SeatingPlanGenerator/Export*.tsx`       | The four output handlers into one hook; they share preview state, so it needs tests first                                                   |
+| `src/hooks/canvas/useFeaturePaletteDrag.ts` (1,338)                | Room elements on the canvas: palette drag and drop, dragging, rotating, group drag with tables, long press | Placement math → `src/utils/canvas/featurePlacement.ts`                                           | Splitting the interaction paths needs the shared drag model missing from [canvas-interactions.md](canvas-interactions.md#known-pain-points) |
+| `src/hooks/useSeatingPersistence.ts` (1,209)                       | Loading and applying a class, saved plans, backups, "delete all data", room templates                      | CSV export → `src/utils/csv/csvExport.ts`                                                         | Backup and template operations as hooks of their own                                                                                        |
+| `src/components/SeatingPlanGenerator/LayoutEditorView.tsx` (1,120) | Room layer: state and wiring of canvas, palette, context menus, shortcuts and room setup                   | Canvas column rendering → `src/components/SeatingPlanGenerator/views/LayoutEditorMainSection.tsx` | —                                                                                                                                           |
 
-`src/utils/data/csvUtils.ts`, `SeatingPlanEditorView.tsx`,
-`src/utils/validation/backupValidation.ts` and
-`src/utils/algorithm/seatingStatistics.ts` are of similar size and not
-described yet.
+`src/pages/PlanLibrary.tsx` (1,435), `src/utils/validation/backupValidation.ts`
+(1,342), `src/components/circle/SimpleCircleView.tsx` (1,275),
+`src/utils/data/csvUtils.ts` (1,232), `src/repositories/IndexedDBRepository.ts`
+(1,185), `SeatingPlanEditorView.tsx` (1,127) and
+`src/components/scene/TableSeat.tsx` (1,026) are of similar size and not
+described yet. `src/utils/algorithm/seatingStatistics.ts` left the list: the
+criterion model took its counting (decision 0031), 234 lines remain.
 
 ### Build and delivery
 
@@ -395,14 +398,14 @@ Without a server there are no service level objectives to promise. These
 budgets take their place; measurements and details are in
 [PERFORMANCE.md](PERFORMANCE.md#budgets).
 
-| Quality                         | Budget                                                        | Status                                                                |
-| ------------------------------- | ------------------------------------------------------------- | --------------------------------------------------------------------- |
-| Load size                       | Initial payload ≤ 250 KB brotli                               | 221 KB; enforced in CI and the Docker build                           |
-| Response to _Mischen_           | ≤ 500 ms for 36 students on the slowest supported device      | About 63 ms on an Apple M1 Pro; measured by hand with `npm run bench` |
-| Page experience                 | Core Web Vitals "good"                                        | Logged in the browser only; no field data                             |
-| Offline use                     | The generator works without a connection after the first load | In place since v1.2.0; not tested automatically                       |
-| No lost edits when a tab closes | Pending writes start on `visibilitychange` and `pagehide`     | Implemented in `usePersistQueue`                                      |
-| No silent hang of the algorithm | A worker that stays silent for 120 s fails visibly            | Enforced in `algorithmWorkerClient`                                   |
+| Quality                         | Budget                                                        | Status                                                                                        |
+| ------------------------------- | ------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| Load size                       | Initial payload ≤ 220 KB brotli                               | 207.8 KB on 2026-11-06; enforced in CI and the Docker build                                   |
+| Response to _Mischen_           | ≤ 500 ms for 36 students on the slowest supported device      | About 72 ms on an Apple M1 Pro under Vitest 5; measured by hand with `npm run bench`          |
+| Page experience                 | Core Web Vitals "good"                                        | Logged in the browser only; no field data; layout shift guarded by `e2e/layout-shift.spec.ts` |
+| Offline use                     | The generator works without a connection after the first load | In place since v1.2.0; not tested automatically                                               |
+| No lost edits when a tab closes | Pending writes start on `visibilitychange` and `pagehide`     | Implemented in `usePersistQueue`                                                              |
+| No silent hang of the algorithm | A worker that stays silent for 120 s fails visibly            | Enforced in `algorithmWorkerClient`                                                           |
 
 ## Monitoring without telemetry
 
