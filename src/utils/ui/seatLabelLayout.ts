@@ -58,7 +58,7 @@ const BADGE_GAP = 2;
 const SEAT_BADGE_BOTTOM_OFFSET = 6;
 
 /** The box of the editor's lock toggle on a seat; its icon sits at the centre. */
-const SEAT_LOCK_SIZE = 20;
+export const SEAT_LOCK_SIZE = 20;
 
 /**
  * The lock's icon, drawn on the seat without a plate of its own (`TableSeat`):
@@ -373,38 +373,6 @@ export function getUprightSeatFrame(
   return { width: side, height: side };
 }
 
-/**
- * Offset of the lock toggle inside a seat, anchored near the seat's top-left
- * corner so it does not jump between corners when the table rotates; a seat
- * too small for it centres it instead.
- */
-export function seatLockOffset(
-  seatWidth: number,
-  seatHeight: number,
-): { x: number; y: number } {
-  const touchTargetSize = 24;
-  const padding = 1;
-  const resolve = (dimension: number) =>
-    dimension <= touchTargetSize + padding * 2
-      ? Math.max(padding, (dimension - touchTargetSize) / 2)
-      : padding;
-  return { x: resolve(seatWidth), y: resolve(seatHeight) };
-}
-
-/**
- * Whether a seat's name keeps clear of its lock toggle: where the lock is
- * always drawn — on a touch screen, and a closed lock everywhere. The open
- * lock a mouse reveals on hover lies over the name for that moment instead
- * of taking its room on every seat of the plan.
- */
-export function seatLockReservesRoom(
-  hasLock: boolean,
-  revealOnHover: boolean,
-  locked: boolean,
-): boolean {
-  return hasLock && (!revealOnHover || locked);
-}
-
 /** A seat as its name sees it. */
 export type SeatShape = {
   seatWidth: number;
@@ -414,7 +382,11 @@ export type SeatShape = {
    * name turns with the table.
    */
   rotation: number;
-  /** Whether the editor's lock toggle sits on the seat. */
+  /**
+   * Whether the editor's lock toggle sits on the seat. A name keeps clear of
+   * it whether it shows or not — open, closed, or the open lock a mouse
+   * reveals on hover — so it never moves when a seat is pointed at or locked.
+   */
   lock?: boolean;
 };
 
@@ -495,15 +467,66 @@ function rectShifts(
   return range;
 }
 
+/**
+ * The lock icon's distance from the seat's edges on an upright seat: the
+ * toggle's 20-unit box one unit inside the edge, the icon at its centre.
+ */
+const LOCK_ICON_INSET = 1 + (SEAT_LOCK_SIZE - SEAT_LOCK_ICON_SIZE) / 2;
+
+/**
+ * How much a step to the left counts against a step up when the lock seeks
+ * the seat's upper left: on a seat turned at a slant it goes to the top of
+ * the seat rather than across the widest part, which the name needs.
+ */
+const LOCK_LEFT_WEIGHT = 0.5;
+
+/**
+ * Where the lock toggle's centre sits on a seat, in the name's upright frame
+ * relative to the seat's centre: as far up and to the left on the screen as
+ * the icon fits inside the seat, `LOCK_ICON_INSET` clear of its edges.
+ *
+ * The lock turns with the name, not with the table, so it is found in the
+ * same place whichever way a table or the plan is turned: in the upper left
+ * corner of a seat at a quarter turn, at the top of a seat turned 45°, which
+ * stands on a corner. A seat too small for the icon centres it.
+ */
+export function seatLockCentre(
+  seatWidth: number,
+  seatHeight: number,
+  rotation: number,
+): { x: number; y: number } {
+  const { cos, sin } = seatTurn(rotation);
+  // The icon's upright box reaches this far along each of the seat's axes.
+  const reach =
+    LOCK_ICON_INSET +
+    (SEAT_LOCK_ICON_SIZE / 2) * (Math.abs(cos) + Math.abs(sin));
+  const halfWidth = Math.max(0, seatWidth / 2 - reach);
+  const halfHeight = Math.max(0, seatHeight / 2 - reach);
+  // The centres the icon may take form a rectangle in the seat's axes; it
+  // takes the corner of it furthest up and left on the screen, or the middle
+  // of a side lying across that direction.
+  const corners = [
+    [-halfWidth, -halfHeight],
+    [halfWidth, -halfHeight],
+    [halfWidth, halfHeight],
+    [-halfWidth, halfHeight],
+  ].map(([x, y]) => ({ x: cos * x + sin * y, y: -sin * x + cos * y }));
+  const reachUpLeft = (corner: { x: number; y: number }) =>
+    corner.x * LOCK_LEFT_WEIGHT + corner.y;
+  const lowest = Math.min(...corners.map(reachUpLeft));
+  const chosen = corners.filter(
+    (corner) => reachUpLeft(corner) <= lowest + 1e-6,
+  );
+  return {
+    x: chosen.reduce((sum, corner) => sum + corner.x, 0) / chosen.length,
+    y: chosen.reduce((sum, corner) => sum + corner.y, 0) / chosen.length,
+  };
+}
+
 /** The lock in the name's frame: its centre and the reach a name keeps from it. */
 function lockInFrame(shape: SeatShape) {
-  const offset = seatLockOffset(shape.seatWidth, shape.seatHeight);
-  const x = offset.x + SEAT_LOCK_SIZE / 2 - shape.seatWidth / 2;
-  const y = offset.y + SEAT_LOCK_SIZE / 2 - shape.seatHeight / 2;
-  const { cos, sin } = seatTurn(shape.rotation);
   return {
-    x: cos * x + sin * y,
-    y: -sin * x + cos * y,
+    ...seatLockCentre(shape.seatWidth, shape.seatHeight, shape.rotation),
     reach: SEAT_LOCK_ICON_SIZE / 2 + LOCK_CLEARANCE,
   };
 }
@@ -544,11 +567,10 @@ export function placeSeatBadgePill(
  * every corner of every line on the seat, the last line above the pill — less
  * the stretches where a line would run into the lock. The block takes the
  * point of that set nearest the seat's centre, so names line up across seats
- * and move only as far as they must. Where the lock sits beside the name — on
- * a seat turned at a slant, where the seat is widest, and on one turned a
- * quarter, where the name runs along the seat and the lock takes a corner of
- * its height — the name may also step aside from it, when that makes it
- * clearly larger.
+ * and move only as far as they must. Where the lock sits beside the name —
+ * on a seat turned a quarter, where the name runs along the seat and the lock
+ * takes a corner of its height — the name may also step aside from it, to
+ * the right, when that makes it clearly larger.
  */
 export function fitNameOnSeat(
   label: string,
@@ -656,7 +678,7 @@ export function fitNameOnSeat(
   if (!lock) {
     return centred;
   }
-  // Away from the lock: it lies on the left or the right of the upright name.
+  // Away from the lock, which keeps to the seat's upper left (or its top).
   const away = lock.x < 0 ? 1 : -1;
   const aside = fitWith(SIDE_STEPS.map((step) => step * away));
   return aside.fontSize > centred.fontSize * SIDE_STEP_GAIN ? aside : centred;

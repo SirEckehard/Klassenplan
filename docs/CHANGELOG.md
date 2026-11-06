@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ### Improved
 
 - In the seating plan, the presentation, "Where does who sit?", "Who's next?" and the export the room steps back behind the students: furniture only as an outline, thinner lines, no grid
+- The lock on a seat always sits in its upper left, however the table is turned, and never covers the name
 
 ## [3.3.1] - 2026-11-06
 

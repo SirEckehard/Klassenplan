@@ -14,8 +14,6 @@ import type { BadgeFocus, SeatBadgeView } from '@/utils/ui/seatBadges';
 import { getDisplayNameForMode } from '@/utils';
 import { getBackdropFeatureStyles } from '@/utils/ui';
 import { computePlanNameFontSize } from '@/utils/ui/planNameSize';
-import { seatLockReservesRoom } from '@/utils/ui/seatLabelLayout';
-import { useHasHoverPointer } from '@/hooks/ui/useHasHoverPointer';
 import { useTouchScrollLock } from '@/hooks/ui/useTouchScrollLock';
 import type { FeatureVisibilityFlags } from '@/utils/ui';
 import type { TemplateDragPreview } from '@/types/templateDrag';
@@ -138,13 +136,10 @@ const SeatingPlanCanvas = React.memo(
     useTouchScrollLock(canvasRef);
     const photoUrls = useStudentPhotoUrls(allStudents ?? []);
     const nameLabels = useNameLabels(allStudents ?? [], nameDisplay);
-    // `SceneTable` reveals the open lock on hover where the pointer can hover.
-    const lockRevealOnHover = useHasHoverPointer();
     // One name size for the whole plan, so the seats read alike; only a
     // conspicuously long name shrinks on its own seat. Measured with the lock
-    // only where every seat shows it (a touch screen): a closed lock is a
-    // seat's own state, and locking one seat must not shrink every name.
-    // That seat keeps its name clear of the lock itself (`TableSeat`).
+    // on every seat, shown or not, so pointing at a seat or locking it never
+    // moves or shrinks its name (`TableSeat`).
     const nameFontSize = React.useMemo(
       () =>
         computePlanNameFontSize({
@@ -159,11 +154,7 @@ const SeatingPlanCanvas = React.memo(
             ),
           allStudents: allStudents ?? [],
           badgeView,
-          lock: seatLockReservesRoom(
-            Boolean(toggleLock),
-            lockRevealOnHover,
-            false,
-          ),
+          lock: Boolean(toggleLock),
           split: nameDisplay === 'full',
         }),
       [
@@ -174,7 +165,6 @@ const SeatingPlanCanvas = React.memo(
         allStudents,
         badgeView,
         toggleLock,
-        lockRevealOnHover,
       ],
     );
 

@@ -63,7 +63,6 @@ interface SeatGridProps {
   /** The table's outline, which a seat wears on its way to another seat. */
   tableEdgeStroke?: string;
   tableEdgeDash?: string;
-  tableRotation: number;
   allStudents: Student[];
   showSpecialNeeds: boolean;
   /** Which badges the seats carry and how they are drawn. */
@@ -106,7 +105,6 @@ function SeatGrid({
   tableEdgeWidth,
   tableEdgeStroke,
   tableEdgeDash,
-  tableRotation,
   allStudents,
   showSpecialNeeds,
   badgeView,
@@ -148,7 +146,6 @@ function SeatGrid({
             tableEdges={config.tableEdges}
             tableEdgeStroke={tableEdgeStroke}
             tableEdgeDash={tableEdgeDash}
-            tableRotation={tableRotation}
             allStudents={allStudents}
             isDark={isDark}
             contrast={contrast}

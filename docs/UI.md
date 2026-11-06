@@ -518,18 +518,21 @@ afterwards.
 - **A name takes the seat's room, and a plan's names share one size.**
   `utils/ui/seatLabelLayout` fits a name and the badge pill against the seat as
   it stands under the upright name — a turned rectangle, every corner inside it,
-  the editor's lock an obstacle where it is always drawn — on a touch screen,
-  and a closed lock everywhere; the open lock a mouse reveals on hover lies over
-  the name for that moment (`seatLockReservesRoom`) — (`fitNameOnSeat`,
+  the editor's lock an obstacle on every seat, whether it shows or not, so a
+  name never moves when a seat is pointed at or locked (`fitNameOnSeat`,
   `placeSeatBadgePill`): a quarter turn gives a 55 × 65 seat 65 across, a
-  slanted seat is widest across its middle, and on both a name may step aside
-  from the lock beside it. It goes on two lines where that makes it larger —
+  slanted seat is widest across its middle, and on a quarter turn a name may
+  step aside from the lock beside it. The lock turns with the name, not with
+  the table (`seatLockCentre`): whichever way the table and the plan are
+  turned, it sits in the seat's upper left on the screen — at the top of a seat
+  turned 45°, which stands on a corner and needs its middle for the name. A
+  name goes on two lines where that makes it larger —
   between words or after a hyphen, never inside a word — and full names ("Vor-
   und Nachname") always break, so a plan reads alike. `computePlanNameFontSize`
   (table plans) and `planNameFontSize` (the circle) set the size the great
-  majority of seats reach — the editor measures it with the lock only where
-  every seat shows one (a touch screen), so locking a seat never resizes the
-  other names; a conspicuously long name shrinks on its own seat. Every seat and
+  majority of seats reach — the editor measures it with the lock on every seat,
+  so its names come out a little smaller than the export's; a conspicuously
+  long name shrinks on its own seat. Every seat and
   place draws its name through `SeatNameText`. The text is measured by
   arithmetic from Atkinson Hyperlegible Next's advance widths in
   `src/data/nameGlyphWidths.json` — regenerate it with

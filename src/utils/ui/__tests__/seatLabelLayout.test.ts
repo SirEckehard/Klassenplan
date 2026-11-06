@@ -12,7 +12,7 @@ import {
   nameLineOffsets,
   placeSeatBadgePill,
   planNameFontSize,
-  seatLockReservesRoom,
+  seatLockCentre,
   seatNameMaxFontSize,
   tokenNameMaxFontSize,
   type SeatShape,
@@ -205,29 +205,33 @@ describe('fitNameOnSeat', () => {
     expect(fit.centerX).toBe(0);
   });
 
-  it('steps aside from the lock on a seat turned at a slant', () => {
-    // Turned 45°, the lock sits at the left of the upright name, where the
-    // seat is widest.
+  it('keeps nearly its size beside the lock at the top of a seat turned at a slant', () => {
+    // Turned 45°, the lock sits at the top, clear of the seat's widest part.
     const shape: SeatShape = { ...SEAT, rotation: 45, lock: true };
-    const fit = fitNameOnSeat(
-      'Finn Neumann',
-      shape,
-      placeSeatBadgePill(shape, 28, 10),
+    const pill = placeSeatBadgePill(shape, 28, 10);
+    const fit = fitNameOnSeat('Paul Zimmermann', shape, pill, {
+      maxFont,
+      split: true,
+    });
+    const free = fitNameOnSeat(
+      'Paul Zimmermann',
+      { ...shape, lock: false },
+      pill,
       { maxFont, split: true },
     );
-    expect(fit.centerX).toBeGreaterThan(0);
+    expect(fit.fontSize).toBeGreaterThan(free.fontSize * 0.95);
   });
 
   it('steps aside from the lock on a seat turned a quarter', () => {
     // A horizontal double desk: the name runs along the seat, the lock sits
-    // in its upper right corner and leaves too little height beside the pill.
+    // in its upper left corner and leaves too little height beside the pill.
     const shape: SeatShape = { ...SEAT, rotation: -90, lock: true };
     const pill = placeSeatBadgePill(shape, 50, 14);
     const fit = fitNameOnSeat('Noah', shape, pill, { maxFont });
     const free = fitNameOnSeat('Noah', { ...shape, lock: false }, pill, {
       maxFont,
     });
-    expect(fit.centerX).toBeLessThan(0);
+    expect(fit.centerX).toBeGreaterThan(0);
     expect(fit.fontSize).toBeGreaterThan(free.fontSize * 0.95);
   });
 
@@ -357,15 +361,37 @@ describe('planNameFontSize', () => {
   });
 });
 
-describe('seatLockReservesRoom', () => {
-  it('keeps room for a lock that is always drawn', () => {
-    // A touch screen shows every lock; a closed lock shows everywhere.
-    expect(seatLockReservesRoom(true, false, false)).toBe(true);
-    expect(seatLockReservesRoom(true, true, true)).toBe(true);
+describe('seatLockCentre', () => {
+  it('sits in the upper left corner on the screen at every quarter turn', () => {
+    // The icon 5.5 inside the edges, its centre 11 from them.
+    expect(seatLockCentre(55, 65, 0)).toEqual({ x: -16.5, y: -21.5 });
+    expect(seatLockCentre(55, 65, 180)).toEqual({ x: -16.5, y: -21.5 });
+    // A quarter turn lays the seat across: 65 wide on the screen, 55 high.
+    expect(seatLockCentre(55, 65, 90)).toEqual({ x: -21.5, y: -16.5 });
+    expect(seatLockCentre(55, 65, -90)).toEqual({ x: -21.5, y: -16.5 });
   });
 
-  it('lets an open lock revealed on hover lie over the name', () => {
-    expect(seatLockReservesRoom(true, true, false)).toBe(false);
-    expect(seatLockReservesRoom(false, false, true)).toBe(false);
+  it('sits at the top of a seat turned 45°, inside it', () => {
+    for (const rotation of [45, -45, 135, -135]) {
+      const centre = seatLockCentre(55, 65, rotation);
+      expect(Math.abs(centre.x)).toBeLessThan(5);
+      expect(centre.y).toBeLessThan(-20);
+      // Each corner of the icon lies inside the seat.
+      const radians = (rotation * Math.PI) / 180;
+      for (const dx of [-5.5, 5.5]) {
+        for (const dy of [-5.5, 5.5]) {
+          const x = centre.x + dx;
+          const y = centre.y + dy;
+          const seatX = Math.cos(radians) * x - Math.sin(radians) * y;
+          const seatY = Math.sin(radians) * x + Math.cos(radians) * y;
+          expect(Math.abs(seatX)).toBeLessThanOrEqual(27.5 + 1e-6);
+          expect(Math.abs(seatY)).toBeLessThanOrEqual(32.5 + 1e-6);
+        }
+      }
+    }
+  });
+
+  it('centres the icon on a seat too small for its corner', () => {
+    expect(seatLockCentre(20, 20, 0)).toEqual({ x: 0, y: 0 });
   });
 });

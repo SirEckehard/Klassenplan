@@ -36,12 +36,8 @@ export type PlanNameSizeInput = {
   keepLabelsUpright?: boolean;
   /** Extra turn of every name, e.g. against the export's turned room (`seatLabelRotation`). */
   labelRotation?: number;
-  /**
-   * Whether a seat's name keeps clear of the editor's lock toggle — for every
-   * seat, or per seat (`seatLockReservesRoom`): the editor reveals an open
-   * lock on hover, a closed one always shows.
-   */
-  lock?: boolean | ((tableIndex: number, seatIndex: number) => boolean);
+  /** Whether every seat carries the editor's lock toggle, which a name keeps clear of. */
+  lock?: boolean;
   weight?: NameWeight;
   /** Break every name that can break (full names), as the seats do. */
   split?: boolean;
@@ -71,13 +67,13 @@ export function computePlanNameFontSize({
       ? labelRotation - (table.rotation ?? 0)
       : 0;
     const maxFont = seatNameMaxFontSize(seatWidth, seatHeight);
-    students.forEach((student, seatIndex) => {
+    students.forEach((student) => {
       if (!student) return;
       const shape = {
         seatWidth,
         seatHeight,
         rotation,
-        lock: typeof lock === 'function' ? lock(tableIndex, seatIndex) : lock,
+        lock,
       };
       const pill = layoutSeatBadgePill(
         getSeatBadges(

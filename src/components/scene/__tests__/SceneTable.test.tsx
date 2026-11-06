@@ -240,12 +240,12 @@ describe('SceneTable seat label rotation', () => {
     const lockButton = getByRole('button', {
       name: /sitzplatz sperren|lock seat/i,
     });
-    // The lock stays anchored while its icon keeps upright orientation
-    const transform = lockButton.getAttribute('transform');
-    expect(transform).toBe('translate(1 1)');
-
-    const icon = lockButton.querySelector('g[transform^="rotate"]');
-    expect(icon).toHaveAttribute('transform', 'rotate(-30 5.5 5.5)');
+    // The lock turns with the name — the table's turn and the plan's — so it
+    // keeps to the seat's upper left on the screen, its icon upright.
+    expect(lockButton.getAttribute('transform')).toMatch(
+      /^translate\(50 30\) rotate\(-15\) translate\(/,
+    );
+    expect(lockButton.querySelector('g[transform*="rotate"]')).toBeNull();
   });
 
   it('keeps transforms unchanged when names rotate with the table', () => {
@@ -274,7 +274,11 @@ describe('SceneTable seat label rotation', () => {
     const button = getByRole('button', {
       name: /sitzplatz sperren|lock seat/i,
     });
-    expect(button).toHaveAttribute('transform', 'translate(1 1)');
+    // Unturned against the seat: in its upper left corner, one unit inside.
+    expect(button).toHaveAttribute(
+      'transform',
+      'translate(50 30) rotate(0) translate(-49 -29)',
+    );
 
     expect(button.querySelector('g[transform^="rotate"]')).toBeNull();
     // The icon alone, without a plate of its own.

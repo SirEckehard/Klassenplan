@@ -18,8 +18,8 @@ import {
 import {
   fitNameOnSeat,
   SEAT_LOCK_ICON_SIZE,
-  seatLockReservesRoom,
-  seatLockOffset,
+  SEAT_LOCK_SIZE,
+  seatLockCentre,
   seatNameMaxFontSize,
 } from '@/utils/ui/seatLabelLayout';
 import SeatBadgePill from '@/components/scene/SeatBadgePill';
@@ -73,7 +73,6 @@ interface TableSeatProps {
   /** The table's outline, as the seat wears it on its way to another seat. */
   tableEdgeStroke?: string;
   tableEdgeDash?: string;
-  tableRotation?: number;
   allStudents?: Student[];
   isDark: boolean;
   /** Beamer contrast mode: black on white, thicker contours, bolder names. */
@@ -162,8 +161,6 @@ const matchesFocusVisible = (element: Element): boolean => {
   }
 };
 
-/** The lock toggle's box on a seat (`seatLockOffset` places it). */
-const SEAT_LOCK_BOX = 20;
 /** The lock's keyboard focus ring, round its icon. */
 const LOCK_FOCUS_RADIUS = 7.5;
 
@@ -253,7 +250,6 @@ function TableSeat({
   tableEdges = NO_EDGES,
   tableEdgeStroke,
   tableEdgeDash,
-  tableRotation = 0,
   allStudents = [],
   isDark,
   contrast = false,
@@ -341,17 +337,7 @@ function TableSeat({
   const seatLabelTransform = lockSeatLabelOrientation
     ? `rotate(${seatTextRotation} ${seatWidth / 2} ${seatHeight / 2})`
     : undefined;
-  const lockButtonOffset = seatLockOffset(seatWidth, seatHeight);
-  const lockButtonTransform = `translate(${lockButtonOffset.x} ${lockButtonOffset.y})`;
-  const normalizedTableRotation = ((tableRotation % 360) + 360) % 360;
-  const lockButtonRotationCompensation = lockSeatLabelOrientation
-    ? -normalizedTableRotation
-    : 0;
-  const lockIconOffset = (SEAT_LOCK_BOX - SEAT_LOCK_ICON_SIZE) / 2;
-  const lockButtonIconTransform =
-    lockButtonRotationCompensation !== 0
-      ? `rotate(${lockButtonRotationCompensation} ${SEAT_LOCK_ICON_SIZE / 2} ${SEAT_LOCK_ICON_SIZE / 2})`
-      : undefined;
+  const lockIconOffset = (SEAT_LOCK_SIZE - SEAT_LOCK_ICON_SIZE) / 2;
   // The seat itself carries the highlight — never its table, which would
   // mark the neighbours at a double or group table as well.
   const highlightKind =
@@ -405,16 +391,17 @@ function TableSeat({
   // The name stands upright in the seat, between its lock and its badges, on
   // one line or two, at the plan's shared size where it fits.
   const labelRotation = lockSeatLabelOrientation ? seatTextRotation : 0;
+  // The lock turns with the name, so it stays in the seat's upper left on
+  // the screen however the table and the plan are turned.
+  const lockCentre = seatLockCentre(seatWidth, seatHeight, labelRotation);
+  const lockButtonTransform = `translate(${seatWidth / 2} ${seatHeight / 2}) rotate(${labelRotation}) translate(${lockCentre.x - SEAT_LOCK_SIZE / 2} ${lockCentre.y - SEAT_LOCK_SIZE / 2})`;
   const nameFit = React.useMemo(() => {
     const shape = {
       seatWidth,
       seatHeight,
       rotation: labelRotation,
-      lock: seatLockReservesRoom(
-        Boolean(toggleLock),
-        lockRevealOnHover,
-        locked,
-      ),
+      // Room for the lock whether it shows or not, so the name stays put.
+      lock: Boolean(toggleLock),
     };
     const pill = layoutSeatBadgePill(shownFlags, shape, badgeView);
     return fitNameOnSeat(displayName, shape, pill?.rect ?? null, {
@@ -433,8 +420,6 @@ function TableSeat({
     shownFlags,
     badgeView,
     toggleLock,
-    lockRevealOnHover,
-    locked,
     displayName,
     nameWeight,
     nameFontSize,
@@ -756,8 +741,8 @@ function TableSeat({
                 <rect
                   x={-lockHitInset}
                   y={-lockHitInset}
-                  width={SEAT_LOCK_BOX + lockHitInset * 2}
-                  height={SEAT_LOCK_BOX + lockHitInset * 2}
+                  width={SEAT_LOCK_SIZE + lockHitInset * 2}
+                  height={SEAT_LOCK_SIZE + lockHitInset * 2}
                   fill="transparent"
                 />
                 {/* Keyboard focus: the two-tone ring a focused seat wears,
@@ -765,8 +750,8 @@ function TableSeat({
                 {lockHasVisibleFocus && (
                   <g pointerEvents="none">
                     <circle
-                      cx={SEAT_LOCK_BOX / 2}
-                      cy={SEAT_LOCK_BOX / 2}
+                      cx={SEAT_LOCK_SIZE / 2}
+                      cy={SEAT_LOCK_SIZE / 2}
                       r={LOCK_FOCUS_RADIUS}
                       fill="none"
                       stroke="#ffffff"
@@ -774,8 +759,8 @@ function TableSeat({
                       vectorEffect="non-scaling-stroke"
                     />
                     <circle
-                      cx={SEAT_LOCK_BOX / 2}
-                      cy={SEAT_LOCK_BOX / 2}
+                      cx={SEAT_LOCK_SIZE / 2}
+                      cy={SEAT_LOCK_SIZE / 2}
                       r={LOCK_FOCUS_RADIUS}
                       fill="none"
                       stroke="var(--canvas-selection)"
@@ -787,19 +772,14 @@ function TableSeat({
                 {/* The icon alone, in the colour of a held seat's contour
                     when closed (`.seat-lock` in index.css). */}
                 <g transform={`translate(${lockIconOffset} ${lockIconOffset})`}>
-                  <g transform={lockButtonIconTransform}>
-                    {locked ? (
-                      <LockIcon
-                        size={SEAT_LOCK_ICON_SIZE}
-                        color="currentColor"
-                      />
-                    ) : (
-                      <LockOpenIcon
-                        size={SEAT_LOCK_ICON_SIZE}
-                        color="currentColor"
-                      />
-                    )}
-                  </g>
+                  {locked ? (
+                    <LockIcon size={SEAT_LOCK_ICON_SIZE} color="currentColor" />
+                  ) : (
+                    <LockOpenIcon
+                      size={SEAT_LOCK_ICON_SIZE}
+                      color="currentColor"
+                    />
+                  )}
                 </g>
               </g>
             )}
@@ -989,7 +969,6 @@ const MemoizedTableSeat = React.memo(TableSeat, (prevProps, nextProps) => {
     prevProps.nameFontSize !== nextProps.nameFontSize ||
     prevProps.showSeatLabels !== nextProps.showSeatLabels ||
     prevProps.seatTextRotation !== nextProps.seatTextRotation ||
-    prevProps.tableRotation !== nextProps.tableRotation ||
     prevProps.showSpecialNeeds !== nextProps.showSpecialNeeds ||
     prevProps.badgeView !== nextProps.badgeView
   )

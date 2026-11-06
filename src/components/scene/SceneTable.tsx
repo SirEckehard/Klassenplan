@@ -391,7 +391,6 @@ function SceneTable({
         // its seats carry the outline a flight shows (`useSeatFlight`).
         tableEdgeStroke={draggable ? tableStroke : undefined}
         tableEdgeDash={outOfMix ? TABLE_OUT_OF_MIX_DASH : undefined}
-        tableRotation={table.rotation}
         allStudents={allStudents}
         showSpecialNeeds={showSpecialNeeds}
         badgeView={badgeView}
