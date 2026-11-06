@@ -134,8 +134,9 @@ function StudentInput({
   }, [loadDemoClass]);
   const hasActiveClass = Boolean(activeClass.id);
   // Without a class there is nobody to inspect: the column would only say
-  // "Kein Schüler ausgewählt" beside the card that asks for a class.
-  React.useEffect(() => {
+  // "Kein Schüler ausgewählt" beside the card that asks for a class. Before
+  // the first paint, so the column is never seen open and then folding.
+  React.useLayoutEffect(() => {
     if (hasActiveClass) return undefined;
     setSuspended(true);
     return () => setSuspended(false);

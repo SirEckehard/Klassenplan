@@ -3,12 +3,14 @@
 import { useTranslation } from 'react-i18next';
 import { SkeletonLine, SkeletonCircle } from './SkeletonLoader';
 import { LAYER_LOADING_ATTRIBUTE } from '@/components/onboarding/tours';
+import { useLayerArrivalNote } from './useLayerArrivalNote';
 
 /**
  * Skeleton placeholder for the student list (Step 1).
  * Mimics the layout of StudentList component during loading.
  */
 export default function StudentListSkeleton() {
+  useLayerArrivalNote();
   const { t } = useTranslation('common');
 
   return (

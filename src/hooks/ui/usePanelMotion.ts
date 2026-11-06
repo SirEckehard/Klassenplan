@@ -3,6 +3,7 @@
 import React from 'react';
 import {
   inertCopy,
+  isLayerArriving,
   MOTION_DURATION,
   MOTION_EASE,
   motionEnabled,
@@ -80,7 +81,8 @@ interface OpenPanel {
  * always did. Coming in, it slides from the edge; going out, a copy of how it
  * last looked slides away in its place, inert, and is removed. Nothing moves
  * when the layout itself changes (`layout`: a window resized past a
- * breakpoint, a tablet turned), and nothing under reduced motion.
+ * breakpoint, a tablet turned), as a layer draws for the first time
+ * (`isLayerArriving`), and nothing under reduced motion.
  */
 export function usePanelMotion(
   ref: React.RefObject<HTMLElement | null>,
@@ -117,7 +119,7 @@ export function usePanelMotion(
             : 0,
         scrolled,
       };
-      if (!before && sameLayout && motionEnabled(node)) {
+      if (!before && sameLayout && !isLayerArriving() && motionEnabled(node)) {
         node.animate([outside(edge, last.current.width), inPlace(edge)], {
           duration: DURATION[edge].in,
           easing: MOTION_EASE.arrive,
@@ -130,7 +132,7 @@ export function usePanelMotion(
     last.current = null;
     const swipedBy = leaving ? swiped.get(leaving.node) : undefined;
     if (leaving) swiped.delete(leaving.node);
-    if (!before || !leaving || !sameLayout) return;
+    if (!before || !leaving || !sameLayout || isLayerArriving()) return;
     if (!leaving.parent.isConnected || !motionEnabled(leaving.node)) return;
     const copy = inertCopy(leaving.node);
     copy.className = leaving.className;

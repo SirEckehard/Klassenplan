@@ -3,12 +3,14 @@
 import { useTranslation } from 'react-i18next';
 import { SkeletonLine, SkeletonCircle } from './SkeletonLoader';
 import { LAYER_LOADING_ATTRIBUTE } from '@/components/onboarding/tours';
+import { useLayerArrivalNote } from './useLayerArrivalNote';
 
 /**
  * Skeleton placeholder for the canvas/layout editor (Step 2/3).
  * Mimics the classroom canvas layout during loading.
  */
 export default function CanvasSkeleton() {
+  useLayerArrivalNote();
   const { t } = useTranslation('common');
 
   return (

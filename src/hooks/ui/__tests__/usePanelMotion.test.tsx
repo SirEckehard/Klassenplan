@@ -8,6 +8,7 @@ import {
   usePanelMotion,
   type PanelEdge,
 } from '@/hooks/ui/usePanelMotion';
+import { noteLayerArrived } from '@/utils/ui/motion';
 
 function Drawer({
   open,
@@ -120,6 +121,17 @@ describe('usePanelMotion', () => {
 
     expect(animate).not.toHaveBeenCalled();
     expect(screen.getByTestId('shell').querySelector('.drawer')).toBeNull();
+  });
+
+  it('does not move as a layer draws for the first time', () => {
+    const { rerender } = render(<Drawer open />);
+
+    // The skeleton gives way, and the layer folds the column as it arrives.
+    noteLayerArrived();
+    rerender(<Drawer open={false} />);
+    rerender(<Drawer open />);
+
+    expect(animate).not.toHaveBeenCalled();
   });
 
   it('opens and closes at once under reduced motion', () => {

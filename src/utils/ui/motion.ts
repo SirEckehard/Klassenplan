@@ -52,6 +52,27 @@ export function motionEnabled(element?: Element | null): boolean {
   return !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
+/**
+ * When a layer's stand-in last gave way to the layer (`performance.now()`).
+ * What the layer changes as it draws for the first time — the inspector's
+ * column folding away beside the card that asks for a class — belongs to that
+ * first drawing, and nothing moves on a first drawing.
+ */
+let layerArrivedAt = Number.NEGATIVE_INFINITY;
+
+/** Longer than the commits a layer's first drawing takes, shorter than a tap. */
+const FIRST_DRAWING_MS = 100;
+
+/** Called by a layer's skeleton as it gives way. */
+export function noteLayerArrived(): void {
+  layerArrivedAt = performance.now();
+}
+
+/** Whether a change belongs to the first drawing of a layer just arrived. */
+export function isLayerArriving(): boolean {
+  return performance.now() - layerArrivedAt < FIRST_DRAWING_MS;
+}
+
 /** What makes an element reachable or named; a copy to look at has none. */
 const LIVE_ATTRIBUTES = [
   'id',
