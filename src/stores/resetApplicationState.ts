@@ -4,12 +4,7 @@ import type { LockedPositions, RoomRecord, SeatingArrangement } from '@/types';
 import { resetStudentStore } from '@/stores/studentsStore';
 import { resetAlgorithmStore } from '@/stores/algorithmStore';
 import { resetLayoutStore } from '@/stores/layoutStore';
-import {
-  DEFAULT_CLASSROOM_SCENE,
-  DEFAULT_MIX_WEIGHTS,
-  neutralSettings,
-  normalizeMixSettings,
-} from '@/utils';
+import { DEFAULT_CLASSROOM_SCENE, DEFAULT_CLASS_MIX_SETTINGS } from '@/utils';
 
 export interface ApplicationStateResetHandlers {
   setCurrentSeating?: (value: SeatingArrangement) => void;
@@ -18,14 +13,6 @@ export interface ApplicationStateResetHandlers {
   setRooms?: (value: RoomRecord[]) => void;
   setActiveRoomId?: (value: string | null) => void;
 }
-
-const defaultMixSettings = normalizeMixSettings(
-  {
-    avoidPreviousPairs: DEFAULT_MIX_WEIGHTS.avoidPreviousPairs,
-    preferGenderMix: DEFAULT_MIX_WEIGHTS.preferGenderMix,
-  },
-  neutralSettings,
-);
 
 /**
  * Reset all application-wide stores and optional local state handlers
@@ -38,7 +25,7 @@ export function resetApplicationState(
   resetStudentStore();
   resetAlgorithmStore({
     step: 1,
-    mixSettings: defaultMixSettings,
+    mixSettings: DEFAULT_CLASS_MIX_SETTINGS,
     seatingHistory: [],
     mixHistory: [],
     planName: '',

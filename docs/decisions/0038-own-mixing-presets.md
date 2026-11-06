@@ -90,3 +90,19 @@ the starting point it is.
 - A new shipped preset needs an id in `BuiltinMixRecipeId`, its weights in
   `MIX_RECIPES` and its texts; whether it is changeable follows from
   `isEditableBuiltin`.
+
+## Addendum of 2026-11-06: a new class starts with "Standard"
+
+A new class — the sample class included — started with the repetition (6)
+and the gender mix (2) alone, the starting values of v1.5.0. They matched no
+preset, so the menu read "Eigene Mischung" before anyone had changed a thing,
+and a first mix of the sample class scored 100 % while restlessness, distance
+wishes and front seats were off. The maintainer chose that a new class starts
+with "Standard" (`DEFAULT_CLASS_MIX_SETTINGS`, `presetId: 'standard'`), the one
+constant the class's first load, the store's start and the reset share.
+
+- The first plans of a new class change: every criterion the class has data
+  for counts from the first mix on, as "Standard" describes itself. A class
+  that has settings keeps them.
+- Criteria without data stay cleared in the panel (decision 0016), so a class
+  without, say, language levels still reads "Standard".

@@ -15,7 +15,7 @@ import type { CriterionFulfillment } from '@/utils/algorithm/seatingStatistics';
 import type { LatestChangelogEntry } from '@/utils';
 import { LOCAL_STORAGE_KEYS } from '@/utils/data/storageKeys';
 import {
-  DEFAULT_MIX_WEIGHTS,
+  DEFAULT_CLASS_MIX_SETTINGS,
   areMixSettingsEqual,
   migrateStoredMixSettings,
   neutralSettings,
@@ -27,25 +27,17 @@ import {
   logDebug,
 } from '@/utils';
 
-const defaultMixSettings = normalizeMixSettings(
-  {
-    avoidPreviousPairs: DEFAULT_MIX_WEIGHTS.avoidPreviousPairs,
-    preferGenderMix: DEFAULT_MIX_WEIGHTS.preferGenderMix,
-  },
-  neutralSettings,
-);
-
 function loadMixSettings(): MixSettings {
   const browserWindow = getBrowserWindow();
   if (!browserWindow) {
-    return defaultMixSettings;
+    return DEFAULT_CLASS_MIX_SETTINGS;
   }
   try {
     const stored = browserWindow.localStorage.getItem(
       LOCAL_STORAGE_KEYS.mixSettings,
     );
     if (!stored) {
-      return defaultMixSettings;
+      return DEFAULT_CLASS_MIX_SETTINGS;
     }
     return normalizeMixSettings(
       migrateStoredMixSettings(JSON.parse(stored) as MixSettings),
@@ -53,7 +45,7 @@ function loadMixSettings(): MixSettings {
     );
   } catch (error) {
     logDebug('Failed to load mix settings from localStorage', { error });
-    return defaultMixSettings;
+    return DEFAULT_CLASS_MIX_SETTINGS;
   }
 }
 

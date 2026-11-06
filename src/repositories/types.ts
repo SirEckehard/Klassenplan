@@ -35,6 +35,11 @@ export enum RepositoryErrorType {
   STORAGE_ERROR = 'STORAGE_ERROR',
   VALIDATION_ERROR = 'VALIDATION_ERROR',
   DUPLICATE_KEY = 'DUPLICATE_KEY',
+  /**
+   * No class is open: a first visit, or after the last class was deleted. A
+   * state, not a fault — whoever reads the open class says nothing then.
+   */
+  NO_ACTIVE_CLASS = 'NO_ACTIVE_CLASS',
   UNKNOWN_ERROR = 'UNKNOWN_ERROR',
 }
 

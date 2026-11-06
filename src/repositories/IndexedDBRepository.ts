@@ -382,7 +382,7 @@ export class IndexedDBRepository implements ISeatingPlanRepository {
           return cloneValue(options.fallback as T);
         }
         return ResultHelpers.failure({
-          type: RepositoryErrorType.VALIDATION_ERROR,
+          type: RepositoryErrorType.NO_ACTIVE_CLASS,
           message: 'No active class selected',
         });
       }
@@ -404,7 +404,7 @@ export class IndexedDBRepository implements ISeatingPlanRepository {
           const record = this.getOpenClassRecord(collection);
           if (!record) {
             this.refuse(
-              RepositoryErrorType.VALIDATION_ERROR,
+              RepositoryErrorType.NO_ACTIVE_CLASS,
               'No active class selected',
             );
           }

@@ -87,6 +87,7 @@ Repository errors carry a `RepositoryErrorType` from the enum in [src/repositori
 | `STORAGE_ERROR`    | IndexedDB / web-storage operation fails (quota, private mode, browser bug) | Error toast with `TOAST_MESSAGES.SAVE_ERROR` etc.                      |
 | `VALIDATION_ERROR` | Input fails schema or sanity check                                         | Warning toast from `TOAST_MESSAGES.VALIDATION_*`                       |
 | `DUPLICATE_KEY`    | Uniqueness violated (e.g. duplicate class name)                            | Warning toast from `TOAST_MESSAGES.CLASS_NAME_EXISTS` etc.             |
+| `NO_ACTIVE_CLASS`  | No class is open — a first visit, or the last class deleted                | Nothing: a state, not a fault; logged at debug level only              |
 | `UNKNOWN_ERROR`    | Fallback when the original error could not be classified                   | Error toast with a generic message                                     |
 
 The type is the only piece of information that UI code should use for mapping. The `message` property is meant for logs, **not** as an immediate user message – it may be in English or technical. Localized user messages come from `TOAST_MESSAGES` (see section 5).

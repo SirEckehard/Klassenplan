@@ -26,17 +26,16 @@ import {
 import type { CircleLayout, CircleExportData } from '@/types/Circle';
 import {
   DEFAULT_CLASSROOM_SCENE,
-  DEFAULT_MIX_WEIGHTS,
+  DEFAULT_CLASS_MIX_SETTINGS,
   errorHandlers,
   logError,
+  logDebug,
   logWarn,
   generateId,
   showToast,
   TOAST_MESSAGES,
   stableStringify,
   migrateStoredMixSettings,
-  neutralSettings,
-  normalizeMixSettings,
   toIsoDate,
   uniqueName,
   MAX_NAME_LENGTH,
@@ -80,14 +79,6 @@ const loadDataBackup = () => import('@/services/backup/dataBackup');
  * Persist seating data to IndexedDB and provide load/save utilities.
  * @param state Shared seating state
  */
-
-const DEFAULT_CLASS_MIX_SETTINGS = normalizeMixSettings(
-  {
-    avoidPreviousPairs: DEFAULT_MIX_WEIGHTS.avoidPreviousPairs,
-    preferGenderMix: DEFAULT_MIX_WEIGHTS.preferGenderMix,
-  },
-  neutralSettings,
-);
 
 /** What opening a saved plan put on screen. */
 export type OpenedPlan = {
@@ -292,18 +283,15 @@ export function useSeatingPersistence(state: SeatingState) {
       }
 
       if (!activeClassSnapshotResult.success) {
-        const isValidationError =
-          (
-            activeClassSnapshotResult as {
-              error?: { type?: string; message?: string };
-            }
-          ).error?.type === RepositoryErrorType.VALIDATION_ERROR &&
-          (activeClassSnapshotResult as { error?: { message?: string } }).error
-            ?.message === 'No active class selected';
-        const logger = isValidationError ? logWarn : logError;
+        // No class open is the first visit, not a fault (`NO_ACTIVE_CLASS`).
+        const { error } = activeClassSnapshotResult;
+        const logger =
+          error?.type === RepositoryErrorType.NO_ACTIVE_CLASS
+            ? logDebug
+            : logError;
         logger(
           'Failed to load active class snapshot from repository',
-          { error: (activeClassSnapshotResult as { error?: unknown }).error },
+          { error },
           'useSeatingPersistence',
         );
       }

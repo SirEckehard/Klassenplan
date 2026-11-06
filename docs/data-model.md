@@ -101,7 +101,9 @@ recommended 8 once. `neighborWeights` is still stored but no longer read.
 `presetId` names the preset the weights were last set from — a shipped
 preset's id or an own one's ([decision 0038](decisions/0038-own-mixing-presets.md))
 — and stays when a weight is moved afterwards; absent for a mix of one's own
-and in older settings. An id no preset carries any more reads as none.
+and in older settings. An id no preset carries any more reads as none. A new
+class starts with `"standard"` and its weights (`DEFAULT_CLASS_MIX_SETTINGS`);
+until 2026-11-06 it started with the repetition and the gender mix alone.
 
 - **One record per class.** A class's students, plans, room and weights all
   live inside its record; switching classes means reading a different record.

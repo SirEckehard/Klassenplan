@@ -28,8 +28,7 @@ export const isMissingClassPersistError = (
   Boolean(
     error &&
     (error.type === RepositoryErrorType.NOT_FOUND ||
-      (error.type === RepositoryErrorType.VALIDATION_ERROR &&
-        error.message === 'No active class selected')),
+      error.type === RepositoryErrorType.NO_ACTIVE_CLASS),
   );
 
 export interface PersistErrorHandlingReturn {

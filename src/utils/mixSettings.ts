@@ -177,6 +177,15 @@ export const normalizeMixSettings = (
 };
 
 /**
+ * What a class mixes with before its teacher chose anything: "Standard",
+ * every criterion the class has data for. Until 2026-11-06 a new class
+ * started with only the repetition and the gender mix — the starting values
+ * of v1.5.0, which matched no preset and read as "Eigene Mischung".
+ */
+export const DEFAULT_CLASS_MIX_SETTINGS: Readonly<MixSettings> =
+  normalizeMixSettings({ presetId: 'standard' });
+
+/**
  * Whether two settings hold the same weights, neighbour weights included, and
  * name the same preset.
  */

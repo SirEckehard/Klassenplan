@@ -556,7 +556,7 @@ describe('class isolation', () => {
     );
 
     const error = expectFailure(await empty.loadActiveClassSnapshot());
-    expect(error.type).toBe(RepositoryErrorType.VALIDATION_ERROR);
+    expect(error.type).toBe(RepositoryErrorType.NO_ACTIVE_CLASS);
   });
 
   it('reports NOT_FOUND when writing a snapshot for an unknown class', async () => {
