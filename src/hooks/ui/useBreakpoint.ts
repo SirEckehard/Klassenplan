@@ -110,11 +110,3 @@ export function useBreakpointUp(name: BreakpointName): boolean {
 
   return useSyncExternalStore(subscribe, getMatch, getServerMatch);
 }
-
-/**
- * Returns whether the viewport is below the given breakpoint — the exact
- * complement of {@link useBreakpointUp}, i.e. a Tailwind `max-*` variant.
- */
-export function useBreakpointDown(name: BreakpointName): boolean {
-  return !useBreakpointUp(name);
-}

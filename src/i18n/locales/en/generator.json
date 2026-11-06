@@ -680,11 +680,13 @@
     "fromPlan": "Adopting seating circle from the seating plan…"
   },
   "statisticsBadge": {
-    "close": "Close",
     "highlightOff": "Highlighting off",
     "highlighted_one": "Highlighted: {{criterion}} — {{count}} seat short",
     "highlighted_other": "Highlighted: {{criterion}} — {{count}} seats short",
-    "overallLabel": "Total",
+    "openLong_one": "seat short",
+    "openLong_other": "seats short",
+    "openShort_one": "short",
+    "openShort_other": "short",
     "status": {
       "ok": "Fulfillment above 80% (good)",
       "warn": "Fulfillment between 50% and 80% (partial)",
@@ -909,7 +911,7 @@
       },
       "fulfillment": {
         "title": "Criteria and fulfilment",
-        "body": "In the inspector on the right you choose which criteria are taken into account when mixing and how important they are. “Fulfilment” here at the bottom left of the status bar shows in percent how well the plan meets them; a click on it adds a bar under each criterion in the inspector: point at it to mark the seats concerned, click to leave the marking in place for a better overview."
+        "body": "In the inspector on the right you choose which criteria are taken into account when mixing and how important they are. “Fulfilment” here at the bottom left of the status bar shows in percent how well the plan meets them. A click on it shows the value for each criterion: in the inspector under each criterion, on a tablet or phone in a band under the plan. A click on a value marks the seats concerned, and the status bar names them until you clear the marking with a click there."
       },
       "mix": {
         "title": "Mix",

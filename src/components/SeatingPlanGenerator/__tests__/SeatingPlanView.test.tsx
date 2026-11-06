@@ -376,6 +376,152 @@ describe('SeatingPlanView', () => {
     expect(onOpenStatistics).toHaveBeenCalledTimes(1);
   });
 
+  // Below `lg` the inspector is a sheet or a drawer over the stage, so the
+  // values come in a band under the plan, where the seats they light stay
+  // in view.
+  describe('the band of values below lg', () => {
+    const setWidth = (width: number) => {
+      Object.defineProperty(window, 'innerWidth', {
+        configurable: true,
+        writable: true,
+        value: width,
+      });
+      act(() => {
+        window.dispatchEvent(new Event('resize'));
+      });
+    };
+    const statistics = [
+      {
+        key: 'preferGenderMix' as const,
+        label: 'Geschlechtermischung',
+        percentage: 85,
+        weight: 5,
+        active: true,
+      },
+      {
+        key: 'preferDoorSeats' as const,
+        label: 'Türnähe',
+        percentage: 8,
+        weight: 5,
+        active: true,
+      },
+      {
+        key: 'avoidPreviousPairs' as const,
+        label: 'Wiederholung',
+        percentage: 100,
+        weight: 5,
+        active: true,
+      },
+    ];
+    function DrawerProbe() {
+      const { drawerOpen } = useInspector();
+      return <span data-testid="drawer-state">{String(drawerOpen)}</span>;
+    }
+    const renderPlan = (
+      overrides: Partial<SeatingPlanViewProps> = {},
+    ): Promise<void> =>
+      act(async () => {
+        renderWithProvidersAndRouter(
+          <WithStatusBar>
+            <WithInspector>
+              <DrawerProbe />
+              <SeatingPlanView
+                {...createMockSeatingPlanViewProps({
+                  step: 3,
+                  lastStatistics: statistics,
+                  showStatisticsBadge: true,
+                  onOpenStatistics: vi.fn(),
+                  onCloseStatistics: vi.fn(),
+                  ...overrides,
+                })}
+              />
+            </WithInspector>
+          </WithStatusBar>,
+        );
+      });
+    const band = () =>
+      screen.queryByRole('group', {
+        name: /Kriterien-Erfüllung|Criteria Fulfillment/,
+      });
+
+    afterEach(() => setWidth(1024));
+
+    it('lists every criterion, the weakest first and a fulfilled one too', async () => {
+      setWidth(820);
+      await renderPlan();
+
+      const chips = within(band()!).getAllByRole('button');
+      expect(chips.map((chip) => chip.getAttribute('aria-label'))).toEqual([
+        expect.stringMatching(/Türnähe|Door/),
+        expect.stringMatching(/Geschlecht|Gender/),
+        expect.stringMatching(/Wiederholung|Repetition/),
+      ]);
+      expect(chips[2]).toHaveTextContent(/100\s?%/);
+    });
+
+    it('marks a criterion’s seats from its chip', async () => {
+      setWidth(402);
+      const setStatisticsHighlight = vi.fn();
+      await renderPlan({ setStatisticsHighlight });
+
+      const chip = within(band()!).getAllByRole('button')[0];
+      expect(chip).toHaveAttribute('aria-pressed', 'false');
+      fireEvent.click(chip);
+      expect(setStatisticsHighlight).toHaveBeenCalled();
+    });
+
+    it('opens no drawer over the plan on a tablet', async () => {
+      setWidth(820);
+      await renderPlan({ showStatisticsBadge: false });
+
+      fireEvent.click(
+        within(screen.getByTestId('status-slot')).getByRole('button', {
+          name: /^(Erfüllung|Fulfilment)/,
+        }),
+      );
+      expect(screen.getByTestId('drawer-state')).toHaveTextContent('false');
+    });
+
+    it('names a pinned criterion in the status bar, a cross taking it off', async () => {
+      setWidth(402);
+      const clearStatisticsHighlight = vi.fn();
+      const seat = (status: 'ok' | 'alert', seatIndex: number) => ({
+        target: { type: 'seat' as const, tableIndex: 0, seatIndex },
+        percentage: status === 'ok' ? 100 : 0,
+        status,
+      });
+      await renderPlan({
+        clearStatisticsHighlight,
+        statisticsHighlight: {
+          key: 'preferDoorSeats',
+          mode: 'persistent',
+          entries: [seat('alert', 0), seat('alert', 1), seat('ok', 2)],
+        },
+      });
+
+      // Nothing above the plan moves it; the bar says it instead of the
+      // fulfilment.
+      const slot = within(screen.getByTestId('status-slot'));
+      expect(
+        slot.getByText(/Hervorgehoben: Türnähe — 2 offene Plätze/),
+      ).toBeInTheDocument();
+      expect(
+        slot.queryByRole('button', { name: /^(Erfüllung|Fulfilment)/ }),
+      ).not.toBeInTheDocument();
+      fireEvent.click(
+        slot.getByRole('button', { name: /Hervorhebung aus|Highlighting off/ }),
+      );
+      expect(clearStatisticsHighlight).toHaveBeenCalledTimes(1);
+    });
+
+    it('leaves the values to the inspector’s column from lg up', async () => {
+      setWidth(1280);
+      await renderPlan();
+
+      expect(band()).not.toBeInTheDocument();
+    });
+  });
+
   describe('mixes on its own only for a stale arrangement', () => {
     const students = [
       createMockStudent({ id: 's1', gender: 'boy' }),

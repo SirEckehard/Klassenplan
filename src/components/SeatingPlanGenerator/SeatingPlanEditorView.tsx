@@ -28,7 +28,8 @@ import { useInspector } from '@/contexts/InspectorContext';
 import { isBreakpointUp } from '@/hooks/ui/useBreakpoint';
 import { useCanvasPreferences } from '@/contexts/seatingPlan/CanvasPreferencesContext';
 import SeatingPlanCanvas from '@/components/SeatingPlanGenerator/SeatingPlanCanvas';
-import SeatingStatisticsBadge from '@/components/ui/feedback/SeatingStatisticsBadge';
+import FulfillmentBand from '@/components/SeatingPlanGenerator/FulfillmentBand';
+import HighlightStatus from '@/components/SeatingPlanGenerator/HighlightStatus';
 import { TOUR_ANCHORS } from '@/components/onboarding/tours';
 import {
   GRID_SIZE,
@@ -83,7 +84,7 @@ import { usePlanExits } from '@/hooks/plan/usePlanExits';
 import type { MixOutcome } from '@/hooks/useSeatingMixHandler';
 import { usePlanShortcuts } from '@/hooks/plan/usePlanShortcuts';
 import { useFirstVisit } from '@/hooks/ui/useFirstVisit';
-import { useIsPhone } from '@/hooks/ui/useLayoutMode';
+import { useLayoutMode } from '@/hooks/ui/useLayoutMode';
 import { usePortraitTurn } from '@/hooks/ui/usePortraitTurn';
 import { useTurnAnimation } from '@/hooks/ui/useTurnAnimation';
 import { turnPlanScene } from '@/utils/ui/portraitPlan';
@@ -286,7 +287,8 @@ export default function SeatingPlanEditorView({
   const { showGrid, setShowGrid } = useCanvasPreferences();
   // Marks the visit (`spg.hasVisitedApp`) for the onboarding tour record.
   useFirstVisit();
-  const isPhone = useIsPhone();
+  const layoutMode = useLayoutMode();
+  const isPhone = layoutMode === 'phone';
   // A phone or a tablet held upright shows the plan turned a quarter, the
   // board at the bottom: a 3:2 room took a third of the stage there and left the
   // rest empty. Only the drawing turns — saving, the criteria and the
@@ -457,16 +459,14 @@ export default function SeatingPlanEditorView({
       ),
     [currentSeating, emptySeating],
   );
-  // The switch above the criteria turns the statistics on and off; what it
-  // turns is the fulfilment beside each criterion in the inspector. Only a
-  // phone, whose sidebar is a sheet over the plan, still gets a panel of its
-  // own — see `SeatingStatisticsBadge`.
+  // The fulfilment in the status bar turns the values per criterion on and
+  // off: from `lg` up beside each criterion in the inspector's column, below
+  // it in a band under the plan as well, since there the inspector is a sheet
+  // or a drawer over the stage — see `FulfillmentBand`.
   const statisticsVisible = Boolean(
     showStatisticsBadge && lastStatistics && lastStatistics.length > 0,
   );
-  const canShowStatisticsBadge = Boolean(
-    statisticsVisible && onCloseStatistics,
-  );
+  const showsFulfillmentBand = statisticsVisible && layoutMode !== 'desktop';
   const seatHighlightLookup = React.useMemo(
     () => buildSeatHighlightLookup(statisticsHighlight),
     [statisticsHighlight],
@@ -537,13 +537,22 @@ export default function SeatingPlanEditorView({
     const open = statisticsHighlight.entries.filter(
       (entry) => entry.status !== 'ok',
     ).length;
-    return {
-      label: t('statisticsBadge.highlighted', {
-        criterion: criterion.label,
-        count: open,
-      }),
-    };
-  }, [lastStatistics, statisticsHighlight, t]);
+    return { key: criterion.key, open };
+  }, [lastStatistics, statisticsHighlight]);
+
+  // The cross that takes the marking off leaves with it; the focus goes on
+  // to the fulfilment that takes its place, not to the page.
+  const fulfillmentButtonRef = React.useRef<HTMLButtonElement | null>(null);
+  const refocusFulfillmentRef = React.useRef(false);
+  const handleHighlightClear = React.useCallback(() => {
+    refocusFulfillmentRef.current = true;
+    clearStatisticsHighlight?.();
+  }, [clearStatisticsHighlight]);
+  React.useEffect(() => {
+    if (highlightNotice || !refocusFulfillmentRef.current) return;
+    refocusFulfillmentRef.current = false;
+    fulfillmentButtonRef.current?.focus();
+  }, [highlightNotice]);
 
   const activeHighlightKey = statisticsHighlight?.key ?? null;
   const activeHighlightMode = statisticsHighlight?.mode ?? null;
@@ -661,27 +670,18 @@ export default function SeatingPlanEditorView({
 
   // The fulfilment in the status bar switches the values per criterion — the
   // one place that states it, the inspector repeats it nowhere. Turning them
-  // on brings the inspector into view — the column from `lg` up, the drawer on a tablet; a
-  // phone shows them over the plan instead, and a drawer would cover that.
+  // on from `lg` up unfolds the inspector's column; below it they come as a
+  // band under the plan, and a drawer would cover the seats they light.
   // Turning them off leaves the inspector as it is.
-  const { setFolded, setDrawerOpen } = useInspector();
+  const { setFolded } = useInspector();
   const handleFulfillmentToggle = React.useCallback(() => {
     if (showStatisticsBadge) {
       onCloseStatistics?.();
       return;
     }
     onOpenStatistics?.();
-    if (isPhone) return;
     if (isBreakpointUp('lg')) setFolded(false);
-    else setDrawerOpen(true);
-  }, [
-    isPhone,
-    onCloseStatistics,
-    onOpenStatistics,
-    setDrawerOpen,
-    setFolded,
-    showStatisticsBadge,
-  ]);
+  }, [onCloseStatistics, onOpenStatistics, setFolded, showStatisticsBadge]);
 
   React.useEffect(() => {
     if (!statisticsHighlight || !setStatisticsHighlight) {
@@ -878,10 +878,21 @@ export default function SeatingPlanEditorView({
             the other layers state their numbers. The chart icon of the values
             per criterion it switches on says what the figure is where the bar
             is too narrow for the word, and stands beside the word elsewhere,
-            so the button looks the same on every screen. */}
-        {hasStatistics && onOpenStatistics && (
+            so the button looks the same on every screen. While a criterion's
+            marking stands, the same place names it instead. */}
+        {hasStatistics && onOpenStatistics && highlightNotice && (
+          <StatusBarPortal slot="status">
+            <HighlightStatus
+              criterionKey={highlightNotice.key}
+              openCount={highlightNotice.open}
+              onClear={handleHighlightClear}
+            />
+          </StatusBarPortal>
+        )}
+        {hasStatistics && onOpenStatistics && !highlightNotice && (
           <StatusBarPortal slot="status">
             <button
+              ref={fulfillmentButtonRef}
               type="button"
               data-tour={TOUR_ANCHORS.planFulfillment}
               onClick={handleFulfillmentToggle}
@@ -999,23 +1010,6 @@ export default function SeatingPlanEditorView({
                 </p>
               </PlanNotice>
             )}
-            {/* A highlight changes what the seats mean, so it says so above
-                the plan rather than leaving the colours to be guessed at. */}
-            {highlightNotice && (
-              <PlanNotice
-                action={
-                  <button
-                    type="button"
-                    onClick={() => clearStatisticsHighlight?.()}
-                    className={planNoticeActionClass}
-                  >
-                    {t('statisticsBadge.highlightOff')}
-                  </button>
-                }
-              >
-                <p>{highlightNotice.label}</p>
-              </PlanNotice>
-            )}
             {/* The notices above take their height out of the stage, so the
                 plan is fitted into what is left rather than into the whole
                 stage, which would push its bottom edge out of sight. */}
@@ -1031,23 +1025,6 @@ export default function SeatingPlanEditorView({
                 ref={canvasFrameRef}
                 style={{ maxWidth: '100vw' }}
               >
-                {/* Phone only: everywhere the options rail fits, the values sit
-                  beside the criteria instead. */}
-                {isPhone &&
-                  canShowStatisticsBadge &&
-                  lastStatistics &&
-                  onCloseStatistics && (
-                    <SeatingStatisticsBadge
-                      criteria={lastStatistics}
-                      onClose={onCloseStatistics}
-                      onHighlightHover={handleCriterionHover}
-                      onHighlightLeave={handleCriterionHoverEnd}
-                      onHighlightToggle={handleCriterionToggle}
-                      activeHighlightKey={activeHighlightKey}
-                      activeHighlightMode={activeHighlightMode}
-                    />
-                  )}
-
                 <div
                   style={{
                     backgroundColor,
@@ -1130,8 +1107,18 @@ export default function SeatingPlanEditorView({
               </div>
             </div>
             {/* Below `lg` the criteria are in the drawer from the switch at
-                the right end of the status bar — no second row of them under
-                the plan. */}
+                the right end of the status bar; only their values come under
+                the plan, where the seats they light stay in view. */}
+            {showsFulfillmentBand && lastStatistics && (
+              <FulfillmentBand
+                criteria={lastStatistics}
+                onHighlightHover={handleCriterionHover}
+                onHighlightLeave={handleCriterionHoverEnd}
+                onHighlightToggle={handleCriterionToggle}
+                activeHighlightKey={activeHighlightKey}
+                activeHighlightMode={activeHighlightMode}
+              />
+            )}
           </div>
         </div>
       </div>

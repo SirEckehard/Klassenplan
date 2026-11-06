@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ### Improved
 
 - On phones and tablets in portrait, the "Library" shows as many columns as fit and has a way up above them
+- On phones and tablets the criteria fulfilment appears as a band under the seating plan, and a tap on a criterion marks its seats
+- A marked criterion is named in the status bar, so the seating plan no longer moves
 
 ## [3.3.0] - 2026-11-05
 

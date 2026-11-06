@@ -680,11 +680,13 @@
     "fromPlan": "Sitzkreis wird aus dem Sitzplan übernommen…"
   },
   "statisticsBadge": {
-    "close": "Schließen",
     "highlightOff": "Hervorhebung aus",
     "highlighted_one": "Hervorgehoben: {{criterion}} — {{count}} offener Platz",
     "highlighted_other": "Hervorgehoben: {{criterion}} — {{count}} offene Plätze",
-    "overallLabel": "Gesamt",
+    "openLong_one": "offener Platz",
+    "openLong_other": "offene Plätze",
+    "openShort_one": "offen",
+    "openShort_other": "offen",
     "status": {
       "ok": "Erfüllung über 80 % (gut)",
       "warn": "Erfüllung zwischen 50 % und 80 % (teilweise)",
@@ -909,7 +911,7 @@
       },
       "fulfillment": {
         "title": "Kriterien und Erfüllung",
-        "body": "Rechts im Inspektor stellst du ein, welche Kriterien beim Mischen beachtet werden und wie wichtig sie sind. „Erfüllung“ hier unten links in der Statusleiste zeigt in Prozent, wie gut der Plan sie erfüllt; ein Klick darauf blendet im Inspektor unter jedem Kriterium eine Leiste ein: Zeigst du auf sie, werden die betroffenen Plätze markiert, ein Klick lässt die Markierung für eine bessere Übersicht stehen."
+        "body": "Rechts im Inspektor stellst du ein, welche Kriterien beim Mischen beachtet werden und wie wichtig sie sind. „Erfüllung“ hier unten links in der Statusleiste zeigt in Prozent, wie gut der Plan sie erfüllt. Ein Klick darauf zeigt die Werte je Kriterium: im Inspektor unter jedem Kriterium, auf Tablet und Handy in einem Band unter dem Plan. Ein Klick auf einen Wert markiert die betroffenen Plätze, und die Statusleiste nennt sie, bis du die Markierung mit einem Klick dort wieder aufhebst."
       },
       "mix": {
         "title": "Mischen",
