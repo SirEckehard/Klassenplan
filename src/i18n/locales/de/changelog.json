@@ -1,4 +1,18 @@
 {
+  "v3_3_1": {
+    "0": "„Wer kommt dran?“ und „Wo sitzt wer?“ zeigen das Foto des Schülers und lassen seinen Platz aufleuchten, statt den Plan abzudunkeln, und der Plan ändert zwischen den Ziehungen nicht mehr seine Größe",
+    "1": "Auf Handy und Tablet im Hochformat zeigt die „Bibliothek“ so viele Spalten, wie hineinpassen, und darüber einen Weg zurück",
+    "2": "Auf Handy und Tablet erscheint die Erfüllung der Kriterien als Band unter dem Sitzplan, und ein Tipp auf ein Kriterium markiert seine Plätze",
+    "3": "Ein markiertes Kriterium wird in der Statusleiste genannt, sodass der Sitzplan nicht mehr verrutscht",
+    "4": "Neue Klassen und die Beispielklasse starten mit der Voreinstellung „Standard“, sodass jedes Kriterium, zu dem die Klasse Angaben hat, ab der ersten Mischung zählt",
+    "5": "Wird eine Klassenliste erneut importiert, kommen nur die Schüler hinzu, die noch nicht in der Klasse sind",
+    "6": "„Dienste verteilen“ kann dieselbe Runde noch einmal auslosen, ohne sie zu zählen, und ein gelöschter Dienst kommt mit „Rückgängig“ zurück",
+    "7": "„Alle Daten löschen“ nennt auch deine eigenen Voreinstellungen, die Dienste und die Fotos",
+    "8": "Die Seite lädt etwas schneller",
+    "9": "„Gruppen zu 2“ lässt in einer ungeraden Klasse niemanden mehr allein",
+    "10": "Beim Zusammenführen eines Backups kommen nicht mehr über 30 eigene Voreinstellungen hinzu, was jedes weitere Backup verhinderte",
+    "11": "Weitere kleine Fehler behoben"
+  },
   "v3_3_0": {
     "0": "Speichere eigene Voreinstellungen fürs Mischen und passe die mitgelieferten an; „Empfohlene Mischung“ heißt jetzt „Standard“ und „Neue Klasse“ „Kennenlernen“",
     "1": "Ein Rechtsklick oder langes Drücken auf einen Eintrag in der „Bibliothek“ öffnet ein Menü mit allem, was du damit tun kannst",

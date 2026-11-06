@@ -1,4 +1,18 @@
 {
+  "v3_3_1": {
+    "0": "\"Who's next?\" and \"Where does who sit?\" show the student's photo and light up their seat instead of dimming the plan, and the plan no longer changes size between draws",
+    "1": "On phones and tablets in portrait, the \"Library\" shows as many columns as fit and has a way up above them",
+    "2": "On phones and tablets the criteria fulfilment appears as a band under the seating plan, and a tap on a criterion marks its seats",
+    "3": "A marked criterion is named in the status bar, so the seating plan no longer moves",
+    "4": "New classes and the sample class start with the \"Default\" preset, so every criterion the class has data for counts from the first mix",
+    "5": "Importing a class list again adds only the students who are not in the class yet",
+    "6": "\"Hand out duties\" can draw the same round again without counting it, and a deleted duty comes back with \"Undo\"",
+    "7": "Deleting all data also lists your own presets, the duties and the photos",
+    "8": "The page loads a little faster",
+    "9": "\"Groups of 2\" no longer leaves one student alone when the class is odd",
+    "10": "Merging a backup no longer brings in more than 30 presets of your own, which stopped every later backup",
+    "11": "Other small fixes"
+  },
   "v3_3_0": {
     "0": "Save your own presets for mixing and adjust the built-in ones; \"Recommended mix\" is now called \"Default\" and \"New class\" \"Getting to know each other\"",
     "1": "A right-click or a long press on an entry in the \"Library\" opens a menu with everything you can do with it",
