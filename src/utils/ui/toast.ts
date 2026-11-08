@@ -99,7 +99,9 @@ export function getToastMessage(
   interpolation?: Record<string, string | number>,
 ): string {
   if (TRANSLATION_KEY_PATTERN.test(messageOrKey)) {
-    return i18n.t(messageOrKey, interpolation);
+    return interpolation
+      ? i18n.t(messageOrKey, interpolation)
+      : i18n.t(messageOrKey);
   }
   // Return as-is for backward compatibility with direct strings
   return messageOrKey;
