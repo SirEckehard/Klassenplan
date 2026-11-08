@@ -1,4 +1,11 @@
 {
+  "v3_3_2": {
+    "0": "In the seating plan, the presentation, \"Where does who sit?\", \"Who's next?\" and the export the room steps back behind the students: furniture only as an outline, thinner lines, no grid",
+    "1": "The lock on a seat always sits in its upper left, however the table is turned, and never covers the name",
+    "2": "The seats of a table now meet without a gap, and tables, the circle and the printed sheets take the app's calmer colours",
+    "3": "Room elements have the same thin outline in the room editor as in the seating plan",
+    "4": "A very long name no longer runs out of the panel or the class list"
+  },
   "v3_3_1": {
     "0": "\"Who's next?\" and \"Where does who sit?\" show the student's photo and light up their seat instead of dimming the plan, and the plan no longer changes size between draws",
     "1": "On phones and tablets in portrait, the \"Library\" shows as many columns as fit and has a way up above them",

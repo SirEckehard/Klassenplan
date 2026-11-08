@@ -1,4 +1,11 @@
 {
+  "v3_3_2": {
+    "0": "Im Sitzplan, in der Präsentation, bei „Wo sitzt wer?“, „Wer kommt dran?“ und im Export tritt der Raum hinter die Schüler zurück: Möbel nur als Umriss, dünnere Linien, kein Raster",
+    "1": "Das Schloss auf einem Platz sitzt immer oben links, wie auch immer der Tisch gedreht ist, und verdeckt nie den Namen",
+    "2": "Die Plätze eines Tisches stoßen jetzt lückenlos aneinander, und Tische, der Sitzkreis und die gedruckten Blätter tragen die ruhigeren Farben der App",
+    "3": "Raumelemente haben im Raumeditor dieselbe dünne Kontur wie im Sitzplan",
+    "4": "Ein sehr langer Name läuft nicht mehr aus dem Inspektor oder der Klassenliste heraus"
+  },
   "v3_3_1": {
     "0": "„Wer kommt dran?“ und „Wo sitzt wer?“ zeigen das Foto des Schülers und lassen seinen Platz aufleuchten, statt den Plan abzudunkeln, und der Plan ändert zwischen den Ziehungen nicht mehr seine Größe",
     "1": "Auf Handy und Tablet im Hochformat zeigt die „Bibliothek“ so viele Spalten, wie hineinpassen, und darüber einen Weg zurück",
