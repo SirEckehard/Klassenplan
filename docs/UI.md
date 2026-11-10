@@ -22,9 +22,10 @@ afterwards.
   `LayerSwitcher`, Help and the settings menu (`AppSettingsMenu`),
   `AppStatusBar` holds the toolbar's switch and the live status line at its left
   end, undo/redo in the middle — one bordered control under the stage, the same
-  spot on every layer, with the plan layer's own action beside it ("Mischen", in
-  the circle the purely random shuffle's "Mischen" with the quiet "Angleichen"
-  before it; below `md` hanging centred over the bar) — and on the right
+  spot on every layer, with the layer's own action beside it (the plan's
+  "Mischen", in the circle the purely random shuffle's "Mischen" with the quiet
+  "Angleichen" before it, below `lg` the room's "Hinzufügen"; below `md` hanging
+  centred over the bar) — and on the right
   "Zurück" to the previous layer beside the way on: "Weiter" to the next layer,
   on the plan layer the two exits (`PlanExits`); the inspector's switch closes
   the bar, the mirror of the toolbar's (below); `Inspector` is the right-hand
@@ -220,10 +221,11 @@ afterwards.
   beside it or by an action taken in it — opened by the wrench at the left end
   of the status bar, where a tablet has the rail's switch (`StatusBarFrame`); no
   floating button, and the two drawers take turns. The panels its entries open
-  are portalled above it (a full-screen sheet lay over them and hid them); the
-  room's drawer leaves out the tables, which sit under the canvas there
-  (`MobileTableTemplates`). An entry that switches a view passes `active` and
-  announces a pressed state; an action does not.
+  are portalled above it (a full-screen sheet lay over them and hid them).
+  Below `lg` the room's toolbar, drawer and column alike, leaves out the tables
+  and room elements, which come out of the tray at the status bar there
+  (`RoomAddTray`, see "The room"). An entry that switches a view passes `active`
+  and announces a pressed state; an action does not.
 - **The toolbar has no header of its own.** Which density it shows is a property
   of the workspace, so the switch sits in the status bar and the state lives in
   `ToolRailContext` (Ctrl/⌘+B still works). A sidebar outside the shell finds no
@@ -567,9 +569,9 @@ afterwards.
   takes `min(100%, 100cqh × 3/2)` (`canvas-fit`): capped by whichever dimension
   binds, centred in what is left, never scrolling and never leaving a void.
   Below `lg` the same class gives the frame the stage's full width — without it
-  the auto-margined frame shrank to its SVG's 300px default — except on the plan
-  layer, whose table plan and circle fit what the page leaves between the header
-  and the status bar as from `lg` up (`canvasFillClass` on the stage,
+  the auto-margined frame shrank to its SVG's 300px default — and the room, the
+  table plan and the circle fit what the page leaves between the header and the
+  status bar as from `lg` up (`canvasFillClass` on the stage,
   `canvasFitTurnedClass` on a turned frame,
   `workspaceFitLayerClass`/`workspaceFitStageClass`), so the page scrolls only
   below a stage of 20rem, a phone held sideways. Room, plan and circle take
@@ -596,8 +598,8 @@ afterwards.
   draws the turned places in a 600×900 room — the tokens are round and stay
   upright, the order is untouched — and the drag reads the pointer against that
   view box. The three frames are held to what fits between the header and the
-  status bar (the room by `TURNED_FRAME_MAX_WIDTH`, the plan and the circle by
-  their stage). Turning the device animates nothing of its own: the system
+  status bar by their stage, which below `md` also keeps clear of the action
+  hanging over the bar. Turning the device animates nothing of its own: the system
   already turns the whole screen, and a second turn on the frame was not seen.
 
 ## The room
@@ -618,7 +620,18 @@ afterwards.
   (`useUndoStep`). Dragging is not the only way in: a click or Enter on a table
   or room element in "Hinzufügen" puts it on the free spot nearest the middle of
   the room, a wall element on the first free stretch of wall (`findFreeSpot`,
-  `findFreeWallSpot`), and selects it. On a touch screen those entries let an
+  `findFreeWallSpot`), and selects it. Below `lg` the tables and room elements
+  are not in the toolbar — a phone's drawer covered the room a drag goes to, a
+  tablet's column showed them as icons without a word — but in a tray that
+  "Hinzufügen" raises out of the status bar, the room layer's action where the
+  plan has "Mischen", hanging over the bar below `md` (`RoomAddTray`). Each
+  piece carries its word, the four tables and the seven elements in two rows on
+  a phone, in one from `md` up. A tap adds as an entry of the toolbar does and
+  leaves the tray open, so several tables follow one another; a piece dragged
+  out sinks the tray into the bar once the finger has left it, so the whole
+  room takes the drop, and it rises again when the drag is over. Its switch, a
+  tap beside it and Escape put it away, and a drawer takes its place, as the
+  two drawers take turns. On a touch screen the toolbar's entries let an
   upright swipe scroll the toolbar only while it is taller than its room
   (`touch-action: pan-y`, else `none`), so a drag onto the stage then has to
   leave sideways; a pointer the browser takes back (`pointercancel`) places

@@ -303,7 +303,7 @@
       "description": "Tische und Raumelemente, Vorlagen, Abstände und Grenzen.",
       "best": {
         "q": "Welche Layouts funktionieren am besten?",
-        "a": "Lass deiner Kreativität freien Lauf: Tische, Fenster, Türen, Pult, Tafel und Schränke ziehst du aus der Werkzeugleiste in den Raum oder setzt sie mit einem Klick an einen freien Platz und verschiebst sie frei. Solange nichts ausgewählt ist, baut dir „Neu einrichten“ im Inspektor in einem Schritt einen Grundriss, und unter „Vorlagen“ speicherst du ihn auch für andere Klassen. Der Sitzkreis bleibt standardmäßig mit dem Tischlayout synchron, lässt sich aber auch separat anpassen."
+        "a": "Lass deiner Kreativität freien Lauf: Tische, Fenster, Türen, Pult, Tafel und Schränke ziehst du aus der Werkzeugleiste in den Raum – auf Handy und Tablet aus „Hinzufügen“ an der Statusleiste – oder setzt sie mit einem Klick an einen freien Platz und verschiebst sie frei. Solange nichts ausgewählt ist, baut dir „Neu einrichten“ im Inspektor in einem Schritt einen Grundriss, und unter „Vorlagen“ speicherst du ihn auch für andere Klassen. Der Sitzkreis bleibt standardmäßig mit dem Tischlayout synchron, lässt sich aber auch separat anpassen."
       },
       "measure": {
         "q": "Wie werden Abstände gemessen?",

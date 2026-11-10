@@ -81,7 +81,10 @@ import {
 import type { SceneTransactionRunner } from '@/hooks/scene/useSceneManager';
 import { useSelectionRotation } from '@/hooks/canvas/useSelectionRotation';
 import { useRoomSetup } from '@/hooks/canvas/useRoomSetup';
-import { workspaceLayerClass } from '@/components/shell/shellTokens';
+import {
+  workspaceFitLayerClass,
+  workspaceLayerClass,
+} from '@/components/shell/shellTokens';
 
 type Props = {
   alignmentGuides: AlignmentGuide[] | null;
@@ -222,8 +225,11 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
     setShowPhotoOverlapWarning,
   } = useCanvasPreferences();
   const layoutMode = useLayoutMode();
-  const isPhone = layoutMode === 'phone';
   const isDesktop = layoutMode === 'desktop';
+  // Below `lg` the tables and room elements come out of the tray at the
+  // status bar: the phone's toolbar is a drawer that covered the room a drag
+  // goes to, and the tablet's a column of icons with no word to them.
+  const tablesInTray = !isDesktop;
   const { setDrawerOpen, setFolded } = useInspector();
   const unfoldInspector = React.useCallback(
     () => setFolded(false),
@@ -1046,7 +1052,7 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
     [addFeature],
   );
 
-  const mobileTemplatesProps = {
+  const trayProps = {
     onTemplatePointerDown,
     onFeaturePointerDown: handleFeatureTemplatePointerDown,
     onTemplateAdd: handleTemplateAdd,
@@ -1054,7 +1060,7 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
   };
 
   return (
-    <div className="space-y-6 lg:flex lg:min-h-0 lg:flex-1 lg:flex-col lg:space-y-0">
+    <div className="flex flex-1 flex-col lg:min-h-0">
       {/* The shell owns the panel; the selection and its mutators live here,
           so this is where its content is rendered from. */}
       <InspectorPortal label={t('sceneInspector.title')}>
@@ -1086,9 +1092,9 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
       {/* The rail stands beside the canvas from `md` up, the step at which
           `useLayoutMode` stops making it a drawer (`BREAKPOINTS` mirrors
           Tailwind's scale), so the two cannot leave it stacked on top. */}
-      <div className={workspaceLayerClass}>
+      <div className={`${workspaceLayerClass} ${workspaceFitLayerClass}`}>
         <LayoutEditorSidebarSection
-          isPhone={isPhone}
+          tablesInTray={tablesInTray}
           onTemplatePointerDown={onTemplatePointerDown}
           onTemplateAdd={handleTemplateAdd}
           featurePalette={FEATURE_PALETTE}
@@ -1098,7 +1104,7 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
         />
 
         <LayoutEditorMainSection
-          isPhone={isPhone}
+          tablesInTray={tablesInTray}
           containerRef={containerRef}
           undo={undo}
           redo={redo}
@@ -1110,7 +1116,7 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
           canvasMenu={canvasMenuConfig}
           featureMenu={featureMenuConfig}
           featurePalette={FEATURE_PALETTE}
-          mobileTemplatesProps={mobileTemplatesProps}
+          trayProps={trayProps}
         />
       </div>
     </div>

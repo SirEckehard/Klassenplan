@@ -11,12 +11,12 @@
     },
     "layout": {
       "title": "Klassenraum",
-      "item1": "Solange nichts ausgewählt ist, stellt „Neu einrichten“ im Inspektor Tische für die ganze Klasse auf. Einzelne Tische setzt ein Klick oder Antippen an einen freien Platz, oder du ziehst sie aus der Werkzeugleiste in den Raum.",
+      "item1": "Solange nichts ausgewählt ist, stellt „Neu einrichten“ im Inspektor Tische für die ganze Klasse auf. Einzelne Tische setzt ein Klick oder Antippen an einen freien Platz, oder du ziehst sie in den Raum – aus der Werkzeugleiste, auf Handy und Tablet aus „Hinzufügen“ an der Statusleiste.",
       "item2": "Verschiebe und drehe Tische per Drag & Drop oder mit den Pfeiltasten und Q/E.",
       "item3": "Mehrfachauswahl: Umschalt+Klick, Strg/⌘+Klick oder ein Auswahl-Rechteck aufziehen.",
       "item4": "Rechtsklick (Desktop) oder langes Drücken (Touch) öffnet das Kontextmenü.",
       "item5": "Unter „Vorlagen“ im Inspektor speicherst du den Raum für andere Klassen und lädst gespeicherte Räume.",
-      "item6": "Raumelemente wie Fenster, Tür, Pult, Tafel, Whiteboard, Schrank oder Raumtrenner setzt ein Klick oder Antippen an einen freien Platz, oder du ziehst sie aus der Werkzeugleiste in den Raum; vergrößere oder verkleinere sie bei Bedarf.",
+      "item6": "Raumelemente wie Fenster, Tür, Pult, Tafel, Whiteboard, Schrank oder Raumtrenner setzt ein Klick oder Antippen an einen freien Platz, oder du ziehst sie wie die Tische in den Raum; vergrößere oder verkleinere sie bei Bedarf.",
       "item7": "Änderungen im Klassenraum kannst du über die entsprechenden Icons in der Statusleiste rückgängig machen und wiederherstellen."
     },
     "plan": {
@@ -465,7 +465,7 @@
     "doubleSeat": "Doppelplatz",
     "group4": "4er-Gruppe",
     "group6": "6er-Gruppe",
-    "tableTypes": "Tischtypen",
+    "addTrayTitle": "Tische und Raumelemente hinzufügen",
     "roomElements": "Raumelemente",
     "roomElementsToggleAll": "Alle Raumelemente ein- oder ausblenden",
     "emptyRoomHint": "Der Raum ist noch leer: Stelle unter „Neu einrichten“ Tische für die ganze Klasse auf oder füge einzelne Tische hinzu.",
@@ -668,7 +668,6 @@
     "copy": "Kopieren",
     "cut": "Ausschneiden",
     "seats": "Plätze",
-    "pl": "Pl.",
     "defaultClassName": "Meine Klasse",
     "newClassName": "Neue Klasse",
     "importedClassName": "Importierte Klasse",

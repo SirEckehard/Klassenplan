@@ -422,6 +422,82 @@ test(
 );
 
 test(
+  'the room takes its tables from "Hinzufügen" at the status bar',
+  { tag: ['@phone', '@tablet'] },
+  async ({ page }) => {
+    await loadSampleClass(page);
+    await page.getByRole('button', { name: 'Weiter zum Raum' }).click();
+    await expectCanvasInSight(page);
+
+    // Below `lg` neither the toolbar nor the stage holds the tables: under
+    // the room they were out of sight until the page was scrolled.
+    await expect(
+      page.getByRole('button', { name: 'Doppelplatz', exact: true }),
+    ).toHaveCount(0);
+
+    const add = statusBar(page).getByRole('button', {
+      name: 'Hinzufügen',
+      exact: true,
+    });
+    await expect(add).toHaveAttribute('aria-expanded', 'false');
+    await add.click();
+    await expect(add).toHaveAttribute('aria-expanded', 'true');
+
+    // The tray rises out of the bar and comes to stand on it.
+    const tray = page.getByRole('group', {
+      name: 'Tische und Raumelemente hinzufügen',
+    });
+    await expect(tray).toBeVisible();
+    await expect
+      .poll(async () => {
+        const trayBox = await boxOf(tray);
+        const barBox = await boxOf(statusBar(page));
+        return Math.round(trayBox.y + trayBox.height - barBox.y);
+      })
+      .toBe(0);
+    await expect(
+      tray.getByRole('button', { name: 'Raumtrenner' }),
+    ).toBeInViewport();
+
+    // A tap puts a double on a free spot and leaves the tray open for the next.
+    await tray
+      .getByRole('button', { name: 'Doppelplatz', exact: true })
+      .click();
+    await expect(
+      statusBar(page)
+        .getByText('26', { exact: true })
+        .filter({ visible: true }),
+    ).toHaveCount(1);
+    await expect(tray).toBeVisible();
+
+    // A piece dragged out sinks the tray, so the whole room takes the drop,
+    // and the tray is back once it is let go.
+    const single = await boxOf(
+      tray.getByRole('button', { name: 'Einzelplatz', exact: true }),
+    );
+    const room = await boxOf(page.getByTestId('classroom-canvas'));
+    await page.mouse.move(
+      single.x + single.width / 2,
+      single.y + single.height / 2,
+    );
+    await page.mouse.down();
+    await page.mouse.move(room.x + room.width / 2, room.y + 40, { steps: 8 });
+    await expect(tray).toBeHidden();
+    await page.mouse.up();
+    await expect(
+      statusBar(page)
+        .getByText('27', { exact: true })
+        .filter({ visible: true }),
+    ).toHaveCount(1);
+    await expect(tray).toBeVisible();
+
+    await add.click();
+    await expect(tray).toBeHidden();
+    await expectCanvasInSight(page);
+  },
+);
+
+test(
   'a drawer ends where the status bar begins, whatever the safe area does',
   { tag: '@phone' },
   async ({ page }) => {

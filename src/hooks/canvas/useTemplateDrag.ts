@@ -4,6 +4,7 @@ import React from 'react';
 import type { TableTemplateType } from '@/types';
 import type { TemplateDragPreview } from '@/types/templateDrag';
 import { useCanvasBoundingRect } from '@/hooks/canvas/useCanvasBoundingRect';
+import { isCanvasCovered } from '@/utils/canvas/canvasCover';
 
 interface UseTemplateDragParams {
   canvasRef: React.RefObject<SVGSVGElement | null>;
@@ -56,11 +57,14 @@ export function useTemplateDrag({
       }
       const canvasX = clientX - rect.left;
       const canvasY = clientY - rect.top;
+      // Within the canvas's box, but not where the tray at the status bar
+      // lies over it.
       const overCanvas =
         canvasX >= 0 &&
         canvasX <= rect.width &&
         canvasY >= 0 &&
-        canvasY <= rect.height;
+        canvasY <= rect.height &&
+        !isCanvasCovered(clientX, clientY);
       return { overCanvas, canvasX, canvasY };
     },
     [canvasRectRef],

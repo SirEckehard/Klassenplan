@@ -14,7 +14,8 @@ type SidebarFeaturePaletteItem = {
 };
 
 type LayoutEditorSidebarSectionProps = {
-  isPhone: boolean;
+  /** Below `lg` the tables come out of the tray at the status bar. */
+  tablesInTray: boolean;
   onTemplatePointerDown: (
     type: TableTemplateType,
     event: React.PointerEvent<Element>,
@@ -32,7 +33,7 @@ type LayoutEditorSidebarSectionProps = {
 
 const LayoutEditorSidebarSection = React.memo(
   function LayoutEditorSidebarSection({
-    isPhone,
+    tablesInTray,
     onTemplatePointerDown,
     onTemplateAdd,
     featurePalette,
@@ -40,11 +41,14 @@ const LayoutEditorSidebarSection = React.memo(
     onFeatureAdd,
     settingsGroups,
   }: LayoutEditorSidebarSectionProps) {
-    // A phone gets the sheet too: its tables sit under the canvas, but the
-    // view settings and the foot every rail shares — the class tools, the
-    // plans, the backup — live nowhere else.
+    // Below `lg` the rail keeps its view settings and the foot every rail
+    // shares — the class tools, the plans, the backup — which live nowhere
+    // else; the tables are in the tray at the status bar, which carries the
+    // tour's mark for them there.
     return (
-      <SmartSidebar tourAnchor={TOUR_ANCHORS.layoutSidebar}>
+      <SmartSidebar
+        tourAnchor={tablesInTray ? undefined : TOUR_ANCHORS.layoutSidebar}
+      >
         {({ isExpanded }) => (
           <RoomToolPanel
             density={isExpanded ? 'comfortable' : 'compact'}
@@ -54,7 +58,7 @@ const LayoutEditorSidebarSection = React.memo(
             onFeaturePointerDown={onFeaturePointerDown}
             onFeatureAdd={onFeatureAdd}
             settingsGroups={settingsGroups}
-            isPhone={isPhone}
+            tablesInTray={tablesInTray}
           />
         )}
       </SmartSidebar>

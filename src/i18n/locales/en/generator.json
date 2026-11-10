@@ -11,12 +11,12 @@
     },
     "layout": {
       "title": "Classroom",
-      "item1": "While nothing is selected, “Set up from scratch” in the inspector places tables for the whole class. A click or a tap puts a single table on a free spot, or you drag it from the toolbar into the room.",
+      "item1": "While nothing is selected, “Set up from scratch” in the inspector places tables for the whole class. A click or a tap puts a single table on a free spot, or you drag it into the room – from the toolbar, on a phone or a tablet from “Add” at the status bar.",
       "item2": "Move and rotate tables via drag & drop, or with the arrow keys and Q/E.",
       "item3": "Multi-select: Shift+click, Ctrl/⌘+click or draw a selection rectangle.",
       "item4": "Right-click (desktop) or long press (touch) opens the context menu.",
       "item5": "Under “Templates” in the inspector you save the room for other classes and load saved rooms.",
-      "item6": "Room elements such as windows, door, desk, blackboard, whiteboard, cabinet or divider go onto a free spot with a click or a tap, or you drag them from the toolbar into the room; resize them if needed.",
+      "item6": "Room elements such as windows, door, desk, blackboard, whiteboard, cabinet or divider go onto a free spot with a click or a tap, or you drag them into the room as you do tables; resize them if needed.",
       "item7": "Undo and redo changes in the classroom with the corresponding icons in the status bar."
     },
     "plan": {
@@ -465,7 +465,7 @@
     "doubleSeat": "Double Seat",
     "group4": "Group of 4",
     "group6": "Group of 6",
-    "tableTypes": "Table Types",
+    "addTrayTitle": "Add tables and room elements",
     "roomElements": "Room Elements",
     "roomElementsToggleAll": "Show or hide all room elements",
     "emptyRoomHint": "The room is still empty: place tables for the whole class under “Set up from scratch”, or add single tables.",
@@ -668,7 +668,6 @@
     "copy": "Copy",
     "cut": "Cut",
     "seats": "Seats",
-    "pl": "Seats",
     "defaultClassName": "My Class",
     "newClassName": "New Class",
     "importedClassName": "Imported Class",

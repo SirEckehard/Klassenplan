@@ -303,7 +303,7 @@
       "description": "Tables and room elements, templates, distances and limits.",
       "best": {
         "q": "Which layouts work best?",
-        "a": "Let your creativity run free: you drag tables, windows, doors, the teacher’s desk, the blackboard and cabinets from the toolbar into the room or put them on a free spot with a click, and move them anywhere. While nothing is selected, “Set up from scratch” in the inspector builds a floor plan in one go, and under “Templates” you save it for other classes as well. The seating circle stays in sync with the table layout by default, but can also be adjusted separately."
+        "a": "Let your creativity run free: you drag tables, windows, doors, the teacher’s desk, the blackboard and cabinets from the toolbar into the room – on a phone or a tablet from “Add” at the status bar – or put them on a free spot with a click, and move them anywhere. While nothing is selected, “Set up from scratch” in the inspector builds a floor plan in one go, and under “Templates” you save it for other classes as well. The seating circle stays in sync with the table layout by default, but can also be adjusted separately."
       },
       "measure": {
         "q": "How are distances measured?",

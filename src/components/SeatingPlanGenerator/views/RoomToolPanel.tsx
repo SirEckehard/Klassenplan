@@ -9,6 +9,7 @@ import {
 } from '@phosphor-icons/react';
 import type { ClassroomFeatureType, TableTemplateType } from '@/types';
 import TablePreview from '@/components/TablePreview';
+import { ROOM_TABLE_TEMPLATES } from '@/components/SeatingPlanGenerator/views/roomTableTemplates';
 import {
   ToolRail,
   ToolRailButton,
@@ -46,19 +47,12 @@ type Props = {
   /** Grid, snapping, alignment guides and which room elements are shown. */
   settingsGroups: CanvasSettingsGroup[];
   /**
-   * On a phone the tables and the room elements sit under the canvas
-   * (`MobileTableTemplates`), where a drag can reach the room; the sheet
-   * carries only what is not there.
+   * Below `lg` the tables and the room elements come out of the tray at the
+   * status bar (`RoomAddTray`), where a drag reaches the whole room and each
+   * piece has its word; the rail carries only what is not there.
    */
-  isPhone?: boolean;
+  tablesInTray?: boolean;
 };
-
-const TABLE_TEMPLATES: Array<{ type: TableTemplateType; seatCount: number }> = [
-  { type: 'single', seatCount: 1 },
-  { type: 'double', seatCount: 2 },
-  { type: 'group4', seatCount: 4 },
-  { type: 'group6', seatCount: 6 },
-];
 
 /** One icon per settings group, so the rail stays readable without labels. */
 const GROUP_ICONS: Record<string, React.ReactNode> = {
@@ -96,23 +90,17 @@ export default function RoomToolPanel({
   onFeaturePointerDown,
   onFeatureAdd,
   settingsGroups,
-  isPhone = false,
+  tablesInTray = false,
 }: Props) {
   const { t } = useTranslation('generator');
 
-  const templateLabels: Record<TableTemplateType, string> = {
-    single: t('layout.singleSeat'),
-    double: t('layout.doubleSeat'),
-    group4: t('layout.group4'),
-    group6: t('layout.group6'),
-  };
   const groups = settingsGroups.filter((group) => group.options.length > 0);
 
   return (
     <ToolRail density={density}>
-      {!isPhone && (
+      {!tablesInTray && (
         <ToolRailGroup title={t('toolRail.add')}>
-          {TABLE_TEMPLATES.map(({ type, seatCount }) => (
+          {ROOM_TABLE_TEMPLATES.map(({ type, seatCount, labelKey }) => (
             <ToolRailButton
               key={type}
               icon={
@@ -121,8 +109,8 @@ export default function RoomToolPanel({
                   iconSize={TEMPLATE_ICON_SIZE[density]}
                 />
               }
-              label={templateLabels[type]}
-              title={`${templateLabels[type]} (${seatCount} ${t('common.seats')}) – ${t('layout.dragDropHint')}`}
+              label={t(labelKey)}
+              title={`${t(labelKey)} (${seatCount} ${t('common.seats')}) – ${t('layout.dragDropHint')}`}
               onPointerDown={(event) => onTemplatePointerDown(type, event)}
               onClick={() => onTemplateAdd(type)}
             />

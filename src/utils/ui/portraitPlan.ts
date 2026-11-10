@@ -29,15 +29,6 @@ import type { PlanTurn } from '@/utils/canvas/turn';
 export type { PlanTurn };
 
 /**
- * How wide a turned room may be: half again as tall as wide, it is held to
- * what fits between the header and the status bar, so a tablet shows it
- * whole without scrolling. The plan and the circle fit their stage instead
- * (`canvasFillClass`).
- */
-export const TURNED_FRAME_MAX_WIDTH =
-  'min(100%, calc((100dvh - 3.5rem - var(--shell-bottom-inset, 3.5rem) - 2.5rem) * 2 / 3))';
-
-/**
  * The quarter turn that brings the board to the bottom, or null where none
  * helps: a board on the top or bottom wall already gives the front an edge of
  * the screen's width, and a quarter turn would put it at a side. A room

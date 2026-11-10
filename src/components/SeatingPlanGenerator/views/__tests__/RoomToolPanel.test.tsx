@@ -34,7 +34,7 @@ const settingsGroups = [
 
 const renderPanel = (
   density: 'comfortable' | 'compact',
-  { isPhone = false }: { isPhone?: boolean } = {},
+  { tablesInTray = false }: { tablesInTray?: boolean } = {},
 ) => {
   const handlers = {
     onTemplatePointerDown: vi.fn(),
@@ -50,7 +50,7 @@ const renderPanel = (
         { type: 'door', label: 'Tür', icon: <span /> },
       ]}
       settingsGroups={settingsGroups}
-      isPhone={isPhone}
+      tablesInTray={tablesInTray}
       {...handlers}
     />,
 
@@ -151,10 +151,10 @@ describe('RoomToolPanel', () => {
     ]);
   });
 
-  // On a phone the tables sit under the canvas, where a drag reaches the
-  // room; the sheet carries the rest.
-  it('leaves the tables to the stage on a phone', () => {
-    renderPanel('comfortable', { isPhone: true });
+  // Below `lg` the tables come out of the tray at the status bar, where a
+  // drag reaches the whole room; the rail carries the rest.
+  it('leaves the tables to the tray below lg', () => {
+    renderPanel('comfortable', { tablesInTray: true });
 
     expect(
       screen.queryByRole('button', {

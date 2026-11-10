@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Improved
+
+- On a phone and a tablet, tables and room elements come from "Add" at the status bar, without scrolling below the room
+
 ### Fixed
 
 - In the presentation, the student "Who's next?" draws lights up in Safari too instead of staying dark
