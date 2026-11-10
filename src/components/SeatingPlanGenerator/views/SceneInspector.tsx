@@ -37,6 +37,7 @@ import ToggleSwitch from '@/components/ui/controls/ToggleSwitch';
 import TablePreview from '@/components/TablePreview';
 import InspectorTitleField from '@/components/shell/InspectorTitleField';
 import { ENTITY_ICONS } from '@/components/shell/entityIcons';
+import { TOUR_ANCHORS } from '@/components/onboarding/tours';
 import {
   RoomListControls,
   RoomSetupSection,
@@ -511,7 +512,10 @@ export default function SceneInspector({
         />
         <InspectorBody>
           {openRoomName !== undefined && activeRoomId && seatingPlanActions && (
-            <InspectorSection title={t('sceneInspector.room')}>
+            <InspectorSection
+              title={t('sceneInspector.room')}
+              tourAnchor={TOUR_ANCHORS.layoutRooms}
+            >
               <RoomListControls />
             </InspectorSection>
           )}

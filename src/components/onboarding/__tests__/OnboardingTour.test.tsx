@@ -48,8 +48,8 @@ function ClassListStep({ tourId = 'students' }: { tourId?: TourId | null }) {
 
 const findMark = (name: RegExp) =>
   screen.findByRole('dialog', { name }, { timeout: 2000 });
-const classSwitcherMark = /Deine Klassen|Your classes/i;
-const addStudentsMark = /Schüler hinzufügen|Add students/i;
+const classSwitcherMark = /^(Klassen|Classes)$/;
+const addStudentsMark = /^(Schüler hinzufügen|Adding students)$/;
 
 beforeEach(() => {
   localStorage.clear();
@@ -71,7 +71,7 @@ describe('OnboardingTour', () => {
   it('walks through the marks whose elements are on screen', async () => {
     render(<ClassListStep />);
 
-    // Two of the five class-list marks have an element here.
+    // Two of the class list's marks have an element here.
     const first = await findMark(classSwitcherMark);
     expect(first).toHaveTextContent(/1 von 2|1 of 2/);
     await waitFor(() => expect(first).toHaveFocus());

@@ -2,6 +2,7 @@
 // Copyright (C) 2026 Eike Schäfer
 import { useTranslation } from 'react-i18next';
 import { FolderPlusIcon } from '@phosphor-icons/react';
+import { TOUR_ANCHORS } from '@/components/onboarding/tours';
 import { ENTITY_ICONS } from '@/components/shell/entityIcons';
 import {
   ToolRail,
@@ -35,7 +36,10 @@ export default function LibraryToolPanel({
 
   return (
     <ToolRail density={density}>
-      <ToolRailGroup title={t('toolRail.add')}>
+      <ToolRailGroup
+        title={t('toolRail.add')}
+        data-tour={TOUR_ANCHORS.libraryToolbar}
+      >
         <ToolRailButton
           icon={<ENTITY_ICONS.class size={18} />}
           label={t('common.newClassName')}

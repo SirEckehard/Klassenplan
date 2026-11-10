@@ -32,8 +32,6 @@ const toolRailDrawerClass =
 
 interface SmartSidebarProps extends UseCollapsibleSidebarOptions {
   className?: string;
-  /** `data-tour` anchor for the onboarding tour, set on the rail (not the phone drawer). */
-  tourAnchor?: string;
   /**
    * The column's two widths. The default is the workspace toolbar's — 208px
    * labelled, 60px as icons, which is what a `ToolRail` entry is cut for. A
@@ -52,7 +50,6 @@ interface SmartSidebarProps extends UseCollapsibleSidebarOptions {
 // Main sidebar component
 export default function SmartSidebar({
   className = '',
-  tourAnchor,
   widths = { expanded: 'w-52', collapsed: 'w-15' },
   children,
   ...sidebarOptions
@@ -267,7 +264,6 @@ export default function SmartSidebar({
       // A landmark has no expanded state; the switch that changes the width
       // announces it (`aria-expanded` there). Tests read it from here.
       data-expanded={isExpanded}
-      data-tour={tourAnchor}
     >
       <div className="flex h-full min-h-0 flex-col">
         {/* A sidebar outside the shell has no status bar to hang its switch

@@ -9,7 +9,15 @@
  * plan without statistics yet — is skipped instead of pointing at nothing.
  * Views can change without breaking a tour; at worst they shorten it.
  *
- * Texts live under `generator:tour.<textKey>.{title,body}`.
+ * A tour reads its screen as a page is read: the header, the toolbar from top
+ * to bottom, the stage, the inspector, and last the status bar from left to
+ * right, so the spotlight never crosses back over ground it has covered.
+ *
+ * Texts live under `generator:<textKey>.{title,body}`. A mark that explains
+ * what a help topic explains takes that topic's key (`help.*`,
+ * `components/help/workspaceHelpTopics.ts`), so the tour and the help say the
+ * same; only what the help leaves to the screen — the way on, the toolbar's
+ * foot, the help itself — has a text of its own under `tour.*`.
  *
  * `e2e/onboarding.spec.ts` asserts the German titles word for word and in the
  * order below. Renaming a title or adding, removing or reordering a mark means
@@ -20,7 +28,6 @@ import type { TourId } from '@/hooks/onboarding/onboardingTourStore';
 export const TOUR_ANCHORS = {
   classEmptyState: 'class-empty-state',
   classSwitcher: 'class-switcher',
-  classToolbar: 'class-toolbar',
   classViews: 'class-views',
   addStudents: 'add-students',
   studentRow: 'student-row',
@@ -30,13 +37,11 @@ export const TOUR_ANCHORS = {
   help: 'help',
   inspector: 'inspector',
   layoutCanvas: 'layout-canvas',
-  canvasSettings: 'canvas-settings',
   layoutSidebar: 'layout-sidebar',
+  layoutRooms: 'layout-rooms',
   layoutSetup: 'layout-setup',
-  layoutStatus: 'layout-status',
   proceedToPlan: 'proceed-plan',
   mixButton: 'mix-button',
-  planSidebar: 'plan-sidebar',
   sidebarToggle: 'sidebar-toggle',
   planCanvas: 'plan-canvas',
   planFulfillment: 'plan-fulfillment',
@@ -62,54 +67,47 @@ export const TOURS: Record<TourId, readonly TourMark[]> = {
     },
   ],
   students: [
-    {
-      anchor: TOUR_ANCHORS.classSwitcher,
-      textKey: 'tour.students.classSwitcher',
-    },
-    // List, attributes and relationships: three ways into the same data.
-    { anchor: TOUR_ANCHORS.classViews, textKey: 'tour.students.views' },
-    { anchor: TOUR_ANCHORS.addStudents, textKey: 'tour.students.addStudents' },
-    { anchor: TOUR_ANCHORS.studentRow, textKey: 'tour.students.studentRow' },
-    { anchor: TOUR_ANCHORS.proceedToLayout, textKey: 'tour.students.proceed' },
-    // The foot of every toolbar, first entry: where saved plans are found.
+    { anchor: TOUR_ANCHORS.classSwitcher, textKey: 'help.students.classes' },
+    // The toolbar from the top: the views, then who joins the class.
+    { anchor: TOUR_ANCHORS.classViews, textKey: 'help.students.views' },
+    { anchor: TOUR_ANCHORS.addStudents, textKey: 'help.students.add' },
+    // It ends on the data staying on this device, which leads to the foot.
+    { anchor: TOUR_ANCHORS.studentRow, textKey: 'help.students.edit' },
+    // The foot every toolbar shares, and the switch under it in the status
+    // bar: met here first, so this tour explains them for every layer.
     { anchor: TOUR_ANCHORS.library, textKey: 'tour.students.library' },
-    // The data lives in this browser only, so the backup gets its own mark
-    // before anything could be lost.
     { anchor: TOUR_ANCHORS.backup, textKey: 'tour.students.backup' },
-    // Last, because the Help dialog is where every tour can be started again.
+    { anchor: TOUR_ANCHORS.sidebarToggle, textKey: 'tour.sidebarToggle' },
+    { anchor: TOUR_ANCHORS.proceedToLayout, textKey: 'tour.students.proceed' },
+    // Last, because the help is where every tour can be started again.
     { anchor: TOUR_ANCHORS.help, textKey: 'tour.help' },
   ],
   layout: [
-    { anchor: TOUR_ANCHORS.layoutCanvas, textKey: 'tour.layout.canvas' },
-    // Every canvas has this button with options of its own; step 2 is where it
-    // first appears, so the text explains what the later steps offer as well.
-    {
-      anchor: TOUR_ANCHORS.canvasSettings,
-      textKey: 'tour.layout.canvasSettings',
-    },
-    { anchor: TOUR_ANCHORS.layoutSidebar, textKey: 'tour.layout.sidebar' },
-    // The inspector's room panel, while nothing is selected; below `lg` it
-    // sits in a closed drawer and the mark is skipped.
-    { anchor: TOUR_ANCHORS.layoutSetup, textKey: 'tour.layout.setup' },
-    { anchor: TOUR_ANCHORS.layoutStatus, textKey: 'tour.layout.status' },
+    // The inspector's room panel, while nothing is selected, from the top;
+    // below `lg` it sits in a closed drawer and both marks are skipped.
+    { anchor: TOUR_ANCHORS.layoutRooms, textKey: 'help.layout.rooms' },
+    { anchor: TOUR_ANCHORS.layoutSetup, textKey: 'help.layout.setup' },
+    { anchor: TOUR_ANCHORS.layoutCanvas, textKey: 'help.layout.move' },
+    // The toolbar's "Hinzufügen", below `lg` the tray at the status bar.
+    { anchor: TOUR_ANCHORS.layoutSidebar, textKey: 'help.layout.add' },
     { anchor: TOUR_ANCHORS.proceedToPlan, textKey: 'tour.layout.proceed' },
   ],
   plan: [
-    { anchor: TOUR_ANCHORS.mixButton, textKey: 'tour.plan.mix' },
-    { anchor: TOUR_ANCHORS.planSidebar, textKey: 'tour.plan.sidebar' },
-    // Explained once here; step 2 and the export page share the same sidebar.
-    { anchor: TOUR_ANCHORS.sidebarToggle, textKey: 'tour.plan.sidebarToggle' },
-    { anchor: TOUR_ANCHORS.planCanvas, textKey: 'tour.plan.canvas' },
-    { anchor: TOUR_ANCHORS.planFulfillment, textKey: 'tour.plan.fulfillment' },
     { anchor: TOUR_ANCHORS.seatingModeToggle, textKey: 'tour.plan.circle' },
+    { anchor: TOUR_ANCHORS.planCanvas, textKey: 'help.plan.seats' },
+    // The column, from `lg` up; folded or in a closed drawer it is skipped.
+    { anchor: TOUR_ANCHORS.inspector, textKey: 'help.plan.criteria' },
+    // The status bar from the left: how well, again, and out.
+    { anchor: TOUR_ANCHORS.planFulfillment, textKey: 'help.plan.fulfilment' },
+    { anchor: TOUR_ANCHORS.mixButton, textKey: 'tour.plan.mix' },
     { anchor: TOUR_ANCHORS.planExits, textKey: 'tour.plan.exits' },
   ],
   library: [
-    { anchor: TOUR_ANCHORS.libraryColumns, textKey: 'tour.library.columns' },
+    { anchor: TOUR_ANCHORS.libraryColumns, textKey: 'help.library.columns' },
+    { anchor: TOUR_ANCHORS.libraryToolbar, textKey: 'help.library.add' },
     // The column, from `lg` up; folded or in a closed drawer it is skipped.
-    { anchor: TOUR_ANCHORS.inspector, textKey: 'tour.library.inspector' },
-    { anchor: TOUR_ANCHORS.libraryOpen, textKey: 'tour.library.open' },
-    { anchor: TOUR_ANCHORS.libraryToolbar, textKey: 'tour.library.toolbar' },
+    { anchor: TOUR_ANCHORS.inspector, textKey: 'help.library.edit' },
+    { anchor: TOUR_ANCHORS.libraryOpen, textKey: 'help.library.open' },
     { anchor: TOUR_ANCHORS.help, textKey: 'tour.help' },
   ],
 };

@@ -267,10 +267,7 @@ export default function AppStatusBar() {
             </p>
           )}
           {!teachersDay.visible && segments.length > 0 && (
-            <p
-              data-tour={step === 2 ? TOUR_ANCHORS.layoutStatus : undefined}
-              className="flex min-w-0 items-center gap-1.5 text-xs tabular-nums text-(--text-muted) peer-not-empty:hidden sm:text-sm"
-            >
+            <p className="flex min-w-0 items-center gap-1.5 text-xs tabular-nums text-(--text-muted) peer-not-empty:hidden sm:text-sm">
               <LineIcon size={16} aria-hidden="true" className="shrink-0" />
               {short ? (
                 <span className="min-w-0 truncate" title={segments.join(' · ')}>

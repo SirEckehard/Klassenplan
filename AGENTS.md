@@ -132,10 +132,16 @@ wait for it (`useChangelogReady`), everything else must not read it.
 
 ### Onboarding tour texts
 
-The coach-mark texts under `generator:tour.*` are looked up with computed keys
-(`src/components/onboarding/tours.ts`), which `npm run check:i18n` cannot see;
+A coach mark that explains what a help topic explains takes that topic's key
+(`help.*`), so the tour and the help say the same; only what the help leaves to
+the screen — the way on, the toolbar's foot, the help itself — has a text of
+its own under `generator:tour.*`. A tour reads its screen as a page is read:
+header, toolbar top to bottom, stage, inspector, status bar left to right. The
+keys are looked up with computed keys (`src/components/onboarding/tours.ts`),
+which `npm run check:i18n` cannot see;
 `src/components/onboarding/__tests__/tours.test.ts` checks instead that every
-mark has a title and a body in both languages.
+mark has a title and a body in both languages and names a help topic or a
+`tour.*` key.
 
 `e2e/onboarding.spec.ts` asserts the German tour titles word for word and in
 tour order. When you rename a title in `de/generator.json`, add, remove or

@@ -775,7 +775,7 @@ export default function SeatingPlanEditorView({
           `useLayoutMode` stops making it a drawer (`BREAKPOINTS` mirrors
           Tailwind's scale), so the two cannot leave it stacked on top. */}
       <div className={`${workspaceLayerClass} ${workspaceFitLayerClass}`}>
-        <SmartSidebar tourAnchor={TOUR_ANCHORS.planSidebar}>
+        <SmartSidebar>
           {({ isExpanded }) => (
             <PlanToolPanel
               density={isExpanded ? 'comfortable' : 'compact'}

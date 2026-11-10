@@ -94,10 +94,7 @@ export default function PlanToolPanel({
         </ToolRailGroup>
       )}
 
-      <ToolRailGroup
-        title={t('toolRail.viewSettings')}
-        data-tour={TOUR_ANCHORS.canvasSettings}
-      >
+      <ToolRailGroup title={t('toolRail.viewSettings')}>
         {groups.map((group) => (
           <ToolRailButton
             key={group.id}

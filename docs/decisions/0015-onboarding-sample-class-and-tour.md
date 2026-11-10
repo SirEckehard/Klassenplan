@@ -121,3 +121,68 @@ acknowledges the update. Without that, tours stay skipped for them as before.
   browser instead: the anchors on screen in the finished views, the plan tour
   waiting for the first shuffle, "Nicht mehr zeigen", the restart from the Help
   dialog and the returning teacher.
+
+## Addendum of 2026-11-10: the help's words, in reading order
+
+The help became short topics the same day (`components/help/workspaceHelpTopics.ts`):
+two or three words and one sentence each, the keys left to "Tastenkürzel". The
+tour's texts were older and longer, named keys, and said some things otherwise
+than the help. Its order went back and forth across the screen: the class list
+tour went from the stage to "Weiter" at the right of the status bar and back to
+the foot of the toolbar, the plan tour from the middle of the status bar to the
+toolbar, its left end, the stage, its left end again, the toolbar and its right
+end. Maintainer request of 2026-11-10: texts that agree with the help, an order
+that makes sense and does not jump about, and a short, smooth motion.
+
+- **The help's words.** A mark that explains what a help topic explains takes
+  that topic's key (`help.*`), title and body; a text of the tour's own
+  (`tour.*`) is left only for what the help leaves to the screen — the
+  welcome, the toolbar's foot, its switch, mixing, the switch to the circle,
+  the way on and the help itself. `tours.test.ts` holds every mark to a topic
+  of `WORKSPACE_HELP_TOPICS` or a `tour.*` key.
+- **Reading order.** A tour reads its screen as a page is read — header,
+  toolbar from the top, stage, inspector, status bar from left to right — and
+  ends where the teacher goes on:
+  - class list: classes, the views ("Merkmale und Beziehungen"), adding,
+    editing a student, "Bibliothek", the backup, the toolbar's switch (moved
+    here from the plan tour: the class list is where the toolbar is first
+    met), "Weiter", the help;
+  - room: the inspector's "Raum" (a new anchor, `layout-rooms`) and "Neu
+    einrichten", moving and turning on the stage, "Hinzufügen" (the toolbar's
+    group, no longer the whole toolbar; below `lg` the tray), "Weiter";
+  - seating plan: the switch to the circle, swapping and locking on the stage,
+    the criteria in the inspector, the fulfilment, "Mischen", presenting and
+    exporting;
+  - "Bibliothek": the columns, "Hinzufügen" in the toolbar (its group), the
+    inspector, "Öffnen", the help.
+- **Left out:** "Werkzeuge" on the plan's toolbar, which said again what the
+  circle's mark and the foot's marks say; "Plätze im Blick", which the status
+  bar states in words; the room's view settings, for which the help has no
+  topic.
+- **Motion** (`useCoachMarkMotion`, `docs/DESIGNSYSTEM.md` § 6g). It comes in
+  as a menu does: the dimmed page and the ring fade in, the card slides the
+  last 4 px from its element's side (140 ms, `arrive`). On to another mark the
+  ring and the card glide there together, the card's words already the next
+  ones (280 ms, `settle`). A glide sets out from where ring and card stand, so
+  "Weiter" pressed again mid-way turns them without a jump, and one under way
+  while the page scrolls the element into view glides on to where it went in
+  the time that is left. Closed, it is gone at once and a copy fades out where
+  it stood (100 ms, `leave`). Otherwise following the page as it scrolls or
+  resizes moves nothing. The ring's CSS
+  transition (200 ms, on every remeasure) is gone.
+
+### Alternatives considered
+
+- **Texts of the tour's own, aligned by hand.** They had drifted from the help
+  once already.
+- **A mark for every help topic.** Nearly thirty topics across the layers; a
+  tour that long is skipped.
+- **The card fading in at the next mark instead of gliding.** It would appear
+  before the ring arrives, or wait for it.
+
+### Consequences
+
+- Changing a help topic changes the tour; removing one fails `tours.test.ts`,
+  and the German titles `e2e/onboarding.spec.ts` asserts are the help's.
+- Below `lg` the inspector's marks are skipped, so the room tour starts on the
+  stage there and the plan tour leaves out the criteria.

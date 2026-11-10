@@ -99,7 +99,10 @@ export default function RoomToolPanel({
   return (
     <ToolRail density={density}>
       {!tablesInTray && (
-        <ToolRailGroup title={t('toolRail.add')}>
+        <ToolRailGroup
+          title={t('toolRail.add')}
+          data-tour={TOUR_ANCHORS.layoutSidebar}
+        >
           {ROOM_TABLE_TEMPLATES.map(({ type, seatCount, labelKey }) => (
             <ToolRailButton
               key={type}
@@ -131,12 +134,7 @@ export default function RoomToolPanel({
         </ToolRailGroup>
       )}
 
-      {/* The tour's mark names every option of the group, so it frames the
-          group rather than its first entry. */}
-      <ToolRailGroup
-        title={t('toolRail.viewSettings')}
-        data-tour={TOUR_ANCHORS.canvasSettings}
-      >
+      <ToolRailGroup title={t('toolRail.viewSettings')}>
         {groups.map((group) => (
           <ToolRailButton
             key={group.id}

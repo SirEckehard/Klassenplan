@@ -949,7 +949,11 @@
     "startButton": "Tour starten",
     "help": {
       "title": "Hilfe und Tour",
-      "body": "Hier findest du zu jeder Ebene und zur Bibliothek eine Anleitung, die Tastenkürzel und den Weg in die FAQ – und startest diese Tour jederzeit neu."
+      "body": "Hier erklärt dir eine kurze Anleitung, was du gerade siehst. Unter „Mehr Hilfe“ startest du diese Tour neu und findest die häufigen Fragen und die Tastenkürzel."
+    },
+    "sidebarToggle": {
+      "title": "Werkzeugleiste erweitern und minimieren",
+      "body": "Minimiert zeigt die Werkzeugleiste nur Symbole, erweitert auch ihre Namen."
     },
     "welcome": {
       "emptyState": {
@@ -958,107 +962,37 @@
       }
     },
     "students": {
-      "addStudents": {
-        "title": "Schüler hinzufügen",
-        "body": "In der Werkzeugleiste links füllst du die Klasse: einzeln, als Platzhalter oder per CSV-Import. Die Beispielklasse liegt beim Import."
-      },
-      "classSwitcher": {
-        "title": "Deine Klassen",
-        "body": "Oben in der Kopfzeile steht, welche Klasse gerade geöffnet ist. Hier wechselst du zwischen deinen Klassen, legst neue an oder benennst sie um. Jede Klasse hat eigene Schüler, Räume und Sitzpläne."
-      },
       "backup": {
         "title": "Daten sichern",
-        "body": "Deine Daten liegen nur in diesem Browser. Unter „Backup“ ganz unten in der Werkzeugleiste exportierst du ein verschlüsseltes Backup und stellst es wieder her, auch auf einem anderen Gerät."
+        "body": "Unter „Backup“ exportierst du deine Daten verschlüsselt und stellst sie wieder her – auch in einem anderen Browser oder auf einem anderen Gerät."
       },
       "proceed": {
         "title": "Weiter zum Raum",
         "body": "Steht die Liste, richtest du im nächsten Schritt den Klassenraum ein."
       },
-      "studentRow": {
-        "title": "Schüler bearbeiten",
-        "body": "Ein Klick auf die Zeile öffnet den Schüler rechts im Inspektor. Dort legst du Merkmale wie Unruhe, Schüchternheit, Sprachstand, soziale Rolle oder Wunsch- und Distanzpartner fest und fügst bei Bedarf ein Foto hinzu."
-      },
-      "views": {
-        "title": "Drei Ansichten",
-        "body": "„Klassenliste“ zeigt alle Schüler, unter „Merkmale“ fügst du ganz leicht Merkmale für die ganze Klasse hinzu – etwa „Wer zeigt aktuell Unruhe?“ –, und „Beziehungen“ zeigt, wer neben wem sitzen möchte oder nicht."
-      },
       "library": {
         "title": "Bibliothek",
-        "body": "Hier liegen deine Klassen mit ihren Räumen, Plänen, Mischungen und Nachbarschaften."
+        "body": "Hier liegen deine Klassen, Raumvorlagen und Voreinstellungen mit allem, was darin gespeichert ist – Räume, Pläne und die letzten Mischungen."
       }
     },
     "layout": {
-      "canvas": {
-        "title": "Dein Klassenraum",
-        "body": "Verschiebe und drehe Tische per Drag & Drop. Mit einem Rechtsklick oder langem Drücken kannst du Tische kopieren, ausschneiden oder löschen."
-      },
-      "canvasSettings": {
-        "title": "Ansichtseinstellungen",
-        "body": "Unter „Ansichtseinstellungen“ in der Werkzeugleiste passt du an, was der Raum zeigt – in jeder Ebene mit eigenen Optionen. Hier schaltest du Einrasten am Raster, Raster, Ausrichtungshilfen, Fotokollisionen und Raumelemente ein oder aus. Im Sitzplan wählst du z. B., ob Fotos erscheinen und wie Namen abgekürzt werden, im Sitzkreis außerdem, ob Verbindungen sichtbar sein sollen."
-      },
       "proceed": {
         "title": "Weiter zum Sitzplan",
         "body": "Beim ersten Öffnen mischt Klassenplan automatisch einen Sitzplan für dich."
-      },
-      "sidebar": {
-        "title": "Tische und Raumelemente",
-        "body": "Ziehe u. a. Tische, Fenster, Türen oder die Tafel in den Raum – oder setze sie mit einem Klick an einen freien Platz."
-      },
-      "setup": {
-        "title": "Raum einrichten",
-        "body": "„Neu einrichten“ stellt so viele der ausgewählten Tische auf, wie deine Klasse braucht, unter „Raum“ legst du mit „Neuer Raum“ weitere Räume an – etwa einen Fachraum mit eigenen Plänen –, und unter „Vorlagen“ speicherst du den Raum auch für andere Klassen oder öffnest einen der gespeicherten Räume in der aktuellen Klasse."
-      },
-      "status": {
-        "title": "Plätze im Blick",
-        "body": "Hier siehst du, ob die Plätze für alle Schüler reichen."
       }
     },
     "plan": {
-      "canvas": {
-        "title": "Von Hand anpassen",
-        "body": "Ziehe Schüler auf andere Plätze. Mit einem Klick auf das Schloss-Symbol bleibt ein Schüler beim Mischen auf seinem Platz."
-      },
       "circle": {
-        "title": "Sitzkreis",
-        "body": "Hier wechselst du zwischen Sitzplan und Sitzkreis. Der Sitzkreis entsteht aus dem aktuellen Sitzplan und zeigt dir über die grünen Linien die Tischnachbarn. Du kannst ihn verändern, ohne dass der Sitzplan geändert wird; „Plan speichern“ sichert ihn immer zusammen mit dem Sitzplan."
+        "title": "Sitzplan und Sitzkreis",
+        "body": "Hier wechselst du zwischen Sitzplan und Sitzkreis. Der Kreis entsteht aus dem Sitzplan und wird mit ihm gespeichert."
       },
       "exits": {
         "title": "Präsentieren und exportieren",
-        "body": "Unten rechts in der Statusleiste kannst du den Plan an der Tafel präsentieren oder ihn als PDF exportieren. Beides sichert den Plan automatisch, wenn du noch etwas geändert hast."
-      },
-      "fulfillment": {
-        "title": "Kriterien und Erfüllung",
-        "body": "Rechts im Inspektor stellst du ein, welche Kriterien beim Mischen beachtet werden und wie wichtig sie sind. „Erfüllung“ hier unten links in der Statusleiste zeigt in Prozent, wie gut der Plan sie erfüllt. Ein Klick darauf zeigt die Werte je Kriterium: im Inspektor unter jedem Kriterium, auf Tablet und Handy in einem Band unter dem Plan. Ein Klick auf einen Wert markiert die betroffenen Plätze, und die Statusleiste nennt sie, bis du die Markierung mit einem Klick dort wieder aufhebst."
+        "body": "Präsentiere den Plan an der Tafel oder exportiere ihn – beides sichert ihn, wenn du noch etwas geändert hast."
       },
       "mix": {
         "title": "Mischen",
-        "body": "Der Knopf in der Statusleiste mischt die Klasse neu und berücksichtigt dabei alle ausgewählten Kriterien (Strg/⌘+Eingabetaste)."
-      },
-      "sidebar": {
-        "title": "Werkzeuge",
-        "body": "Hier wechselst du zwischen Sitzplan und Sitzkreis und legst fest, was der Plan zeigt. Unten findest du wie überall die „Bibliothek“ mit deinen Klassen, Räumen und Plänen, die Klassenwerkzeuge, das Backup und „Unterstützen“."
-      },
-      "sidebarToggle": {
-        "title": "Werkzeugleiste erweitern und minimieren",
-        "body": "Mit diesem Knopf erweiterst oder minimierst du die Werkzeugleiste (Strg/⌘+B). Minimiert zeigt sie ihre Funktionen als Symbole."
-      }
-    },
-    "library": {
-      "columns": {
-        "title": "Alles an einem Ort",
-        "body": "Deine Klassen, ihre Räume mit Plänen, den letzten Mischungen und Nachbarschaften sowie die Raumvorlagen liegen hier in einer Ordneransicht in Spalten. Mit den Pfeiltasten wechselst du zwischen ihnen, F2 benennt um, Entf löscht."
-      },
-      "inspector": {
-        "title": "Ansehen und ändern",
-        "body": "Was du auswählst, zeigt der Inspektor: Hier verwaltest du die Klassen, Räume und Pläne."
-      },
-      "open": {
-        "title": "Öffnen",
-        "body": "Der blaue Knopf holt die Auswahl in den Arbeitsbereich: einen Plan in den Sitzplan, einen Raum in den Raum, eine Klasse in die Klassenliste – und eine Vorlage als neuen Raum der Klasse."
-      },
-      "toolbar": {
-        "title": "Neues anlegen",
-        "body": "In der Werkzeugleiste legst du eine neue Klasse an, fügst der ausgewählten Klasse einen Raum hinzu – etwa einen Fachraum mit eigenen Tischen und Plänen – oder erstellst eine Raumvorlage oder Voreinstellung für alle Klassen."
+        "body": "Mischt die Klasse neu nach den Kriterien im Inspektor; gesperrte Plätze behalten ihren Schüler."
       }
     }
   },

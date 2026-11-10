@@ -103,15 +103,16 @@ test('a first visitor tries the sample class with the tours as a guide', async (
     ).toBeVisible();
   });
 
-  await test.step('step 1 — the class list tour ends with backup and help', async () => {
+  await test.step('step 1 — the class list tour reads the screen and ends with help', async () => {
     expect(await walkTour(page)).toEqual([
-      'Deine Klassen',
-      'Drei Ansichten',
+      'Klassen',
+      'Merkmale und Beziehungen',
       'Schüler hinzufügen',
       'Schüler bearbeiten',
-      'Weiter zum Raum',
       'Bibliothek',
       'Daten sichern',
+      'Werkzeugleiste erweitern und minimieren',
+      'Weiter zum Raum',
       'Hilfe und Tour',
     ]);
   });
@@ -126,7 +127,8 @@ test('a first visitor tries the sample class with the tours as a guide', async (
     ).toContainText('24 Plätze für 24 Schüler');
 
     const tour = tourPopover(page);
-    await expect(tour.getByRole('heading')).toHaveText('Dein Klassenraum');
+    // It starts in the inspector, at the class's rooms.
+    await expect(tour.getByRole('heading')).toHaveText('Räume');
     await page.keyboard.press('Escape');
     await expect(tour).toBeHidden();
   });
@@ -141,12 +143,11 @@ test('a first visitor tries the sample class with the tours as a guide', async (
     // The fulfilment mark is only there when the tour started after the
     // automatic shuffle had produced statistics.
     expect(await walkTour(page)).toEqual([
+      'Sitzplan und Sitzkreis',
+      'Plätze tauschen und sperren',
+      'Kriterien',
+      'Erfüllung',
       'Mischen',
-      'Werkzeuge',
-      'Werkzeugleiste erweitern und minimieren',
-      'Von Hand anpassen',
-      'Kriterien und Erfüllung',
-      'Sitzkreis',
       'Präsentieren und exportieren',
     ]);
   });
@@ -156,10 +157,10 @@ test('a first visitor tries the sample class with the tours as a guide', async (
     await expect(page).toHaveURL(/\/bibliothek$/);
 
     expect(await walkTour(page)).toEqual([
-      'Alles an einem Ort',
-      'Ansehen und ändern',
+      'Spalten',
+      'Neu anlegen',
+      'Bearbeiten',
       'Öffnen',
-      'Neues anlegen',
       'Hilfe und Tour',
     ]);
   });

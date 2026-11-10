@@ -3,6 +3,7 @@
 import { describe, expect, it } from 'vitest';
 import deGenerator from '@/i18n/locales/de/generator.json';
 import enGenerator from '@/i18n/locales/en/generator.json';
+import { WORKSPACE_HELP_TOPICS } from '@/components/help/workspaceHelpTopics';
 import { TOURS, resolveTourId } from '../tours';
 
 /** Reads a dotted key such as `tour.plan.mix.title` out of a bundle. */
@@ -45,6 +46,25 @@ describe('TOURS', () => {
             expect.any(String),
           );
           expect(lookup(bundle, `${textKey}.body`)).toEqual(expect.any(String));
+        }
+      }
+    }
+  });
+
+  // What the help explains, a mark says in the help's words; only what the
+  // help leaves to the screen has a text of the tour's own.
+  it('takes its words from a help topic or from the tour', () => {
+    const helpKeys = new Set<string>(
+      Object.values(WORKSPACE_HELP_TOPICS).flatMap((topics) =>
+        topics.map((topic) => topic.key),
+      ),
+    );
+    for (const marks of Object.values(TOURS)) {
+      for (const { textKey } of marks) {
+        if (textKey.startsWith('help.')) {
+          expect(helpKeys).toContain(textKey);
+        } else {
+          expect(textKey).toMatch(/^tour\./);
         }
       }
     }

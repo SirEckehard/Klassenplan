@@ -17,6 +17,12 @@ import {
 } from '@/hooks/ui/useDialogLayer';
 import { usePrefersReducedMotion } from '@/hooks/ui/usePrefersReducedMotion';
 import {
+  inertCopy,
+  MOTION_DURATION,
+  MOTION_EASE,
+  motionEnabled,
+} from '@/utils/ui/motion';
+import {
   useOnboardingTour,
   type TourId,
 } from '@/hooks/onboarding/onboardingTourStore';
@@ -50,9 +56,15 @@ interface Box {
   height: number;
 }
 
+/** Where the card stands against its element: beside it, or over its foot. */
+type PopoverSide = 'below' | 'above' | 'over';
+
 interface CoachMarkLayout {
+  /** The element the mark points at; another one is the next mark. */
+  anchor: TourMark['anchor'];
   spotlight: Box;
   popover: Omit<Box, 'height'>;
+  side: PopoverSide;
 }
 
 interface TourRun {
@@ -71,7 +83,7 @@ function placePopover(
   popoverHeight: number,
   viewportWidth: number,
   viewportHeight: number,
-): CoachMarkLayout['popover'] {
+): Pick<CoachMarkLayout, 'popover' | 'side'> {
   const width = Math.min(
     POPOVER_MAX_WIDTH,
     viewportWidth - 2 * VIEWPORT_GUTTER,
@@ -82,14 +94,15 @@ function placePopover(
   );
   const below = target.top + target.height + POPOVER_GAP;
   const above = target.top - POPOVER_GAP - popoverHeight;
-  const top =
-    below <= lowestTop ? below : above >= VIEWPORT_GUTTER ? above : lowestTop;
+  const side: PopoverSide =
+    below <= lowestTop ? 'below' : above >= VIEWPORT_GUTTER ? 'above' : 'over';
+  const top = side === 'below' ? below : side === 'above' ? above : lowestTop;
   const centred = target.left + target.width / 2 - width / 2;
   const left = Math.min(
     Math.max(centred, VIEWPORT_GUTTER),
     Math.max(VIEWPORT_GUTTER, viewportWidth - VIEWPORT_GUTTER - width),
   );
-  return { top, left, width };
+  return { popover: { top, left, width }, side };
 }
 
 /**
@@ -125,8 +138,9 @@ function useCoachMarkLayout(
         height: rect.height + 2 * SPOTLIGHT_PADDING,
       };
       const next = {
+        anchor: mark.anchor,
         spotlight,
-        popover: placePopover(
+        ...placePopover(
           spotlight,
           popoverRef.current?.offsetHeight ?? 0,
           window.innerWidth,
@@ -159,6 +173,130 @@ function useCoachMarkLayout(
   return layout;
 }
 
+/** The ring's box, or the card's corner, as keyframe values. */
+const pixels = (box: Partial<Box>) =>
+  Object.fromEntries(
+    Object.entries(box).map(([key, value]) => [key, `${value}px`]),
+  );
+
+/** Where an element stands on screen right now, a running animation included. */
+function boxOnScreen(element: HTMLElement): Box {
+  const { top, left, width, height } = element.getBoundingClientRect();
+  return { top, left, width, height };
+}
+
+/**
+ * How a coach mark moves. It comes in as a menu does — the dimmed page and the
+ * ring fading in, the card sliding the last few pixels from its element's
+ * side; on to another mark, ring and card glide there together, the card's
+ * words already the next ones; closed, it is gone at once and a copy fades out
+ * where it stood. Following the page as it scrolls or resizes is no move: there
+ * both stand where they belong at once — unless they are still gliding, when
+ * they glide on to where the element went in the time that is left. A glide
+ * always sets out from where ring and card stand, so "Weiter" pressed again
+ * mid-way turns them without a jump.
+ */
+function useCoachMarkMotion(
+  layout: CoachMarkLayout | null,
+  spotlightRef: React.RefObject<HTMLDivElement | null>,
+  popoverRef: React.RefObject<HTMLDivElement | null>,
+) {
+  const shownRef = React.useRef<CoachMarkLayout | null>(null);
+  const glideRef = React.useRef<Animation[]>([]);
+
+  React.useLayoutEffect(() => {
+    const spotlight = spotlightRef.current;
+    const popover = popoverRef.current;
+    const shown = shownRef.current;
+    if (!layout || !spotlight || !popover || layout === shown) return;
+    shownRef.current = layout;
+    if (!motionEnabled(popover)) return;
+    if (!shown) {
+      const timing = {
+        duration: MOTION_DURATION.menuIn,
+        easing: MOTION_EASE.arrive,
+      };
+      spotlight.animate([{ opacity: 0 }, { opacity: 1 }], timing);
+      popover.animate(
+        [
+          {
+            opacity: 0,
+            transform: `translateY(${layout.side === 'below' ? -4 : 4}px)`,
+          },
+          { opacity: 1, transform: 'none' },
+        ],
+        timing,
+      );
+      return;
+    }
+
+    const gliding = glideRef.current.filter(
+      (animation) => animation.playState === 'running',
+    );
+    if (shown.anchor === layout.anchor && gliding.length === 0) return;
+    let duration: number = MOTION_DURATION.coachMark;
+    let from = { spotlight: shown.spotlight, popover: shown.popover };
+    if (gliding.length > 0) {
+      // The glide still holds both where they are on screen; read them
+      // there before letting go of it.
+      from = {
+        spotlight: boxOnScreen(spotlight),
+        popover: boxOnScreen(popover),
+      };
+      if (shown.anchor === layout.anchor) {
+        const elapsed = gliding[0].currentTime;
+        duration -= typeof elapsed === 'number' ? elapsed : 0;
+      }
+      for (const animation of gliding) animation.cancel();
+    }
+    glideRef.current = [];
+    if (duration <= 0) return;
+    const timing = { duration, easing: MOTION_EASE.settle };
+    const corner = (box: Omit<Box, 'height'>) =>
+      pixels({ top: box.top, left: box.left });
+    glideRef.current = [
+      spotlight.animate(
+        [pixels(from.spotlight), pixels(layout.spotlight)],
+        timing,
+      ),
+      popover.animate([corner(from.popover), corner(layout.popover)], timing),
+    ];
+  }, [layout, popoverRef, spotlightRef]);
+
+  React.useLayoutEffect(() => {
+    const spotlight = spotlightRef.current;
+    const popover = popoverRef.current;
+    if (!spotlight || !popover) return undefined;
+    return () => {
+      if (!shownRef.current || !motionEnabled(popover)) return;
+      // Copied where they stand, which mid-glide is not where they were going.
+      const copies = [spotlight, popover].map((element) => {
+        const copy = inertCopy(element);
+        Object.assign(copy.style, pixels(boxOnScreen(element)));
+        return copy;
+      });
+      // StrictMode rehearses an unmount and keeps the mark; only one that
+      // really left fades out.
+      queueMicrotask(() => {
+        if (popover.isConnected) return;
+        for (const copy of copies) {
+          document.body.appendChild(copy);
+          copy
+            .animate([{ opacity: 1 }, { opacity: 0 }], {
+              duration: MOTION_DURATION.menuOut,
+              easing: MOTION_EASE.leave,
+              fill: 'forwards',
+            })
+            .finished.then(
+              () => copy.remove(),
+              () => copy.remove(),
+            );
+        }
+      });
+    };
+  }, [popoverRef, spotlightRef]);
+}
+
 interface CoachMarkProps {
   mark: TourMark;
   position: number;
@@ -181,11 +319,13 @@ function CoachMark({
   const { t } = useTranslation('generator');
   const prefersReducedMotion = usePrefersReducedMotion();
   const popoverRef = React.useRef<HTMLDivElement | null>(null);
+  const spotlightRef = React.useRef<HTMLDivElement | null>(null);
   const titleId = React.useId();
   const bodyId = React.useId();
   // A mark whose element disappears (the teacher deleted the last student,
   // say) hands over to the next one instead of pointing at nothing.
   const layout = useCoachMarkLayout(mark, popoverRef, onNext);
+  useCoachMarkMotion(layout, spotlightRef, popoverRef);
   const isPlaced = layout !== null;
   const isLast = position === total;
 
@@ -239,13 +379,14 @@ function CoachMark({
 
   return createPortal(
     <>
-      {layout && (
-        <div
-          aria-hidden="true"
-          className="tour-spotlight pointer-events-none fixed z-50"
-          style={layout.spotlight}
-        />
-      )}
+      {/* There from the start, unseen until placed, so the motion holds
+          the element it fades out. */}
+      <div
+        ref={spotlightRef}
+        aria-hidden="true"
+        className="tour-spotlight pointer-events-none fixed z-50"
+        style={layout ? layout.spotlight : { visibility: 'hidden' }}
+      />
       <div
         ref={popoverRef}
         role="dialog"

@@ -4,7 +4,6 @@ import React from 'react';
 import SmartSidebar from '@/components/ui/panels/SmartSidebar';
 import RoomToolPanel from '@/components/SeatingPlanGenerator/views/RoomToolPanel';
 import type { CanvasSettingsGroup } from '@/components/SeatingPlanGenerator/canvas/CanvasSettingsGroups';
-import { TOUR_ANCHORS } from '@/components/onboarding/tours';
 import type { ClassroomFeatureType, TableTemplateType } from '@/types';
 
 type SidebarFeaturePaletteItem = {
@@ -44,11 +43,10 @@ const LayoutEditorSidebarSection = React.memo(
     // Below `lg` the rail keeps its view settings and the foot every rail
     // shares — the class tools, the plans, the backup — which live nowhere
     // else; the tables are in the tray at the status bar, which carries the
-    // tour's mark for them there.
+    // tour's mark for them there, as the toolbar's "Hinzufügen" does from
+    // `lg` up.
     return (
-      <SmartSidebar
-        tourAnchor={tablesInTray ? undefined : TOUR_ANCHORS.layoutSidebar}
-      >
+      <SmartSidebar>
         {({ isExpanded }) => (
           <RoomToolPanel
             density={isExpanded ? 'comfortable' : 'compact'}

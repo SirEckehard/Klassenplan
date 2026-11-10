@@ -34,7 +34,6 @@ import {
   workspaceStageClass,
   touchHitAreaClass,
 } from '@/components/shell/shellTokens';
-import { TOUR_ANCHORS } from '@/components/onboarding/tours';
 import StudentList from '@/components/studentInput/StudentList';
 import NameColumnSelectionDialog from '@/components/students/NameColumnSelectionDialog';
 import { useStudentListLayout } from '@/components/studentInput/hooks/useStudentListLayout';
@@ -360,7 +359,7 @@ function StudentInput({
   // is greyed out, and the foot — the class tools, the plans, the backup —
   // stays in reach.
   const toolbar = (
-    <SmartSidebar tourAnchor={TOUR_ANCHORS.classToolbar}>
+    <SmartSidebar>
       {({ isExpanded }) => (
         <ClassToolPanel
           density={isExpanded ? 'comfortable' : 'compact'}

@@ -1340,7 +1340,7 @@ function PlanLibraryPage() {
         }}
       />
       <div className={workspaceLayerClass}>
-        <SmartSidebar tourAnchor={TOUR_ANCHORS.libraryToolbar}>
+        <SmartSidebar>
           {({ isExpanded }) => (
             <LibraryToolPanel
               density={isExpanded ? 'comfortable' : 'compact'}

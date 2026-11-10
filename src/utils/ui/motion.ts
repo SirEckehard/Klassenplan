@@ -6,9 +6,9 @@
  *
  * Motion is kept to the places where something changes its place or comes in
  * from an edge — the names after a mix, a drawer, a column, a menu, a layer,
- * the turn of the frame, a toast, the logo. Everything else stands still.
- * Every one of them runs on the Web Animations API, which the global
- * reduced-motion guard in `index.css` cannot reach, so each asks
+ * the turn of the frame, a toast, the logo, the tour's coach mark. Everything
+ * else stands still. Every one of them runs on the Web Animations API, which
+ * the global reduced-motion guard in `index.css` cannot reach, so each asks
  * `motionEnabled` first; jsdom has no `Element.animate` and gets the instant
  * behaviour the tests expect.
  */
@@ -30,6 +30,8 @@ export const MOTION_DURATION = {
   sheetOut: 180,
   column: 220,
   layer: 180,
+  /** A coach mark of the tour on the way to the next one: ring and card. */
+  coachMark: 280,
   /** A student on the way to another seat or place. */
   seatGlide: 420,
   /** The logo pointed at: the mark builds its K, the word's letters swap. */

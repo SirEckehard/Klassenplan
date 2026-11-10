@@ -949,7 +949,11 @@
     "startButton": "Start tour",
     "help": {
       "title": "Help and tour",
-      "body": "Here you find instructions for every layer and the Library, the shortcuts and the way to the FAQ – and you can restart this tour at any time."
+      "body": "A short guide here explains what you are looking at. Under “More help” you restart this tour and find the FAQ and the shortcuts."
+    },
+    "sidebarToggle": {
+      "title": "Expand and collapse the toolbar",
+      "body": "Collapsed, the toolbar shows only icons; expanded, their names too."
     },
     "welcome": {
       "emptyState": {
@@ -958,107 +962,37 @@
       }
     },
     "students": {
-      "addStudents": {
-        "title": "Add students",
-        "body": "The toolbar on the left fills the class: one by one, as placeholders or from a CSV file. The sample class sits with the import."
-      },
-      "classSwitcher": {
-        "title": "Your classes",
-        "body": "The header states which class is currently open. Switch between classes here, create new ones or rename them. Every class has its own students, rooms and seating plans."
-      },
       "backup": {
         "title": "Back up your data",
-        "body": "Your data lives only in this browser. \"Backup\", at the very bottom of the toolbar, exports an encrypted backup and restores it – on another device, too."
+        "body": "“Backup” exports your data encrypted and restores it – in another browser or on another device, too."
       },
       "proceed": {
         "title": "On to the room",
         "body": "Once the list is complete, set up the classroom in the next step."
       },
-      "studentRow": {
-        "title": "Edit students",
-        "body": "Clicking a row opens the student in the inspector on the right. There you set attributes such as restlessness, shyness, language level, social role or preferred and avoided partners, and add a photo if you like."
-      },
-      "views": {
-        "title": "Three views",
-        "body": "\"Class list\" shows every student, under \"Attributes\" you easily add attributes for the whole class at once – \"Who is currently restless?\", say – and \"Relationships\" shows who wants to sit next to whom, or not."
-      },
       "library": {
         "title": "Library",
-        "body": "Your classes with their rooms, plans, mixes and neighbourhoods are kept here."
+        "body": "Your classes, room templates and presets are kept here, with everything saved in them – rooms, plans and the recent mixes."
       }
     },
     "layout": {
-      "canvas": {
-        "title": "Your classroom",
-        "body": "Move and rotate tables by drag and drop. Right-click or long-press to copy, cut or delete tables."
-      },
-      "canvasSettings": {
-        "title": "View settings",
-        "body": "Under \"View settings\" in the toolbar you set what the room shows — every layer with options of its own. Snapping, the grid, alignment guides, photo collisions and room elements are switched here. In the seating plan you choose, for example, whether photos appear and how names are shortened, in the circle also whether connections should be visible."
-      },
       "proceed": {
         "title": "On to the seating plan",
         "body": "The first time it opens, Klassenplan mixes a seating plan for you."
-      },
-      "sidebar": {
-        "title": "Tables and room elements",
-        "body": "Drag tables, windows, doors or the board into the room, among other things – or put them on a free spot with a click."
-      },
-      "setup": {
-        "title": "Set up the room",
-        "body": "\"Set up from scratch\" places as many of the chosen tables as your class needs, under \"Room\" you add further rooms with \"New room\" – a lab with plans of its own, say – and under \"Templates\" you save the room for other classes as well or open one of the saved rooms in the current class."
-      },
-      "status": {
-        "title": "Seats at a glance",
-        "body": "Shows whether there are enough seats for all students."
       }
     },
     "plan": {
-      "canvas": {
-        "title": "Adjust by hand",
-        "body": "Drag students to other seats. A click on the lock icon keeps a student in their seat when mixing."
-      },
       "circle": {
-        "title": "Seating circle",
-        "body": "Switch between seating plan and seating circle here. The circle is built from the current seating plan and shows you the table neighbors through the green lines. You can change it without changing the seating plan; “Save plan” always keeps it together with the seating plan."
+        "title": "Seating plan and circle",
+        "body": "Switch between the seating plan and the seating circle here. The circle is built from the plan and saved with it."
       },
       "exits": {
         "title": "Present and export",
-        "body": "At the bottom right of the status bar you can present the plan on the board or export it as a PDF. Both save the plan automatically if you have changed something."
-      },
-      "fulfillment": {
-        "title": "Criteria and fulfilment",
-        "body": "In the inspector on the right you choose which criteria are taken into account when mixing and how important they are. “Fulfilment” here at the bottom left of the status bar shows in percent how well the plan meets them. A click on it shows the value for each criterion: in the inspector under each criterion, on a tablet or phone in a band under the plan. A click on a value marks the seats concerned, and the status bar names them until you clear the marking with a click there."
+        "body": "Present the plan on the board or export it – both save it if you have changed anything since."
       },
       "mix": {
         "title": "Mix",
-        "body": "The button in the status bar mixes the class again, taking every selected criterion into account (Ctrl/⌘+Enter)."
-      },
-      "sidebar": {
-        "title": "Tools",
-        "body": "Switch between seating plan and circle here and set what the plan shows. At the bottom, as everywhere, you find the \"Library\" with your classes, rooms and plans, the class tools, the backup and \"Support\"."
-      },
-      "sidebarToggle": {
-        "title": "Expand and collapse the toolbar",
-        "body": "This button expands or collapses the toolbar (Ctrl/⌘+B). Collapsed, it shows its functions as icons."
-      }
-    },
-    "library": {
-      "columns": {
-        "title": "Everything in one place",
-        "body": "Your classes, their rooms with plans, the recent mixes and neighbourhoods, and the room templates lie here in a folder view in columns. Switch between them with the arrow keys; F2 renames, Delete removes."
-      },
-      "inspector": {
-        "title": "Look and change",
-        "body": "Whatever you select is shown in the inspector: here you manage the classes, rooms and plans."
-      },
-      "open": {
-        "title": "Open",
-        "body": "The blue button takes the selection into the workspace: a plan onto the seating plan, a room into the room, a class into the class list – and a template as a new room of the class."
-      },
-      "toolbar": {
-        "title": "Adding something new",
-        "body": "In the toolbar you create a new class, add a room to the selected class – a lab with tables and plans of its own, say – or make a room template or a preset for every class."
+        "body": "Mixes the class again by the criteria in the inspector; locked seats keep their students."
       }
     }
   },
