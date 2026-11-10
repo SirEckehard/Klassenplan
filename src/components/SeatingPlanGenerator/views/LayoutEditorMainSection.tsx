@@ -26,7 +26,6 @@ import {
 } from '@/components/shell/StatusBarFrame';
 import type { FeaturePaletteItem } from '@/hooks/canvas/useFeaturePaletteDrag';
 import { workspaceStageClass } from '@/components/shell/shellTokens';
-import { useTurnAnimation } from '@/hooks/ui/useTurnAnimation';
 import { TURNED_FRAME_MAX_WIDTH } from '@/utils/ui/portraitPlan';
 import type { PlanTurn } from '@/utils/canvas/turn';
 
@@ -108,8 +107,6 @@ const LayoutEditorMainSection = React.memo(function LayoutEditorMainSection({
   mobileTemplatesProps,
 }: LayoutEditorMainSectionProps) {
   const { t } = useTranslation('generator');
-  // Turning the device turns the frame into its new lie, as on the plan.
-  useTurnAnimation(containerRef, turn);
   return (
     // A phone has no inspector column: the setup is in the drawer, opened by
     // the switch at the right end of the status bar, so nothing above the

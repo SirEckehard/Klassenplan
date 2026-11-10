@@ -43,7 +43,6 @@ import { circleShuffleSwaps } from '@/services/circleLayoutService';
 import { usePlanExits } from '@/hooks/plan/usePlanExits';
 import { usePlanShortcuts } from '@/hooks/plan/usePlanShortcuts';
 import { usePortraitCircleTurn } from '@/hooks/ui/usePortraitTurn';
-import { useTurnAnimation } from '@/hooks/ui/useTurnAnimation';
 import {
   workspaceFitLayerClass,
   workspaceFitStageClass,
@@ -258,8 +257,6 @@ export default function EnhancedSeatingPlanView(
   // Held upright below `lg`, the ring stands as the room and the table plan
   // do, and turns into place as the device turns.
   const circleTurn = usePortraitCircleTurn();
-  const circleFrameRef = useRef<HTMLDivElement | null>(null);
-  useTurnAnimation(circleFrameRef, circleTurn);
 
   // Calculate actual neighborhood count (preserved neighbors from table seating)
   // For circle mode, we need different controls and view
@@ -294,7 +291,6 @@ export default function EnhancedSeatingPlanView(
             className={`${workspaceStageClass} ${workspaceFitStageClass} ${canvasStageClass} ${canvasFillClass} gap-4`}
           >
             <div
-              ref={circleFrameRef}
               className={`${canvasFrameClass} ${canvasFitClass} select-none ${
                 circleTurn === null ? '' : `${canvasFitTurnedClass} mx-auto`
               }`}

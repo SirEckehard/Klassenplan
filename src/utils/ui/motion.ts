@@ -30,7 +30,6 @@ export const MOTION_DURATION = {
   sheetOut: 180,
   column: 220,
   layer: 180,
-  turn: 260,
   /** A student on the way to another seat or place. */
   seatGlide: 420,
   /** The logo pointed at: the mark builds its K, the word's letters swap. */

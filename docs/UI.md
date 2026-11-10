@@ -1,6 +1,6 @@
 # The Interface
 
-> **Status:** current · **Last reviewed:** 2026-11-06 · **Source of truth:**
+> **Status:** current · **Last reviewed:** 2026-11-10 · **Source of truth:**
 > `src/components/shell/`, `src/components/SeatingPlanGenerator/`,
 > `src/contexts/InspectorContext.tsx`
 
@@ -597,8 +597,8 @@ afterwards.
   upright, the order is untouched — and the drag reads the pointer against that
   view box. The three frames are held to what fits between the header and the
   status bar (the room by `TURNED_FRAME_MAX_WIDTH`, the plan and the circle by
-  their stage), and turning the device turns the frame into place from a quarter
-  back in 260 ms (`useTurnAnimation`, Web Animations), not under reduced motion.
+  their stage). Turning the device animates nothing of its own: the system
+  already turns the whole screen, and a second turn on the frame was not seen.
 
 ## The room
 

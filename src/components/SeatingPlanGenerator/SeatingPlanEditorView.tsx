@@ -83,7 +83,6 @@ import { usePlanShortcuts } from '@/hooks/plan/usePlanShortcuts';
 import { useFirstVisit } from '@/hooks/ui/useFirstVisit';
 import { useLayoutMode } from '@/hooks/ui/useLayoutMode';
 import { usePortraitTurn } from '@/hooks/ui/usePortraitTurn';
-import { useTurnAnimation } from '@/hooks/ui/useTurnAnimation';
 import { turnPlanScene } from '@/utils/ui/portraitPlan';
 import { createSuspendedWeights } from '@/hooks/ui/useMixCriteria';
 import { buildCriterionHighlightEntries } from '@/utils/algorithm/criterionHighlights';
@@ -291,8 +290,6 @@ export default function SeatingPlanEditorView({
   // highlights keep the stored room (`turnPlanScene`). The room layer turns
   // the same way, and the turn of the device turns the frame into place.
   const planTurn = usePortraitTurn(classroomScene);
-  const canvasFrameRef = React.useRef<HTMLDivElement | null>(null);
-  useTurnAnimation(canvasFrameRef, planTurn);
   const shownPlan = React.useMemo(
     () =>
       planTurn === null
@@ -991,7 +988,6 @@ export default function SeatingPlanEditorView({
                 className={`${canvasFrameClass} ${canvasFitClass} relative select-none ${
                   planTurn === null ? '' : `${canvasFitTurnedClass} mx-auto`
                 }`}
-                ref={canvasFrameRef}
                 style={{ maxWidth: '100vw' }}
               >
                 <div

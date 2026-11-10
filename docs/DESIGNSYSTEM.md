@@ -1,6 +1,6 @@
 # Design System – Klassenplan
 
-> **Status:** current · **Last reviewed:** 2026-11-06 · **Maintainer:** Eike
+> **Status:** current · **Last reviewed:** 2026-11-10 · **Maintainer:** Eike
 > Schäfer · **Describes:** Klassenplan 3.1.2
 
 This document describes the binding design tokens for Klassenplan. All values live in `src/index.css` and are reachable from TypeScript through `src/utils/ui/designTokens.ts`.
@@ -446,7 +446,6 @@ Something moves where it changes its place or comes in from an edge, and nowhere
 | A dropdown                                        | fades in, the last 4 px from its anchor's side (`FloatingDropdown`)                                                                                                                         | 140 / 100 ms                     | arrive / leave |
 | The quiet dialog                                  | it and its scrim fade in, the dialog the last 4 px from below (`Modal`'s `bare`); it goes at once                                                                                           | 140 ms                           | arrive         |
 | Another layer                                     | the workspace between the bars fades in (`useLayerFade`)                                                                                                                                    | 180 ms                           | linear         |
-| A screen turned upright or back                   | the frame turns into place from a quarter back (`useTurnAnimation`)                                                                                                                         | 260 ms                           | settle         |
 | A toast                                           | see § 6f                                                                                                                                                                                    | 380 / 200 ms                     | arrive / leave |
 | The logo pointed at (mouse or keyboard, once)     | the mark builds its K anew while four pairs of equal letters swap seats, ending with the mark's last seat; it runs to its end whatever the pointer does (`brandHoverHandlers`)              | 1280 ms                          | settle         |
 | Start page ↔ workspace                            | the 11 letters of the name fly onto the 11 filled seats of the mark and rise from them on the way back; the mark, the gear and the hairline glide, the new page fades in (`useBrandFlight`) | 640 ms, the page 180 ms          | settle         |
