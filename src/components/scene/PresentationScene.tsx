@@ -28,6 +28,7 @@ import {
 import BadgeTooltipLayer from '@/components/scene/BadgeTooltip';
 import type { SeatBadgeView } from '@/utils/ui/seatBadges';
 import PresentationSpotlight, {
+  presentationGroupTransform,
   type SpotlightTarget,
 } from '@/components/scene/PresentationSpotlight';
 
@@ -121,9 +122,11 @@ export default function PresentationScene({
   const boxHeight =
     (isQuarterTurn ? CLASSROOM_WIDTH : CLASSROOM_HEIGHT) + EDGE_PADDING * 2;
 
-  const groupTransform =
-    `translate(${boxWidth / 2} ${boxHeight / 2}) rotate(${rotation}) ` +
-    `translate(${-CLASSROOM_WIDTH / 2} ${-CLASSROOM_HEIGHT / 2})`;
+  const frame = React.useMemo(
+    () => ({ rotation, boxWidth, boxHeight }),
+    [rotation, boxWidth, boxHeight],
+  );
+  const groupTransform = presentationGroupTransform(frame);
 
   const svgRef = React.useRef<SVGSVGElement | null>(null);
   const photoDisplayMode =
@@ -286,7 +289,7 @@ export default function PresentationScene({
           seating={seating}
           target={spotlight}
           viewBox={viewBox}
-          groupTransform={groupTransform}
+          frame={frame}
           dim={spotlightDims}
         />
       </svg>

@@ -573,7 +573,9 @@ describe('SimpleCircleView', () => {
     );
     const spotlight = container.querySelector('[data-circle-spotlight]');
     expect(spotlight).not.toBeNull();
-    expect(spotlight?.querySelector('mask')).not.toBeNull();
+    expect(
+      spotlight?.querySelector('path[fill-rule="evenodd"]'),
+    ).not.toBeNull();
     // The drawn student's token lights up in its own fill.
     expect(
       container.querySelector(`circle[fill="${spotlightSeatFill(false)}"]`),
@@ -588,6 +590,6 @@ describe('SimpleCircleView', () => {
         spotlightDims={false}
       />,
     );
-    expect(container.querySelector('[data-circle-spotlight] mask')).toBeNull();
+    expect(container.querySelector('[data-circle-spotlight] path')).toBeNull();
   });
 });

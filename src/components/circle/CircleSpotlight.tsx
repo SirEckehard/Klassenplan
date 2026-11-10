@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
-import React from 'react';
 import {
   DIM_BLEED,
   DIM_COLOR,
@@ -8,12 +7,14 @@ import {
   SPOTLIGHT_MARGIN,
   SPOTLIGHT_RING_COLOR,
 } from '@/components/scene/PresentationSpotlight';
+import { dimPathWithHole } from '@/utils/ui/spotlightHole';
 
 /**
  * Darkens the projected circle except for one place — the circle's
  * counterpart of `PresentationSpotlight`, with the same ink, strength and
  * ring, so "Wer kommt dran?" reads alike on the tables and in the circle.
- * The hole is a circle round the token rather than the seat's box.
+ * The hole is a circle round the token rather than the seat's box, left out
+ * of one even-odd path rather than masked (`dimPathWithHole`).
  */
 export default function CircleSpotlight({
   cx,
@@ -30,7 +31,6 @@ export default function CircleSpotlight({
   /** Whether the rest of the circle is darkened (see `PresentationSpotlight`). */
   dim?: boolean;
 }) {
-  const maskId = React.useId();
   const radius = tokenRadius + SPOTLIGHT_MARGIN;
   const dimArea = {
     x: viewBox.x - DIM_BLEED,
@@ -42,19 +42,18 @@ export default function CircleSpotlight({
   return (
     <g pointerEvents="none" aria-hidden="true" data-circle-spotlight="">
       {dim && (
-        <>
-          <mask id={maskId}>
-            {/* White keeps the dimming, black lets the circle shine through. */}
-            <rect {...dimArea} fill="white" />
-            <circle cx={cx} cy={cy} r={radius} fill="black" />
-          </mask>
-          <rect
-            {...dimArea}
-            fill={DIM_COLOR}
-            opacity={DIM_STRENGTH}
-            mask={`url(#${maskId})`}
-          />
-        </>
+        <path
+          d={dimPathWithHole(dimArea, {
+            cx,
+            cy,
+            rx: radius,
+            ry: radius,
+            rotation: 0,
+          })}
+          fillRule="evenodd"
+          fill={DIM_COLOR}
+          opacity={DIM_STRENGTH}
+        />
       )}
       <circle
         cx={cx}

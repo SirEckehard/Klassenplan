@@ -6,6 +6,8 @@ import {
   calculateSeatLayout,
   calculateSeatPosition,
 } from '@/utils/math/positionCalculations';
+import { CLASSROOM_HEIGHT, CLASSROOM_WIDTH } from '@/utils';
+import { dimPathWithHole } from '@/utils/ui/spotlightHole';
 
 /**
  * How far the lit area reaches past the seat's own box, in scene units.
@@ -47,6 +49,42 @@ export function spotlightSeatFill(isDark: boolean): string {
   return isDark ? '#5c4511' : '#fde7b0';
 }
 
+/**
+ * How the projection places the classroom: turned by `rotation` degrees
+ * about its centre and set in the middle of a box this size.
+ */
+export interface PresentationGroupFrame {
+  rotation: number;
+  boxWidth: number;
+  boxHeight: number;
+}
+
+/** The classroom group's transform, for the scene and its spotlight alike. */
+export function presentationGroupTransform({
+  rotation,
+  boxWidth,
+  boxHeight,
+}: PresentationGroupFrame): string {
+  return (
+    `translate(${boxWidth / 2} ${boxHeight / 2}) rotate(${rotation}) ` +
+    `translate(${-CLASSROOM_WIDTH / 2} ${-CLASSROOM_HEIGHT / 2})`
+  );
+}
+
+/** A point of the classroom where `presentationGroupTransform` puts it. */
+function toFrame(
+  point: { x: number; y: number },
+  { rotation, boxWidth, boxHeight }: PresentationGroupFrame,
+): { x: number; y: number } {
+  const angle = (rotation * Math.PI) / 180;
+  const x = point.x - CLASSROOM_WIDTH / 2;
+  const y = point.y - CLASSROOM_HEIGHT / 2;
+  return {
+    x: x * Math.cos(angle) - y * Math.sin(angle) + boxWidth / 2,
+    y: x * Math.sin(angle) + y * Math.cos(angle) + boxHeight / 2,
+  };
+}
+
 export interface SpotlightTarget {
   tableIndex: number;
   seatIndex: number;
@@ -58,8 +96,8 @@ interface PresentationSpotlightProps {
   target: SpotlightTarget | null;
   /** Visible area of the scene, in scene units — the SVG's own viewBox. */
   viewBox: { x: number; y: number; width: number; height: number };
-  /** Transform applied to the classroom group, so the hole lines up with it. */
-  groupTransform: string;
+  /** How the classroom group is placed, so the hole lines up with it. */
+  frame: PresentationGroupFrame;
   /**
    * Whether the rest of the classroom is darkened. The projection does, for
    * the back row; a phone held close keeps every name readable and lets the
@@ -75,22 +113,20 @@ interface PresentationSpotlightProps {
  * through `SceneTable`/`SeatGrid`: those render the editor, the export and the
  * presentation alike, and a projection-only effect has no business in them.
  *
- * The dim rect covers the whole visible area and gets a mask with a hole
- * punched at the seat, so the lit area really is a spotlight and not a coloured
- * ring. The hole is an ellipse around the seat's own box rather than a fixed
- * circle — otherwise it lights up the neighbours as well and the class cannot
- * tell who was drawn.
+ * The dimming covers the whole visible area with a hole left at the seat, so
+ * the lit area really is a spotlight and not a coloured ring. The hole is an
+ * ellipse around the seat's own box rather than a fixed circle — otherwise it
+ * lights up the neighbours as well and the class cannot tell who was drawn.
+ * It is one path with an even-odd fill, not a mask (`dimPathWithHole`).
  */
 export default function PresentationSpotlight({
   scene,
   seating,
   target,
   viewBox,
-  groupTransform,
+  frame,
   dim = true,
 }: PresentationSpotlightProps) {
-  const maskId = React.useId();
-
   const seat = React.useMemo(() => {
     if (!target) return null;
     const table = scene.tables[target.tableIndex];
@@ -104,20 +140,23 @@ export default function PresentationSpotlight({
       seatIndex: target.seatIndex,
       layout,
     });
+    // Drawn where the projection shows the seat: the seat box turns with
+    // its table and the classroom with the perspective, so the ellipse
+    // turns by both.
+    const { x, y } = toFrame(center, frame);
     return {
-      center,
-      radiusX: layout.seatWidth / 2 + SPOTLIGHT_MARGIN,
-      radiusY: layout.seatHeight / 2 + SPOTLIGHT_MARGIN,
-      // The seat box turns with its table, so the lit ellipse has to as well.
-      rotation: table.rotation ?? 0,
+      cx: x,
+      cy: y,
+      rx: layout.seatWidth / 2 + SPOTLIGHT_MARGIN,
+      ry: layout.seatHeight / 2 + SPOTLIGHT_MARGIN,
+      rotation: (table.rotation ?? 0) + frame.rotation,
     };
-  }, [scene.tables, seating, target]);
+  }, [scene.tables, seating, target, frame]);
 
   if (!seat) {
     return null;
   }
 
-  const seatTransform = `rotate(${seat.rotation} ${seat.center.x} ${seat.center.y})`;
   const dimArea = {
     x: viewBox.x - DIM_BLEED,
     y: viewBox.y - DIM_BLEED,
@@ -128,41 +167,23 @@ export default function PresentationSpotlight({
   return (
     <g pointerEvents="none" aria-hidden="true" data-spotlight="">
       {dim && (
-        <>
-          <mask id={maskId}>
-            {/* White keeps the dimming, black lets the classroom shine through. */}
-            <rect {...dimArea} fill="white" />
-            <g transform={groupTransform}>
-              <ellipse
-                cx={seat.center.x}
-                cy={seat.center.y}
-                rx={seat.radiusX}
-                ry={seat.radiusY}
-                transform={seatTransform}
-                fill="black"
-              />
-            </g>
-          </mask>
-          <rect
-            {...dimArea}
-            fill={DIM_COLOR}
-            opacity={DIM_STRENGTH}
-            mask={`url(#${maskId})`}
-          />
-        </>
-      )}
-      <g transform={groupTransform}>
-        <ellipse
-          cx={seat.center.x}
-          cy={seat.center.y}
-          rx={seat.radiusX}
-          ry={seat.radiusY}
-          transform={seatTransform}
-          fill="none"
-          stroke={SPOTLIGHT_RING_COLOR}
-          strokeWidth={4}
+        <path
+          d={dimPathWithHole(dimArea, seat)}
+          fillRule="evenodd"
+          fill={DIM_COLOR}
+          opacity={DIM_STRENGTH}
         />
-      </g>
+      )}
+      <ellipse
+        cx={seat.cx}
+        cy={seat.cy}
+        rx={seat.rx}
+        ry={seat.ry}
+        transform={`rotate(${seat.rotation} ${seat.cx} ${seat.cy})`}
+        fill="none"
+        stroke={SPOTLIGHT_RING_COLOR}
+        strokeWidth={4}
+      />
     </g>
   );
 }

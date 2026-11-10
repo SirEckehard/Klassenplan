@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Fixed
+
+- In the presentation, the student "Who's next?" draws lights up in Safari too instead of staying dark
+
 ## [3.3.2] - 2026-11-08
 
 ### Improved
