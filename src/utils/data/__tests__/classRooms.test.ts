@@ -38,11 +38,22 @@ const room = (id: string, extra: Partial<RoomRecord> = {}): RoomRecord => ({
   ...extra,
 });
 
+// Fixed dates: a record built twice must come out the same, or a comparison
+// fails whenever the clock ticks between the two builds.
 const plan = (id: string, roomId?: string): SavedPlan =>
-  createMockSavedPlan({ id, name: id, ...(roomId && { roomId }) });
+  createMockSavedPlan({
+    id,
+    name: id,
+    date: '2026-10-04',
+    ...(roomId && { roomId }),
+  });
 
 const mix = (id: number, roomId?: string): MixResult =>
-  createMockMixResult({ id, ...(roomId && { roomId }) });
+  createMockMixResult({
+    id,
+    timestamp: '2026-10-04T08:00:00.000Z',
+    ...(roomId && { roomId }),
+  });
 
 const classRecord = (extra: Partial<ClassRecord> = {}): ClassRecord => ({
   id: 'class-a',
