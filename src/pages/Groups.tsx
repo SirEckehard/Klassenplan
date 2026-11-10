@@ -4,6 +4,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { DiceThreeIcon, WarningIcon } from '@phosphor-icons/react';
 import ToolPage, { ToolEmptyState } from '@/components/tools/ToolPage';
+import { PAGE_HELP_TOPICS } from '@/components/help/pageHelpTopics';
 import { useSeatingPlanState } from '@/contexts/SeatingPlanContext';
 import { buildGroups, primaryButtonClass, type GroupDrawResult } from '@/utils';
 
@@ -44,20 +45,12 @@ export default function Groups() {
     [activeClass.id, named],
   );
 
-  const help = (
-    <ul className="list-disc space-y-1 pl-4">
-      <li>{t('tools.groups.help1')}</li>
-      <li>{t('tools.groups.help2')}</li>
-      <li>{t('tools.groups.help3')}</li>
-    </ul>
-  );
-
   return (
     <ToolPage
       route="/gruppen"
       title={t('tools.groups.title')}
       subtitle={activeClass.name}
-      help={help}
+      help={PAGE_HELP_TOPICS.groups}
       footer={
         named.length > 0 ? (
           <button

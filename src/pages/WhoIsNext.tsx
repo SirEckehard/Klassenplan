@@ -8,6 +8,7 @@ import {
   SkipForwardIcon,
 } from '@phosphor-icons/react';
 import ToolPage, { ToolEmptyState } from '@/components/tools/ToolPage';
+import { PAGE_HELP_TOPICS } from '@/components/help/pageHelpTopics';
 import SeatLocationLine from '@/components/tools/SeatLocationLine';
 import PresentationScene from '@/components/scene/PresentationScene';
 import SimpleCircleView from '@/components/circle/SimpleCircleView';
@@ -94,20 +95,12 @@ export default function WhoIsNext() {
     escape: () => picker.reset(),
   });
 
-  const help = (
-    <ul className="list-disc space-y-1 pl-4">
-      <li>{t('tools.whoIsNext.help1')}</li>
-      <li>{t('tools.whoIsNext.help2')}</li>
-      <li>{t('tools.whoIsNext.help3')}</li>
-    </ul>
-  );
-
   return (
     <ToolPage
       route="/wer-kommt-dran"
       title={t('tools.whoIsNext.title')}
       subtitle={activeClass.name}
-      help={help}
+      help={PAGE_HELP_TOPICS.whoIsNext}
       footer={
         picker.total > 0 ? (
           <div className="flex gap-2">

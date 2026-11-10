@@ -2,73 +2,176 @@
   "help": {
     "students": {
       "title": "Class List",
-      "item1": "Create as many classes as you like in the class manager and switch between them – each class keeps its own students, classrooms and seating plans.",
-      "item2": "Add students one by one, create placeholders for a whole class, or import a CSV file – \"What the CSV file must look like\" shows the required structure.",
-      "item3": "Select up to 3 preferred and distance partners per student – the order determines priority.",
-      "item4": "Search, filter and sorting help you find individual students; the checkboxes let you edit several students at once.",
-      "item5": "Add photos in the inspector via the portrait – they stay on this device only.",
-      "item6": "Undo and redo changes in the class list with the corresponding icons in the status bar."
+      "classes": {
+        "title": "Classes",
+        "body": "At the top of the page you switch to another class or create a new one."
+      },
+      "add": {
+        "title": "Adding students",
+        "body": "One by one, as placeholders or from a CSV file – under “Add” and “Manage” in the toolbar."
+      },
+      "edit": {
+        "title": "Editing a student",
+        "body": "A click on a student opens them in the inspector. All data stays on this device only."
+      },
+      "partners": {
+        "title": "Preferred and distance partners",
+        "body": "Up to three per student – the first one counts most."
+      },
+      "several": {
+        "title": "Editing several",
+        "body": "Select several students to edit them together."
+      },
+      "views": {
+        "title": "Attributes and relationships",
+        "body": "In “Attributes” the whole class is asked about one attribute after another, “Relationships” shows every partner wish."
+      }
     },
     "layout": {
       "title": "Classroom",
-      "item1": "While nothing is selected, “Set up from scratch” in the inspector places tables for the whole class. A click or a tap puts a single table on a free spot, or you drag it into the room – from the toolbar, on a phone or a tablet from “Add” at the status bar.",
-      "item2": "Move and rotate tables via drag & drop, or with the arrow keys and Q/E.",
-      "item3": "Multi-select: Shift+click, Ctrl/⌘+click or draw a selection rectangle.",
-      "item4": "Right-click (desktop) or long press (touch) opens the context menu.",
-      "item5": "Under “Templates” in the inspector you save the room for other classes and load saved rooms.",
-      "item6": "Room elements such as windows, door, desk, blackboard, whiteboard, cabinet or divider go onto a free spot with a click or a tap, or you drag them into the room as you do tables; resize them if needed.",
-      "item7": "Undo and redo changes in the classroom with the corresponding icons in the status bar."
+      "setup": {
+        "title": "Setting up the room",
+        "body": "With nothing selected, “Set up from scratch” in the inspector places tables for the whole class."
+      },
+      "add": {
+        "title": "Tables and room elements",
+        "body": "A click in “Add” puts one on a free spot – or you drag it into the room."
+      },
+      "move": {
+        "title": "Moving and turning",
+        "body": "Drag the selection into place and turn it by its handle. Shift+click or a frame selects several."
+      },
+      "edit": {
+        "title": "Editing",
+        "body": "Edit what is selected in the inspector or with a right-click – with a long press on a tablet or a phone."
+      },
+      "rooms": {
+        "title": "Rooms",
+        "body": "A class can have several rooms: “New room” and “Open a room …” are in the inspector while nothing is selected."
+      },
+      "templates": {
+        "title": "Templates",
+        "body": "Under “Templates” in the inspector you save the room for other classes or open a saved one."
+      }
     },
     "plan": {
       "title": "Seating Plan",
-      "item1": "In the inspector on the right you name the seating plan with a click on its name, save it and set how much each criterion matters, or you pick a preset such as “Written test” that sets all criteria at once.",
-      "item2": "Drag students to other seats. Esc cancels the drag. With the keyboard, Enter selects a student, the arrow keys choose the seat, Enter puts them there.",
-      "item3": "Click the lock icon to lock a seat for the next mix.",
-      "item4": "The button above the criteria shows in per cent how well the plan meets them and puts a bar under each criterion – hover it and the seats it concerns are marked.",
-      "item5": "Among other things, the view settings control how names appear (first name only, first name + initial, or first and last name) and whether photos are shown.",
-      "item6": "Undo and redo changes to the seating plan with the corresponding icons in the status bar.",
-      "item7": "Hover over or tap an icon on a seat to see what it means – the seats of everyone who shares it are marked. Under “Markers” in the toolbar you find the legend, choose which icons the seats show and switch the explanation and the marking off."
+      "criteria": {
+        "title": "Criteria",
+        "body": "In the inspector you set how much each criterion matters – or pick a preset such as “Written test”."
+      },
+      "save": {
+        "title": "Saving",
+        "body": "Name the plan at the top of the inspector and keep it with “Save plan”."
+      },
+      "seats": {
+        "title": "Swapping and locking seats",
+        "body": "Drag students to other seats. A seat's lock keeps its student out of the next mix."
+      },
+      "fulfilment": {
+        "title": "Fulfilment",
+        "body": "“Fulfilment” in the status bar shows how well each criterion is met – a click on one marks the seats it concerns."
+      },
+      "badges": {
+        "title": "Markers",
+        "body": "Hover over or tap an icon on a seat: it explains itself and marks everyone who shares it."
+      },
+      "view": {
+        "title": "View",
+        "body": "Under “View settings” you choose how names, photos and markers appear; the legend is there too."
+      }
     },
     "circle": {
       "title": "Seating Circle",
-      "item1": "Drag students to other places in the circle. Esc cancels the drag.",
-      "item2": "Green lines show connections to table neighbors in the seating plan.",
-      "item3": "Show or hide connections in the toolbar under “View settings”.",
-      "item4": "The circle is built from the seating plan and can be changed. “Save plan” in the inspector keeps it together with the plan; you can also export and present it on its own.",
-      "item5": "Hover over or tap an icon on a seat to see what it means – the seats of everyone who shares it are marked. Under “Markers” in the toolbar you find the legend, choose which icons the seats show and switch the explanation and the marking off.",
-      "item6": "The lock keeps a student in their place in the circle: dragging, shuffling and regenerating leave them there.",
-      "item7": "Undo and redo changes to the seating circle with the corresponding icons in the status bar."
+      "origin": {
+        "title": "From the seating plan",
+        "body": "The circle is built from the seating plan. “Shuffle” orders it at random, “Align” brings it back."
+      },
+      "seats": {
+        "title": "Swapping and locking places",
+        "body": "Drag students to other places. The lock keeps students out of shuffling and aligning."
+      },
+      "connections": {
+        "title": "Connections",
+        "body": "The lines show table neighbours from the seating plan; the inspector shows how many sit side by side."
+      },
+      "save": {
+        "title": "Saving",
+        "body": "“Save plan” in the inspector keeps the circle together with the plan."
+      }
     },
     "export": {
       "title": "Export",
-      "item1": "Click the sheet's title at the top of the inspector to adjust it without renaming the saved plan.",
-      "item2": "Switch between portrait and landscape format for PDF export.",
-      "itemFlip": "Set the viewing direction under page format: \"From the back\" rotates the room by 180° for a desk in the back part of the room, so names stay readable.",
-      "item3": "Choose in the inspector on the right what the sheet should show: class info, photos, colors, markers, legend and room elements.",
-      "itemNames": "Choose how names appear: first name only, first name + last name initial, or first and last name.",
-      "item4": "Switch between seating plan and seating circle in the toolbar on the left.",
-      "item5": "Besides PDF and print you can also save the plan as a PNG image or an SVG vector graphic from the toolbar."
+      "views": {
+        "title": "View",
+        "body": "In the toolbar you choose the seating plan or the circle, the “List” with room for notes or the sheet for a “Substitute”."
+      },
+      "sheetTitle": {
+        "title": "Title",
+        "body": "A click on the title at the top of the inspector changes it for the export only, not the plan's name."
+      },
+      "format": {
+        "title": "Page format",
+        "body": "Portrait or landscape; “From the back” turns the room for a desk at the back."
+      },
+      "content": {
+        "title": "Preview",
+        "body": "In the inspector you set how names appear and what the export shows – from photos to room elements."
+      },
+      "save": {
+        "title": "Printing and saving",
+        "body": "“Print” is in the status bar; save as PDF, PNG or SVG from the toolbar."
+      }
     },
     "present": {
       "title": "Presentation mode",
-      "item1": "The bar at the bottom switches between teacher and student view as well as between seating plan and circle.",
-      "item2": "The student view shows the plan from the class's perspective – without markers and photos.",
-      "item3": "Show or hide markers, photos, colors and room elements using the bar at the bottom.",
-      "itemNames": "The \"Names\" button switches the display between first name, first name + last name initial, and first and last name.",
-      "itemContrast": "Contrast mode shows the plan black on white with thicker outlines – so it stays easy to read even in a bright room.",
-      "item4": "Set the size with the slider, the mouse wheel or two fingers and drag to pan; the centre icon resets the view.",
-      "item5": "Press Alt/⌥+← to return to the seating plan.",
-      "item6": "\"Who's next?\" draws a random student and spotlights their seat – everyone gets a turn before anyone repeats.",
-      "item7": "Keyboard: F for fullscreen, Space picks a random student, Esc resets the selection, + / − zoom, 0 centres the seating plan.",
-      "itemFullscreen": "In fullscreen the strip on top goes away, and the bar at the bottom appears when the pointer nears the bottom edge or you tap there, then slides away again shortly after."
+      "studentView": {
+        "title": "Student view",
+        "body": "Shows the plan from the class's side, without markers and photos."
+      },
+      "display": {
+        "title": "Showing and hiding",
+        "body": "Switch markers, photos, names, room and colours in the bar at the bottom."
+      },
+      "contrast": {
+        "title": "Contrast",
+        "body": "Black on white with strong lines – easy to read in a bright room."
+      },
+      "size": {
+        "title": "Size",
+        "body": "The slider, the mouse wheel or two fingers zoom, dragging pans; “Recentre” resets the view."
+      },
+      "pick": {
+        "title": "Who's next?",
+        "body": "Draws a random student and spotlights their seat – everyone gets a turn before anyone repeats."
+      },
+      "fullscreen": {
+        "title": "Fullscreen",
+        "body": "The bar at the bottom slides away; point at or tap the bottom edge to bring it back."
+      }
     },
     "library": {
       "title": "Library",
-      "item1": "Your classes are on the left, beside them the rooms of the chosen class and inside those its plans.",
-      "item2": "What you choose is shown in the inspector: rename it there, move a plan to another room or delete it. The arrows in the status bar take that back while you are here.",
-      "item3": "“Open” at the bottom right takes the choice into the workspace.",
-      "item4": "“Recent mixes” and “Neighbourhoods” belong to the class: its last 20 mixes and who has already sat side by side, across all rooms of the class.",
-      "item5": "“Room templates” can be opened by every class. When you open a template, it becomes a new room of the current class."
+      "columns": {
+        "title": "Columns",
+        "body": "Your classes, room templates and presets are on the left, with what is saved in them."
+      },
+      "edit": {
+        "title": "Editing",
+        "body": "In the inspector you rename the choice, move a plan or delete it – the arrows in the status bar take that back."
+      },
+      "open": {
+        "title": "Opening",
+        "body": "“Open” at the bottom right takes the choice into the workspace, a room template as a new room of the class."
+      },
+      "history": {
+        "title": "History",
+        "body": "“Recent mixes” and “Neighbourhoods” show the last 20 mixes and who has sat side by side, across all rooms."
+      },
+      "add": {
+        "title": "Creating",
+        "body": "Create classes, rooms, room templates and presets in the toolbar."
+      }
     }
   },
   "sidebar": {
@@ -701,7 +804,8 @@
       "plan": "Seating Plan",
       "circle": "Seating Circle",
       "export": "Export",
-      "library": "Library"
+      "library": "Library",
+      "present": "Presentation"
     },
     "descriptions": {
       "global_toggleHelp": "Show keyboard shortcuts",
@@ -730,7 +834,7 @@
       "plan_openExport": "Open Export view",
       "circle_toClassroom": "Return to Room",
       "circle_toggleConnections": "Show/Hide neighbor connections",
-      "circle_moveStudent": "Move student in circle",
+      "circle_moveStudent": "Pick up a student in the circle with the keyboard, choose the place and put them down (Esc cancels)",
       "circle_saveCircle": "Save Seating Circle",
       "circle_openExport": "Open Export view",
       "export_backToPlan": "Back to Seating Plan",
@@ -750,7 +854,14 @@
       "library_menu": "Open the menu of the entry",
       "library_undo": "Undo the last change",
       "library_redo": "Redo the last change",
-      "library_back": "Back to where you came from"
+      "library_back": "Back to where you came from",
+      "plan_moveStudent": "Pick up a student with the keyboard, choose the seat and put them down (Esc cancels)",
+      "present_back": "Back to the seating plan",
+      "present_fullscreen": "Switch fullscreen on and off",
+      "present_pick": "“Who's next?”: draw someone",
+      "present_reset": "Start “Who's next?” over",
+      "present_zoom": "Zoom in and out",
+      "present_centre": "Centre the view"
     },
     "keys": {
       "global_toggleHelp": "?",
@@ -779,7 +890,7 @@
       "plan_openExport": "Ctrl/⌘+E",
       "circle_toClassroom": "Alt/⌥+←",
       "circle_toggleConnections": "C",
-      "circle_moveStudent": "Drag & Drop",
+      "circle_moveStudent": "Enter, arrow keys",
       "circle_saveCircle": "Ctrl/⌘+S",
       "circle_openExport": "Ctrl/⌘+E",
       "export_backToPlan": "Alt/⌥+←",
@@ -799,7 +910,14 @@
       "library_menu": "Shift+F10",
       "library_undo": "Ctrl/⌘+Z",
       "library_redo": "Ctrl/⌘+Shift+Z",
-      "library_back": "Alt/⌥+←"
+      "library_back": "Alt/⌥+←",
+      "plan_moveStudent": "Enter, arrow keys",
+      "present_back": "Alt/⌥+←",
+      "present_fullscreen": "F",
+      "present_pick": "Space",
+      "present_reset": "Esc",
+      "present_zoom": "+ / −",
+      "present_centre": "0"
     }
   },
   "tableType": {
@@ -1104,9 +1222,20 @@
       "remaining": "{{remaining}} of {{total}} left in this round",
       "emptyTitle": "Nobody to call on",
       "emptyBody": "Create a class with students first.",
-      "help1": "Everyone has a turn before anyone repeats. When the round is over, the next one starts.",
-      "help2": "\"Skip\" draws someone else and leaves the skipped student in the round.",
-      "help3": "Keyboard: Space draws, Esc starts over."
+      "help": {
+        "round": {
+          "title": "One round",
+          "body": "Everyone gets one turn before anyone repeats; then the next round starts."
+        },
+        "skip": {
+          "title": "Skip",
+          "body": "Draws someone else – whoever was skipped stays in the round."
+        },
+        "reset": {
+          "title": "Start over",
+          "body": "“Start over” or Esc begins a new round, Space draws."
+        }
+      }
     },
     "seatFinder": {
       "title": "Where does who sit?",
@@ -1115,8 +1244,16 @@
       "noMatch": "Nobody in this plan is called “{{query}}”.",
       "emptyTitle": "No seating plan yet",
       "emptyBody": "This view reads the current seating plan. Mix one, and it will say who sits where.",
-      "help1": "Type a name; once one match is left, it opens by itself.",
-      "help2": "The plan shows you the student's seat."
+      "help": {
+        "search": {
+          "title": "Searching",
+          "body": "Type a name – once only one is left, it opens by itself."
+        },
+        "seat": {
+          "title": "Seat",
+          "body": "The plan lights up the student's seat."
+        }
+      }
     },
     "groups": {
       "title": "Build groups",
@@ -1131,9 +1268,20 @@
       "conflict": "Not kept apart: {{names}}. There are not enough groups for that.",
       "emptyTitle": "No class to split",
       "emptyBody": "Create a class with students first.",
-      "help1": "The groups are drawn afresh every time.",
-      "help2": "Students with a distance wish stay out of the same group where the sizes allow it.",
-      "help3": "The seating plan stays untouched."
+      "help": {
+        "draw": {
+          "title": "Drawing groups",
+          "body": "Every draw makes new groups of the chosen size."
+        },
+        "avoid": {
+          "title": "Distance partners",
+          "body": "Students with a distance partner end up in different groups where possible."
+        },
+        "plan": {
+          "title": "Seating plan",
+          "body": "The groups leave the seating plan as it is."
+        }
+      }
     },
     "duties": {
       "title": "Hand out duties",
@@ -1172,11 +1320,24 @@
       },
       "emptyTitle": "No class for duties",
       "emptyBody": "Create a class with students first.",
-      "help1": "Whoever has had the fewest duties so far goes first; on a tie, whoever has had this duty less often.",
-      "help2": "Each person gets at most one duty per round.",
-      "helpRounds": "“Next round” counts the round and hands out the next one. “Draw again” hands out the same round once more and counts nothing.",
-      "help3": "If someone drops out, the arrows beside the name let you hand out the duty again.",
-      "help4": "The duties and the last 20 rounds are kept with the class and are part of the backup."
+      "help": {
+        "fair": {
+          "title": "Fair turns",
+          "body": "Whoever has had the fewest duties so far goes first; nobody gets more than one per round."
+        },
+        "rounds": {
+          "title": "Rounds",
+          "body": "“Next round” counts the distribution and hands out the next one, “Draw again” hands out the same round once more."
+        },
+        "replace": {
+          "title": "Someone is away",
+          "body": "The arrows beside a name give that duty to someone else."
+        },
+        "saved": {
+          "title": "Saved",
+          "body": "The duties and the last 20 rounds stay with the class and are part of the backup."
+        }
+      }
     },
     "backTitle": "Back (Alt/⌥+←)"
   },

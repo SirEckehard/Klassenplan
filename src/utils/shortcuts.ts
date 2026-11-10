@@ -6,7 +6,14 @@ export type Shortcut = {
 };
 
 export type ShortcutContext =
-  'students' | 'layout' | 'plan' | 'circle' | 'export' | 'library' | 'global';
+  | 'students'
+  | 'layout'
+  | 'plan'
+  | 'circle'
+  | 'export'
+  | 'library'
+  | 'present'
+  | 'global';
 
 export const shortcutContextLabels: Record<ShortcutContext, string> = {
   global: 'shortcuts.labels.global',
@@ -16,6 +23,7 @@ export const shortcutContextLabels: Record<ShortcutContext, string> = {
   circle: 'shortcuts.labels.circle',
   export: 'shortcuts.labels.export',
   library: 'shortcuts.labels.library',
+  present: 'shortcuts.labels.present',
 };
 
 export const shortcutMap: Record<ShortcutContext, Shortcut[]> = {
@@ -131,6 +139,10 @@ export const shortcutMap: Record<ShortcutContext, Shortcut[]> = {
       descriptionKey: 'shortcuts.descriptions.plan_shuffle',
     },
     {
+      keysKey: 'shortcuts.keys.plan_moveStudent',
+      descriptionKey: 'shortcuts.descriptions.plan_moveStudent',
+    },
+    {
       keysKey: 'shortcuts.keys.plan_savePlan',
       descriptionKey: 'shortcuts.descriptions.plan_savePlan',
     },
@@ -229,4 +241,50 @@ export const shortcutMap: Record<ShortcutContext, Shortcut[]> = {
       descriptionKey: 'shortcuts.descriptions.library_back',
     },
   ],
+  present: [
+    {
+      keysKey: 'shortcuts.keys.present_back',
+      descriptionKey: 'shortcuts.descriptions.present_back',
+    },
+    {
+      keysKey: 'shortcuts.keys.present_fullscreen',
+      descriptionKey: 'shortcuts.descriptions.present_fullscreen',
+    },
+    {
+      keysKey: 'shortcuts.keys.present_pick',
+      descriptionKey: 'shortcuts.descriptions.present_pick',
+    },
+    {
+      keysKey: 'shortcuts.keys.present_reset',
+      descriptionKey: 'shortcuts.descriptions.present_reset',
+    },
+    {
+      keysKey: 'shortcuts.keys.present_zoom',
+      descriptionKey: 'shortcuts.descriptions.present_zoom',
+    },
+    {
+      keysKey: 'shortcuts.keys.present_centre',
+      descriptionKey: 'shortcuts.descriptions.present_centre',
+    },
+    {
+      keysKey: 'shortcuts.keys.global_toggleHelp',
+      descriptionKey: 'shortcuts.descriptions.global_toggleHelp',
+    },
+  ],
 };
+
+/**
+ * The sections the help lists for a screen: the keys every screen of the
+ * workspace shares, then the screen's own. The projection is no screen of
+ * the workspace — it has no layer to switch to and no toolbar to fold — so it
+ * lists its own keys alone, the help's `?` among them.
+ */
+export function shortcutSectionsFor(
+  contexts: readonly ShortcutContext[] | undefined,
+): ShortcutContext[] {
+  if (!contexts?.length) return [];
+  const shared: ShortcutContext[] = contexts.includes('present')
+    ? []
+    : ['global'];
+  return Array.from(new Set<ShortcutContext>([...shared, ...contexts]));
+}

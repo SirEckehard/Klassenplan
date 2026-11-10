@@ -4,6 +4,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { MagnifyingGlassIcon, XIcon } from '@phosphor-icons/react';
 import ToolPage, { ToolEmptyState } from '@/components/tools/ToolPage';
+import { PAGE_HELP_TOPICS } from '@/components/help/pageHelpTopics';
 import SeatLocationLine from '@/components/tools/SeatLocationLine';
 import PresentationScene from '@/components/scene/PresentationScene';
 import StudentAvatar from '@/components/students/StudentAvatar';
@@ -81,19 +82,12 @@ export default function SeatFinder() {
     [classroomScene, currentSeating, selected],
   );
 
-  const help = (
-    <ul className="list-disc space-y-1 pl-4">
-      <li>{t('tools.seatFinder.help1')}</li>
-      <li>{t('tools.seatFinder.help2')}</li>
-    </ul>
-  );
-
   return (
     <ToolPage
       route="/wo-sitzt-wer"
       title={t('tools.seatFinder.title')}
       subtitle={activeClass.name}
-      help={help}
+      help={PAGE_HELP_TOPICS.seatFinder}
     >
       {seated.length === 0 ? (
         <ToolEmptyState

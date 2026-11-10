@@ -25,7 +25,7 @@ it for Antigravity — edit this file, never those two.
 - Check modified files with `npx eslint <files>`
 - TypeScript compilation check: `npm run typecheck` (app) and `npm run typecheck:test` (tests); both via `npm run typecheck:all`
 - Check for unused exports: `npm run check:unused` — a ratchet against the baseline in `scripts/check-unused-exports.mjs`; the count may fall, never rise. For the full list run `npx ts-unused-exports tsconfig.ts-unused.json --allowUnusedTypes --ignoreFiles='vite-env.d.ts|index.tsx|App.tsx'`
-- E2E: Playwright specs live in `e2e/` — smoke, the core flow, the rooms of a class and the mixing presets in "Bibliothek" (`plans-library.spec.ts`) the questions before a deletion (`questions.spec.ts`) the first-visit onboarding (sample class and tours) and the layout shift of a first visit and a reload (`layout-shift.spec.ts`, at most 0.05) on a desktop, the tablet and phone layouts and the desktop layout worked by a finger on an interactive whiteboard (`touch-layouts.spec.ts`, projects `tablet`, `phone` and `whiteboard`, picked by the tags `@tablet` / `@phone` / `@whiteboard`), and on all four the head every page wears (`page-header.spec.ts`) (`npm run test:e2e`; needs `npx playwright install chromium`)
+- E2E: Playwright specs live in `e2e/` — smoke, the core flow, the rooms of a class and the mixing presets in "Bibliothek" (`plans-library.spec.ts`) the questions before a deletion (`questions.spec.ts`) the first-visit onboarding (sample class and tours) and the layout shift of a first visit and a reload (`layout-shift.spec.ts`, at most 0.05) on a desktop, the tablet and phone layouts and the desktop layout worked by a finger on an interactive whiteboard (`touch-layouts.spec.ts`, projects `tablet`, `phone` and `whiteboard`, picked by the tags `@tablet` / `@phone` / `@whiteboard`), and on all four the head every page wears (`page-header.spec.ts`), and the help's shortcuts scrolling into view (`help.spec.ts`) (`npm run test:e2e`; needs `npx playwright install chromium`)
 - i18n consistency: `npm run check:i18n` (DE/EN key parity + no `t(key, 'default')` inline default + no key that no code refers to)
 - Bundle budgets: `npm run check:bundle` (after a build; part of `npm run build:static`)
 - Live addressing: `npm run check:live-seo` (after a deploy, by hand: every sitemap address answers 200 and is its own canonical, slash/`http://`/`www.` spellings redirect permanently, unknown addresses are 404; decision 0029)
@@ -146,6 +146,16 @@ longer on screen, update the title lists in that spec as well.
 like the layers' tours. A teacher coming from a version before 3.0 sees
 `RedesignWelcome` once in place of the post-update notice (`isRedesignUpgrade`);
 its "Tour starten" makes every tour due again (`restartTours`) — decision 0015.
+
+### Help texts
+
+The help's topics (`src/components/help/workspaceHelpTopics.ts`,
+`pageHelpTopics.ts`) each name a key written out in full, its `.title` and
+`.body` beneath it, which `check:i18n` sees through that parent;
+`src/components/help/__tests__/helpTopics.test.ts` checks both languages. A
+topic is two or three words and one sentence about what the screen does not
+say by itself — a key goes into `utils/shortcuts.ts`, which the help lists
+under "Tastenkürzel".
 
 ### Inline defaults
 

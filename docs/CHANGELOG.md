@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ### Improved
 
 - On a phone and a tablet, tables and room elements come from "Add" at the status bar, without scrolling below the room
+- The help is shorter, sorted into topics and up to date, and its keyboard shortcuts – now in the presentation too – scroll into view when opened
 
 ### Fixed
 

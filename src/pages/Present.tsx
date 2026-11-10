@@ -29,10 +29,12 @@ import {
   primaryButtonClass,
   quietSuccessToasts,
   type NameDisplayMode,
+  type ShortcutContext,
 } from '@/utils';
 import { usePlanUsagePrompt } from '@/hooks/plan/usePlanUsagePrompt';
 import { NAME_DISPLAY_MODES } from '@/components/SeatingPlanGenerator/canvas/nameDisplayGroup';
 import HelpButton from '@/components/ui/buttons/HelpButton';
+import { PAGE_HELP_TOPICS } from '@/components/help/pageHelpTopics';
 import PresentationScene from '@/components/scene/PresentationScene';
 import PresentationToolbar from '@/components/scene/PresentationToolbar';
 import SimpleCircleView from '@/components/circle/SimpleCircleView';
@@ -45,6 +47,9 @@ import type { SeatBadgeView } from '@/utils/ui/seatBadges';
 const PRESENT_CIRCLE_BADGE_VIEW: SeatBadgeView = { collapse: true };
 
 const NO_SEATING: SeatingArrangement = [];
+
+/** The projection's own keys, which its help lists (`shortcutMap.present`). */
+const PRESENT_SHORTCUTS: ShortcutContext[] = ['present'];
 
 const PRESENT_MIN_ZOOM = 0.5;
 const PRESENT_MAX_ZOOM = 3;
@@ -254,23 +259,8 @@ export default function Present() {
             <HelpButton
               faqSection="unterricht"
               title={t('help.present.title')}
-              instructions={
-                <ul className="list-disc space-y-1 pl-4">
-                  <li>{t('help.present.item1')}</li>
-                  <li>{t('help.present.item2')}</li>
-                  <li>{t('help.present.item3')}</li>
-                  <li>
-                    {/* New keys carry no inline default (see AGENTS.md). */}
-                    {t('help.present.itemNames')}
-                  </li>
-                  <li>{t('help.present.itemContrast')}</li>
-                  <li>{t('help.present.item4')}</li>
-                  <li>{t('help.present.item6')}</li>
-                  <li>{t('help.present.item7')}</li>
-                  <li>{t('help.present.itemFullscreen')}</li>
-                  <li>{t('help.present.item5')}</li>
-                </ul>
-              }
+              topics={PAGE_HELP_TOPICS.present}
+              shortcutContexts={PRESENT_SHORTCUTS}
             />
           }
         />

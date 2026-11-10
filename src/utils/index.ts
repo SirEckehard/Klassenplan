@@ -346,6 +346,7 @@ export {
 export {
   shortcutContextLabels,
   shortcutMap,
+  shortcutSectionsFor,
   type ShortcutContext,
   type Shortcut,
 } from './shortcuts';

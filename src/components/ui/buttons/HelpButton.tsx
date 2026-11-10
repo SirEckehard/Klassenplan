@@ -15,8 +15,12 @@ import {
   secondaryButtonClass,
   shortcutContextLabels,
   shortcutMap,
+  shortcutSectionsFor,
   type ShortcutContext,
 } from '@/utils';
+import { motionEnabled } from '@/utils/ui/motion';
+import { revealInScroller } from '@/utils/ui/scroll';
+import HelpTopicList, { type HelpTopic } from '@/components/help/HelpTopicList';
 import {
   InspectorActionRow,
   InspectorBody,
@@ -50,7 +54,8 @@ const standaloneDrawerClass =
 
 type Props = {
   title: string;
-  instructions?: React.ReactNode;
+  /** What the screen's instructions explain, one topic each. */
+  topics?: readonly HelpTopic[];
   shortcutContexts?: ShortcutContext[];
   /** Offers "Tour starten"; the help closes before the tour opens. */
   onStartTour?: () => void;
@@ -72,7 +77,7 @@ type Props = {
  */
 export default function HelpButton({
   title,
-  instructions,
+  topics,
   shortcutContexts,
   onStartTour,
   faqSection,
@@ -110,7 +115,7 @@ export default function HelpButton({
     '?': () => setOpen(!open),
   });
 
-  const hasInstructions = Boolean(instructions);
+  const hasInstructions = Boolean(topics?.length);
   const hasShortcuts = Boolean(shortcutContexts?.length);
   const triggerRef = React.useRef<HTMLButtonElement | null>(null);
   const triggerDisabled = !hasInstructions && !hasShortcuts;
@@ -126,7 +131,7 @@ export default function HelpButton({
   const panel = open ? (
     <HelpPanel
       title={title}
-      instructions={instructions}
+      topics={topics}
       shortcutContexts={shortcutContexts}
       onStartTour={onStartTour}
       faqSection={faqSection}
@@ -189,7 +194,7 @@ function StandaloneDrawer({
 
 function HelpPanel({
   title,
-  instructions,
+  topics,
   shortcutContexts,
   onStartTour,
   faqSection,
@@ -204,19 +209,35 @@ function HelpPanel({
   // is a drawer over the stage, which a tap beside it closes.
   const isColumn = inShell && isDesktop;
   const rootRef = React.useRef<HTMLDivElement | null>(null);
+  const bodyRef = React.useRef<HTMLDivElement | null>(null);
+  const shortcutsRef = React.useRef<HTMLDivElement | null>(null);
 
   const shortcutSections = React.useMemo(
-    () =>
-      shortcutContexts?.length
-        ? Array.from(new Set<ShortcutContext>(['global', ...shortcutContexts]))
-        : [],
+    () => shortcutSectionsFor(shortcutContexts),
     [shortcutContexts],
   );
+  const hasTopics = Boolean(topics?.length);
   // The keys are no help to a finger; a screen without instructions shows
   // them at once, since they are all it has to say.
   const showsShortcuts =
-    shortcutSections.length > 0 && (!isCoarsePointer || !instructions);
-  const [shortcutsOpen, setShortcutsOpen] = React.useState(!instructions);
+    shortcutSections.length > 0 && (!isCoarsePointer || !hasTopics);
+  const [shortcutsOpen, setShortcutsOpen] = React.useState(!hasTopics);
+  // Unfolded below the instructions, the keys would open out of sight and
+  // the row seem to do nothing: the panel scrolls them into view — once, on
+  // the press that unfolded them, never when they stand open from the start.
+  const revealShortcutsRef = React.useRef(false);
+  const toggleShortcuts = () => {
+    revealShortcutsRef.current = !shortcutsOpen;
+    setShortcutsOpen(!shortcutsOpen);
+  };
+  React.useLayoutEffect(() => {
+    if (!shortcutsOpen || !revealShortcutsRef.current) return;
+    revealShortcutsRef.current = false;
+    const body = bodyRef.current;
+    const shortcuts = shortcutsRef.current;
+    if (!body || !shortcuts) return;
+    revealInScroller(body, shortcuts, motionEnabled() ? 'smooth' : 'auto');
+  }, [shortcutsOpen]);
 
   // The keyboard lands in the help when it opens, so Escape and Tab start
   // there.
@@ -270,12 +291,10 @@ function HelpPanel({
           </button>
         }
       />
-      <InspectorBody>
-        {instructions && (
+      <InspectorBody ref={bodyRef}>
+        {topics && hasTopics && (
           <InspectorSection title={t('help.instructions')}>
-            <div className="text-sm leading-relaxed text-(--text-page)">
-              {instructions}
-            </div>
+            <HelpTopicList topics={topics} />
           </InspectorSection>
         )}
         <InspectorSection title={t('help.moreSection')}>
@@ -298,35 +317,41 @@ function HelpPanel({
             state={APP_RETURN_STATE}
           />
           {showsShortcuts && (
-            <InspectorActionRow
-              icon={KeyboardIcon}
-              label={t('help.shortcuts')}
-              expanded={shortcutsOpen}
-              onClick={() => setShortcutsOpen((value) => !value)}
-            />
-          )}
-          {showsShortcuts && shortcutsOpen && (
-            <div className="flex flex-col gap-3 pt-1">
-              {shortcutSections.map((ctx) => (
-                <div key={ctx} className="flex flex-col gap-1.5">
-                  <h4 className="text-caption font-semibold text-(--text-muted)">
-                    {t(`generator:${shortcutContextLabels[ctx]}`)}
-                  </h4>
-                  <ul className="flex flex-col gap-1.5">
-                    {shortcutMap[ctx].map((shortcut) => (
-                      <li
-                        key={`${ctx}-${shortcut.keysKey}`}
-                        className="flex items-baseline justify-between gap-3 text-control text-(--text-page)"
-                      >
-                        <span>{t(`generator:${shortcut.descriptionKey}`)}</span>
-                        <kbd className="shrink-0 rounded-md bg-(--surface-sunken) px-1.5 py-0.5 font-mono text-caption font-semibold">
-                          {t(`generator:${shortcut.keysKey}`)}
-                        </kbd>
-                      </li>
-                    ))}
-                  </ul>
+            // The row and what it unfolds are revealed together, so the row
+            // stays in view above the keys it opened.
+            <div ref={shortcutsRef} className="flex flex-col gap-2">
+              <InspectorActionRow
+                icon={KeyboardIcon}
+                label={t('help.shortcuts')}
+                expanded={shortcutsOpen}
+                onClick={toggleShortcuts}
+              />
+              {shortcutsOpen && (
+                <div className="flex flex-col gap-3 pt-1">
+                  {shortcutSections.map((ctx) => (
+                    <div key={ctx} className="flex flex-col gap-1.5">
+                      <h4 className="text-caption font-semibold text-(--text-muted)">
+                        {t(`generator:${shortcutContextLabels[ctx]}`)}
+                      </h4>
+                      <ul className="flex flex-col gap-1.5">
+                        {shortcutMap[ctx].map((shortcut) => (
+                          <li
+                            key={`${ctx}-${shortcut.keysKey}`}
+                            className="flex items-baseline justify-between gap-3 text-control text-(--text-page)"
+                          >
+                            <span>
+                              {t(`generator:${shortcut.descriptionKey}`)}
+                            </span>
+                            <kbd className="shrink-0 rounded-md bg-(--surface-sunken) px-1.5 py-0.5 font-mono text-caption font-semibold">
+                              {t(`generator:${shortcut.keysKey}`)}
+                            </kbd>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
                 </div>
-              ))}
+              )}
             </div>
           )}
         </InspectorSection>

@@ -595,11 +595,18 @@
       "menu": "Zurück zum Menü"
     },
     "help": {
-      "item1": "Es werden nur Schüler mit Foto verwendet.",
-      "item2": "Foto-Quiz: Wähle den passenden Namen zum Foto oder umgekehrt. Unsichere Namen kommen häufiger dran.",
-      "item3": "Memory: Decke Paare aus Foto und Name auf – große Klassen spielen in mehreren Runden.",
-      "item4": "Dein Lernfortschritt wird nur lokal auf diesem Gerät gespeichert.",
-      "item5": "Mit Alt/⌥+← kehrst du dorthin zurück, wo du es geöffnet hast."
+      "photos": {
+        "title": "Mit Fotos",
+        "body": "Gespielt wird mit den Schülern, die ein Foto haben; dein Fortschritt bleibt auf diesem Gerät."
+      },
+      "quiz": {
+        "title": "Foto-Quiz",
+        "body": "Wähle den Namen zum Foto oder umgekehrt – unsichere Namen kommen öfter dran."
+      },
+      "memory": {
+        "title": "Memory",
+        "body": "Decke Paare aus Foto und Name auf; große Klassen spielen in mehreren Runden."
+      }
     }
   },
   "header": {

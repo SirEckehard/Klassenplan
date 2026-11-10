@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import ToolPage, { ToolEmptyState } from '@/components/tools/ToolPage';
+import { PAGE_HELP_TOPICS } from '@/components/help/pageHelpTopics';
 import { useSeatingPlanState } from '@/contexts/SeatingPlanContext';
 import { useStudentPhotoUrls } from '@/hooks/student/useStudentPhoto';
 import ModeSelect from '@/components/nameGame/ModeSelect';
@@ -115,15 +116,7 @@ export default function NameGame() {
       title={t('nameGame.title')}
       subtitle={activeClass.name}
       faqSection="klassenliste"
-      help={
-        <ul className="list-disc space-y-1 pl-4">
-          <li>{t('nameGame.help.item1')}</li>
-          <li>{t('nameGame.help.item2')}</li>
-          <li>{t('nameGame.help.item3')}</li>
-          <li>{t('nameGame.help.item4')}</li>
-          <li>{t('nameGame.help.item5')}</li>
-        </ul>
-      }
+      help={PAGE_HELP_TOPICS.nameGame}
       // Inside a game the arrow returns to the choice of game first; only
       // the choice leaves the page (Alt/⌥+← always does).
       onBack={screen === 'menu' ? undefined : () => setScreen('menu')}

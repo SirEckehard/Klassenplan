@@ -12,6 +12,7 @@ import {
   WarningIcon,
 } from '@phosphor-icons/react';
 import ToolPage, { ToolEmptyState } from '@/components/tools/ToolPage';
+import { PAGE_HELP_TOPICS } from '@/components/help/pageHelpTopics';
 import { useSeatingPlanState } from '@/contexts/SeatingPlanContext';
 import {
   emptyClassDuties,
@@ -252,16 +253,6 @@ export default function Duties() {
     }
   };
 
-  const help = (
-    <ul className="list-disc space-y-1 pl-4">
-      <li>{t('tools.duties.help1')}</li>
-      <li>{t('tools.duties.help2')}</li>
-      <li>{t('tools.duties.helpRounds')}</li>
-      <li>{t('tools.duties.help3')}</li>
-      <li>{t('tools.duties.help4')}</li>
-    </ul>
-  );
-
   const studentsById = new Map(
     students.map((student) => [student.id, student]),
   );
@@ -279,7 +270,7 @@ export default function Duties() {
       route="/dienste"
       title={t('tools.duties.title')}
       subtitle={activeClass.name}
-      help={help}
+      help={PAGE_HELP_TOPICS.duties}
       footer={
         named.length > 0 && state && state.duties.length > 0 ? (
           <div className="flex gap-2">

@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import Seo from '@/components/Seo';
 import AppHeader, { HeaderTitle } from '@/components/shell/AppHeader';
 import HelpButton from '@/components/ui/buttons/HelpButton';
+import type { HelpTopic } from '@/components/help/HelpTopicList';
 import { usePageSeo } from '@/hooks/usePageSeo';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { useLocalizedNavigate } from '@/hooks/useLocalizedNavigate';
@@ -37,7 +38,8 @@ export default function ToolPage({
   title: string;
   /** Which class this is about — the tools act on the one that is open. */
   subtitle?: string;
-  help?: React.ReactNode;
+  /** What the tool's help explains (`PAGE_HELP_TOPICS`). */
+  help?: readonly HelpTopic[];
   /** The FAQ section the help leads to. */
   faqSection?: string;
   /**
@@ -73,11 +75,7 @@ export default function ToolPage({
         }}
         help={
           help ? (
-            <HelpButton
-              title={title}
-              instructions={help}
-              faqSection={faqSection}
-            />
+            <HelpButton title={title} topics={help} faqSection={faqSection} />
           ) : undefined
         }
       />

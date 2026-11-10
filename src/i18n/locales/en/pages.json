@@ -595,11 +595,18 @@
       "menu": "Back to menu"
     },
     "help": {
-      "item1": "Only students with a photo are used.",
-      "item2": "Photo quiz: pick the matching name for a photo or vice versa. Uncertain names come up more often.",
-      "item3": "Memory: reveal photo and name pairs – large classes play in several rounds.",
-      "item4": "Your learning progress is stored locally on this device only.",
-      "item5": "Press Alt/⌥+← to return to where you opened it."
+      "photos": {
+        "title": "With photos",
+        "body": "The game uses the students who have a photo; your progress stays on this device."
+      },
+      "quiz": {
+        "title": "Photo quiz",
+        "body": "Pick the name for the photo or the other way round – names you are unsure of come up more often."
+      },
+      "memory": {
+        "title": "Memory",
+        "body": "Turn over pairs of photo and name; large classes play in several rounds."
+      }
     }
   },
   "header": {

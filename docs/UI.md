@@ -772,10 +772,18 @@ afterwards.
   the layer portals in stays mounted underneath, out of sight. It is built as
   every inspector is: the screen's name in the header with an ✕, "Anleitung",
   then "Mehr Hilfe" with the tour, the FAQ and the keyboard shortcuts — folded
-  until asked for, left out on a touch screen. Opening a student, the
-  inspector's switch and a drawer the layer opens put it away; Escape closes it
-  from anywhere as a drawer, from inside it as the column; a tap beside the
-  drawer closes it too. The projection and the class tools have no inspector:
+  until asked for, left out on a touch screen, and scrolled into view as they
+  unfold, the row above them (`revealInScroller`), since they open below the
+  column's fold. "Anleitung" is a list of topics, not of paragraphs
+  (`HelpTopicList`; the topics in `components/help/workspaceHelpTopics.ts` and
+  `pageHelpTopics.ts`): the icon the screen gives the thing, two or three words,
+  one sentence of at most two lines under them — only what the screen does not
+  say by itself. A key belongs in `utils/shortcuts.ts`, which the help lists
+  under "Tastenkürzel", not in a topic; the projection lists its own keys alone
+  (`shortcutSectionsFor`), as it has no layers and no toolbar. Opening a
+  student, the inspector's switch and a drawer the layer opens put it away;
+  Escape closes it from anywhere as a drawer, from inside it as the column; a
+  tap beside the drawer closes it too. The projection and the class tools have no inspector:
   there the same panel is a drawer of its own from the right edge.
 
 ## Questions and messages

@@ -171,9 +171,19 @@ export function InspectorMediaTile({
 }
 
 /** Everything between the header and the footer, scrolling on its own. */
-export function InspectorBody({ children }: { children: React.ReactNode }) {
+export function InspectorBody({
+  children,
+  ref,
+}: {
+  children: React.ReactNode;
+  /** The scroller itself, for a panel that brings what it unfolds into view. */
+  ref?: React.Ref<HTMLDivElement>;
+}) {
   return (
-    <div className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain px-4 py-3">
+    <div
+      ref={ref}
+      className="flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain px-4 py-3"
+    >
       {children}
     </div>
   );

@@ -5,6 +5,7 @@ import AppHeader from '@/components/shell/AppHeader';
 import LayerSwitcher from '@/components/shell/LayerSwitcher';
 import HeaderClassMenu from '@/components/shell/HeaderClassMenu';
 import HelpButton from '@/components/ui/buttons/HelpButton';
+import { WORKSPACE_HELP_TOPICS } from '@/components/help/workspaceHelpTopics';
 import OnboardingTour from '@/components/onboarding/OnboardingTour';
 import { resolveTourId } from '@/components/onboarding/tours';
 import {
@@ -70,27 +71,13 @@ export default function SeatingPlanHeader({
     }
   };
 
-  // Step-specific help content. The list items are pure i18n keys: the German
-  // texts live in `generator.json` and would only drift if repeated here.
+  // Step-specific help: the screen's name and its topics, whose texts live in
+  // `generator.json` under `help.*` (`WORKSPACE_HELP_TOPICS`).
   const getHelpContent = () => {
-    const list = (keys: string[]) => (
-      <ul className="list-disc space-y-1 pl-4">
-        {keys.map((key) => (
-          <li key={key}>{t(key)}</li>
-        ))}
-      </ul>
-    );
-
     if (view === 'library') {
       return {
         title: t('help.library.title'),
-        instructions: list([
-          'help.library.item1',
-          'help.library.item2',
-          'help.library.item3',
-          'help.library.item4',
-          'help.library.item5',
-        ]),
+        topics: WORKSPACE_HELP_TOPICS.library,
         contexts: ['library'] as ShortcutContext[],
         faqSection: 'layout',
       };
@@ -99,15 +86,7 @@ export default function SeatingPlanHeader({
     if (isExport) {
       return {
         title: t('help.export.title'),
-        instructions: list([
-          'help.export.item1',
-          'help.export.item2',
-          'help.export.itemFlip',
-          'help.export.item3',
-          'help.export.itemNames',
-          'help.export.item4',
-          'help.export.item5',
-        ]),
+        topics: WORKSPACE_HELP_TOPICS.export,
         contexts: ['export'] as ShortcutContext[],
         faqSection: 'unterricht',
       };
@@ -117,29 +96,14 @@ export default function SeatingPlanHeader({
       case 1:
         return {
           title: t('help.students.title'),
-          instructions: list([
-            'help.students.item1',
-            'help.students.item2',
-            'help.students.item3',
-            'help.students.item4',
-            'help.students.item5',
-            'help.students.item6',
-          ]),
+          topics: WORKSPACE_HELP_TOPICS.students,
           contexts: ['students'] as ShortcutContext[],
           faqSection: 'klassenliste',
         };
       case 2:
         return {
           title: t('help.layout.title'),
-          instructions: list([
-            'help.layout.item1',
-            'help.layout.item2',
-            'help.layout.item3',
-            'help.layout.item4',
-            'help.layout.item5',
-            'help.layout.item6',
-            'help.layout.item7',
-          ]),
+          topics: WORKSPACE_HELP_TOPICS.layout,
           contexts: ['layout'] as ShortcutContext[],
           faqSection: 'layout',
         };
@@ -147,30 +111,14 @@ export default function SeatingPlanHeader({
         if (seatingMode === 'circle') {
           return {
             title: t('help.circle.title'),
-            instructions: list([
-              'help.circle.item1',
-              'help.circle.item2',
-              'help.circle.item3',
-              'help.circle.item4',
-              'help.circle.item5',
-              'help.circle.item6',
-              'help.circle.item7',
-            ]),
+            topics: WORKSPACE_HELP_TOPICS.circle,
             contexts: ['circle'] as ShortcutContext[],
             faqSection: 'unterricht',
           };
         }
         return {
           title: t('help.plan.title'),
-          instructions: list([
-            'help.plan.item1',
-            'help.plan.item2',
-            'help.plan.item3',
-            'help.plan.item4',
-            'help.plan.item5',
-            'help.plan.item6',
-            'help.plan.item7',
-          ]),
+          topics: WORKSPACE_HELP_TOPICS.plan,
           contexts: ['plan'] as ShortcutContext[],
           faqSection: 'einstellungen',
         };
@@ -198,7 +146,7 @@ export default function SeatingPlanHeader({
         helpContent ? (
           <HelpButton
             title={helpContent.title}
-            instructions={helpContent.instructions}
+            topics={helpContent.topics}
             shortcutContexts={helpContent.contexts}
             onStartTour={tourId ? () => requestTour(tourId) : undefined}
             faqSection={helpContent.faqSection}
