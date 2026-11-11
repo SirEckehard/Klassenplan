@@ -53,7 +53,16 @@ green local run is a good predictor.
 Please do **not** open public issues for security vulnerabilities. See
 [`docs/SECURITY.md`](docs/SECURITY.md) for responsible-disclosure contact details.
 
-## License
+## Licence and the CLA
 
-By contributing, you agree that your contributions will be licensed under the
-project's [AGPL-3.0-or-later](LICENSE) license.
+Klassenplan is published under the [AGPL-3.0-or-later](LICENSE). Before a pull
+request can be merged, its author accepts the
+[Contributor Licence Agreement](CLA.md) by ticking its box in the pull request
+description; the template contains it, and the check in
+`.github/workflows/cla.yml` waits for it. Bots and the maintainer are exempt.
+
+In short: you keep the copyright in your contribution and give the maintainer a
+non-exclusive licence to publish it under the AGPL and under other terms as
+well, for example in an app store. In return, your contribution stays available
+under the AGPL or another open-source licence. Contributing on behalf of your
+employer or another organisation? Write to webmaster@klassenplan.de first.

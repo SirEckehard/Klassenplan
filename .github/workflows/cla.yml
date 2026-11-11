@@ -1,0 +1,37 @@
+name: CLA
+
+# A pull request is merged only once its author has accepted the Contributor
+# Licence Agreement (CLA.md) by ticking its box in the description
+# (.github/pull_request_template.md); decision 0042.
+#
+# pull_request_target runs this file as it stands on the default branch, so a
+# pull request cannot change the check it is held to. Nothing of the pull
+# request is checked out or run, the token has no permissions, and the
+# description is read from the event file, never pasted into the script.
+on:
+  pull_request_target:
+    types: [opened, edited, reopened, synchronize]
+
+permissions: {}
+
+jobs:
+  accepted:
+    runs-on: ubuntu-latest
+    steps:
+      - name: The author accepted the CLA
+        env:
+          AUTHOR: ${{ github.event.pull_request.user.login }}
+          AUTHOR_TYPE: ${{ github.event.pull_request.user.type }}
+          OWNER: ${{ github.repository_owner }}
+        run: |
+          if [ "$AUTHOR_TYPE" = "Bot" ] || [ "$AUTHOR" = "$OWNER" ]; then
+            echo "$AUTHOR needs no CLA."
+            exit 0
+          fi
+          if jq -r '.pull_request.body // ""' "$GITHUB_EVENT_PATH" \
+            | grep -Eq '^[[:space:]]*[-*][[:space:]]+\[[xX]\][[:space:]]+I accept the Klassenplan Contributor Licence Agreement'; then
+            echo "$AUTHOR accepted the CLA in this pull request."
+          else
+            echo "::error::Please tick \"I accept the Klassenplan Contributor Licence Agreement\" in the pull request description (CLA.md)."
+            exit 1
+          fi

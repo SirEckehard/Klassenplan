@@ -54,6 +54,7 @@ it says so instead of reconstructing one.
 | [0039](0039-one-head-on-every-page.md)             | One head on every page, the way back beside the page's bar    |
 | [0040](0040-the-logo-takes-its-seats.md)           | The logo takes its seats, and runs to its end                 |
 | [0041](0041-questions-where-they-belong.md)        | A question stands as near its button as it can                |
+| [0042](0042-contributor-licence-agreement.md)      | Contributions come in under a licence agreement               |
 
 ## Reasons still to be recorded
 

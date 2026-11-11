@@ -116,7 +116,7 @@ Further details in the [`docs/`](docs/) folder:
 
 ## Contributing
 
-Contributions are welcome – please open issues and pull requests on GitHub. Before opening a PR, run the checks listed above (`lint`, `typecheck`, `test`) locally.
+Contributions are welcome – please open issues and pull requests on GitHub. Before opening a PR, run the checks listed above (`lint`, `typecheck`, `test`) locally. A pull request is merged once its author has accepted the [Contributor Licence Agreement](CLA.md) by ticking its box in the PR description; see [CONTRIBUTING.md](CONTRIBUTING.md#licence-and-the-cla).
 
 ## License
 
