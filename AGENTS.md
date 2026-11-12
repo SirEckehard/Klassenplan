@@ -17,7 +17,7 @@ it for Antigravity — edit this file, never those two.
 
 ## Tests & Quality Checks
 
-- **After every change**, before it is committed: the unit tests, `npx eslint` and Prettier on the changed files, `npm run typecheck:all` and the E2E specs (`npm run test:e2e`, about a minute) — the specs are what notices a layout that breaks on a tablet or a phone, which no unit test renders. A spec that fails is fixed or its expectation brought up to date in the same change, never left for CI
+- **After every change**, before it is committed: the unit tests, `npx eslint` and Prettier on the changed files, `npm run typecheck:all` and the E2E specs (`npm run test:e2e`, about a minute) — the specs are what notices a layout that breaks on a tablet or a phone, which no unit test renders. A spec that fails is fixed or its expectation brought up to date in the same change, never left for CI. A change to what an export sheet shows also runs `npm run test:visual` (the snapshots below): on a Mac `test:e2e` skips them, CI does not
 - **What CI runs, locally in one go:** `npm run check:ci` — lint, typecheck, i18n, unused exports, docs, licences, unit tests, E2E, `build:static` (with the bundle budgets), in the order of `.github/workflows/ci.yml`, which it must keep in step with. Run it before a push of several commits and before a release
 - **After a push**, check that CI went green (`gh run list --limit 3`, `gh run watch <id>`); a red run is fixed before the next change goes on top. CI retries a failed spec twice but fails the run on a spec that passed only on a retry (`failOnFlakyTests`): green means green at the first attempt
 - Run unit tests with `npm test -- --run` (or `npx vitest run`)
@@ -25,7 +25,8 @@ it for Antigravity — edit this file, never those two.
 - Check modified files with `npx eslint <files>`
 - TypeScript compilation check: `npm run typecheck` (app) and `npm run typecheck:test` (tests); both via `npm run typecheck:all`
 - Check for unused exports: `npm run check:unused` — a ratchet against the baseline in `scripts/check-unused-exports.mjs`; the count may fall, never rise. For the full list run `npx ts-unused-exports tsconfig.ts-unused.json --allowUnusedTypes --ignoreFiles='vite-env.d.ts|index.tsx|App.tsx'`
-- E2E: Playwright specs live in `e2e/` — smoke, the core flow, the rooms of a class and the mixing presets in "Bibliothek" (`plans-library.spec.ts`) the questions before a deletion (`questions.spec.ts`) the first-visit onboarding (sample class and tours) and the layout shift of a first visit and a reload (`layout-shift.spec.ts`, at most 0.05) on a desktop, the tablet and phone layouts and the desktop layout worked by a finger on an interactive whiteboard (`touch-layouts.spec.ts`, projects `tablet`, `phone` and `whiteboard`, picked by the tags `@tablet` / `@phone` / `@whiteboard`), and on all four the head every page wears (`page-header.spec.ts`), and the help's shortcuts scrolling into view (`help.spec.ts`) (`npm run test:e2e`; needs `npx playwright install chromium`)
+- E2E: Playwright specs live in `e2e/` — smoke, the core flow, the rooms of a class and the mixing presets in "Bibliothek" (`plans-library.spec.ts`) the questions before a deletion (`questions.spec.ts`) the first-visit onboarding (sample class and tours) and the layout shift of a first visit and a reload (`layout-shift.spec.ts`, at most 0.05) on a desktop, the tablet and phone layouts and the desktop layout worked by a finger on an interactive whiteboard (`touch-layouts.spec.ts`, projects `tablet`, `phone` and `whiteboard`, picked by the tags `@tablet` / `@phone` / `@whiteboard`), and on all four the head every page wears (`page-header.spec.ts`), and the help's shortcuts scrolling into view (`help.spec.ts`), and the export sheets as pictures (`export-sheets.spec.ts`, project `visual`, Linux only) (`npm run test:e2e`; needs `npx playwright install chromium`)
+- Export sheet snapshots: the seating plan, the circle, the list and the substitute's sheet, upright and across, against the PNGs in `e2e/__screenshots__/`. Chromium draws text differently on every system, so they are drawn on Linux, as CI runs, and the spec skips itself elsewhere; on a Mac `npm run test:visual` compares and `npm run test:visual:update` redraws them in Docker (`scripts/visual-snapshots.mjs`: the Playwright image of the installed version, linux/amd64, packages in a volume of its own; Docker Desktop or `colima start --vm-type vz --vz-rosetta`). A change that alters a sheet on purpose redraws them in the same commit, after a look at the changed PNGs. The class they print is `e2e/fixtures/sheets.klassenplan`, a backup restored through the app's own import (`WRITE_SHEET_FIXTURE=1 npx vitest run sheetsFixture` writes it anew, which changes every snapshot)
 - i18n consistency: `npm run check:i18n` (DE/EN key parity + no `t(key, 'default')` inline default + no key that no code refers to)
 - Bundle budgets: `npm run check:bundle` (after a build; part of `npm run build:static`)
 - Live addressing: `npm run check:live-seo` (after a deploy, by hand: every sitemap address answers 200 and is its own canonical, slash/`http://`/`www.` spellings redirect permanently, unknown addresses are 404; decision 0029)
@@ -388,6 +389,14 @@ injectable `rng` (`createRng(seed)` from `@/utils/algorithm/rng`, default
 looping 20 times over a probabilistic expectation — see
 `src/utils/algorithm/__tests__/seatingDeterminism.test.ts`.
 
+**Stored formats: properties over examples.** What is written and read back —
+seats as ids, the rooms of a class, locks by table id, a backup the import
+must read, stored mix settings — is tested with fast-check
+(`*.property.test.ts`, 200 runs each) on generators in
+`src/__tests__/utils/arbitraries.ts`, which produce only what the app can hold.
+A failing property prints its seed and the smallest value that breaks it: that
+is a bug to fix, not a flake to retry.
+
 ### Modern Test Patterns (Preferred)
 
 **When writing or modifying tests, use semantic accessibility-first queries:**
@@ -408,8 +417,9 @@ screen.getByRole('checkbox', { name: /Unruhig|Restless/i });
 **Shared helpers** (`src/__tests__/utils/`): `getButton`, `getHeading`,
 `getDialog` (`accessibilityHelpers.ts`), `setupLocalStorageMock`
 (`mockHandlers.ts`), the mock
-factories in `testHelpers.ts`, `createMemoryIdbKeyval` and
-`resetSeatingRepository`/`unmountAndSettle`. A helper nobody calls does not stay.
+factories in `testHelpers.ts`, `createMemoryIdbKeyval`,
+`resetSeatingRepository`/`unmountAndSettle` and the property generators
+(`arbitraries.ts`). A helper nobody calls does not stay.
 
 **When to use:**
 

@@ -25,7 +25,7 @@ export default defineConfig({
     {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
-      testIgnore: /touch-layouts\.spec\.ts/,
+      testIgnore: /(touch-layouts|export-sheets)\.spec\.ts/,
     },
     // Below `lg` the inspector and the toolbar have no column; these two walk
     // what takes their place. Chromium in both, as the CI installs only it —
@@ -55,6 +55,29 @@ export default defineConfig({
       },
       testMatch: /(touch-layouts|page-header)\.spec\.ts/,
       grep: /@whiteboard/,
+    },
+    {
+      // The export sheets as pictures. Snapshots are drawn on Linux, as CI
+      // runs it; on a Mac `npm run test:visual` runs this project in Docker.
+      // One path for every platform, since only one platform writes them.
+      name: 'visual',
+      use: {
+        ...devices['Desktop Chrome'],
+        viewport: { width: 1440, height: 960 },
+      },
+      testMatch: /export-sheets\.spec\.ts/,
+      snapshotPathTemplate:
+        '{testDir}/__screenshots__/{testFileName}/{arg}{ext}',
+      expect: {
+        toHaveScreenshot: {
+          // A sheet is mostly white: a whole line of text moved by a pixel
+          // changes more than this, a smoothed edge less.
+          maxDiffPixelRatio: 0.002,
+          animations: 'disabled',
+          caret: 'hide',
+          scale: 'css',
+        },
+      },
     },
   ],
   webServer: {
