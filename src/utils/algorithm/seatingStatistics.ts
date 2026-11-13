@@ -225,6 +225,8 @@ export function getTopFulfilledCriteria(
     criterion('avoidConflictPartners', 'Distanzwünsche'),
     criterion('preferWindowSeats', 'Fensterplätze'),
     criterion('preferDoorSeats', 'Türnähe'),
+    criterion('keepNeighbourSeatFree', 'Freier Nachbarplatz'),
+    criterion('seatLeftHandersLeft', 'Linkshänder'),
   ];
 
   // Only the active criteria, in the order above (no sorting)

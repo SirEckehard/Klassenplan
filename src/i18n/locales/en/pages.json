@@ -271,6 +271,16 @@
           "label": "Near Door",
           "description": "Prefers a seat near the door.",
           "algorithm": "Places the student closer to the door when possible."
+        },
+        "needsFreeNeighbourSeat": {
+          "label": "Free seat beside",
+          "description": "This student needs the seat right beside them free – Klassenplan does not ask why.",
+          "algorithm": "Leaves the seat beside the student empty, at the same table and at the next one with no aisle between. That works as long as the room has more seats than students."
+        },
+        "leftHanded": {
+          "label": "Left-handed",
+          "description": "This student writes with the left hand.",
+          "algorithm": "Seats nobody who writes with the right hand to the student’s left: they sit at the left end of a table, beside an empty seat or beside another left-hander."
         }
       }
     },
@@ -295,7 +305,7 @@
       },
       "height": {
         "q": "How does Klassenplan consider body heights and room preferences?",
-        "a": "Body heights feed into the choice of seat so that smaller students sit as far forward as possible. Window and door preferences are stored per student and weighed against the windows and doors you placed in the room. In the fulfilment, the seats nearest the window or the door count as fully met."
+        "a": "Body heights feed into the choice of seat so that smaller students sit as far forward as possible. Window and door preferences are stored per student and weighed against the windows and doors you placed in the room. In the fulfilment, the seats nearest the window or the door count as fully met. A student who needs the seat beside them free gets an empty seat there, as long as the room has more seats than students. Left-handers sit with nobody writing right-handed to their left."
       }
     },
     "layout": {

@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- A student can need the seat beside them free, and left-handers sit with nobody writing right-handed to their left
+
 ### Improved
 
 - On a phone and a tablet, tables and room elements come from "Add" at the status bar, without scrolling below the room

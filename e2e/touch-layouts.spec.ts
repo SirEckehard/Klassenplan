@@ -147,17 +147,17 @@ async function openClassTools(page: Page): Promise<void> {
 /** From the class to the mixed plan, opening the criteria on the way. */
 async function mixThePlan(page: Page): Promise<void> {
   await page.getByRole('button', { name: 'Weiter zum Raum' }).click();
-  // Below xl the line is the count alone, the check says it fits; the long
-  // one came out as "24 Plä…". Its figures stand in spans of their own, the
-  // hidden long line's too, so the visible one is asked for.
+  // Below xl the line is the count of seats alone, the check says it fits;
+  // the long one came out as "26 Plä…". Its figures stand in spans of their
+  // own, the hidden long line's too, so the visible one is asked for.
   await expect(
-    statusBar(page).getByText('24', { exact: true }).filter({ visible: true }),
+    statusBar(page).getByText('26', { exact: true }).filter({ visible: true }),
   ).toHaveCount(1);
   await expectCanvasInSight(page);
 
   await page.getByRole('button', { name: 'Weiter zum Sitzplan' }).click();
   const plan = page.getByRole('group', { name: /^Sitzplan:/ });
-  await expect(plan).toHaveAccessibleName('Sitzplan: 24 von 24 Plätzen belegt');
+  await expect(plan).toHaveAccessibleName('Sitzplan: 24 von 26 Plätzen belegt');
   await expectCanvasInSight(page);
 
   // The plan's inspector has no column here: the switch at the right end of
@@ -181,7 +181,7 @@ async function mixThePlan(page: Page): Promise<void> {
   await statusBar(page)
     .getByRole('button', { name: /^Mischen/ })
     .click();
-  await expect(plan).toHaveAccessibleName('Sitzplan: 24 von 24 Plätzen belegt');
+  await expect(plan).toHaveAccessibleName('Sitzplan: 24 von 26 Plätzen belegt');
 }
 
 // Each test belongs to one project, which picks it by its tag.
@@ -245,7 +245,7 @@ test(
     await page.getByRole('button', { name: 'Weiter zum Raum' }).click();
     const canvas = page.getByTestId('classroom-canvas');
     const tables = canvas.locator('g[data-table-index]');
-    await expect(tables).toHaveCount(12);
+    await expect(tables).toHaveCount(13);
 
     await test.step('a table is tapped and copied in the inspector', async () => {
       await tables.first().tap();
@@ -304,7 +304,7 @@ test(
       await expect(
         page.getByText('Raum vorübergehend nicht verfügbar'),
       ).toHaveCount(0);
-      await expect(tables).toHaveCount(12);
+      await expect(tables).toHaveCount(13);
     });
 
     await test.step('the menu outlives the finger and pastes on a tap', async () => {
@@ -316,7 +316,7 @@ test(
       await expect(paste).toBeVisible();
       await paste.tap();
 
-      await expect(tables).toHaveCount(13);
+      await expect(tables).toHaveCount(14);
     });
   },
 );
@@ -465,7 +465,7 @@ test(
       .click();
     await expect(
       statusBar(page)
-        .getByText('26', { exact: true })
+        .getByText('28', { exact: true })
         .filter({ visible: true }),
     ).toHaveCount(1);
     await expect(tray).toBeVisible();
@@ -486,7 +486,7 @@ test(
     await page.mouse.up();
     await expect(
       statusBar(page)
-        .getByText('27', { exact: true })
+        .getByText('29', { exact: true })
         .filter({ visible: true }),
     ).toHaveCount(1);
     await expect(tray).toBeVisible();
@@ -601,7 +601,7 @@ test(
     await page.getByRole('button', { name: 'Weiter zum Raum' }).click();
     const canvas = page.getByTestId('classroom-canvas');
     const tables = canvas.locator('g[data-table-index]');
-    await expect(tables).toHaveCount(12);
+    await expect(tables).toHaveCount(13);
 
     await test.step('a long press on a top-row table opens a menu clear of the finger', async () => {
       const boxes = await Promise.all((await tables.all()).map(boxOf));
@@ -640,7 +640,7 @@ test(
         finger.y + 22 <= menuBox.y ||
         finger.y - 22 >= menuBox.y + menuBox.height;
       expect(clearOfFinger).toBe(true);
-      await expect(tables).toHaveCount(12);
+      await expect(tables).toHaveCount(13);
 
       await page.keyboard.press('Escape');
       await expect(menu).toHaveCount(0);
@@ -650,7 +650,7 @@ test(
       await page.getByRole('button', { name: 'Weiter zum Sitzplan' }).click();
       await expect(
         page.getByRole('group', { name: /^Sitzplan:/ }),
-      ).toHaveAccessibleName('Sitzplan: 24 von 24 Plätzen belegt');
+      ).toHaveAccessibleName('Sitzplan: 24 von 26 Plätzen belegt');
       await statusBar(page)
         .getByRole('button', { name: /Präsentieren/ })
         .click();
@@ -663,7 +663,7 @@ test(
       ).toBeVisible();
 
       const projected = page.locator('svg g[data-table-index]');
-      await expect(projected).toHaveCount(12);
+      await expect(projected).toHaveCount(13);
       const boxes = await Promise.all((await projected.all()).map(boxOf));
       const top = Math.min(...boxes.map((box) => box.y));
       const bottom = Math.max(...boxes.map((box) => box.y + box.height));

@@ -185,6 +185,28 @@ export function isCriterionAvailable(
       };
     }
 
+    case 'keepNeighbourSeatFree': {
+      const available = students.some((s) => s.needsFreeNeighbourSeat);
+      return {
+        key,
+        available,
+        reason: available
+          ? undefined
+          : 'generator:mix.unavailable.keepNeighbourSeatFree',
+      };
+    }
+
+    case 'seatLeftHandersLeft': {
+      const available = students.some((s) => s.leftHanded);
+      return {
+        key,
+        available,
+        reason: available
+          ? undefined
+          : 'generator:mix.unavailable.seatLeftHandersLeft',
+      };
+    }
+
     case 'preferLanguageMixing': {
       // Need at least 2 students with different language skill levels
       const withLanguage = students.filter((s) => s.languageSkill);

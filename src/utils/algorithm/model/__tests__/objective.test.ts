@@ -88,6 +88,8 @@ describe('swapDelta and placementCost', () => {
             ? { performanceWeak: true as const }
             : {}),
         prefersWindow: rng() < 0.2,
+        needsFreeNeighbourSeat: rng() < 0.15,
+        leftHanded: rng() < 0.3,
         height:
           index % 7 === 0 ? 'small' : index % 7 === 1 ? 'tall' : undefined,
         languageSkill: languages[index % 5] as Student['languageSkill'],
@@ -107,6 +109,20 @@ describe('swapDelta and placementCost', () => {
       })),
     ],
     ['group tables', arrangeTables('group4', 7)],
+    [
+      'turned desks pushed together in rows',
+      Array.from({ length: 12 }, (_, index) => ({
+        x: 100 + (index % 6) * 130,
+        y: 100 + Math.floor(index / 6) * 200,
+        width: 55,
+        height: 130,
+        rotation: 90,
+        seatCount: 2,
+        locked: false,
+        zIndex: 0,
+        templateType: 'double' as const,
+      })),
+    ],
     [
       'turned and mixed tables',
       arrangeTables('group6', 5).map((table, index) =>

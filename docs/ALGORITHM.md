@@ -69,14 +69,17 @@ settled on — the one on screen, the plan the teacher actually got.
   least 15 px.
 - **`criteria.ts`** writes every criterion down once, as a `pair` term (two
   students in a relation), a `seat` term (a student on a seat), a `table`
-  term (who shares a table group) or the language term (who sits around a student
-  needing support). A relation weighs by `RELATION_WEIGHTS` — partner 1,
+  term (who shares a table group), the language term (who sits around a student
+  needing support) or the hand term (who sits to a left-hander's left, by
+  `SeatLayout.leftOf`: the seat directly to the left as the student faces the
+  table, the chair's direction turned with it, at the same table or the next
+  one with no aisle between). A relation weighs by `RELATION_WEIGHTS` — partner 1,
   corner and opposite 0.8, beside 0.5, table 0.4, ahead and behind 0.3 — and
   a criterion by its weight and the multipliers in `CRITERION_WEIGHTS`.
 - **`objective.ts`** builds a context once per mix and sums the terms
   (`scoreArrangement`); `swapDelta` computes what a swap changes exactly, by
-  every relation the two seats take part in; `placementCost` what placing a
-  student adds.
+  every relation the two seats take part in and the language and hand terms
+  of the seats around them; `placementCost` what placing a student adds.
 - **`fulfilment.ts`** turns the same terms into the cases the fulfilment and
   the highlights read (see [Fulfilment](#fulfilment)).
 
@@ -97,6 +100,8 @@ table):
 | Soziale Rollen                | per table: the same role twice, loners and mediators, a leader beside a mediator        | table                          |
 | Vordere Plätze                | by the rows behind the front rows (see [Front seats](#front-seats))                     | —                              |
 | Körpergröße, Fenster, Tür     | by the seat's depth (0 at the back, 1 at the front) or distance to window and door      | —                              |
+| Freier Nachbarplatz           | penalty per classmate beside a student needing the seat free, twice a wish's weight     | partner, beside                |
+| Linkshänder                   | penalty for a right-hander directly to a left-hander's left                             | the seat to the left           |
 
 Boys, girls and diverse students are three genders of their own; "not stated"
 counts for none. A criterion off costs nothing, and only one performance
@@ -233,6 +238,10 @@ plan the mixing could not improve on that criterion:
   tables can hold; at single desks there is none.
 - Gender counts against the tables the class's make-up can balance: with 20
   boys and 8 girls at 14 double desks, 8 mixed desks are all there can be.
+- A free seat beside counts against the seats that can have one: seats of the
+  tables in the mix with no seat beside them, and the empty seats in the mix.
+  A full room has none, and the criterion no case
+  ([decision 0043](decisions/0043-free-neighbour-seat-and-left-handers.md)).
 - Window and door seats count against the seats nearest to them: with three
   students wanting a window, a seat as near as the third-nearest seat of the
   tables in the mix — or up to `ADJACENT_GAP` farther — is met, the farthest

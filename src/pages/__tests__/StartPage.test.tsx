@@ -57,8 +57,8 @@ describe('StartPage', () => {
     });
     const chips = within(criteria).getAllByRole('listitem');
 
-    // The fifteen criteria the inspector shows, under seven family headings.
-    expect(chips).toHaveLength(15);
+    // The seventeen criteria the inspector shows, under seven family headings.
+    expect(chips).toHaveLength(17);
     expect(within(criteria).getAllByRole('heading', { level: 3 })).toHaveLength(
       7,
     );

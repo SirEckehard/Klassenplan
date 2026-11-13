@@ -66,6 +66,8 @@ const studentShapeArb = fc.record(
     needsFrontSeat: fc.boolean(),
     prefersWindow: fc.boolean(),
     prefersDoor: fc.boolean(),
+    needsFreeNeighbourSeat: fc.boolean(),
+    leftHanded: fc.boolean(),
     languageSkill: fc.constantFrom(
       'native',
       'fluent',

@@ -125,15 +125,15 @@ Rose (`--button-danger-bg`) and green (`--button-success-bg`) are the two except
 
 **Everything else that is coloured describes pedagogy.** Seven `--data-*` families — six for what a student brings, one for the plans already used — and no interface element may use them:
 
-| Family           | Accent    | Chip text | Chip surface | Covers                                              |
-| ---------------- | --------- | --------- | ------------ | --------------------------------------------------- |
-| Verhalten        | `#b45309` | `#8a3d06` | `#fbf0df`    | Unruhe, Ablenkbarkeit, Ablenkung durch Unruhe       |
-| Soziales         | `#6d28d9` | `#5b21b6` | `#efe9fc`    | Schüchternheit, Wunsch-/Distanzpartner, Rollen      |
-| Lernen           | `#15803d` | `#14622f` | `#e6f2ea`    | Fördern heterogen, Fördern homogen                  |
-| Sprache          | `#be123c` | `#9f1239` | `#fbe8ec`    | Sprachförderung, Sprachstand                        |
-| Platz &amp; Raum | `#0e7490` | `#0b5f76` | `#e2f0f5`    | Vordere Plätze, Körpergröße, Fensterplätze, Türnähe |
-| Person           | `#52525b` | `#43464b` | `#f0f0ee`    | Geschlechtermischung, Foto, Name                    |
-| Verlauf          | `#a21caf` | `#86198f` | `#fae8fb`    | Wiederholung                                        |
+| Family           | Accent    | Chip text | Chip surface | Covers                                                                                |
+| ---------------- | --------- | --------- | ------------ | ------------------------------------------------------------------------------------- |
+| Verhalten        | `#b45309` | `#8a3d06` | `#fbf0df`    | Unruhe, Ablenkbarkeit, Ablenkung durch Unruhe                                         |
+| Soziales         | `#6d28d9` | `#5b21b6` | `#efe9fc`    | Schüchternheit, Wunsch-/Distanzpartner, Rollen                                        |
+| Lernen           | `#15803d` | `#14622f` | `#e6f2ea`    | Fördern heterogen, Fördern homogen                                                    |
+| Sprache          | `#be123c` | `#9f1239` | `#fbe8ec`    | Sprachförderung, Sprachstand                                                          |
+| Platz &amp; Raum | `#0e7490` | `#0b5f76` | `#e2f0f5`    | Vordere Plätze, Körpergröße, Fensterplätze, Türnähe, Freier Nachbarplatz, Linkshänder |
+| Person           | `#52525b` | `#43464b` | `#f0f0ee`    | Geschlechtermischung, Foto, Name                                                      |
+| Verlauf          | `#a21caf` | `#86198f` | `#fae8fb`    | Wiederholung                                                                          |
 
 Every chip-text-on-chip-surface pair clears 4.5:1, and a data colour never appears without its icon and its spelled-out word, so colour is never the only channel. A seat has no room for the word; there it comes from the tooltip, the legend and the seat's label (§ 6e).
 
@@ -340,7 +340,7 @@ where a student shows a photo. The plan's criteria are read
 the same way: a row per criterion under the family it acts on, its importance
 a scale at the row's end — a dash on the baseline for "Aus", three rising bars in the
 family's ink, the level's word in the tooltip and the accessible name — since
-four word chips took a line of their own and sixteen criteria three screens of
+four word chips took a line of their own and eighteen criteria three screens of
 scrolling; the explanation stays under the name
 ([decision 0018](decisions/0018-criteria-in-words-with-recipes.md)). Its empty
 steps take `--scale-empty`, 3:1 against the page in both themes, since a line's

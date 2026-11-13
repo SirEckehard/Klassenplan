@@ -87,6 +87,8 @@ export const exportStudentsToCsv = (
       s.needsFrontSeat ? yes : '',
       s.prefersWindow ? yes : '',
       s.prefersDoor ? yes : '',
+      s.needsFreeNeighbourSeat ? yes : '',
+      s.leftHanded ? yes : '',
       s.performanceStrong ? yes : '',
       s.performanceWeak ? yes : '',
       partnerNames(s.wishPartnerIds, s.wishPartnerId),

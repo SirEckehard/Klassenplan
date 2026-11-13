@@ -39,7 +39,9 @@ describe('AttributeFocusMode', () => {
       }),
     ).toBeVisible();
     expect(tile('Ada')).toHaveAttribute('aria-pressed', 'false');
-    expect(screen.getByText(/Merkmal 1 von 8|Attribute 1 of 8/i)).toBeVisible();
+    expect(
+      screen.getByText(/Merkmal 1 von 10|Attribute 1 of 10/i),
+    ).toBeVisible();
   });
 
   it('sets the flag of the tile that was tapped', () => {
@@ -94,7 +96,7 @@ describe('AttributeFocusMode', () => {
   it('ends the pass at the last question', () => {
     const { onFinish } = renderMode();
 
-    for (let step = 0; step < 7; step += 1) {
+    for (let step = 0; step < 9; step += 1) {
       fireEvent.click(nextPass());
     }
 

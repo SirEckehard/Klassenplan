@@ -835,7 +835,7 @@ afterwards.
   ("Voreinstellung", `MixRecipeSection` — internally still a recipe) with the
   switch for all criteria beside its heading and the count of active criteria
   under its button: a button that opens the presets as a menu
-  (`utils/mixRecipes.ts`) and sets all sixteen at once — "Standard" is the way
+  (`utils/mixRecipes.ts`) and sets all eighteen at once — "Standard" is the way
   back to the defaults — and the settings note which one they were set from
   (`presetId`). The menu lists the shipped presets and under a rule the
   teacher's own with a pencil and a bin (decision 0038; stored once for every

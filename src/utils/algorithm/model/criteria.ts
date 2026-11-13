@@ -3,10 +3,11 @@
 /**
  * What every criterion costs, in one place (decision 0031).
  *
- * A criterion is written down once here, in up to four shapes: a `pair` term
+ * A criterion is written down once here, in up to five shapes: a `pair` term
  * for two students in a given seat relation, a `seat` term for a student on a
- * seat, a `table` term for who shares a table, and the language term, which
- * asks who sits around a student. The construction, the refinement and the
+ * seat, a `table` term for who shares a table, the language term, which asks
+ * who sits around a student, and the hand term, which asks who sits to a
+ * left-hander's left. The construction, the refinement and the
  * fulfilment the teacher reads (`fulfilment.ts`) all go through these
  * functions — none of them keeps a definition of its own. Lower is better:
  * a penalty is positive, a reward negative.
@@ -42,6 +43,8 @@ export interface CriterionWeights {
   height: number;
   window: number;
   door: number;
+  freeNeighbour: number;
+  leftHanded: number;
   language: number;
   roles: number;
 }
@@ -73,6 +76,8 @@ export const resolveCriterionWeights = (
     height: settings.preferFrontForSmallerStudents ?? 0,
     window: settings.preferWindowSeats ?? 0,
     door: settings.preferDoorSeats ?? 0,
+    freeNeighbour: settings.keepNeighbourSeatFree ?? 0,
+    leftHanded: settings.seatLeftHandersLeft ?? 0,
     language: settings.preferLanguageMixing ?? 0,
     roles: settings.distributeSocialRoles ?? 0,
   };
@@ -98,6 +103,9 @@ export interface StudentFacts {
   height: 'small' | 'tall' | null;
   prefersWindow: boolean;
   prefersDoor: boolean;
+  /** Needs the seats beside them free */
+  freeNeighbour: boolean;
+  leftHanded: boolean;
   languageStrong: boolean;
   languageNeedsSupport: boolean;
   role: SocialRole | null;
@@ -140,6 +148,8 @@ export const studentFacts = (student: Student): StudentFacts => {
         : null,
     prefersWindow: Boolean(student.prefersWindow),
     prefersDoor: Boolean(student.prefersDoor),
+    freeNeighbour: Boolean(student.needsFreeNeighbourSeat),
+    leftHanded: Boolean(student.leftHanded),
     languageStrong: level === 'native' || level === 'fluent',
     languageNeedsSupport: level === 'beginner' || level === 'daz',
     role: student.socialRole ?? null,
@@ -170,6 +180,14 @@ export const isTableKind = (kind: number): boolean =>
 /** The kinds within which somebody does not sit alone or gets support. */
 export const isCloseKind = (kind: number): boolean =>
   isTableKind(kind) || kind === BESIDE;
+
+/**
+ * The kinds that sit directly beside a student, at the same edge of a table
+ * or at the next table with no aisle between: the seats a student needing
+ * them free wants empty (decision 0043).
+ */
+export const isNeighbourKind = (kind: number): boolean =>
+  kind === PARTNER || kind === BESIDE;
 
 const rankFactor = (factors: readonly number[], rank: number): number =>
   factors[rank] ?? factors[factors.length - 1] ?? 1;
@@ -264,6 +282,16 @@ export const pairTerm = (
     ((a.concentration && b.restless) || (b.concentration && a.restless))
   ) {
     score += weights.concentrationNearRestless * closeness * special;
+  }
+
+  // Every classmate directly beside a student needing that seat free, in
+  // full whatever the relation's closeness: the seat is taken or it is not.
+  if (weights.freeNeighbour > 0 && isNeighbourKind(kind)) {
+    const needing = (a.freeNeighbour ? 1 : 0) + (b.freeNeighbour ? 1 : 0);
+    if (needing > 0) {
+      score +=
+        weights.freeNeighbour * CRITERION_WEIGHTS.freeNeighbour * needing;
+    }
   }
 
   if (
@@ -364,6 +392,21 @@ export const seatTerm = (
   }
   return score;
 };
+
+/**
+ * The hand term: what it costs that `left` sits directly to the left of a
+ * left-hander (`SeatLayout.leftOf`). A right-hander there writes with the
+ * elbow the left-hander needs; another left-hander keeps it away, and an
+ * empty seat or the table's edge costs nothing.
+ */
+export const handTerm = (
+  weights: CriterionWeights,
+  student: StudentFacts,
+  left: StudentFacts | null,
+): number =>
+  weights.leftHanded > 0 && student.leftHanded && left && !left.leftHanded
+    ? weights.leftHanded * CRITERION_WEIGHTS.leftHanded
+    : 0;
 
 /** Students with a stated gender, by gender, and how far the largest leads. */
 export const genderExcess = (counts: readonly number[]): number => {

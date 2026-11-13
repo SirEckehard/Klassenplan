@@ -988,6 +988,8 @@ const MemoizedTableSeat = React.memo(TableSeat, (prevProps, nextProps) => {
       prev.socialRole !== next.socialRole ||
       prev.prefersWindow !== next.prefersWindow ||
       prev.prefersDoor !== next.prefersDoor ||
+      prev.needsFreeNeighbourSeat !== next.needsFreeNeighbourSeat ||
+      prev.leftHanded !== next.leftHanded ||
       getWishPartnerIds(prev).join(',') !== getWishPartnerIds(next).join(',') ||
       getAvoidPartnerIds(prev).join(',') !== getAvoidPartnerIds(next).join(',')
     ) {

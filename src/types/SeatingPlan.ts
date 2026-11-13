@@ -45,6 +45,10 @@ export interface MixSettings {
   preferFrontForSmallerStudents: number;
   preferWindowSeats: number;
   preferDoorSeats: number;
+  /** The seats beside a student needing them stay free (decision 0043). */
+  keepNeighbourSeatFree: number;
+  /** Nobody sits to the left of a left-hander but another (decision 0043). */
+  seatLeftHandersLeft: number;
   /** Pair language-strong with language-weak students (0-10) */
   preferLanguageMixing: number;
   /** Distribute social roles evenly across tables (0-10) */

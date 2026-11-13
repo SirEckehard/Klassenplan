@@ -335,3 +335,13 @@ double desks and tables of four, single desks 30 px apart, the mixed and
 turned room of mixQuality — give the same plans for all 30 seeds, so the
 figures in [PERFORMANCE.md](../PERFORMANCE.md) stand. A mix in a room with
 islands takes about 5 ms longer (36 instead of 31 ms).
+
+## Addendum of 2026-11-12: a free seat beside and left-handers
+
+[Decision 0043](0043-free-neighbour-seat-and-left-handers.md) adds two
+criteria within this model. The free seat beside is a pair term on the
+relations `partner` and `beside`; the left-hander is a fifth shape of term,
+the hand term, on the seat directly to the left (`SeatLayout.leftOf`), which
+`swapDelta` and `placementCost` measure before and after on the seats it can
+move, as they do the language term. The fulfilment counts both; rooms without
+either marker give the same plans as before, seed for seed.

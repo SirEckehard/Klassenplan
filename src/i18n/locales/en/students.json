@@ -71,6 +71,8 @@
     "name": "Name",
     "windowFull": "Window seat",
     "doorFull": "Near door",
+    "freeNeighbourFull": "Free seat beside",
+    "leftHandedFull": "Left-handed",
     "number": "No",
     "attributes": "Attributes set"
   },
@@ -153,7 +155,9 @@
   },
   "environment": {
     "windowTooltip": "Prefers seats by the window",
-    "doorTooltip": "Prefers seats near the door"
+    "doorTooltip": "Prefers seats near the door",
+    "freeNeighbourTooltip": "Needs the seat beside them free",
+    "leftHandedTooltip": "Writes with the left hand"
   },
   "height": {
     "title": "Height",
@@ -199,7 +203,11 @@
     "windowSeat": "Window Seat",
     "doorProximity": "Near Door",
     "windowTooltip": "Student prefers seats near the window",
-    "doorTooltip": "Student prefers seats near the door"
+    "doorTooltip": "Student prefers seats near the door",
+    "freeNeighbourSeat": "Free Seat Beside",
+    "freeNeighbourTooltip": "The seat right beside them stays free",
+    "leftHanded": "Left-Handed",
+    "leftHandedTooltip": "Nobody who writes with the right hand sits to their left"
   },
   "nameEditor": {
     "saveName": "Save name",
@@ -336,7 +344,9 @@
       "performanceWeak": "Who currently needs support?",
       "needsFrontSeat": "Who should sit near the front?",
       "prefersWindow": "Who likes sitting by the window?",
-      "prefersDoor": "Who likes sitting near the door?"
+      "prefersDoor": "Who likes sitting near the door?",
+      "needsFreeNeighbourSeat": "Who needs the seat beside them free?",
+      "leftHanded": "Who writes with the left hand?"
     }
   },
   "relations": {

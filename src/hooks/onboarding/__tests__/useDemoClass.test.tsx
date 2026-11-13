@@ -69,7 +69,8 @@ describe('useDemoClass', () => {
     expect(payload.name).toBe(i18n.t('generator:demoClass.className'));
     expect(payload.students).toHaveLength(24);
     expect(payload.students?.every((student) => student.hasPhoto)).toBe(true);
-    expect(payload.classroomScene?.tables.length).toBe(12);
+    // One desk to spare, for the seat beside a student needing it free.
+    expect(payload.classroomScene?.tables.length).toBe(13);
   });
 
   it('stores every picture before the class that refers to it', async () => {

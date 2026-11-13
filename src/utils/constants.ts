@@ -335,6 +335,13 @@ export const CRITERION_WEIGHTS = {
   height: 3,
   /** A student needing language support beside a strong speaker */
   languageSupport: 0.5,
+  /**
+   * Per classmate on a seat beside a student needing it free: a need weighs
+   * twice a wish of the same level, as a distance wish does (decision 0043)
+   */
+  freeNeighbour: 2,
+  /** A left-hander with a right-hander directly to the left */
+  leftHanded: 1,
   socialRole: {
     /** Per further student of the same role at a table */
     leaderCluster: 0.5,

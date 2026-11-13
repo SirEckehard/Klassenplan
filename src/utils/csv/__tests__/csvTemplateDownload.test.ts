@@ -57,6 +57,8 @@ describe.each(['de', 'en'] as const)('CSV template (%s)', (language) => {
       performanceWeak: true,
     });
     expect(byName.get(names.max)?.height).toBeUndefined();
+    expect(byName.get(names.tom)?.leftHanded).toBe(true);
+    expect(byName.get(names.kim)?.needsFreeNeighbourSeat).toBe(true);
     expect(byName.get(names.anna)).toMatchObject({
       gender: 'girl',
       height: 'small',

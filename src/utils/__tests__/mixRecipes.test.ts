@@ -38,6 +38,7 @@ const students: Student[] = [
     wishPartnerId: '2',
     avoidPartnerId: '3',
     prefersWindow: true,
+    needsFreeNeighbourSeat: true,
     languageSkill: 'fluent',
     socialRole: 'mediator',
   }),
@@ -50,6 +51,7 @@ const students: Student[] = [
     concentrationIssues: true,
     performanceWeak: true,
     prefersDoor: true,
+    leftHanded: true,
     languageSkill: 'beginner',
     socialRole: 'leader',
   }),
@@ -246,8 +248,9 @@ describe("presets of the teacher's own (decision 0038)", () => {
     expect(levels.essential).toContain('avoidRestlessTogether');
     expect(levels.essential).toContain('avoidConcentrationTogether');
     expect(levels.essential).not.toContain('avoidConcentrationNearRestless');
+    expect(levels.essential).toContain('keepNeighbourSeatFree');
     expect(levels.consider).toEqual(['preferFrontForSmallerStudents']);
-    expect(levels.important).toEqual([]);
+    expect(levels.important).toEqual(['seatLeftHandersLeft']);
   });
 
   it('drops what is not a preset and brings older weights up to date', () => {

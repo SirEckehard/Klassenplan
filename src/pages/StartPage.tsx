@@ -99,6 +99,8 @@ const criteriaGroups: readonly {
       'preferFrontForSmallerStudents',
       'preferWindowSeats',
       'preferDoorSeats',
+      'keepNeighbourSeatFree',
+      'seatLeftHandersLeft',
     ],
   },
   {

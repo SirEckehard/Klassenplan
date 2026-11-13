@@ -20,6 +20,8 @@ type StudentNeeds = {
   hasHeightData: boolean;
   hasWindowPreference: boolean;
   hasDoorPreference: boolean;
+  hasFreeNeighbourNeed: boolean;
+  hasLeftHander: boolean;
 };
 
 /**
@@ -48,6 +50,8 @@ function calculateStudentNeeds(students: Student[]): StudentNeeds {
     ),
     hasWindowPreference: students.some((s) => s.prefersWindow),
     hasDoorPreference: students.some((s) => s.prefersDoor),
+    hasFreeNeighbourNeed: students.some((s) => s.needsFreeNeighbourSeat),
+    hasLeftHander: students.some((s) => s.leftHanded),
   };
 }
 
@@ -69,6 +73,8 @@ export function useAutoMixSettings(
     hasHeightData: false,
     hasWindowPreference: false,
     hasDoorPreference: false,
+    hasFreeNeighbourNeed: false,
+    hasLeftHander: false,
   });
 
   const previousClassIdRef = useRef<string | undefined>(activeClassId);
@@ -197,6 +203,22 @@ export function useAutoMixSettings(
       updates.preferDoorSeats = DEFAULT_MIX_WEIGHTS.preferDoorSeats;
     }
 
+    if (
+      nextNeeds.hasFreeNeighbourNeed &&
+      !prevNeeds.hasFreeNeighbourNeed &&
+      mixSettings.keepNeighbourSeatFree === 0
+    ) {
+      updates.keepNeighbourSeatFree = DEFAULT_MIX_WEIGHTS.keepNeighbourSeatFree;
+    }
+
+    if (
+      nextNeeds.hasLeftHander &&
+      !prevNeeds.hasLeftHander &&
+      mixSettings.seatLeftHandersLeft === 0
+    ) {
+      updates.seatLeftHandersLeft = DEFAULT_MIX_WEIGHTS.seatLeftHandersLeft;
+    }
+
     if (!nextNeeds.hasRestlessPair && mixSettings.avoidRestlessTogether !== 0) {
       updates.avoidRestlessTogether = 0;
     }
@@ -256,6 +278,17 @@ export function useAutoMixSettings(
 
     if (!nextNeeds.hasDoorPreference && mixSettings.preferDoorSeats !== 0) {
       updates.preferDoorSeats = 0;
+    }
+
+    if (
+      !nextNeeds.hasFreeNeighbourNeed &&
+      mixSettings.keepNeighbourSeatFree !== 0
+    ) {
+      updates.keepNeighbourSeatFree = 0;
+    }
+
+    if (!nextNeeds.hasLeftHander && mixSettings.seatLeftHandersLeft !== 0) {
+      updates.seatLeftHandersLeft = 0;
     }
 
     if (Object.keys(updates).length > 0) {

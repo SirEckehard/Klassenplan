@@ -23,9 +23,9 @@ import {
 } from './mixSettings';
 
 /**
- * A lesson in the form the algorithm understands: sixteen weights at once.
+ * A lesson in the form the algorithm understands: eighteen weights at once.
  *
- * Setting sixteen criteria one by one is the part of the plan nobody asks for.
+ * Setting eighteen criteria one by one is the part of the plan nobody asks for.
  * A recipe answers the question a teacher actually has — "was ist das hier für
  * eine Stunde?" — and the criteria below it stay exactly as changeable as they
  * were (decision 0018). Besides the shipped ones a teacher keeps presets of
@@ -71,6 +71,8 @@ export const MIX_RECIPES: readonly MixRecipe[] = [
       avoidConcentrationNearRestless: 8,
       avoidConflictPartners: 8,
       preferFrontForNeedsFrontSeat: 8,
+      keepNeighbourSeatFree: 8,
+      seatLeftHandersLeft: 5,
       avoidPreviousPairs: 3,
       considerWishPartners: 3,
       preferFrontForSmallerStudents: 3,
@@ -90,6 +92,8 @@ export const MIX_RECIPES: readonly MixRecipe[] = [
       avoidPreviousPairs: 5,
       preferGenderMix: 3,
       preferFrontForNeedsFrontSeat: 8,
+      keepNeighbourSeatFree: 8,
+      seatLeftHandersLeft: 3,
     },
   },
   {
@@ -103,6 +107,8 @@ export const MIX_RECIPES: readonly MixRecipe[] = [
       avoidConcentrationNearRestless: 8,
       avoidPreviousPairs: 8,
       preferFrontForNeedsFrontSeat: 8,
+      keepNeighbourSeatFree: 8,
+      seatLeftHandersLeft: 5,
       preferFrontForSmallerStudents: 3,
     },
   },
@@ -118,6 +124,8 @@ export const MIX_RECIPES: readonly MixRecipe[] = [
       distributeSocialRoles: 6,
       preferLanguageMixing: 5,
       preferFrontForNeedsFrontSeat: 8,
+      keepNeighbourSeatFree: 8,
+      seatLeftHandersLeft: 3,
       considerWishPartners: 3,
     },
   },

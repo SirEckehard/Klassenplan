@@ -124,7 +124,7 @@ describe('exportStudentsToCsv', () => {
 
     // Check header includes all columns (must match the import template)
     expect(lines[0]).toBe(
-      '\uFEFFName;Geschlecht;Körpergröße;Sprachniveau;Soziale Rolle;Unruhig;Schüchtern;Ablenkbarkeit;Vordere Plätze;Fensterplatz;Türplatz;Leistungsstark;Leistungsschwach;Wunschpartner;Distanzwunsch',
+      '\uFEFFName;Geschlecht;Körpergröße;Sprachniveau;Soziale Rolle;Unruhig;Schüchtern;Ablenkbarkeit;Vordere Plätze;Fensterplatz;Türplatz;Freier Nachbarplatz;Linkshänder;Leistungsstark;Leistungsschwach;Wunschpartner;Distanzwunsch',
     );
 
     // Check Max Strong - performanceStrong=true
@@ -133,6 +133,8 @@ describe('exportStudentsToCsv', () => {
         'Max Strong',
         'Männlich',
         'Groß',
+        '',
+        '',
         '',
         '',
         '',
@@ -163,6 +165,8 @@ describe('exportStudentsToCsv', () => {
         '',
         '',
         '',
+        '',
+        '',
         'ja',
         '',
         'Max Strong',
@@ -182,6 +186,8 @@ describe('exportStudentsToCsv', () => {
         'ja',
         'ja',
         'ja',
+        '',
+        '',
         '',
         '',
         '',
@@ -224,6 +230,8 @@ describe('exportStudentsToCsv', () => {
         'ja',
         '',
         '',
+        '',
+        '',
         'ja',
         '',
         '',
@@ -250,6 +258,26 @@ describe('exportStudentsToCsv', () => {
 
     expect(cells[9]).toBe('ja');
     expect(cells[10]).toBe('ja');
+  });
+
+  test('exports a free seat beside and the left hand (decision 0043)', () => {
+    const csv = exportStudentsToCsv(
+      [
+        createMockStudent({
+          id: 'seat',
+          name: 'Seat Student',
+          needsFreeNeighbourSeat: true,
+          leftHanded: true,
+        }),
+      ],
+      'de',
+    );
+
+    const [, line] = csv.split('\n');
+    const cells = line?.split(';') ?? [];
+
+    expect(cells[11]).toBe('ja');
+    expect(cells[12]).toBe('ja');
   });
 
   test('exports language skill and social role labels', () => {
@@ -309,7 +337,7 @@ describe('exportStudentsToCsv', () => {
     const [header, line] = csv.split('\n');
 
     expect(header).toBe(
-      '\uFEFFName,Gender,Height,Language level,Social role,Restless,Shy,Distracted,Front row,Window seat,Door seat,High performer,Low performer,Wish partner,Avoid partner',
+      '\uFEFFName,Gender,Height,Language level,Social role,Restless,Shy,Distracted,Front row,Window seat,Door seat,Free seat beside,Left-handed,High performer,Low performer,Wish partner,Avoid partner',
     );
     expect(line?.split(',')).toEqual([
       'Kim Fisher',
@@ -322,6 +350,8 @@ describe('exportStudentsToCsv', () => {
       '',
       '',
       'yes',
+      '',
+      '',
       '',
       '',
       '',

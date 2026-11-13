@@ -271,6 +271,16 @@
           "label": "Türnähe",
           "description": "Bevorzugt einen Platz nahe der Tür.",
           "algorithm": "Platziert den Schüler näher an der Tür, wenn möglich."
+        },
+        "needsFreeNeighbourSeat": {
+          "label": "Freier Nachbarplatz",
+          "description": "Dieser Schüler braucht einen freien Platz direkt neben sich.",
+          "algorithm": "Lässt den Platz neben dem Schüler leer, am selben Tisch und am Nachbartisch ohne Gang dazwischen. Das geht nur, solange der Raum mehr Plätze als Schüler hat."
+        },
+        "leftHanded": {
+          "label": "Linkshänder",
+          "description": "Dieser Schüler schreibt mit der linken Hand.",
+          "algorithm": "Lässt links niemanden sitzen, der mit rechts schreibt: Er sitzt am linken Rand eines Tisches, neben einem leeren Platz oder neben einem anderen Linkshänder."
         }
       }
     },
@@ -295,7 +305,7 @@
       },
       "height": {
         "q": "Wie berücksichtigt Klassenplan Körpergrößen und Raumpräferenzen?",
-        "a": "Körpergrößen fließen in die Platzwahl ein, damit kleinere Schüler möglichst weit vorne sitzen. Fenster- und Türwünsche werden pro Schüler gespeichert und mit den Fenstern und Türen verrechnet, die du im Raum platziert hast. In der Erfüllung zählen die Plätze, die dem Fenster oder der Tür am nächsten liegen, als voll erfüllt."
+        "a": "Körpergrößen fließen in die Platzwahl ein, damit kleinere Schüler möglichst weit vorne sitzen. Fenster- und Türwünsche werden pro Schüler gespeichert und mit den Fenstern und Türen verrechnet, die du im Raum platziert hast. In der Erfüllung zählen die Plätze, die dem Fenster oder der Tür am nächsten liegen, als voll erfüllt. Wer einen freien Platz neben sich benötigt, bekommt einen an seiner Seite, solange der Raum mehr Plätze als Schüler hat. Linkshänder sitzen so, dass links von ihnen niemand mit rechts schreibt."
       }
     },
     "layout": {

@@ -124,7 +124,7 @@ test('a first visitor tries the sample class with the tours as a guide', async (
     // seat for everyone.
     await expect(
       page.getByRole('region', { name: 'Statusleiste' }),
-    ).toContainText('24 Plätze für 24 Schüler');
+    ).toContainText('26 Plätze für 24 Schüler');
 
     const tour = tourPopover(page);
     // It starts in the inspector, at the class's rooms.
@@ -138,7 +138,7 @@ test('a first visitor tries the sample class with the tours as a guide', async (
 
     await expect(
       page.getByRole('group', { name: /^Sitzplan:/ }),
-    ).toHaveAccessibleName('Sitzplan: 24 von 24 Plätzen belegt');
+    ).toHaveAccessibleName('Sitzplan: 24 von 26 Plätzen belegt');
 
     // The fulfilment mark is only there when the tour started after the
     // automatic shuffle had produced statistics.

@@ -79,23 +79,25 @@ The template headings come from `csvSchema.ts`; the aliases from
 `csvColumnVocabulary.ts`. When several accepted headings are present, the first
 non-empty cell wins.
 
-| Attribute             | Template heading (DE / EN)       | Also accepted                                                                                     | Values        |
-| --------------------- | -------------------------------- | ------------------------------------------------------------------------------------------------- | ------------- |
-| `restless`            | Unruhig / Restless               | `unruhig`, `restless`                                                                             | yes/no        |
-| `shy`                 | Schüchtern / Shy                 | `schuechtern`, `shy`                                                                              | yes/no        |
-| `concentrationIssues` | Ablenkbarkeit / Distracted       | `ablenkbarkeit`, `konzentration`, `distracted`, `distractible`                                    | yes/no        |
-| `needsFrontSeat`      | Vordere Plätze / Front row       | `vordereplaetze`, `hoerundsehschwaeche`, `hoerschwaeche`, `sehschwaeche`, `frontrow`, `frontseat` | yes/no        |
-| `prefersWindow`       | Fensterplatz / Window seat       | `fensterplatz`, `amfenster`, `fenster`, `windowseat`, `window`                                    | yes/no        |
-| `prefersDoor`         | Türplatz / Door seat             | `tuerplatz`, `andertuer`, `tuer`, `doorseat`, `door`                                              | yes/no        |
-| `performanceStrong`   | Leistungsstark / High performer  | `leistungsstark`, `highperformer`, `strong`                                                       | yes/no        |
-| `performanceWeak`     | Leistungsschwach / Low performer | `leistungsschwach`, `lowperformer`, `weak`                                                        | yes/no        |
-| `gender`              | Geschlecht / Gender              | `geschlecht`, `gender`                                                                            | see below     |
-| `height`              | Körpergröße / Height             | any heading **containing** `height`, `groesse`, `grosse`                                          | see below     |
-| `languageSkill`       | Sprachniveau / Language level    | any heading **containing** `sprachniveau`, `sprache`, `language`, `deutschkenntnisse`             | see below     |
-| `socialRole`          | Soziale Rolle / Social role      | any heading **containing** `sozialerolle`, `rolle`, `role`, `social`                              | see below     |
-| special needs         | —                                | `besonderebeduerfnisse`, `besonderheiten`, `specialneeds`                                         | see below     |
-| wish partners         | Wunschpartner / Wish partner     | `wunschpartner`, `wishpartner`, `preferredpartner`                                                | up to 3 names |
-| avoid partners        | Distanzwunsch / Avoid partner    | `distanzwunsch`, `distanzpartner`, `avoidpartner`                                                 | up to 3 names |
+| Attribute                | Template heading (DE / EN)             | Also accepted                                                                                       | Values        |
+| ------------------------ | -------------------------------------- | --------------------------------------------------------------------------------------------------- | ------------- |
+| `restless`               | Unruhig / Restless                     | `unruhig`, `restless`                                                                               | yes/no        |
+| `shy`                    | Schüchtern / Shy                       | `schuechtern`, `shy`                                                                                | yes/no        |
+| `concentrationIssues`    | Ablenkbarkeit / Distracted             | `ablenkbarkeit`, `konzentration`, `distracted`, `distractible`                                      | yes/no        |
+| `needsFrontSeat`         | Vordere Plätze / Front row             | `vordereplaetze`, `hoerundsehschwaeche`, `hoerschwaeche`, `sehschwaeche`, `frontrow`, `frontseat`   | yes/no        |
+| `prefersWindow`          | Fensterplatz / Window seat             | `fensterplatz`, `amfenster`, `fenster`, `windowseat`, `window`                                      | yes/no        |
+| `prefersDoor`            | Türplatz / Door seat                   | `tuerplatz`, `andertuer`, `tuer`, `doorseat`, `door`                                                | yes/no        |
+| `needsFreeNeighbourSeat` | Freier Nachbarplatz / Free seat beside | `freiernachbarplatz`, `platzdanebenfrei`, `freeseatbeside`, `freeneighbourseat`, `freeneighborseat` | yes/no        |
+| `leftHanded`             | Linkshänder / Left-handed              | `linkshaender`, `linkshaenderin`, `lefthanded`, `lefthander`                                        | yes/no        |
+| `performanceStrong`      | Leistungsstark / High performer        | `leistungsstark`, `highperformer`, `strong`                                                         | yes/no        |
+| `performanceWeak`        | Leistungsschwach / Low performer       | `leistungsschwach`, `lowperformer`, `weak`                                                          | yes/no        |
+| `gender`                 | Geschlecht / Gender                    | `geschlecht`, `gender`                                                                              | see below     |
+| `height`                 | Körpergröße / Height                   | any heading **containing** `height`, `groesse`, `grosse`                                            | see below     |
+| `languageSkill`          | Sprachniveau / Language level          | any heading **containing** `sprachniveau`, `sprache`, `language`, `deutschkenntnisse`               | see below     |
+| `socialRole`             | Soziale Rolle / Social role            | any heading **containing** `sozialerolle`, `rolle`, `role`, `social`                                | see below     |
+| special needs            | —                                      | `besonderebeduerfnisse`, `besonderheiten`, `specialneeds`                                           | see below     |
+| wish partners            | Wunschpartner / Wish partner           | `wunschpartner`, `wishpartner`, `preferredpartner`                                                  | up to 3 names |
+| avoid partners           | Distanzwunsch / Avoid partner          | `distanzwunsch`, `distanzpartner`, `avoidpartner`                                                   | up to 3 names |
 
 For the headings matched by substring, the first column in the file whose
 heading contains a pattern is used.

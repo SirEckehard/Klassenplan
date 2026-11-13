@@ -18,22 +18,23 @@ import {
  * The headers come from `csvSchema.ts` so template and export never drift
  * apart. "Wunschpartner"/"Distanzwunsch" hold up to three comma-separated
  * names in a single cell — the rows show that explicitly, because the limit is
- * invisible from a one-name example.
+ * invisible from a one-name example. Every column holds a "ja" somewhere, so
+ * the template shows what each one is for.
  */
 const EXAMPLE_ROWS: Record<CsvLanguage, readonly string[]> = {
   de: [
-    'Max Mustermann|Männlich||Erstsprache||ja||ja||ja|||ja|Tom Weber, Lisa Müller|Kim Fischer',
-    'Anna Beispiel|Weiblich|Klein|Fließend|Mediator||ja|||ja||ja||Lisa Müller|',
-    'Tom Weber|Männlich|Groß|Anfänger|Einzelgänger|||ja|ja|||||Max Mustermann|Anna Beispiel, Kim Fischer',
-    'Lisa Müller|Weiblich||Fortgeschritten|Mittelpunkt||||||ja|||Anna Beispiel, Max Mustermann, Tom Weber|',
-    'Kim Fischer|Divers|Groß|DaZ-Förderung|Anführer||ja||ja|||ja|||Tom Weber',
+    'Max Mustermann|Männlich||Erstsprache||ja||ja||ja|||||ja|Tom Weber, Lisa Müller|Kim Fischer',
+    'Anna Beispiel|Weiblich|Klein|Fließend|Mediator||ja|||ja||||ja||Lisa Müller|',
+    'Tom Weber|Männlich|Groß|Anfänger|Einzelgänger|||ja|ja||||ja|||Max Mustermann|Anna Beispiel, Kim Fischer',
+    'Lisa Müller|Weiblich||Fortgeschritten|Mittelpunkt||||||ja|||||Anna Beispiel, Max Mustermann, Tom Weber|',
+    'Kim Fischer|Divers|Groß|DaZ-Förderung|Anführer||ja||ja|||ja||ja|||Tom Weber',
   ],
   en: [
-    'Max Sample|Boy||First language||yes||yes||yes|||yes|Tom Baker, Lisa Miller|Kim Fisher',
-    'Anna Example|Girl|Small|Fluent|Mediator||yes|||yes||yes||Lisa Miller|',
-    'Tom Baker|Boy|Tall|Beginner|Loner|||yes|yes|||||Max Sample|Anna Example, Kim Fisher',
-    'Lisa Miller|Girl||Intermediate|Social hub||||||yes|||Anna Example, Max Sample, Tom Baker|',
-    'Kim Fisher|Diverse|Tall|Language support|Leader||yes||yes|||yes|||Tom Baker',
+    'Max Sample|Boy||First language||yes||yes||yes|||||yes|Tom Baker, Lisa Miller|Kim Fisher',
+    'Anna Example|Girl|Small|Fluent|Mediator||yes|||yes||||yes||Lisa Miller|',
+    'Tom Baker|Boy|Tall|Beginner|Loner|||yes|yes||||yes|||Max Sample|Anna Example, Kim Fisher',
+    'Lisa Miller|Girl||Intermediate|Social hub||||||yes|||||Anna Example, Max Sample, Tom Baker|',
+    'Kim Fisher|Diverse|Tall|Language support|Leader||yes||yes|||yes||yes|||Tom Baker',
   ],
 };
 

@@ -36,6 +36,8 @@ const FLAG_FIELDS = [
   'needsFrontSeat',
   'prefersWindow',
   'prefersDoor',
+  'needsFreeNeighbourSeat',
+  'leftHanded',
 ] as const;
 
 type ChoiceField = (typeof CHOICE_FIELDS)[number];

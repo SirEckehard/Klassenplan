@@ -75,6 +75,14 @@ export interface SeatLayout {
   groups: number[][];
   /** The group of every seat */
   groupOf: Int32Array;
+  /**
+   * The seat directly to the left of whoever sits on each seat, as they face
+   * their table, or -1: at the same table or the next one with no aisle
+   * between, the chairs facing the same way (decision 0043).
+   */
+  leftOf: Int32Array;
+  /** The seats whose `leftOf` is this one */
+  rightOf: number[][];
 }
 
 export const kindIndex = (kind: SeatRelationKind): number =>
@@ -227,6 +235,50 @@ const joinedKind = (a: SeatFootprint, b: SeatFootprint): number => {
   if (chairs < -0.7) return along < -0.7 ? OPPOSITE : -1;
   if (chairs > 0.7) return Math.abs(along) < 0.3 ? PARTNER : -1;
   return -1;
+};
+
+/** Half the extent of a seat cell along a unit vector. */
+const extentAlong = (footprint: SeatFootprint, x: number, y: number): number =>
+  Math.abs(x) * footprint.hx + Math.abs(y) * footprint.hy;
+
+/**
+ * The seat directly to the left of the student on every seat. A student faces
+ * their table, away from the chair; in the room's coordinates, y running
+ * down, the left hand points a quarter turn anticlockwise from there. The
+ * nearest seat that way counts when its chair faces the same way, it sits in
+ * the same line within half a seat, and no more than `ADJACENT_GAP` lies
+ * between the two cells — an aisle parts them, as everywhere else.
+ */
+const leftNeighbours = (footprints: readonly SeatFootprint[]): Int32Array => {
+  const leftOf = new Int32Array(footprints.length).fill(-1);
+  footprints.forEach((a, index) => {
+    const faceX = -a.chairX;
+    const faceY = -a.chairY;
+    const leftX = faceY;
+    const leftY = -faceX;
+    let nearest = Number.POSITIVE_INFINITY;
+    footprints.forEach((b, other) => {
+      if (other === index) return;
+      if (a.chairX * b.chairX + a.chairY * b.chairY < 0.7) return;
+      const dx = b.x - a.x;
+      const dy = b.y - a.y;
+      const along = dx * leftX + dy * leftY;
+      if (along <= 0) return;
+      const across = Math.abs(dx * faceX + dy * faceY);
+      if (
+        across >
+        Math.min(extentAlong(a, faceX, faceY), extentAlong(b, faceX, faceY))
+      ) {
+        return;
+      }
+      const gap =
+        along - extentAlong(a, leftX, leftY) - extentAlong(b, leftX, leftY);
+      if (gap > ADJACENT_GAP || along >= nearest) return;
+      nearest = along;
+      leftOf[index] = other;
+    });
+  });
+  return leftOf;
 };
 
 const buildSeatLayout = (scene: ClassroomScene): SeatLayout => {
@@ -425,6 +477,12 @@ const buildSeatLayout = (scene: ClassroomScene): SeatLayout => {
     groupOf[seat] = group;
   }
 
+  const leftOf = leftNeighbours(footprints);
+  const rightOf: number[][] = footprints.map(() => []);
+  leftOf.forEach((left, seat) => {
+    if (left >= 0) rightOf[left]!.push(seat);
+  });
+
   return {
     size,
     offsets,
@@ -436,6 +494,8 @@ const buildSeatLayout = (scene: ClassroomScene): SeatLayout => {
     keys,
     groups,
     groupOf,
+    leftOf,
+    rightOf,
   };
 };
 

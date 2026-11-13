@@ -44,7 +44,7 @@ What the numbers show:
 
 ### Mix quality
 
-`src/utils/algorithm/__tests__/mixQuality.test.ts` measures what a mix comes to by the fulfilment a teacher reads — six rooms, 30 seeds each, every criterion's mean percentage and the weighted whole — and runs only on request (`MIX_QUALITY=1 npx vitest run mixQuality --silent=false`; without the flag Vitest 5 hides what a passing test prints). On 2026-11-06, after the window and door seats and the tables pushed together of 2026-11-02 — every room 0.7 to 1.3 points above 2026-10-29:
+`src/utils/algorithm/__tests__/mixQuality.test.ts` measures what a mix comes to by the fulfilment a teacher reads — seven rooms, 30 seeds each, every criterion's mean percentage and the weighted whole — and runs only on request (`MIX_QUALITY=1 npx vitest run mixQuality --silent=false`; without the flag Vitest 5 hides what a passing test prints). On 2026-11-06, after the window and door seats and the tables pushed together of 2026-11-02 — every room 0.7 to 1.3 points above 2026-10-29:
 
 | Room                                       | Fulfilment | Time per mix, Vitest 5 |
 | ------------------------------------------ | ---------: | ---------------------: |
@@ -54,6 +54,13 @@ What the numbers show:
 | Group tables of six, 28 students           |     88.2 % |                  62 ms |
 | Mixed and turned tables                    |     87.7 % |                  42 ms |
 | Double desks with history and locks        |     85.6 % |                  28 ms |
+| Double desks, free seats and left-handers  |     90.1 % |                  33 ms |
+
+The seventh room, added on 2026-11-12 with
+[decision 0043](decisions/0043-free-neighbour-seat-and-left-handers.md), is 15
+double desks for the 26 students of the second room, two of them needing the
+seat beside free and every fifth left-handed; the six rooms before it gave the
+same plans, seed for seed, after the two criteria came.
 
 What a run of plans comes to — wishes taking turns, friends staying together, pairs repeating — is measured by `src/utils/algorithm/__tests__/mixRuns.test.ts` (`MIX_RUNS=1 npx vitest run mixRuns --silent=false`): six plans one after the other in three rooms, 30 seeds each, about 20 s; its figures are in [decision 0033](decisions/0033-wishes-take-turns.md).
 

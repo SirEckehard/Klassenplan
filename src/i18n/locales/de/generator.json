@@ -536,6 +536,14 @@
         "label": "Türnähe",
         "desc": "Schüler mit Wunsch nach Türnähe nahe an einer Tür platzieren"
       },
+      "keepNeighbourSeatFree": {
+        "label": "Freier Nachbarplatz",
+        "desc": "Den Platz neben Schülern, die ihn brauchen, frei lassen"
+      },
+      "seatLeftHandersLeft": {
+        "label": "Linkshänder",
+        "desc": "Links neben Linkshändern niemanden setzen, der mit rechts schreibt"
+      },
       "preferLanguageMixing": {
         "label": "Sprachförderung",
         "desc": "Sprachstarke Schüler neben Anfänger/DaZ setzen"
@@ -559,6 +567,8 @@
       "preferFrontForSmallerStudents": "Keine Schüler mit Angaben zur Körpergröße vorhanden",
       "preferWindowSeats": "Kein Schüler bevorzugt einen Fensterplatz",
       "preferDoorSeats": "Kein Schüler bevorzugt Nähe zur Tür",
+      "keepNeighbourSeatFree": "Kein Schüler braucht den Platz daneben frei",
+      "seatLeftHandersLeft": "Kein Schüler ist Linkshänder",
       "preferLanguageMixing": "Mindestens 2 verschiedene Sprachniveaus erforderlich",
       "distributeSocialRoles": "Keine Schüler mit sozialer Rolle vorhanden"
     }

@@ -18,7 +18,7 @@ import {
   calculateSeatLayout,
   determineSeatEdge,
 } from '@/utils/math/positionCalculations';
-import { seatPairsFor } from '@/utils/math/seatGeometry';
+import { getSeatPositions, seatPairsFor } from '@/utils/math/seatGeometry';
 import arrangeTables from '../../autoArrange';
 import {
   getSeatLayout,
@@ -346,3 +346,87 @@ describe('getSeatLayout', () => {
     expect(layout.depth[layout.offsets[2]!]).toBeLessThan(0);
   });
 });
+
+describe('the seat to the left (decision 0043)', () => {
+  /** The flat index of the seat of `table` whose position passes `pick`. */
+  const seatWhere = (
+    room: ClassroomScene,
+    table: number,
+    pick: (a: { x: number; y: number }, b: { x: number; y: number }) => boolean,
+  ): [number, number] => {
+    const layout = getSeatLayout(room);
+    const first = layout.offsets[table]!;
+    const positions = getSeatPositions(room);
+    const a = positions.get(`${table}-0`)!;
+    const b = positions.get(`${table}-1`)!;
+    return pick(a, b) ? [first, first + 1] : [first + 1, first];
+  };
+
+  // A double desk's chairs stand at its left edge before it turns: at 0° the
+  // students face the board on the right, so their left is up the room.
+  it.each([
+    [0, 'the seat higher up', (a: Pos, b: Pos) => a.y < b.y],
+    [90, 'the seat further right', (a: Pos, b: Pos) => a.x > b.x],
+    [180, 'the seat lower down', (a: Pos, b: Pos) => a.y > b.y],
+    [270, 'the seat further left', (a: Pos, b: Pos) => a.x < b.x],
+  ])('turned %i°, a desk has %s to the left', (rotation, _, isLeft) => {
+    const room = scene([double(400, 200, rotation)]);
+    const layout = getSeatLayout(room);
+    const [left, right] = seatWhere(room, 0, isLeft);
+
+    expect(layout.leftOf[right]).toBe(left);
+    expect(layout.leftOf[left]).toBe(-1);
+    expect(layout.rightOf[left]).toEqual([right]);
+  });
+
+  it('reads a group table side by side, never round a corner or across', () => {
+    // 0 1 on top facing down, 2 3 below facing up: a student facing down
+    // has their left towards the right of the room.
+    const layout = getSeatLayout(scene([group('group4', 400, 200)]));
+
+    expect(Array.from(layout.leftOf)).toEqual([1, -1, -1, 2]);
+  });
+
+  it('reads a table of six along each side', () => {
+    // 0 1 at the head, 4 5 along the top, 2 3 along the bottom.
+    const layout = getSeatLayout(scene([group('group6', 400, 200)]));
+    const positions = getSeatPositions(scene([group('group6', 400, 200)]));
+    const lower = (a: number, b: number) =>
+      positions.get(`0-${a}`)!.y > positions.get(`0-${b}`)!.y;
+
+    expect(layout.leftOf[lower(0, 1) ? 0 : 1]).toBe(lower(0, 1) ? 1 : 0);
+    for (const seat of [0, 1]) {
+      expect([2, 3, 4, 5]).not.toContain(layout.leftOf[seat]);
+    }
+    expect(layout.leftOf[4]).toBe(5);
+    expect(layout.leftOf[3]).toBe(2);
+  });
+
+  it('gives a single desk on its own nobody to the left', () => {
+    const layout = getSeatLayout(scene([single(400, 200)]));
+
+    expect(Array.from(layout.leftOf)).toEqual([-1]);
+  });
+
+  it('reaches across desks pushed together, not across an aisle', () => {
+    // Two turned desks end to end, the third behind an aisle.
+    const room = scene([
+      double(400, 200, 90),
+      double(530, 200, 90),
+      double(760, 200, 90),
+    ]);
+    const layout = getSeatLayout(room);
+    const positions = getSeatPositions(room);
+    const x = (table: number, seat: number) =>
+      positions.get(`${table}-${seat}`)!.x;
+    const flat = (table: number, seat: number) => layout.offsets[table]! + seat;
+    // Facing down the room, a student's left is to the right.
+    const rightmost = (table: number) => (x(table, 0) > x(table, 1) ? 0 : 1);
+    const leftmost = (table: number) => 1 - rightmost(table);
+
+    expect(layout.leftOf[flat(0, rightmost(0))]).toBe(flat(1, leftmost(1)));
+    expect(layout.leftOf[flat(1, rightmost(1))]).toBe(-1);
+  });
+});
+
+type Pos = { x: number; y: number };

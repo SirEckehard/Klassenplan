@@ -536,6 +536,14 @@
         "label": "Door Proximity",
         "desc": "Place students who want to sit near the door close to a door"
       },
+      "keepNeighbourSeatFree": {
+        "label": "Free Seat Beside",
+        "desc": "Keep the seat beside students who need it free"
+      },
+      "seatLeftHandersLeft": {
+        "label": "Left-Handers",
+        "desc": "Seat nobody who writes with the right hand to the left of a left-hander"
+      },
       "preferLanguageMixing": {
         "label": "Language support",
         "desc": "Seat students with strong language skills next to beginners/language learners"
@@ -559,6 +567,8 @@
       "preferFrontForSmallerStudents": "No students with height information",
       "preferWindowSeats": "No student prefers a window seat",
       "preferDoorSeats": "No student prefers to sit near the door",
+      "keepNeighbourSeatFree": "No student needs the seat beside them free",
+      "seatLeftHandersLeft": "No student is left-handed",
       "preferLanguageMixing": "At least 2 different language levels are required",
       "distributeSocialRoles": "No students with a social role"
     }

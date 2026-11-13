@@ -2,7 +2,7 @@
 // Copyright (C) 2026 Eike Schäfer
 /**
  * How good the plans of "Mischen" are, by the fulfilment the teacher reads
- * (decision 0031): six rooms, thirty seeds each, every criterion's mean
+ * (decision 0031): seven rooms, thirty seeds each, every criterion's mean
  * percentage, the weighted whole and the time per mix. Not part of the normal
  * run — it measures, it does not check:
  *
@@ -150,6 +150,8 @@ type Fixture = {
   students: number;
   history?: boolean;
   locks?: boolean;
+  /** Two students needing the seat beside free, every fifth left-handed */
+  seatNeeds?: boolean;
 };
 
 const fixtures: Fixture[] = [
@@ -211,6 +213,12 @@ const fixtures: Fixture[] = [
     history: true,
     locks: true,
   },
+  {
+    name: 'Doppeltische, freie Nachbarplätze und Linkshänder',
+    room: scene(arrangeTables('double', 15)),
+    students: 26,
+    seatNeeds: true,
+  },
 ];
 
 describe.skipIf(!process.env.MIX_QUALITY)('mix quality', () => {
@@ -218,7 +226,16 @@ describe.skipIf(!process.env.MIX_QUALITY)('mix quality', () => {
     const lines: string[] = [];
     for (const fixture of fixtures) {
       const classRng = createRng(1000 + fixture.students);
-      const students = buildClass(fixture.students, classRng);
+      const students = buildClass(fixture.students, classRng).map(
+        (student, index) =>
+          fixture.seatNeeds
+            ? {
+                ...student,
+                needsFreeNeighbourSeat: index === 2 || index === 11,
+                leftHanded: index % 5 === 1,
+              }
+            : student,
+      );
       const settings: MixSettings = withoutUnavailableWeights(
         normalizeMixSettings({ preferFrontForNeedsFrontSeat: 8 }),
         students,

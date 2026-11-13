@@ -111,6 +111,8 @@ const hashStudent = (hash: number, student: Student): number => {
   hash = mixString(hash, getAvoidPartnerIds(student).join(','));
   hash = mixBoolean(hash, student.prefersWindow);
   hash = mixBoolean(hash, student.prefersDoor);
+  hash = mixBoolean(hash, student.needsFreeNeighbourSeat);
+  hash = mixBoolean(hash, student.leftHanded);
   hash = mixBoolean(hash, student.performanceStrong);
   hash = mixBoolean(hash, student.performanceWeak);
   return hash;

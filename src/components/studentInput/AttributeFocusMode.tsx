@@ -8,6 +8,8 @@ import {
   CheckIcon,
   DoorIcon,
   PanoramaIcon,
+  ArrowsOutLineHorizontalIcon,
+  HandIcon,
   type Icon,
 } from '@phosphor-icons/react';
 import type { Student } from '@/types';
@@ -30,7 +32,9 @@ type Pass = {
     | 'performanceWeak'
     | 'needsFrontSeat'
     | 'prefersWindow'
-    | 'prefersDoor';
+    | 'prefersDoor'
+    | 'needsFreeNeighbourSeat'
+    | 'leftHanded';
   family: DataFamily;
   icon: Icon;
   /** The other flag this one rules out, if any. */
@@ -67,7 +71,21 @@ const PASSES: readonly Pass[] = [
   { key: 'needsFrontSeat', family: 'space', icon: flagIcon('needsFrontSeat') },
   { key: 'prefersWindow', family: 'space', icon: PanoramaIcon },
   { key: 'prefersDoor', family: 'space', icon: DoorIcon },
+  {
+    key: 'needsFreeNeighbourSeat',
+    family: 'space',
+    icon: ArrowsOutLineHorizontalIcon,
+  },
+  { key: 'leftHanded', family: 'space', icon: HandIcon },
 ] as const;
+
+/** The room preferences' labels; every other pass is a student flag. */
+const ROOM_PREFERENCE_LABELS: Partial<Record<Pass['key'], string>> = {
+  prefersWindow: 'roomPreference.windowSeat',
+  prefersDoor: 'roomPreference.doorProximity',
+  needsFreeNeighbourSeat: 'roomPreference.freeNeighbourSeat',
+  leftHanded: 'roomPreference.leftHanded',
+};
 
 type Props = {
   students: Student[];
@@ -108,12 +126,10 @@ export default function AttributeFocusMode({
   const pass = PASSES[passIndex];
   const previous = passIndex > 0 ? PASSES[passIndex - 1] : null;
   const next = passIndex < PASSES.length - 1 ? PASSES[passIndex + 1] : null;
-  const label = (key: string) =>
-    key === 'prefersWindow'
-      ? t('roomPreference.windowSeat')
-      : key === 'prefersDoor'
-        ? t('roomPreference.doorProximity')
-        : t(`studentFlags.${key}.label`);
+  const label = (key: Pass['key']) => {
+    const roomKey = ROOM_PREFERENCE_LABELS[key];
+    return roomKey ? t(roomKey) : t(`studentFlags.${key}.label`);
+  };
 
   const isSet = (student: Student) => Boolean(student[pass.key]);
   const selectedCount = students.filter(isSet).length;

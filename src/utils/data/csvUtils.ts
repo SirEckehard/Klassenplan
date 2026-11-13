@@ -1141,6 +1141,12 @@ export async function parseCsvFlexible(
         prefersDoor: parseBooleanCell(
           readAliasCell(row, headerIndex, 'prefersDoor'),
         ),
+        needsFreeNeighbourSeat: parseBooleanCell(
+          readAliasCell(row, headerIndex, 'needsFreeNeighbourSeat'),
+        ),
+        leftHanded: parseBooleanCell(
+          readAliasCell(row, headerIndex, 'leftHanded'),
+        ),
         languageSkill: parseLanguageSkillCell(findLanguageSkillCellValue(row)),
         socialRole: parseSocialRoleCell(findSocialRoleCellValue(row)),
         wishPartnerIds: [] as string[],

@@ -22,6 +22,8 @@ import {
   MapPinAreaIcon,
   PanoramaIcon,
   DoorIcon,
+  ArrowsOutLineHorizontalIcon,
+  HandIcon,
 } from '@phosphor-icons/react';
 import type { Icon } from '@phosphor-icons/react';
 import {
@@ -190,6 +192,22 @@ export default function CriteriaReferenceSection() {
           labelKey: 'faq.eigenschaften.props.prefersDoor.label',
           descriptionKey: 'faq.eigenschaften.props.prefersDoor.description',
           algorithmKey: 'faq.eigenschaften.props.prefersDoor.algorithm',
+        },
+        {
+          key: 'needsFreeNeighbourSeat',
+          icon: ArrowsOutLineHorizontalIcon,
+          labelKey: 'faq.eigenschaften.props.needsFreeNeighbourSeat.label',
+          descriptionKey:
+            'faq.eigenschaften.props.needsFreeNeighbourSeat.description',
+          algorithmKey:
+            'faq.eigenschaften.props.needsFreeNeighbourSeat.algorithm',
+        },
+        {
+          key: 'leftHanded',
+          icon: HandIcon,
+          labelKey: 'faq.eigenschaften.props.leftHanded.label',
+          descriptionKey: 'faq.eigenschaften.props.leftHanded.description',
+          algorithmKey: 'faq.eigenschaften.props.leftHanded.algorithm',
         },
       ],
     },

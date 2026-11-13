@@ -10,7 +10,7 @@
  * (`occupantsOf`), and three questions are cheap to answer about it: its total
  * (`scoreArrangement`), what swapping two seats would change
  * (`swapDelta`, exact — it re-reads every relation the two seats take part
- * in) and what placing a student on an empty seat would cost
+ * in, and the terms of the seats around them) and what placing a student on an empty seat would cost
  * (`placementCost`).
  */
 import type {
@@ -25,6 +25,7 @@ import { seatStudentIdentifier } from '@/utils/pairs';
 import { getSeatPositions } from '@/utils/math/seatGeometry';
 import { getFeatureDistanceMaps } from '../featureDistances';
 import {
+  handTerm,
   isCloseKind,
   languageTerm,
   pairTerm,
@@ -86,6 +87,8 @@ export interface ModelContext {
   seat: Float64Array;
   hasTableTerms: boolean;
   hasLanguage: boolean;
+  /** Whether a left-hander is in the class while the criterion counts */
+  hasHands: boolean;
   /** Marks for collecting the seats a change touches, without a Set */
   stamps: Int32Array;
   stamp: number;
@@ -203,6 +206,7 @@ export const buildModelContext = (input: ModelInput): ModelContext => {
     seat: seatValues,
     hasTableTerms: weights.gender > 0 || weights.roles > 0,
     hasLanguage: weights.language > 0,
+    hasHands: weights.leftHanded > 0 && facts.some((fact) => fact.leftHanded),
     stamps: new Int32Array(size),
     stamp: 0,
   };
@@ -328,6 +332,57 @@ const languageSum = (
   return sum;
 };
 
+const handTermAt = (
+  context: ModelContext,
+  occupants: Occupants,
+  seat: number,
+): number => {
+  const student = occupants[seat]!;
+  if (student < 0) return 0;
+  const facts = context.facts[student]!;
+  if (!facts.leftHanded) return 0;
+  const left = context.layout.leftOf[seat]!;
+  const neighbour = left >= 0 ? occupants[left]! : -1;
+  return handTerm(
+    context.weights,
+    facts,
+    neighbour >= 0 ? context.facts[neighbour]! : null,
+  );
+};
+
+/**
+ * The seats whose hand term a change at `seats` can move: the seats
+ * themselves and the seats to their right, whose left they are.
+ */
+const handSeatsAround = (
+  context: ModelContext,
+  seats: readonly number[],
+): number[] => {
+  context.stamp += 1;
+  const mark = context.stamp;
+  const touched: number[] = [];
+  const add = (seat: number) => {
+    if (context.stamps[seat] === mark) return;
+    context.stamps[seat] = mark;
+    touched.push(seat);
+  };
+  for (const seat of seats) {
+    add(seat);
+    for (const right of context.layout.rightOf[seat]!) add(right);
+  }
+  return touched;
+};
+
+const handSum = (
+  context: ModelContext,
+  occupants: Occupants,
+  seats: readonly number[],
+): number => {
+  let sum = 0;
+  for (const seat of seats) sum += handTermAt(context, occupants, seat);
+  return sum;
+};
+
 /** The score of an arrangement; lower is better. */
 export const scoreArrangement = (
   context: ModelContext,
@@ -358,6 +413,11 @@ export const scoreArrangement = (
   if (context.hasLanguage) {
     for (let a = 0; a < size; a++) {
       total += languageTermAt(context, occupants, a);
+    }
+  }
+  if (context.hasHands) {
+    for (let a = 0; a < size; a++) {
+      total += handTermAt(context, occupants, a);
     }
   }
   return total;
@@ -408,12 +468,13 @@ export const swapDelta = (
     if (A >= 0) delta += context.pair[base + A]!;
   }
 
-  if (context.hasTableTerms || context.hasLanguage) {
+  if (context.hasTableTerms || context.hasLanguage || context.hasHands) {
     const groupA = layout.groupOf[a]!;
     const groupB = layout.groupOf[b]!;
     const around = context.hasLanguage
       ? languageSeatsAround(context, [a, b])
       : [];
+    const hands = context.hasHands ? handSeatsAround(context, [a, b]) : [];
     const measure = () => {
       let value = 0;
       if (context.hasTableTerms) {
@@ -421,6 +482,7 @@ export const swapDelta = (
         if (groupB !== groupA) value += groupTermAt(context, occupants, groupB);
       }
       if (context.hasLanguage) value += languageSum(context, occupants, around);
+      if (context.hasHands) value += handSum(context, occupants, hands);
       return value;
     };
     const before = measure();
@@ -451,14 +513,16 @@ export const placementCost = (
     if (other < 0) continue;
     cost += context.pair[relation.kind * nn + other * n + student]!;
   }
-  if (context.hasTableTerms || context.hasLanguage) {
+  if (context.hasTableTerms || context.hasLanguage || context.hasHands) {
     const group = layout.groupOf[seat]!;
     const around = context.hasLanguage
       ? languageSeatsAround(context, [seat])
       : [];
+    const hands = context.hasHands ? handSeatsAround(context, [seat]) : [];
     const measure = () =>
       (context.hasTableTerms ? groupTermAt(context, occupants, group) : 0) +
-      (context.hasLanguage ? languageSum(context, occupants, around) : 0);
+      (context.hasLanguage ? languageSum(context, occupants, around) : 0) +
+      (context.hasHands ? handSum(context, occupants, hands) : 0);
     const before = measure();
     occupants[seat] = student;
     const after = measure();

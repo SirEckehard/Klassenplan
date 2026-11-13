@@ -71,6 +71,8 @@
     "name": "Name",
     "windowFull": "Fensterplatz",
     "doorFull": "Türnähe",
+    "freeNeighbourFull": "Freier Nachbarplatz",
+    "leftHandedFull": "Linkshänder",
     "number": "Nr",
     "attributes": "Gesetzte Merkmale"
   },
@@ -153,7 +155,9 @@
   },
   "environment": {
     "windowTooltip": "Bevorzugt Plätze am Fenster",
-    "doorTooltip": "Bevorzugt Plätze in Türnähe"
+    "doorTooltip": "Bevorzugt Plätze in Türnähe",
+    "freeNeighbourTooltip": "Braucht den Platz daneben frei",
+    "leftHandedTooltip": "Schreibt mit links"
   },
   "height": {
     "title": "Körpergröße",
@@ -199,7 +203,11 @@
     "windowSeat": "Platz am Fenster",
     "doorProximity": "Platz an der Tür",
     "windowTooltip": "Schüler bevorzugt Plätze am Fenster",
-    "doorTooltip": "Schüler bevorzugt Plätze an der Tür"
+    "doorTooltip": "Schüler bevorzugt Plätze an der Tür",
+    "freeNeighbourSeat": "Platz daneben frei",
+    "freeNeighbourTooltip": "Der Platz direkt daneben bleibt frei",
+    "leftHanded": "Linkshänder",
+    "leftHandedTooltip": "Links daneben sitzt niemand, der mit rechts schreibt"
   },
   "nameEditor": {
     "saveName": "Namen speichern",
@@ -336,7 +344,9 @@
       "performanceWeak": "Wer braucht aktuell Unterstützung?",
       "needsFrontSeat": "Wer sollte möglichst vorne sitzen?",
       "prefersWindow": "Wer sitzt gern am Fenster?",
-      "prefersDoor": "Wer sitzt gern nah an der Tür?"
+      "prefersDoor": "Wer sitzt gern nah an der Tür?",
+      "needsFreeNeighbourSeat": "Wer braucht den Platz daneben frei?",
+      "leftHanded": "Wer schreibt mit links?"
     }
   },
   "relations": {

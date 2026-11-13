@@ -20,6 +20,7 @@ import {
   genderExcess,
   historyWeight,
   isCloseKind,
+  isNeighbourKind,
   isTableKind,
   relationWeight,
   wishEachOther,
@@ -218,6 +219,9 @@ export function evaluateCriteria(
   const windowSeats = new CaseCollector(true);
   const doorSeats = new CaseCollector(true);
   const language = new CaseCollector();
+  const leftHanders = new CaseCollector();
+  // Students needing the seats beside them free, with whether they are.
+  const freeNeighbours: Array<[seat: number, free: boolean]> = [];
 
   for (const student of seated) {
     const fact = facts[student]!;
@@ -273,6 +277,22 @@ export function evaluateCriteria(
       );
     }
     if (fact.shy) shy.add(place.hasCloseNeighbour ? 1 : 0, [seat]);
+    if (fact.freeNeighbour) {
+      freeNeighbours.push([
+        seat,
+        !layout.relations[seat]!.some(
+          (relation) =>
+            isNeighbourKind(relation.kind) && occupants[relation.seat]! >= 0,
+        ),
+      ]);
+    }
+    if (fact.leftHanded) {
+      const left = layout.leftOf[seat]!;
+      const neighbour = left >= 0 ? occupants[left]! : -1;
+      leftHanders.add(neighbour < 0 || facts[neighbour]!.leftHanded ? 1 : 0, [
+        seat,
+      ]);
+    }
     if (fact.height === 'small') height.add(place.depth > 0.5 ? 1 : 0, [seat]);
     if (fact.height === 'tall') height.add(place.depth < 0.5 ? 1 : 0, [seat]);
     if (fact.prefersWindow && place.window !== null) {
@@ -286,6 +306,30 @@ export function evaluateCriteria(
         strongSpeakerCloseness(context, occupants, seat) / languageReach,
         [seat],
       );
+    }
+  }
+
+  // Free seats beside, against what the room allows: a student is free at a
+  // seat with no seat directly beside it, or beside a seat left empty — no
+  // more of them than the room has such seats and empty seats in the mix.
+  const freeNeighbour = new CaseCollector();
+  if (freeNeighbours.length > 0) {
+    let room = 0;
+    for (let seat = 0; seat < size; seat++) {
+      if (!isSeatInMix(context, seat)) continue;
+      const alone = !layout.relations[seat]!.some(
+        (relation) =>
+          isNeighbourKind(relation.kind) && isSeatInMix(context, relation.seat),
+      );
+      if (alone || occupants[seat]! < 0) room += 1;
+    }
+    const possible = Math.min(freeNeighbours.length, room);
+    const met = freeNeighbours.filter(([, free]) => free).length;
+    for (let k = 0; k < possible; k++) {
+      freeNeighbour.add(k < met ? 1 : 0, []);
+    }
+    for (const [seat, free] of freeNeighbours) {
+      freeNeighbour.mark(free ? 1 : 0, [seat]);
     }
   }
 
@@ -443,6 +487,8 @@ export function evaluateCriteria(
     preferFrontForSmallerStudents: height.result(),
     preferWindowSeats: windowSeats.result(),
     preferDoorSeats: doorSeats.result(),
+    keepNeighbourSeatFree: freeNeighbour.result(),
+    seatLeftHandersLeft: leftHanders.result(),
     preferLanguageMixing: language.result(),
     distributeSocialRoles: roles.result(),
   };

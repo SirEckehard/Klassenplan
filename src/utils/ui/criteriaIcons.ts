@@ -15,6 +15,8 @@ import {
   ArrowsVerticalIcon,
   PanoramaIcon,
   DoorIcon,
+  ArrowsOutLineHorizontalIcon,
+  HandIcon,
   TranslateIcon,
   UsersThreeIcon,
 } from '@phosphor-icons/react';
@@ -36,6 +38,8 @@ export const CRITERIA_ICON_MAP: Record<ScalarMixSettingKey, Icon> = {
   preferFrontForSmallerStudents: ArrowsVerticalIcon,
   preferWindowSeats: PanoramaIcon,
   preferDoorSeats: DoorIcon,
+  keepNeighbourSeatFree: ArrowsOutLineHorizontalIcon,
+  seatLeftHandersLeft: HandIcon,
   preferLanguageMixing: TranslateIcon,
   distributeSocialRoles: UsersThreeIcon,
 };
@@ -65,5 +69,7 @@ export const CRITERIA_FAMILY_MAP: Record<ScalarMixSettingKey, DataFamily> = {
   preferFrontForSmallerStudents: 'space',
   preferWindowSeats: 'space',
   preferDoorSeats: 'space',
+  keepNeighbourSeatFree: 'space',
+  seatLeftHandersLeft: 'space',
   preferGenderMix: 'person',
 };

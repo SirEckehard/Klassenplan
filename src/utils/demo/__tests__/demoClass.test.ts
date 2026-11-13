@@ -89,6 +89,10 @@ describe('buildDemoStudents', () => {
     );
     expect(count((student) => Boolean(student.prefersDoor))).toBeGreaterThan(0);
     expect(
+      count((student) => Boolean(student.needsFreeNeighbourSeat)),
+    ).toBeGreaterThan(0);
+    expect(count((student) => Boolean(student.leftHanded))).toBeGreaterThan(0);
+    expect(
       count((student) => Boolean(student.performanceStrong)),
     ).toBeGreaterThan(0);
     expect(
@@ -125,7 +129,8 @@ describe('buildDemoClassroomScene', () => {
   it('seats the whole class at double desks inside the room', () => {
     const scene = buildDemoClassroomScene(24);
 
-    expect(countSeats(scene)).toBeGreaterThanOrEqual(24);
+    // A desk to spare: a free seat beside needs an empty seat (0043).
+    expect(countSeats(scene)).toBe(26);
     expect(scene.totalStudents).toBe(24);
     for (const table of scene.tables) {
       expect(table.templateType).toBe('double');

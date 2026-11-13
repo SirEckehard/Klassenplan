@@ -17,7 +17,7 @@ Klassenplan's main value therefore lies not in the _optimal_ seating plan, but i
 
 ## 2. Attributes: contextual, not diagnostic
 
-All student attributes in Klassenplan (`restless`, `shy`, `concentrationIssues`, `performanceStrong`, `performanceWeak`, `needsFrontSeat`, `socialRole`) are intended as **contextual descriptions of current behavior**, not as stable diagnoses or personality traits.
+All student attributes in Klassenplan (`restless`, `shy`, `concentrationIssues`, `performanceStrong`, `performanceWeak`, `needsFrontSeat`, `needsFreeNeighbourSeat`, `socialRole`) are intended as **contextual descriptions of current behavior**, not as stable diagnoses or personality traits.
 
 Theoretical background:
 
@@ -46,6 +46,15 @@ school-law basis) where a health motive applies. German state-level school
 data-protection regulations (NRW: VO-DV I; Bavaria: BaySchO; BW: DatenschutzVO
 Schule) may impose stricter requirements than the GDPR.
 
+### Special case: `needsFreeNeighbourSeat`
+
+The seat beside a student kept free (since decision
+[0043](decisions/0043-free-neighbour-seat-and-left-handers.md)) is
+reason-agnostic in the same way: a wheelchair, a school assistant or the room a
+student needs to work all read "Freier Nachbarplatz". What holds for the reason
+behind a front seat holds here too. `leftHanded` describes how a student
+writes, nothing more, and is no health matter.
+
 ---
 
 ## 3. Rationale for the default weights
@@ -68,6 +77,8 @@ The weights in [`src/utils/mixSettings.ts`](../src/utils/mixSettings.ts) are nor
 | `preferGenderMix`                       | 2       | Deliberately low weight; gender categories are complex (Butler 1990); the default signals optionality                           |
 | `avoidShyAlone`                         | 2       | Social inclusion matters; low weight because it is hard to operationalize                                                       |
 | `preferWindowSeats` / `preferDoorSeats` | 3 / 2   | Individual spatial preferences; no pedagogical evidence, but high subjective relevance                                          |
+| `keepNeighbourSeatFree`                 | 8       | Accessibility measure like the front seat; a need weighs twice a wish of the same level                                         |
+| `seatLeftHandersLeft`                   | 5       | Writing elbow to elbow is a daily nuisance that costs the plan little to avoid; no research backing                             |
 | `distributeSocialRoles`                 | 3       | Balanced table composition as a general heuristic                                                                               |
 
 ### What "next to" means

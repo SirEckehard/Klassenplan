@@ -75,6 +75,13 @@ interface StudentBase {
   prefersWindow?: boolean;
   prefersDoor?: boolean;
   /**
+   * Needs the seat beside them free — a wheelchair, a school assistant, room
+   * to work. Like `needsFrontSeat` it stores no reason (decision 0043).
+   */
+  needsFreeNeighbourSeat?: boolean;
+  /** Writes with the left hand: an elbow that needs room on the left. */
+  leftHanded?: boolean;
+  /**
    * Language skill level for partner pairing optimization.
    * undefined = not specified (no language-based constraints)
    */

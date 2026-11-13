@@ -16,6 +16,8 @@ import {
   ArrowUpIcon,
   DoorIcon,
   PanoramaIcon,
+  ArrowsOutLineHorizontalIcon,
+  HandIcon,
   // Language skill icons
   ChatCircleIcon,
   ChatDotsIcon,
@@ -39,6 +41,8 @@ export const STUDENT_ATTRIBUTE_ICONS = {
   height: { small: ArrowDownIcon, tall: ArrowUpIcon },
   prefersWindow: PanoramaIcon,
   prefersDoor: DoorIcon,
+  needsFreeNeighbourSeat: ArrowsOutLineHorizontalIcon,
+  leftHanded: HandIcon,
   wishPartner: HeartIcon,
   avoidPartner: HeartBreakIcon,
   languageSkill: {
@@ -309,7 +313,8 @@ export type HeightBadge = {
 };
 
 export type EnvironmentBadge = {
-  key: 'prefersWindow' | 'prefersDoor';
+  key:
+    'prefersWindow' | 'prefersDoor' | 'needsFreeNeighbourSeat' | 'leftHanded';
   label: string;
   icon: Icon;
   tooltip: string;
@@ -709,6 +714,26 @@ function getEnvironmentBadges(
     });
   }
 
+  if (student.needsFreeNeighbourSeat) {
+    badges.push({
+      key: 'needsFreeNeighbourSeat',
+      label: tStudents('listHeader.freeNeighbourFull'),
+      icon: STUDENT_ATTRIBUTE_ICONS.needsFreeNeighbourSeat,
+      tooltip: tStudents('environment.freeNeighbourTooltip'),
+      family: 'space',
+    });
+  }
+
+  if (student.leftHanded) {
+    badges.push({
+      key: 'leftHanded',
+      label: tStudents('listHeader.leftHandedFull'),
+      icon: STUDENT_ATTRIBUTE_ICONS.leftHanded,
+      tooltip: tStudents('environment.leftHandedTooltip'),
+      family: 'space',
+    });
+  }
+
   return badges;
 }
 
@@ -800,6 +825,8 @@ const BADGE_ORDER: ReadonlyArray<{
   { key: 'heightTall', criteria: ['preferFrontForSmallerStudents'] },
   { key: 'prefersWindow', criteria: ['preferWindowSeats'] },
   { key: 'prefersDoor', criteria: ['preferDoorSeats'] },
+  { key: 'needsFreeNeighbourSeat', criteria: ['keepNeighbourSeatFree'] },
+  { key: 'leftHanded', criteria: ['seatLeftHandersLeft'] },
 ];
 
 const badgeOrderIndex = (key: string): number => {

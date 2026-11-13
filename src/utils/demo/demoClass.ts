@@ -48,6 +48,8 @@ interface DemoStudentBlueprint {
   socialRole?: SocialRole;
   prefersWindow?: boolean;
   prefersDoor?: boolean;
+  needsFreeNeighbourSeat?: boolean;
+  leftHanded?: boolean;
   /** Indices into {@link DEMO_STUDENTS}; resolved to ids when the class is built. */
   wishes?: number[];
   avoids?: number[];
@@ -203,11 +205,13 @@ const DEMO_STUDENTS: readonly DemoStudentBlueprint[] = [
     gender: 'boy',
     performance: 'weak',
     wishes: [17],
+    leftHanded: true,
   },
   {
     names: { de: 'Lea Fischer', en: 'Ella Foster' },
     gender: 'girl',
     height: 'tall',
+    needsFreeNeighbourSeat: true,
   },
   {
     names: { de: 'Alex Kowalski', en: 'Alex Rivera' },
@@ -252,6 +256,10 @@ export function buildDemoStudents(
     avoidPartnerIds: (blueprint.avoids ?? []).map((partner) => ids[partner]),
     prefersWindow: blueprint.prefersWindow ?? false,
     prefersDoor: blueprint.prefersDoor ?? false,
+    ...(blueprint.needsFreeNeighbourSeat
+      ? { needsFreeNeighbourSeat: true }
+      : {}),
+    ...(blueprint.leftHanded ? { leftHanded: true } : {}),
     ...(blueprint.languageSkill
       ? { languageSkill: blueprint.languageSkill }
       : {}),
@@ -264,12 +272,13 @@ export function buildDemoStudents(
  * A room that fits the class: double desks from the quick setup's own
  * arrangement, the board at the front, windows on the back wall and the door
  * beside the board, all flush with their walls — enough for the window, door
- * and front-seat criteria to mean something.
+ * and front-seat criteria to mean something. One desk more than the class
+ * needs, as most rooms have: the student needing the seat beside them free
+ * (decision 0043) can only have it where a seat is to spare.
  */
 export function buildDemoClassroomScene(studentCount: number): ClassroomScene {
-  const tableCount = Math.ceil(
-    studentCount / getTablePresets().double.seatCount,
-  );
+  const tableCount =
+    Math.ceil(studentCount / getTablePresets().double.seatCount) + 1;
 
   return {
     totalStudents: studentCount,

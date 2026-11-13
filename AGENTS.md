@@ -491,15 +491,15 @@ one accent:
 families, and never appears in chrome. Each family always ships with an icon and
 a spelled-out word, so colour is never the only channel:
 
-| Family           | Token prefix      | Covers                                               |
-| ---------------- | ----------------- | ---------------------------------------------------- |
-| Verhalten        | `--data-behavior` | Unruhe, Ablenkbarkeit, Ablenkung durch Unruhe        |
-| Soziales         | `--data-social`   | Schüchternheit, Wunsch-/Distanzpartner, Rollen       |
-| Lernen           | `--data-learning` | Fördern heterogen, Fördern homogen                   |
-| Sprache          | `--data-language` | Sprachförderung, Sprachstand                         |
-| Platz &amp; Raum | `--data-space`    | Vordere Plätze, Körpergröße, Fensterplätze, Türnähe  |
-| Person           | `--data-person`   | Geschlechtermischung, Foto, Name                     |
-| Verlauf          | `--data-history`  | Wiederholung (the plans already used, not a student) |
+| Family           | Token prefix      | Covers                                                                                |
+| ---------------- | ----------------- | ------------------------------------------------------------------------------------- |
+| Verhalten        | `--data-behavior` | Unruhe, Ablenkbarkeit, Ablenkung durch Unruhe                                         |
+| Soziales         | `--data-social`   | Schüchternheit, Wunsch-/Distanzpartner, Rollen                                        |
+| Lernen           | `--data-learning` | Fördern heterogen, Fördern homogen                                                    |
+| Sprache          | `--data-language` | Sprachförderung, Sprachstand                                                          |
+| Platz &amp; Raum | `--data-space`    | Vordere Plätze, Körpergröße, Fensterplätze, Türnähe, Freier Nachbarplatz, Linkshänder |
+| Person           | `--data-person`   | Geschlechtermischung, Foto, Name                                                      |
+| Verlauf          | `--data-history`  | Wiederholung (the plans already used, not a student)                                  |
 
 A seat is not one of those families. An occupied seat carries the student's
 gender as a quiet tint — green for a boy, lilac for a girl, blue for a

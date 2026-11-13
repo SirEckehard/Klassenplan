@@ -210,6 +210,16 @@ function validateStudent(value: unknown): asserts value is Student {
   if ('prefersDoor' in value && typeof value.prefersDoor !== 'boolean') {
     throw new BackupValidationError(BACKUP_ERROR_MESSAGES.invalidData);
   }
+  // Optional since decision 0043, absent in older backups.
+  if (
+    'needsFreeNeighbourSeat' in value &&
+    typeof value.needsFreeNeighbourSeat !== 'boolean'
+  ) {
+    throw new BackupValidationError(BACKUP_ERROR_MESSAGES.invalidData);
+  }
+  if ('leftHanded' in value && typeof value.leftHanded !== 'boolean') {
+    throw new BackupValidationError(BACKUP_ERROR_MESSAGES.invalidData);
+  }
   // Optional: hasPhoto flag (export version ≥ 2, backwards compatible)
   if ('hasPhoto' in value && typeof value.hasPhoto !== 'boolean') {
     throw new BackupValidationError(BACKUP_ERROR_MESSAGES.invalidData);
