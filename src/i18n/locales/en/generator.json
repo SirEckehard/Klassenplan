@@ -104,7 +104,7 @@
       "title": "Export",
       "views": {
         "title": "View",
-        "body": "In the toolbar you choose the seating plan or the circle, the “List” with room for notes or the sheet for a “Substitute”."
+        "body": "In the toolbar you choose the seating plan or the circle, the “List” with room for notes, the sheet for a “Substitute” or “Name cards” for desk and jumper."
       },
       "sheetTitle": {
         "title": "Title",
@@ -733,7 +733,76 @@
       "linesNone": "None"
     },
     "backToClass": "Back to the class",
-    "backToClassShortcut": "Back to the class (Alt/⌥+←)"
+    "backToClassShortcut": "Back to the class (Alt/⌥+←)",
+    "cards": {
+      "view": "Name cards",
+      "count_one": "{{count}} card",
+      "count_other": "{{count}} cards",
+      "pages_one": "{{count}} page",
+      "pages_other": "{{count}} pages",
+      "format": "Format",
+      "formats": {
+        "tentSmall": "Tent cards, two per page",
+        "tentLarge": "Tent card, large (landscape)",
+        "badge": "Name badges, eight per page"
+      },
+      "foldHint": "Cut along the dashes, fold along the dots.",
+      "cutHint": "Cut out along the dashed lines.",
+      "font": "Font",
+      "loadFont": "Load own font …",
+      "replaceFont": "Load another font …",
+      "removeFont": "Remove own font",
+      "fontHint": "An own font (TTF, OTF, WOFF, up to 2 MB) stays on this device and goes into the backup.",
+      "look": "Design",
+      "motifs": "Motifs",
+      "motifSets": {
+        "animals": "Animals",
+        "vehicles": "Vehicles",
+        "nature": "Nature",
+        "food": "Food",
+        "all": "All mixed",
+        "own": "Own picture",
+        "none": "None"
+      },
+      "loadImage": "Load picture …",
+      "replaceImage": "Load another picture …",
+      "removeImage": "Remove picture",
+      "imageHint": "One picture for every card – a drawing or the class's sign (PNG, JPEG or WebP).",
+      "imageLoaded": "“{{name}}” is on every card.",
+      "paper": "Paper",
+      "tones": {
+        "mixed": "Colourful",
+        "paper": "White",
+        "sand": "Sand",
+        "mint": "Mint",
+        "sky": "Sky",
+        "lilac": "Lilac",
+        "rose": "Rose",
+        "lemon": "Lemon"
+      },
+      "border": "Border",
+      "borders": {
+        "none": "None",
+        "dots": "Dots",
+        "wave": "Wave"
+      },
+      "writingLines": "Writing lines",
+      "colouring": "For colouring in",
+      "lastName": "Last name",
+      "placeRow": "Table",
+      "place": "Table {{table}}",
+      "classLine": "Class",
+      "pdfShortcut": "Export name cards as PDF (P)",
+      "pdfOnly": "Name cards are available as PDF only",
+      "errors": {
+        "notFont": "This file is no font the browser can read (TTF, OTF, WOFF or WOFF2).",
+        "fontTooLarge": "The font is larger than 2 MB.",
+        "notImage": "This file is no picture in PNG, JPEG or WebP format.",
+        "imageTooLarge": "The picture is larger than 20 MB.",
+        "saveFailed": "The file could not be saved.",
+        "pdfFailed": "Name card PDF export failed. Please try again."
+      }
+    }
   },
   "wizard": {
     "back": "Back",

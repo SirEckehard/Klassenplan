@@ -88,6 +88,9 @@ export const BACKUP_LIMITS = {
   // merge before 2026-11-06 could pass the app's limit, and a device in that
   // state must still be able to save a backup.
   maxMixPresets: MAX_MIX_PRESETS * 2,
+  // The table cards' own font (2 MB at most) and picture (made smaller on
+  // loading), as data URLs: Base64 takes four characters for three bytes.
+  maxCardFileDataUrlLength: 3 * 1024 * 1024,
   // Bounds for KDF iteration counts declared in the encrypted envelope: the
   // lower bound rejects deliberately weakened files, the upper bound prevents
   // a tampered envelope from stalling the browser during key derivation.

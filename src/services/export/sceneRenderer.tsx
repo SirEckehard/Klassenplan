@@ -15,6 +15,10 @@ import NoteListSheet, {
 import DutyRosterSheet, {
   type DutyRosterInput,
 } from '@/components/scene/DutyRosterSheet';
+import TableCardsSheet, {
+  planTableCards,
+  type TableCardsInput,
+} from '@/components/scene/TableCardsSheet';
 
 export type ExportClassMetadata = {
   name?: string | null;
@@ -186,5 +190,24 @@ export async function renderDutyRosterSvg(
     <div style={{ width: '100%', height: '100%', overflow: 'hidden' }}>
       <DutyRosterSheet {...input} />
     </div>,
+  );
+}
+
+/**
+ * Render the table cards (decision 0047), one SVG document per page. The
+ * pages name the cards' font but do not carry it: a teacher's own font may be
+ * megabytes, so the document that shows or prints them, and the PDF page by
+ * page, adds it once (`cardFontCss`).
+ */
+export async function renderTableCardSvgPages(
+  input: TableCardsInput,
+): Promise<string[]> {
+  const plan = planTableCards(input);
+  return Promise.all(
+    plan.pages.map((_, pageIndex) =>
+      renderMarkup(
+        <TableCardsSheet {...input} plan={plan} pageIndex={pageIndex} />,
+      ),
+    ),
   );
 }

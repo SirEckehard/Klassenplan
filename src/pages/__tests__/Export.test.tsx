@@ -26,6 +26,7 @@ import i18n from '@/i18n';
 import Export from '../Export';
 import {
   exportNoteListToPdf,
+  exportTableCardsToPdf,
   exportTableLayoutToPdf,
   downloadPdfBlob,
   generatePdfBlob,
@@ -34,6 +35,7 @@ import {
 import {
   renderNoteListSvgPages,
   renderSceneSvg,
+  renderTableCardSvgPages,
 } from '@/services/export/sceneRenderer';
 import { isAppleMobile, printSheets } from '@/services/export/printSheets';
 import { createMockClassroomScene, createMockStudent } from '@/__tests__/utils';
@@ -73,6 +75,9 @@ vi.mock('@/services/export/sceneRenderer', () => ({
     '<svg data-testid="list-1"></svg>',
     '<svg data-testid="list-2"></svg>',
   ]),
+  renderTableCardSvgPages: vi.fn(async () => [
+    '<svg data-testid="cards-1"></svg>',
+  ]),
   preloadRenderer: vi.fn(() => Promise.resolve()),
 }));
 
@@ -89,6 +94,13 @@ vi.mock('@/services/export/pdfExportFunctions', () => ({
   exportTableLayoutToPdf: vi.fn(),
   exportCircleLayoutToPdf: vi.fn(),
   exportNoteListToPdf: vi.fn(),
+  exportTableCardsToPdf: vi.fn(),
+}));
+
+// The cards' font files are fetched for print and PDF; here they need none.
+vi.mock('@/utils/export/cardFonts', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@/utils/export/cardFonts')>()),
+  cardFontCss: vi.fn(async () => '@font-face{}'),
 }));
 
 const students = [
@@ -431,6 +443,7 @@ describe('Export page', () => {
       expect(generatePdfBlob).toHaveBeenCalledWith(
         expect.stringContaining('data-testid="scene"'),
         'portrait',
+        undefined,
       );
     });
 
@@ -626,6 +639,110 @@ describe('Export page', () => {
           ),
         ).toMatchObject({ form: 'grid', showBadges: false }),
       );
+    });
+  });
+
+  // Decision 0047: a card for every child, before the first plan too.
+  describe('table cards', () => {
+    it('opens from the class layer without a plan, a card for every child by name', async () => {
+      seatingState.current = withoutPlan();
+      render(
+        <MemoryRouter
+          initialEntries={[
+            { pathname: '/export', state: { mode: 'cards', returnStep: 1 } },
+          ]}
+        >
+          <Export />
+        </MemoryRouter>,
+      );
+
+      await waitFor(() =>
+        expect(renderTableCardSvgPages).toHaveBeenCalledWith(
+          expect.objectContaining({
+            cards: [
+              expect.objectContaining({ firstName: 'Ada' }),
+              expect.objectContaining({ firstName: 'Grace' }),
+            ],
+            classLine: 'Klasse 7b',
+            settings: expect.objectContaining({
+              format: 'tentSmall',
+              font: 'andika',
+              order: 'alphabetical',
+            }),
+          }),
+        ),
+      );
+      expect(
+        screen.getByRole('button', { name: 'Namensschilder' }),
+      ).toHaveAttribute('aria-pressed', 'true');
+      expect(screen.getByRole('button', { name: 'PNG-Bild' })).toBeDisabled();
+      expect(
+        screen.getByRole('group', { name: 'Schrift' }),
+      ).toBeInTheDocument();
+    });
+
+    it('prints and saves its pages with the cards’ font', async () => {
+      renderExport();
+      await userEvent.click(
+        screen.getByRole('button', { name: 'Namensschilder' }),
+      );
+      const iframe = await screen.findByTitle('Vorschau');
+      await waitFor(
+        () =>
+          expect(iframe.getAttribute('srcdoc') ?? '').toContain(
+            'data-testid="cards-1"',
+          ),
+        { timeout: 4000 },
+      );
+      // The preview links the font's files.
+      expect(iframe.getAttribute('srcdoc')).toContain('KP Card Andika');
+
+      await userEvent.click(screen.getByRole('button', { name: 'Drucken' }));
+      await waitFor(() =>
+        expect(printSheets).toHaveBeenCalledWith(
+          ['<svg data-testid="cards-1"></svg>'],
+          'portrait',
+          expect.objectContaining({
+            title: 'Namensschilder_Klasse 7b',
+            extraFontCss: '@font-face{}',
+          }),
+        ),
+      );
+
+      await userEvent.click(
+        screen.getByRole('button', { name: 'PDF-Dokument' }),
+      );
+      await waitFor(() =>
+        expect(exportTableCardsToPdf).toHaveBeenCalledWith(
+          ['<svg data-testid="cards-1"></svg>'],
+          'Namensschilder_Klasse 7b',
+          'portrait',
+          '@font-face{}',
+        ),
+      );
+    });
+
+    it('keeps its settings, and reads by table once there is a plan', async () => {
+      renderExport();
+      await userEvent.click(
+        screen.getByRole('button', { name: 'Namensschilder' }),
+      );
+      await userEvent.click(
+        await screen.findByRole('button', { name: /acht je Seite/ }),
+      );
+      await waitFor(() =>
+        expect(renderTableCardSvgPages).toHaveBeenLastCalledWith(
+          expect.objectContaining({
+            settings: expect.objectContaining({
+              format: 'badge',
+              order: 'tables',
+            }),
+          }),
+        ),
+      );
+      expect(
+        JSON.parse(localStorage.getItem('spg.export.cards') ?? '{}'),
+      ).toMatchObject({ format: 'badge' });
     });
   });
 

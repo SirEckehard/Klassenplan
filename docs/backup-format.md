@@ -117,6 +117,10 @@ Optional fields (version ≥ 2):
   presets and the teacher's own. Absent when there are none. A full import
   replaces them: after a backup without them only the shipped presets remain,
   as shipped.
+- `cardFiles` – the name cards' own font and picture
+  ([decision 0047](decisions/0047-name-cards.md)): `font` and `image`, each
+  `{ name, type, dataUrl }` where there is one. Absent when there are none. A
+  full import replaces them; a merge only fills a kind this device has none of.
 
 Inside the nested objects, the same structures apply as in the application's
 TypeScript types (`Student`, `SavedPlan`, `MixResult`,
@@ -184,6 +188,9 @@ too large, with its size, or not restorable, which is a bug to report).
   and such a device must still be able to save a backup. Each is named in at
   most 120 characters, every weight from 0 to 10. A merge adds presets only
   up to 30 and counts the ones left out.
+- In `cardFiles`, a font of type `font/woff2`, `font/woff`, `font/ttf` or
+  `font/otf` and a picture of type `image/png`, `image/jpeg` or `image/webp`,
+  each name at most 255 characters and each data URL at most **3 MB**.
 
 ## Encryption
 

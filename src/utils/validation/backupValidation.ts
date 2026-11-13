@@ -1173,6 +1173,36 @@ function validateExportBundleStructure(
   if ('mixPresets' in value && value.mixPresets) {
     validateMixPresets(value.mixPresets);
   }
+  if ('cardFiles' in value && value.cardFiles) {
+    validateCardFiles(value.cardFiles);
+  }
+}
+
+const CARD_FILE_TYPES: Record<'font' | 'image', RegExp> = {
+  font: /^font\/(woff2|woff|ttf|otf)$/,
+  image: /^image\/(png|jpeg|webp)$/,
+};
+
+/** The table cards' own font and picture (decision 0047). */
+function validateCardFiles(value: unknown): void {
+  if (!isObject(value)) {
+    throw new BackupValidationError(BACKUP_ERROR_MESSAGES.invalidData);
+  }
+  for (const [kind, file] of Object.entries(value)) {
+    const types = CARD_FILE_TYPES[kind as 'font' | 'image'];
+    if (
+      !types ||
+      !isObject(file) ||
+      !assertString(file.name, { maxLength: 255 }) ||
+      typeof file.type !== 'string' ||
+      !types.test(file.type) ||
+      typeof file.dataUrl !== 'string' ||
+      !file.dataUrl.startsWith('data:') ||
+      file.dataUrl.length > BACKUP_LIMITS.maxCardFileDataUrlLength
+    ) {
+      throw new BackupValidationError(BACKUP_ERROR_MESSAGES.invalidData);
+    }
+  }
 }
 
 /** A preset's weights: every criterion it names within 0–10. */

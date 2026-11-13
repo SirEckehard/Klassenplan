@@ -88,7 +88,9 @@
     "delete": "Delete student",
     "placeholderCountPlaceholder": "Count",
     "printList": "Print list",
-    "printListTitle": "Print the class list with room for notes"
+    "printListTitle": "Print the class list with room for notes",
+    "printCards": "Print table cards",
+    "printCardsTitle": "Print name cards for the desks or to wear"
   },
   "csv": {
     "import": "Import class list",

@@ -59,6 +59,7 @@ it says so instead of reconstructing one.
 | [0044](0044-markers-carry-a-date.md)                 | Markers carry a date, and the app asks whether they still hold  |
 | [0045](0045-missing-today.md)                        | Who is missing today, marked in the projection and never stored |
 | [0046](0046-room-template-and-preset-files.md)       | A room template or a preset as a file of its own                |
+| [0047](0047-name-cards.md)                           | Name cards: a fifth sheet that belongs to the children          |
 
 ## Reasons still to be recorded
 

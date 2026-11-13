@@ -201,7 +201,7 @@ afterwards.
   placeholders, the room's tables and elements, "Bibliothek"'s classes, rooms,
   room templates and presets), Ansichtseinstellungen (what the view shows),
   Verwalten (on the class layer the class list's import and export side by side,
-  and "Liste drucken"). The toolbar holds what goes onto the stage and how it
+  "Liste drucken" and "Tischkarten drucken"). The toolbar holds what goes onto the stage and how it
   looks; naming, saving, opening and removing the thing a layer shows is its
   inspector's — the plan layer has no Verwalten. A layer leaves out a group it
   has nothing for but never reorders one. `ClassToolPanel`, `RoomToolPanel`,
@@ -244,7 +244,8 @@ afterwards.
   current, each one leads back into the workspace, no plan name and no tour) and
   its own status bar (`ExportStatusBar` on `StatusBarFrame`, the frame every
   status bar shares). The toolbar (`ExportToolPanel`) switches the view — table
-  plan, circle, the note list and the substitute's sheet — and saves the files —
+  plan, circle, the note list, the substitute's sheet and the name cards — and
+  saves the files —
   one PDF entry for whatever is on the sheet, PNG and SVG — above the foot every
   rail shares; the sheet is paper on the stage with nothing on top of it; what
   it carries is set in `ExportSheetInspector`, from the sheet as a whole to its
@@ -288,7 +289,21 @@ afterwards.
   (`spg.export.substitute`, full names by default, photos off), apart from the
   teacher's own sheet; the note, the day and the title last as long as the page
   and are never stored. It needs a plan and is reached from the export page
-  alone. Printing is the one blue button, with "Zurück" to the plan beside it as
+  alone. The name cards ("Namensschilder", decision 0047, `TableCardsSheet`,
+  `utils/ui/tableCards`) are a card for every child — tent cards two to a page
+  or one across, or eight badges — with the first name on writing lines, a
+  motif, a tint of paper and the class at the foot, run to as many pages as
+  they need and are a PDF only. Their inspector (`TableCardsInspector`) is
+  their own: format, font (each name in its face, a font of the teacher's own
+  loaded from a file in the row below), look (motifs or a picture of the
+  teacher's, paper, border, writing lines, colouring in), what they say and
+  their order; a file that will not do says so under its row. They need
+  students, not a plan: "Tischkarten drucken" on the class layer opens the
+  page on them as "Liste drucken" does on the list, by name until someone is
+  seated. Their settings live in one object (`spg.export.cards`,
+  `useTableCardSheet`), the font is measured before the names are laid out,
+  and the preview, the print and the PDF carry it once rather than on every
+  page. Printing is the one blue button, with "Zurück" to the plan beside it as
   on every layer; the bar's line stays empty unless the sheet cannot speak for
   itself — "Noch kein Sitzplan gemischt", or the circle being built with the way
   to stop it — since "A4 · Hochformat · 24 Schüler" only repeated the paper on

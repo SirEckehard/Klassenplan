@@ -354,6 +354,14 @@ function StudentInput({
       }),
     [navigate],
   );
+  // The table cards too: a class's first week needs them before any plan.
+  const handlePrintCards = useCallback(
+    () =>
+      navigate('/export', {
+        state: { mode: 'cards', returnStep: 1, ...FROM_WORKSPACE_STATE },
+      }),
+    [navigate],
+  );
 
   // The same toolbar with or without a class: without one, what needs a class
   // is greyed out, and the foot — the class tools, the plans, the backup —
@@ -379,6 +387,7 @@ function StudentInput({
           onImportCsv={analyzeCsvFile}
           onExportCsv={downloadStudentsCsv}
           onPrintList={handlePrintList}
+          onPrintCards={handlePrintCards}
           onLoadDemoClass={isDemoClassActive ? undefined : handleLoadDemoClass}
           isDemoClassLoading={isLoadingDemoClass}
           hasDemoClass={hasDemoClass}

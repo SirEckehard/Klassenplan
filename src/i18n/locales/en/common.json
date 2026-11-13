@@ -136,7 +136,9 @@
       "tables_one": "Table",
       "tables_other": "Tables",
       "seats_one": "Seat",
-      "seats_other": "Seats"
+      "seats_other": "Seats",
+      "cardFiles_one": "Own file for table cards",
+      "cardFiles_other": "Own files for table cards"
     }
   },
   "backupPassword": {

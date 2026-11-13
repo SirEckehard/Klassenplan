@@ -22,6 +22,8 @@ import type {
   SaveTemplateResult as SaveTemplateResultT,
   ExportBundleV1 as ExportBundleV1T,
   ExportBundle as ExportBundleT,
+  BackupCardFile as BackupCardFileT,
+  BackupCardFiles as BackupCardFilesT,
   ScalarMixSettingKey as ScalarMixSettingKeyT,
   PhotoDisplayMode as PhotoDisplayModeT,
 } from './SeatingPlan';
@@ -56,6 +58,8 @@ export type SaveTemplateError = SaveTemplateErrorT;
 export type SaveTemplateResult = SaveTemplateResultT;
 export type ExportBundleV1 = ExportBundleV1T;
 export type ExportBundle = ExportBundleT;
+export type BackupCardFile = BackupCardFileT;
+export type BackupCardFiles = BackupCardFilesT;
 export type { ClassroomScene, ClassroomTable, TableTemplateType };
 export type { ClassroomFeature, ClassroomFeatureType, ClassroomFeatureAnchor };
 export type ScalarMixSettingKey = ScalarMixSettingKeyT;

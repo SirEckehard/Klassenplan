@@ -11,7 +11,8 @@ import { FONT_SUBSETS, fontFaceRule } from './fontSubsets';
 
 let cachedFontCss: string | null = null;
 
-const fetchAsBase64 = async (url: string): Promise<string> => {
+/** A file the page serves, as base64 for a data URL. */
+export const fetchAsBase64 = async (url: string): Promise<string> => {
   const res = await fetch(url);
   const bytes = new Uint8Array(await res.arrayBuffer());
   let binary = '';
@@ -86,8 +87,9 @@ async function drawSvgToCanvas(
   widthPx: number,
   heightPx: number,
   background?: string,
+  extraFontCss = '',
 ): Promise<HTMLCanvasElement> {
-  const fontCss = await getEmbeddedFontCss();
+  const fontCss = (await getEmbeddedFontCss()) + extraFontCss;
   const svgWithFont = injectFontIntoSvg(svgMarkup, fontCss);
 
   return new Promise((resolve, reject) => {
@@ -141,18 +143,22 @@ async function drawSvgToCanvas(
  * Rasterize SVG markup into a lossless PNG Data URL (used by the PDF export).
  *
  * @param background Optional opaque backdrop, e.g. `'#ffffff'` for print.
+ * @param extraFontCss `@font-face` rules beside the UI font's: the table
+ *   cards' font (decision 0047), its files inlined.
  */
 export async function renderSvgToPngDataUrl(
   svgMarkup: string,
   widthPx: number,
   heightPx: number,
   background?: string,
+  extraFontCss?: string,
 ): Promise<string> {
   const canvas = await drawSvgToCanvas(
     svgMarkup,
     widthPx,
     heightPx,
     background,
+    extraFontCss,
   );
   return canvas.toDataURL('image/png', 1);
 }

@@ -104,7 +104,7 @@
       "title": "Export",
       "views": {
         "title": "Ansicht",
-        "body": "In der Werkzeugleiste wählst du Sitzplan oder Sitzkreis, die „Liste“ mit Platz für Notizen oder das Blatt für eine „Vertretung“."
+        "body": "In der Werkzeugleiste wählst du Sitzplan oder Sitzkreis, die „Liste“ mit Platz für Notizen, das Blatt für eine „Vertretung“ oder „Namensschilder“ für Tisch und Pullover."
       },
       "sheetTitle": {
         "title": "Titel",
@@ -733,7 +733,76 @@
       "linesNone": "Keine"
     },
     "backToClass": "Zurück zur Klasse",
-    "backToClassShortcut": "Zurück zur Klasse (Alt/⌥+←)"
+    "backToClassShortcut": "Zurück zur Klasse (Alt/⌥+←)",
+    "cards": {
+      "view": "Namensschilder",
+      "count_one": "{{count}} Schilder",
+      "count_other": "{{count}} Schilder",
+      "pages_one": "{{count}} Seite",
+      "pages_other": "{{count}} Seiten",
+      "format": "Format",
+      "formats": {
+        "tentSmall": "Aufsteller, zwei je Seite",
+        "tentLarge": "Aufsteller, groß (quer)",
+        "badge": "Namensschilder, acht je Seite"
+      },
+      "foldHint": "Gestrichelt schneiden, gepunktet falten.",
+      "cutHint": "An den gestrichelten Linien ausschneiden.",
+      "font": "Schrift",
+      "loadFont": "Eigene Schrift laden …",
+      "replaceFont": "Andere Schrift laden …",
+      "removeFont": "Eigene Schrift entfernen",
+      "fontHint": "Eine eigene Schrift (TTF, OTF, WOFF, bis 2 MB) bleibt auf diesem Gerät und kommt ins Backup.",
+      "look": "Gestaltung",
+      "motifs": "Motive",
+      "motifSets": {
+        "animals": "Tiere",
+        "vehicles": "Fahrzeuge",
+        "nature": "Natur",
+        "food": "Essen",
+        "all": "Alles gemischt",
+        "own": "Eigenes Bild",
+        "none": "Keine"
+      },
+      "loadImage": "Bild laden …",
+      "replaceImage": "Anderes Bild laden …",
+      "removeImage": "Bild entfernen",
+      "imageHint": "Ein Bild für alle Karten – eine Zeichnung oder das Zeichen der Klasse (PNG, JPEG oder WebP).",
+      "imageLoaded": "„{{name}}“ steht auf jeder Karte.",
+      "paper": "Papier",
+      "tones": {
+        "mixed": "Bunt",
+        "paper": "Weiß",
+        "sand": "Sand",
+        "mint": "Minze",
+        "sky": "Himmel",
+        "lilac": "Flieder",
+        "rose": "Rosé",
+        "lemon": "Zitrone"
+      },
+      "border": "Rand",
+      "borders": {
+        "none": "Ohne",
+        "dots": "Punkte",
+        "wave": "Welle"
+      },
+      "writingLines": "Schreiblinien",
+      "colouring": "Zum Ausmalen",
+      "lastName": "Nachname",
+      "placeRow": "Tisch",
+      "place": "Tisch {{table}}",
+      "classLine": "Klasse",
+      "pdfShortcut": "Namensschilder als PDF exportieren (P)",
+      "pdfOnly": "Die Namensschilder gibt es nur als PDF",
+      "errors": {
+        "notFont": "Diese Datei ist keine Schrift, die der Browser lesen kann (TTF, OTF, WOFF oder WOFF2).",
+        "fontTooLarge": "Die Schrift ist größer als 2 MB.",
+        "notImage": "Diese Datei ist kein Bild im Format PNG, JPEG oder WebP.",
+        "imageTooLarge": "Das Bild ist größer als 20 MB.",
+        "saveFailed": "Die Datei ließ sich nicht speichern.",
+        "pdfFailed": "Namensschilder-PDF-Export fehlgeschlagen. Bitte versuche es erneut."
+      }
+    }
   },
   "wizard": {
     "back": "Zurück",

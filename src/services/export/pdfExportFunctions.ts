@@ -176,6 +176,19 @@ export async function exportDutyRosterToPdf(
   await exportSvgToPdf(svg, filename, 'portrait');
 }
 
+/**
+ * Save the table cards (decision 0047) as a PDF, page for page as the
+ * preview drew them: the pages carry their font and pictures already.
+ */
+export async function exportTableCardsToPdf(
+  pages: readonly string[],
+  filename: string,
+  orientation: 'landscape' | 'portrait',
+  fontCss: string,
+): Promise<void> {
+  await exportSvgToPdf(pages, filename, orientation, fontCss);
+}
+
 const PDF_PAGE_DIMENSIONS: Record<
   'portrait' | 'landscape',
   { width: number; height: number }
@@ -206,6 +219,7 @@ const PDF_PAGE_BACKGROUND = '#ffffff';
 async function renderPdfPages(
   pages: readonly string[],
   orientation: 'landscape' | 'portrait',
+  extraFontCss?: string,
 ): Promise<import('jspdf').jsPDF> {
   const { jsPDF } = await import('jspdf');
   const pdf = new jsPDF({
@@ -231,6 +245,7 @@ async function renderPdfPages(
       widthPx,
       heightPx,
       PDF_PAGE_BACKGROUND,
+      extraFontCss,
     );
 
     if (index > 0) {
@@ -253,15 +268,18 @@ async function renderPdfPages(
 
 /**
  * Generate a PDF blob from SVG markup (for printing or preview): one page, or
- * one per entry of a list of pages.
+ * one per entry of a list of pages; `extraFontCss` as the table cards need
+ * it.
  */
 export async function generatePdfBlob(
   svgMarkup: string | readonly string[],
   orientation: 'landscape' | 'portrait',
+  extraFontCss?: string,
 ): Promise<Blob> {
   const pdf = await renderPdfPages(
     typeof svgMarkup === 'string' ? [svgMarkup] : svgMarkup,
     orientation,
+    extraFontCss,
   );
   return pdf.output('blob');
 }
@@ -307,6 +325,7 @@ async function exportSvgToPdf(
   svgMarkup: string | readonly string[],
   filename: string,
   orientation: 'landscape' | 'portrait',
+  extraFontCss?: string,
 ): Promise<void> {
   // The local date: an export just after midnight carries the new day.
   const pdfFilename = `${filename}_${toIsoDate()}.pdf`;
@@ -321,6 +340,7 @@ async function exportSvgToPdf(
     const pdf = await renderPdfPages(
       typeof svgMarkup === 'string' ? [svgMarkup] : svgMarkup,
       orientation,
+      extraFontCss,
     );
     pdf.save(pdfFilename);
   } catch (error) {

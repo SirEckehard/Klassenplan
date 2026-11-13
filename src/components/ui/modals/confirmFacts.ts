@@ -16,7 +16,8 @@ type FactKind =
   | 'duties'
   | 'photos'
   | 'tables'
-  | 'seats';
+  | 'seats'
+  | 'cardFiles';
 
 function fact(kind: FactKind, count: number): ConfirmFact {
   return {
@@ -57,11 +58,13 @@ export type StoredBesideClasses = {
   presets: number;
   duties: number;
   photos: number;
+  /** The table cards' own font and picture (decision 0047). */
+  cardFiles: number;
 };
 
 /**
  * What goes with everything: each class's contents, the templates, the own
- * presets, the duties and the photos.
+ * presets, the duties, the photos and the table cards' own files.
  */
 export function allDataFacts(
   classes: readonly ClassContents[],
@@ -87,5 +90,6 @@ export function allDataFacts(
     fact('presets', beside.presets),
     fact('duties', beside.duties),
     fact('photos', beside.photos),
+    fact('cardFiles', beside.cardFiles),
   ];
 }

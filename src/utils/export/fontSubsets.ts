@@ -23,6 +23,34 @@ export const FONT_SUBSETS = [
   },
 ] as const;
 
+/** The ranges fontsource gives the Latin and Latin Extended subsets. */
+export const LATIN_RANGE = FONT_SUBSETS[1].unicodeRange;
+export const LATIN_EXT_RANGE = FONT_SUBSETS[0].unicodeRange;
+
+/**
+ * One `@font-face` rule: a family, its file at `src` (a URL or a data URL) in
+ * a format, the weights it covers and, where it is a subset, its range.
+ */
+export const fontFace = ({
+  family,
+  src,
+  format = 'woff2',
+  weight = '400',
+  unicodeRange,
+}: {
+  family: string;
+  src: string;
+  format?: string;
+  weight?: string;
+  unicodeRange?: string;
+}): string =>
+  `@font-face{font-family:'${family}';src:url('${src}') format('${format}');font-weight:${weight};font-style:normal;${unicodeRange ? `unicode-range:${unicodeRange};` : ''}}`;
+
 /** One subset's `@font-face` rule, its file at `src` (a URL or a data URL). */
 export const fontFaceRule = (src: string, unicodeRange: string): string =>
-  `@font-face{font-family:'Atkinson Hyperlegible Next Variable';src:url('${src}') format('woff2');font-weight:400 700;font-style:normal;unicode-range:${unicodeRange};}`;
+  fontFace({
+    family: 'Atkinson Hyperlegible Next Variable',
+    src,
+    weight: '400 700',
+    unicodeRange,
+  });

@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - In the presentation, a tap on a seat marks who is missing today; "Who's next?" and "Build groups" leave them out
 - After twelve weeks without a change, the seating plan asks whether a class's markers still hold
 - Room templates and presets can be saved as a file and handed on to colleagues
+- Name cards for desks or to wear, in fonts for beginning readers, with motifs, coloured paper and writing lines
 
 ### Improved
 

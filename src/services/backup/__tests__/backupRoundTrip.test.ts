@@ -45,6 +45,11 @@ import {
   addMixPreset,
   setMixPresetOverride,
 } from '@/repositories/mixPresetStore';
+import {
+  getCardFile,
+  restoreCardFiles,
+  setCardFile,
+} from '@/repositories/cardFileStore';
 
 /** A student photo as the app stores it: a small JPEG of about 12 KB. */
 const photoOfSize = (bytes: number) =>
@@ -149,6 +154,44 @@ describe('backup round trip', () => {
       expect(restored.mixPresets?.overrides.exam?.weights.preferGenderMix).toBe(
         5,
       );
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  // Decision 0047, choice E7: the cards' own font and picture move with the
+  // backup, so the cards look the same on a new device.
+  it("carries the table cards' own font and picture", async () => {
+    vi.stubGlobal('indexedDB', {});
+    try {
+      await setCardFile('font', {
+        name: 'Schulschrift.woff2',
+        type: 'font/woff2',
+        data: new Uint8Array([119, 79, 70, 50]).buffer,
+      });
+
+      const restored = parseExportBundle(
+        await exportClasses([busyClass(0, 1024)]),
+      );
+
+      expect(restored.cardFiles?.font).toMatchObject({
+        name: 'Schulschrift.woff2',
+        type: 'font/woff2',
+      });
+      expect(restored.cardFiles?.font?.dataUrl).toMatch(
+        /^data:font\/woff2;base64,/,
+      );
+      expect(restored.cardFiles?.image).toBeUndefined();
+
+      // A full restore replaces it; one without files leaves none.
+      await restoreCardFiles(restored.cardFiles, { merge: false });
+      const font = await getCardFile('font');
+      expect(font.success && font.data?.name).toBe('Schulschrift.woff2');
+      await restoreCardFiles(undefined, { merge: true });
+      expect((await getCardFile('font')).success).toBe(true);
+      await restoreCardFiles(undefined, { merge: false });
+      const gone = await getCardFile('font');
+      expect(gone.success && gone.data).toBeUndefined();
     } finally {
       vi.unstubAllGlobals();
     }

@@ -198,7 +198,13 @@ on every page it runs to: grey rules on paper — the light ramp's warm greys,
 spelled out in `utils/ui/sheetInk` for every printed sheet, since serialised
 SVG carries no variable —, no colour but a badge's ink when
 switched on, a stronger rule where a table begins, and the room to write —
-ruled lines at 22pt (about 8 mm), or a grid whose empty heads take a date.
+ruled lines at 22pt (about 8 mm), or a grid whose empty heads take a date. The name
+cards ("Namensschilder", `TableCardsSheet`, [decision 0047](decisions/0047-name-cards.md))
+are the one sheet in colour, because they belong to the children: six calm
+tints of coloured paper with their own ink for the motif (`CARD_TONE_COLOURS`),
+the name in a font for beginners on the four writing lines of a first exercise
+book, the motif in Phosphor's duotone on a pale disc. "Zum Ausmalen" turns them
+back into ink on white: the motif as an outline, the name hollow.
 
 Its contrast mode goes the other way: black on white whatever the theme, with
 thicker contours and the seat names bolder (`SEAT_CONTRAST_COLORS`). Those are

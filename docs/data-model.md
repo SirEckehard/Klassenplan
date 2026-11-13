@@ -31,6 +31,8 @@ module that imports `idb-keyval` ([decision 0002](decisions/0002-single-indexedd
 | `spg.nameGameStats`      | `NameGameData`         | Name game statistics per student                           |
 | `spg.duties`             | `DutyData`             | Class duties and their rounds, one entry per class         |
 | `spg.mixPresets`         | `MixPresetData`        | Mixing presets of the teacher's own, shared by all classes |
+| `spg.cardFont`           | `CardFile`             | The name cards' own font: name, type, bytes                |
+| `spg.cardImage`          | `CardFile`             | The name cards' own picture, made smaller on loading       |
 | `spg.migrationVersion`   | `number`               | Version of the last completed table migration              |
 | `spg.version`            | `number`               | `APP_DATA_VERSION` (currently 2), stamped on every load    |
 
@@ -370,6 +372,10 @@ list is `PROJECT_LOCAL_STORAGE_KEYS` in `storageKeys.ts`. Groups:
   substitute's sheet (`SubstituteSheetSettings`: name rule, photos, class
   info, room, lines; [decision 0034](decisions/0034-substitute-sheet.md)); the
   note, the day and the title typed for that sheet are never stored.
+  `spg.export.cards` holds the name cards' settings (`TableCardSettings`:
+  format, font, motifs, paper, border, writing lines, colouring in, what they
+  show, order; [decision 0047](decisions/0047-name-cards.md)); the own font
+  and picture they may use lie in IndexedDB (`spg.cardFont`, `spg.cardImage`).
 - **Keyboard:** `spg.characterKeyShortcuts` — `false` once the teacher has
   switched off the shortcuts on a single character key ("?", P, F, 1–3, Q/E …)
   in the settings menu, for speech input (WCAG 2.1.4, `utils/characterKeys.ts`).

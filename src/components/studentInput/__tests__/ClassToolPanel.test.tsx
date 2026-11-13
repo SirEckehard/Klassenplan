@@ -37,6 +37,7 @@ const renderPanel = (
     onImportCsv: vi.fn().mockResolvedValue(undefined),
     onExportCsv: vi.fn(),
     onPrintList: vi.fn(),
+    onPrintCards: vi.fn(),
   };
   render(
     <ClassToolPanel
@@ -151,6 +152,7 @@ describe('ClassToolPanel', () => {
       expect.stringMatching(/Klassenliste importieren|Import class list/),
       expect.stringMatching(/Klassenliste exportieren|Export class list/),
       expect.stringMatching(/Liste drucken|Print list/),
+      expect.stringMatching(/Tischkarten drucken|Print table cards/),
     ]);
   });
 

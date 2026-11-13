@@ -10,6 +10,7 @@ import { allDataFacts } from '@/components/ui/modals/confirmFacts';
 import { loadMixPresets } from '@/repositories/mixPresetStore';
 import { getAllPhotoIds } from '@/repositories/studentPhotoStore';
 import { getAllDuties } from '@/repositories/dutyStore';
+import { getCardFile } from '@/repositories/cardFileStore';
 import type { ConfirmFact } from '@/components/ui/modals/ConfirmDialog';
 import { useInstallPrompt } from '@/hooks/useInstallPrompt';
 import { isRunningInstalled } from '@/utils/ui/installGuide';
@@ -128,8 +129,10 @@ export function ClearAllDataDialog({
       loadMixPresets(),
       getAllPhotoIds(),
       getAllDuties(),
+      getCardFile('font'),
+      getCardFile('image'),
     ])
-      .then(([collection, templates, presets, photoIds, duties]) => {
+      .then(([collection, templates, presets, photoIds, duties, ...files]) => {
         if (!current) return;
         setFacts(
           allDataFacts(collection.success ? collection.data.classes : [], {
@@ -140,6 +143,7 @@ export function ClearAllDataDialog({
               0,
             ),
             photos: photoIds.success ? photoIds.data.length : 0,
+            cardFiles: files.filter((file) => file.success && file.data).length,
           }),
         );
       })

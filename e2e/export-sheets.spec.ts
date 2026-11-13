@@ -2,7 +2,8 @@
 // Copyright (C) 2026 Eike Schäfer
 /**
  * The export sheets as pictures: the seating plan, the circle, the list and
- * the substitute's sheet, each upright and across, compared with the
+ * the substitute's sheet, each upright and across, and the name cards in
+ * their three formats, compared with the
  * snapshots in `e2e/__screenshots__/`. No unit test renders a sheet, and a
  * sheet is what a teacher prints: a name that slips off its seat, a legend
  * that overlaps the plan or a header that loses a line shows here first.
@@ -42,6 +43,12 @@ const VIEWS = [
   { label: 'Sitzkreis', slug: 'sitzkreis' },
   { label: 'Liste', slug: 'liste' },
   { label: 'Vertretung', slug: 'vertretung' },
+] as const;
+
+const CARD_FORMATS = [
+  { label: 'Aufsteller, zwei je Seite', slug: 'aufsteller' },
+  { label: 'Aufsteller, groß (quer)', slug: 'aufsteller-gross' },
+  { label: 'Namensschilder, acht je Seite', slug: 'schilder' },
 ] as const;
 
 const ORIENTATIONS = [
@@ -144,4 +151,26 @@ test('the export sheets look as they did', async ({ page }) => {
       });
     }
   }
+
+  // The name cards (decision 0047) take their paper from the format.
+  await choose(frame, toolbar.getByRole('button', { name: 'Namensschilder' }));
+  const format = page.getByRole('group', { name: 'Format' });
+  for (const card of CARD_FORMATS) {
+    await test.step(`Namensschilder, ${card.label}`, async () => {
+      await choose(frame, format.getByRole('button', { name: card.label }));
+      await settled(page, frame);
+      await expect.soft(frame).toHaveScreenshot(`karten-${card.slug}.png`);
+    });
+  }
+
+  await test.step('Namensschilder zum Ausmalen, in Patrick Hand, mit Welle', async () => {
+    const sheet = page.getByRole('complementary', { name: 'Blatt' });
+    await choose(frame, sheet.getByRole('button', { name: /Patrick Hand/ }));
+    await choose(frame, sheet.getByRole('button', { name: 'Welle' }));
+    const before = await previewSignature(frame);
+    await sheet.getByRole('switch', { name: 'Zum Ausmalen' }).click();
+    await expect.poll(() => previewSignature(frame)).not.toBe(before);
+    await settled(page, frame);
+    await expect.soft(frame).toHaveScreenshot('karten-ausmalen.png');
+  });
 });

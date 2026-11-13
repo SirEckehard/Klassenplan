@@ -6,6 +6,7 @@ import {
   FileImageIcon,
   FilePdfIcon,
   GridNineIcon,
+  IdentificationCardIcon,
   ListChecksIcon,
   UserSwitchIcon,
   VectorTwoIcon,
@@ -18,10 +19,10 @@ import {
 } from '@/components/shell/ToolRail';
 
 /**
- * What the sheet shows: the plan, the circle, the note list or the
- * substitute's sheet (decision 0034).
+ * What the sheet shows: the plan, the circle, the note list, the
+ * substitute's sheet (decision 0034) or the table cards (decision 0047).
  */
-export type ExportView = 'table' | 'circle' | 'list' | 'substitute';
+export type ExportView = 'table' | 'circle' | 'list' | 'substitute' | 'cards';
 
 type Props = {
   density: ToolRailDensity;
@@ -31,8 +32,8 @@ type Props = {
   /** While the circle is still being built there is nothing to switch to. */
   modeDisabled?: boolean;
   /**
-   * Without a plan only the note list has something to show; the table plan
-   * and the circle stay greyed out.
+   * Without a plan only the note list and the cards have something to show;
+   * the table plan and the circle stay greyed out.
    */
   planViewsDisabled?: boolean;
   onPdf: () => void;
@@ -47,10 +48,11 @@ type Props = {
  * The view is the plan layer's own pair of entries, so the sheet is switched
  * the way the plan is, and the note list beside them — the class with room
  * to write — and the sheet for a substitute, the plan or the circle with
- * names and nothing else (decision 0034), which needs a plan as they do. The
+ * names and nothing else (decision 0034), which needs a plan as they do, and
+ * last the table cards (decision 0047), which need the class alone. The
  * files save the sheet as it stands — the PDF of whatever is shown, which is
- * why there is one PDF entry rather than one per view. The
- * list may run to several pages, so it is a PDF only. Printing is the page's
+ * why there is one PDF entry rather than one per view. The list and the
+ * cards may run to several pages, so they are a PDF only. Printing is the page's
  * primary action and lives at the end of the status bar.
  */
 export default function ExportToolPanel({
@@ -64,7 +66,10 @@ export default function ExportToolPanel({
   onSvg,
 }: Props) {
   const { t } = useTranslation('generator');
-  const isList = mode === 'list';
+  // Several pages: a PDF only.
+  const pagesOnly = mode === 'list' || mode === 'cards';
+  const pdfOnlyTitle =
+    mode === 'cards' ? t('export.cards.pdfOnly') : t('export.noteList.pdfOnly');
 
   return (
     <ToolRail density={density}>
@@ -97,6 +102,13 @@ export default function ExportToolPanel({
           disabled={modeDisabled || planViewsDisabled}
           onClick={() => onModeChange('substitute')}
         />
+        <ToolRailButton
+          icon={<IdentificationCardIcon size={18} />}
+          label={t('export.cards.view')}
+          active={mode === 'cards'}
+          disabled={modeDisabled}
+          onClick={() => onModeChange('cards')}
+        />
       </ToolRailGroup>
 
       <ToolRailGroup title={t('export.saveAs')}>
@@ -110,22 +122,24 @@ export default function ExportToolPanel({
                 ? t('export.noteList.pdfShortcut')
                 : mode === 'substitute'
                   ? t('export.substitute.pdfShortcut')
-                  : t('export.tablePdfShortcut')
+                  : mode === 'cards'
+                    ? t('export.cards.pdfShortcut')
+                    : t('export.tablePdfShortcut')
           }
           onClick={onPdf}
         />
         <ToolRailButton
           icon={<FileImageIcon size={18} />}
           label={t('export.pngButton')}
-          title={isList ? t('export.noteList.pdfOnly') : t('export.pngTitle')}
-          disabled={isList}
+          title={pagesOnly ? pdfOnlyTitle : t('export.pngTitle')}
+          disabled={pagesOnly}
           onClick={onPng}
         />
         <ToolRailButton
           icon={<VectorTwoIcon size={18} />}
           label={t('export.svgButton')}
-          title={isList ? t('export.noteList.pdfOnly') : t('export.svgTitle')}
-          disabled={isList}
+          title={pagesOnly ? pdfOnlyTitle : t('export.svgTitle')}
+          disabled={pagesOnly}
           onClick={onSvg}
         />
       </ToolRailGroup>

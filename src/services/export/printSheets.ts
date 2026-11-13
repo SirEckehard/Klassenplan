@@ -10,6 +10,8 @@ interface PrintDocumentOptions {
   lang: string;
   /** Title the print dialog proposes as the file name of a saved PDF. */
   title: string;
+  /** `@font-face` rules beside the names' font: the table cards' (0047). */
+  extraFontCss?: string;
 }
 
 interface PrintDocumentInput extends PrintDocumentOptions {
@@ -144,7 +146,7 @@ export async function printSheets(
   });
   frame.srcdoc = buildPrintDocument(pages, orientation, {
     ...options,
-    fontCss: await getEmbeddedFontCss(),
+    fontCss: (await getEmbeddedFontCss()) + (options.extraFontCss ?? ''),
   });
   document.body.appendChild(frame);
   // The load event waits for the photos the SVG embeds.

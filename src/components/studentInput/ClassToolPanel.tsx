@@ -8,6 +8,7 @@ import {
   FileArrowUpIcon,
   GraphIcon,
   ListBulletsIcon,
+  IdentificationCardIcon,
   PrinterIcon,
   SquaresFourIcon,
   TableIcon,
@@ -61,6 +62,8 @@ type Props = {
   onExportCsv: () => void;
   /** Opens the export page on the note list: the class with room to write. */
   onPrintList: () => void;
+  /** The table cards on the export page (decision 0047), by name. */
+  onPrintCards: () => void;
   onLoadDemoClass?: () => void;
   isDemoClassLoading?: boolean;
   hasDemoClass?: boolean;
@@ -104,6 +107,7 @@ export default function ClassToolPanel({
   onImportCsv,
   onExportCsv,
   onPrintList,
+  onPrintCards,
   onLoadDemoClass,
   isDemoClassLoading = false,
   hasDemoClass = false,
@@ -386,6 +390,13 @@ export default function ClassToolPanel({
           title={t('students:studentList.printListTitle')}
           disabled={!hasStudents}
           onClick={onPrintList}
+        />
+        <ToolRailButton
+          icon={<IdentificationCardIcon size={18} />}
+          label={t('students:studentList.printCards')}
+          title={t('students:studentList.printCardsTitle')}
+          disabled={!hasStudents}
+          onClick={onPrintCards}
         />
       </ToolRailGroup>
     </ToolRail>

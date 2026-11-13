@@ -9,7 +9,20 @@
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { ICON_WEIGHTS, keepIconWeights } from '../../scripts/utils/iconWeights';
+import {
+  ICON_WEIGHTS,
+  keepIconWeights,
+  MOTIF_ICON_NAMES,
+  MOTIF_WEIGHTS,
+  weightsFor,
+} from '../../scripts/utils/iconWeights';
+import { CARD_MOTIF_ICONS } from '@/utils/ui/tableCardMotifs';
+
+/** The files that draw the table cards' motifs (decision 0047). */
+const MOTIF_FILES = [
+  path.join('components', 'scene', 'TableCardsSheet.tsx'),
+  path.join('components', 'SeatingPlanGenerator', 'TableCardsInspector.tsx'),
+];
 
 const SRC = path.resolve(__dirname, '..');
 
@@ -47,8 +60,12 @@ describe('icon weights', () => {
     const named = new Set<string>();
     for (const file of sourceFiles(SRC)) {
       const code = readFileSync(file, 'utf8');
+      // The table cards draw their motifs, and only those, in two more.
+      const allowed = MOTIF_FILES.some((motifFile) => file.endsWith(motifFile))
+        ? MOTIF_WEIGHTS
+        : [];
       for (const match of code.matchAll(/\bweight=["'{]\s*['"]?(\w+)/g)) {
-        named.add(match[1]);
+        if (!allowed.includes(match[1] as never)) named.add(match[1]);
       }
       for (const match of code.matchAll(
         /IconContext\.Provider value=\{\{[^}]*weight:\s*['"](\w+)['"]/g,
@@ -61,6 +78,24 @@ describe('icon weights', () => {
     expect(
       [...named].filter((weight) => !ICON_WEIGHTS.includes(weight as never)),
     ).toEqual([]);
+  });
+
+  it('keeps a motif of the table cards in its two weights more', () => {
+    const names = CARD_MOTIF_ICONS.map((icon) =>
+      (icon.displayName ?? '').replace(/Icon$/, ''),
+    );
+    expect(names.filter((name) => !MOTIF_ICON_NAMES.includes(name))).toEqual(
+      [],
+    );
+    expect(weightsFor('/x/@phosphor-icons/react/dist/defs/Cat.es.js')).toEqual([
+      'regular',
+      'bold',
+      'duotone',
+      'light',
+    ]);
+    expect(weightsFor('/x/@phosphor-icons/react/dist/defs/Lock.es.js')).toEqual(
+      ICON_WEIGHTS,
+    );
   });
 
   it('keeps only those weights of a definition', () => {

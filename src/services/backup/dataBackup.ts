@@ -54,6 +54,10 @@ import {
 } from '@/repositories/planUsageStore';
 import { getAllDuties, restoreDuties } from '@/repositories/dutyStore';
 import {
+  getCardFilesForBackup,
+  restoreCardFiles,
+} from '@/repositories/cardFileStore';
+import {
   getMixPresetsForBackup,
   restoreMixPresets,
 } from '@/repositories/mixPresetStore';
@@ -257,6 +261,8 @@ export async function exportAllAsJson(
     const duties = await getAllDuties();
     // The presets belong to no class; a new device should mix as this one.
     const mixPresets = await getMixPresetsForBackup();
+    // The cards' own font and picture: after a move they look the same.
+    const cardFiles = await getCardFilesForBackup();
     const bundle: ExportBundle = {
       version: CURRENT_EXPORT_VERSION,
       students: data.students,
@@ -275,6 +281,7 @@ export async function exportAllAsJson(
       ...(planUsageManualClassIds ? { planUsageManualClassIds } : {}),
       ...(duties ? { duties } : {}),
       ...(mixPresets ? { mixPresets } : {}),
+      ...(cardFiles ? { cardFiles } : {}),
     };
     // Compact, and every seat an id: indented, with a copy of every student
     // on every seat, a school year's backup was several times the size.
@@ -443,6 +450,7 @@ export async function importAllFromJson(
     });
     await restoreDuties(data.duties, { merge: false });
     await restoreMixPresets(data.mixPresets, { merge: false });
+    await restoreCardFiles(data.cardFiles, { merge: false });
     return { merge: false };
   } catch (error) {
     logError('Import failed while applying backup', { error }, 'dataBackup');
@@ -527,6 +535,7 @@ async function mergeIntoStored(
   const leftOutPresets = await restoreMixPresets(data.mixPresets, {
     merge: true,
   });
+  await restoreCardFiles(data.cardFiles, { merge: true });
   return {
     merge: true,
     addedClasses: addedClassIds.length,

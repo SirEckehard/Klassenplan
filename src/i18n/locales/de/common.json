@@ -136,7 +136,9 @@
       "tables_one": "Tisch",
       "tables_other": "Tische",
       "seats_one": "Platz",
-      "seats_other": "Plätze"
+      "seats_other": "Plätze",
+      "cardFiles_one": "Eigene Datei für Namensschilder",
+      "cardFiles_other": "Eigene Dateien für Namensschilder"
     }
   },
   "backupPassword": {

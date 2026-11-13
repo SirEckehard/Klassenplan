@@ -11,6 +11,10 @@
   "dependencies": {
     "@fontsource-variable/atkinson-hyperlegible-next": "^5.3.0",
     "@fontsource-variable/source-serif-4": "^5.3.0",
+    "@fontsource/abeezee": "^5.3.0",
+    "@fontsource/andika": "^5.3.0",
+    "@fontsource/opendyslexic": "^5.3.0",
+    "@fontsource/patrick-hand": "^5.3.0",
     "@phosphor-icons/react": "^2.1.10",
     "@xstate/react": "^6.0.0",
     "fast-deep-equal": "^3.1.3",

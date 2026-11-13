@@ -360,6 +360,7 @@ export default function FAQ() {
           'print',
           'noteList',
           'substitute',
+          'nameCards',
           'names',
         ].map((key) => ({
           question: t(`faq.unterricht.${key}.q`),

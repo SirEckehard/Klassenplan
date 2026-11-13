@@ -182,7 +182,23 @@ export interface ExportBundleV1 {
    * 0038). Absent when there are none, and in older backups.
    */
   mixPresets?: MixPresetData;
+  /**
+   * The teacher's own font and picture for the table cards (decision 0047).
+   * Absent when there are none, and in older backups.
+   */
+  cardFiles?: BackupCardFiles;
 }
+
+/** A file of the teacher's as a backup carries it. */
+export interface BackupCardFile {
+  name: string;
+  /** Its media type: `font/woff2`, `image/png` … */
+  type: string;
+  dataUrl: string;
+}
+
+/** The table cards' own font and picture, each where there is one. */
+export type BackupCardFiles = Partial<Record<'font' | 'image', BackupCardFile>>;
 
 export type ExportBundle = ExportBundleV1; // Alias for the current version
 

@@ -131,6 +131,9 @@ export const STORAGE_KEYS = {
     // The substitute's sheet's own settings in one object
     // (`SubstituteSheetSettings`, decision 0034).
     exportSubstitute: 'spg.export.substitute',
+    // The table cards' format, font, motifs and what they show, in one
+    // object (`TableCardSettings`, decision 0047).
+    exportCards: 'spg.export.cards',
   },
   indexedDB: {
     students: 'spg.students',
@@ -148,6 +151,10 @@ export const STORAGE_KEYS = {
     planUsage: 'spg.planUsage',
     duties: 'spg.duties',
     mixPresets: 'spg.mixPresets',
+    // The teacher's own font and picture for the table cards (decision
+    // 0047): one of each, a file's name, type and contents.
+    cardFont: 'spg.cardFont',
+    cardImage: 'spg.cardImage',
     version: 'spg.version',
   },
 } as const;
@@ -273,6 +280,7 @@ export const PROJECT_LOCAL_STORAGE_KEYS = [
   STORAGE_KEYS.localStorage.exportFeatureVisibility,
   STORAGE_KEYS.localStorage.exportNoteList,
   STORAGE_KEYS.localStorage.exportSubstitute,
+  STORAGE_KEYS.localStorage.exportCards,
   LEGACY_EXPORT_KEYS.showFullNames,
   LEGACY_EXPORT_KEYS.pageOrientation,
   LEGACY_LANGUAGE_KEY,

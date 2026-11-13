@@ -44,6 +44,7 @@ import {
 import {
   renderCircleSvg,
   renderNoteListSvgPages,
+  renderTableCardSvgPages,
   renderSceneSvg,
   preloadRenderer,
 } from '@/services/export/sceneRenderer';
@@ -66,6 +67,8 @@ import {
 } from '@/utils/ui/substituteSheet';
 import type { ExportClassMetadata } from '@/services/export/sceneRenderer';
 import { buildPhotoDataUrlMap } from '@/services/export/pdfExportFunctions';
+import { useTableCardSheet } from '@/hooks/export/useTableCardSheet';
+import TableCardsInspector from '@/components/SeatingPlanGenerator/TableCardsInspector';
 import type { ClassroomFeatureType, PhotoDisplayMode, Student } from '@/types';
 import usePersistentState from '@/hooks/usePersistentState';
 import type { CircleLayout, SeatingMode } from '@/types/Circle';
@@ -195,10 +198,11 @@ export default function Export() {
   // along in the router state.
   const navigationState = (location.state || {}) as {
     /** The arrangement the plan layer showed: the sheet starts with it. */
-    mode?: SeatingMode | 'list';
+    mode?: SeatingMode | 'list' | 'cards';
     /**
      * The layer "Zurück" leads to: the plan (3) unless the page was opened
-     * from elsewhere — the class layer's "Liste drucken" passes 1.
+     * from elsewhere — the class layer's "Liste drucken" and "Tischkarten
+     * drucken" pass 1.
      */
     returnStep?: number;
   };
@@ -256,15 +260,18 @@ export default function Export() {
   // to show; opened from the class layer, the note list. The toolbar
   // switches as before.
   const [previewMode, setPreviewMode] = useState<ExportView>(() =>
-    navigationState.mode === 'list'
-      ? 'list'
+    navigationState.mode === 'list' || navigationState.mode === 'cards'
+      ? navigationState.mode
       : navigationState.mode === 'circle' && circleLayout
         ? 'circle'
         : 'table',
   );
-  // The note list needs students, not a plan: it can be printed before the
-  // first mix, by name.
-  const hasSheet = hasPlan || (previewMode === 'list' && students.length > 0);
+  // The note list and the table cards need students, not a plan: they can be
+  // printed before the first mix, by name.
+  const hasSheet =
+    hasPlan ||
+    ((previewMode === 'list' || previewMode === 'cards') &&
+      students.length > 0);
   // Persisted like every other display option on this page: a teacher who
   // never wants needs or connection lines on the printout should not have to
   // switch them off again on each visit.
@@ -542,12 +549,29 @@ export default function Export() {
       // A storage that refuses writes is not worth failing the page over.
     }
   }, []);
+  // The table cards (decision 0047): their settings, their font and the
+  // teacher's own files, read only while they are on the sheet.
+  const cardSheet = useTableCardSheet({
+    active: previewMode === 'cards',
+    students,
+    seating,
+    scene: classroomScene,
+    classLine:
+      [activeClass.name?.trim(), activeClass.label?.trim()]
+        .filter(Boolean)
+        .join(' · ') || undefined,
+    locale: i18n.language,
+  });
+  const cardInput = cardSheet.input;
+  const cardsShowPhoto = cardSheet.settings.showPhoto;
   const activeOrientation =
-    sheetArrangement === 'list'
-      ? noteListSettings.orientation
-      : sheetArrangement === 'circle'
-        ? circleOrientation
-        : tableOrientation;
+    sheetArrangement === 'cards'
+      ? cardSheet.orientation
+      : sheetArrangement === 'list'
+        ? noteListSettings.orientation
+        : sheetArrangement === 'circle'
+          ? circleOrientation
+          : tableOrientation;
 
   // The orders there is something to follow for: the tables only once
   // someone sits at one, the circle only where there is one. A stored order
@@ -698,6 +722,8 @@ export default function Export() {
     };
   }, [activeOrientation]);
 
+  const cardPreviewFontCss =
+    previewMode === 'cards' ? cardSheet.previewFontCss : '';
   const previewDocument = useMemo(() => {
     const isPortrait = activeOrientation === 'portrait';
     const pageWidthMm = isPortrait ? 210 : 297;
@@ -708,9 +734,10 @@ export default function Export() {
     // Print mode has aggressive Safari-specific overrides
     // Both subsets, as the files carry them: a name such as Łukasz looks in
     // the preview as it will on paper.
-    const fontFaces = FONT_SUBSETS.map(({ url, unicodeRange }) =>
-      fontFaceRule(new URL(url, window.location.href).href, unicodeRange),
-    ).join('');
+    const fontFaces =
+      FONT_SUBSETS.map(({ url, unicodeRange }) =>
+        fontFaceRule(new URL(url, window.location.href).href, unicodeRange),
+      ).join('') + cardPreviewFontCss;
     const styles = `${fontFaces}
 
       :root { color-scheme: light; }
@@ -825,7 +852,7 @@ export default function Export() {
       : (previewPages[0] ?? '');
 
     return `<!DOCTYPE html><html lang="${metadata.lang}"><head><meta charset="utf-8" /><title>${documentTitle}</title><style>${styles}</style></head><body${multiPage ? ' class="pages"' : ''}><div id="print-root">${content}</div></body></html>`;
-  }, [activeOrientation, previewPages, metadata.lang, t]);
+  }, [activeOrientation, previewPages, metadata.lang, t, cardPreviewFontCss]);
 
   const ensureCircleLayout = useCallback(async () => {
     if (circleLayout) {
@@ -926,6 +953,22 @@ export default function Export() {
       if (isCancelled) return;
 
       try {
+        if (previewMode === 'cards') {
+          // Drawn once the font is measured; until then the sheet waits.
+          if (!cardInput) return;
+          const pages = await renderTableCardSvgPages({
+            ...cardInput,
+            photoDataUrls: cardsShowPhoto
+              ? await buildPhotoDataUrlMap(students)
+              : undefined,
+          });
+          if (!isCancelled) {
+            setPreviewPages(pages);
+            setIsGenerating(false);
+          }
+          return;
+        }
+
         if (previewMode === 'list') {
           const pages = await renderNoteListSvgPages({
             ...noteListInput,
@@ -1032,6 +1075,8 @@ export default function Export() {
     frameOnTables,
     noteListInput,
     noteListSettings.showPhotos,
+    cardInput,
+    cardsShowPhoto,
   ]);
 
   useEffect(() => {
@@ -1061,13 +1106,22 @@ export default function Export() {
     .filter(Boolean)
     .join('_');
 
+  // "Tischkarten_7b", as the list's.
+  const cardsFilename = [t('export.cards.view'), className]
+    .filter(Boolean)
+    .join('_');
+
   const printFilename =
     previewMode === 'list'
       ? noteListFilename
-      : sheetTitle ||
-        (sheetArrangement === 'circle'
-          ? t('export.circleDefaultFilename')
-          : t('export.tableDefaultFilename'));
+      : previewMode === 'cards'
+        ? cardsFilename
+        : sheetTitle ||
+          (sheetArrangement === 'circle'
+            ? t('export.circleDefaultFilename')
+            : t('export.tableDefaultFilename'));
+
+  const embedCardFont = cardSheet.embeddedFontCss;
 
   // Printing opens the browser's dialog on the preview's own sheets, one per
   // page. Where a browser cannot print from a frame (iOS) the PDF opens in a
@@ -1084,9 +1138,13 @@ export default function Export() {
     try {
       const { printSheets, isAppleMobile } =
         await import('@/services/export/printSheets');
+      // The cards' font, its files inlined, once for every page.
+      const extraFontCss =
+        previewMode === 'cards' ? await embedCardFont() : undefined;
       const printed = await printSheets(previewPages, activeOrientation, {
         lang: metadata.lang,
         title: printFilename,
+        extraFontCss,
       });
       if (printed) {
         recordPreviewExport();
@@ -1099,6 +1157,7 @@ export default function Export() {
       const pdfBlob = await generatePdfBlob(
         previewPages.length > 1 ? previewPages : previewSvg,
         activeOrientation,
+        extraFontCss,
       );
 
       // iOS opens the download in its viewer, which prints; a tab would be
@@ -1126,6 +1185,8 @@ export default function Export() {
     recordPreviewExport,
     previewSvg,
     previewPages,
+    previewMode,
+    embedCardFont,
     activeOrientation,
     metadata.lang,
     printFilename,
@@ -1197,6 +1258,36 @@ export default function Export() {
     }
   }, [noteListInput, noteListFilename, exportError, t]);
 
+  // The cards as the preview drew them, page for page.
+  const handleCardsPdf = useCallback(async () => {
+    if (previewPages.length === 0) {
+      exportError(
+        new Error('cards-preview-unavailable'),
+        t('export.errors.printPreviewUnavailable'),
+      );
+      return;
+    }
+    try {
+      const { exportTableCardsToPdf } =
+        await import('@/services/export/pdfExportFunctions');
+      await exportTableCardsToPdf(
+        previewPages,
+        cardsFilename,
+        cardSheet.orientation,
+        await embedCardFont(),
+      );
+    } catch (error) {
+      exportError(error as Error, t('export.cards.errors.pdfFailed'));
+    }
+  }, [
+    previewPages,
+    cardsFilename,
+    cardSheet.orientation,
+    embedCardFont,
+    exportError,
+    t,
+  ]);
+
   // Image exports reuse the rendered preview markup (WYSIWYG) instead of
   // re-rendering, so they always match what the user is looking at.
   const imageExportBaseName =
@@ -1261,6 +1352,10 @@ export default function Export() {
       void handleNoteListPdf();
       return;
     }
+    if (previewMode === 'cards') {
+      void handleCardsPdf();
+      return;
+    }
     if (sheetArrangement === 'circle') {
       void handleCirclePdf();
       return;
@@ -1270,6 +1365,7 @@ export default function Export() {
     previewMode,
     sheetArrangement,
     handleNoteListPdf,
+    handleCardsPdf,
     handleCirclePdf,
     handleTablePdf,
   ]);
@@ -1297,113 +1393,122 @@ export default function Export() {
 
   const isList = previewMode === 'list';
 
-  const sheetInspector = (
-    <ExportSheetInspector
-      mode={previewMode}
-      planMeta={planMeta}
-      noteList={{
-        settings: noteListSettings,
-        onChange: updateNoteList,
-        orders: noteListOrders,
-      }}
-      substitute={{
-        arrangement: substituteArrangement,
-        onArrangementChange: handleSubstituteArrangement,
-        date: substituteDate,
-        onDateChange: setSubstituteDate,
-        room: roomName
-          ? {
-              checked: substituteSettings.showRoom,
-              onChange: (showRoom) => updateSubstitute({ showRoom }),
-            }
-          : undefined,
-        note: substituteNote,
-        onNoteChange: setSubstituteNote,
-        lines: substituteSettings.lines,
-        onLinesChange: (lines) => updateSubstitute({ lines }),
-      }}
-      title={isSubstitute ? substituteTitle : title}
-      onTitleChange={isSubstitute ? setSubstituteTitle : setTitle}
-      orientation={activeOrientation}
-      onOrientationChange={
-        isList
-          ? (orientation) => updateNoteList({ orientation })
-          : sheetArrangement === 'circle'
-            ? setCircleOrientation
-            : setTableOrientation
-      }
-      flipView={{ checked: flipView, onChange: handleToggleFlipView }}
-      frameOnTables={{
-        checked: frameOnTables,
-        onChange: handleToggleFrameOnTables,
-      }}
-      // The list keeps its own badges and photos, both off by default: a
-      // list left on a desk should not say who is restless.
-      needs={
-        isList
-          ? {
-              checked: noteListSettings.showBadges,
-              onChange: (showBadges) => updateNoteList({ showBadges }),
-            }
-          : { checked: showNeeds, onChange: handleToggleNeeds }
-      }
-      badgeFamilies={{
-        present: presentBadgeFamilies,
-        hidden: hiddenBadgeFamilies,
-        onToggle: handleToggleBadgeFamily,
-      }}
-      genderColors={{
-        checked: showGenderColors,
-        onChange: handleToggleGenderColors,
-      }}
-      photos={
-        isList
-          ? {
-              checked: noteListSettings.showPhotos,
-              onChange: (next) => updateNoteList({ showPhotos: next }),
-            }
-          : isSubstitute
+  const hasPhotos = students.some((student) => student.hasPhoto);
+  const sheetInspector =
+    previewMode === 'cards' ? (
+      <TableCardsInspector
+        sheet={cardSheet}
+        pageCount={previewPages.length}
+        hasPhotos={hasPhotos}
+      />
+    ) : (
+      <ExportSheetInspector
+        mode={previewMode}
+        planMeta={planMeta}
+        noteList={{
+          settings: noteListSettings,
+          onChange: updateNoteList,
+          orders: noteListOrders,
+        }}
+        substitute={{
+          arrangement: substituteArrangement,
+          onArrangementChange: handleSubstituteArrangement,
+          date: substituteDate,
+          onDateChange: setSubstituteDate,
+          room: roomName
             ? {
-                checked: substituteSettings.showPhotos,
-                onChange: (next) => updateSubstitute({ showPhotos: next }),
+                checked: substituteSettings.showRoom,
+                onChange: (showRoom) => updateSubstitute({ showRoom }),
               }
-            : { checked: showPhotos, onChange: handleTogglePhotos }
-      }
-      legend={{
-        checked: showLegend,
-        onChange: handleToggleLegend,
-        unavailable: legendHasEntries
-          ? undefined
-          : t('export.legendUnavailable'),
-      }}
-      // The substitute's sheet names the class always; its school year and
-      // notes only when asked for, apart from the teacher's own sheet.
-      classInfo={
-        isSubstitute
-          ? {
-              checked: substituteSettings.showClassInfo,
-              onChange: (showClassInfo) => updateSubstitute({ showClassInfo }),
-            }
-          : { checked: showClassInfo, onChange: handleToggleClassInfo }
-      }
-      connections={{
-        checked: showConnections,
-        onChange: handleToggleConnections,
-      }}
-      nameDisplay={
-        isSubstitute ? substituteSettings.nameDisplay : effectiveNameDisplay
-      }
-      onNameDisplayChange={
-        isSubstitute
-          ? (nameDisplay) => updateSubstitute({ nameDisplay })
-          : setNameDisplay
-      }
-      names={studentNames}
-      featureAvailability={featureAvailability}
-      featureVisibility={featureVisibility}
-      onFeatureToggle={setFeatureVisible}
-    />
-  );
+            : undefined,
+          note: substituteNote,
+          onNoteChange: setSubstituteNote,
+          lines: substituteSettings.lines,
+          onLinesChange: (lines) => updateSubstitute({ lines }),
+        }}
+        title={isSubstitute ? substituteTitle : title}
+        onTitleChange={isSubstitute ? setSubstituteTitle : setTitle}
+        orientation={activeOrientation}
+        onOrientationChange={
+          isList
+            ? (orientation) => updateNoteList({ orientation })
+            : sheetArrangement === 'circle'
+              ? setCircleOrientation
+              : setTableOrientation
+        }
+        flipView={{ checked: flipView, onChange: handleToggleFlipView }}
+        frameOnTables={{
+          checked: frameOnTables,
+          onChange: handleToggleFrameOnTables,
+        }}
+        // The list keeps its own badges and photos, both off by default: a
+        // list left on a desk should not say who is restless.
+        needs={
+          isList
+            ? {
+                checked: noteListSettings.showBadges,
+                onChange: (showBadges) => updateNoteList({ showBadges }),
+              }
+            : { checked: showNeeds, onChange: handleToggleNeeds }
+        }
+        badgeFamilies={{
+          present: presentBadgeFamilies,
+          hidden: hiddenBadgeFamilies,
+          onToggle: handleToggleBadgeFamily,
+        }}
+        genderColors={{
+          checked: showGenderColors,
+          onChange: handleToggleGenderColors,
+        }}
+        photos={
+          isList
+            ? {
+                checked: noteListSettings.showPhotos,
+                onChange: (next) => updateNoteList({ showPhotos: next }),
+              }
+            : isSubstitute
+              ? {
+                  checked: substituteSettings.showPhotos,
+                  onChange: (next) => updateSubstitute({ showPhotos: next }),
+                }
+              : { checked: showPhotos, onChange: handleTogglePhotos }
+        }
+        legend={{
+          checked: showLegend,
+          onChange: handleToggleLegend,
+          unavailable: legendHasEntries
+            ? undefined
+            : t('export.legendUnavailable'),
+        }}
+        // The substitute's sheet names the class always; its school year and
+        // notes only when asked for, apart from the teacher's own sheet.
+        classInfo={
+          isSubstitute
+            ? {
+                checked: substituteSettings.showClassInfo,
+                onChange: (showClassInfo) =>
+                  updateSubstitute({ showClassInfo }),
+              }
+            : { checked: showClassInfo, onChange: handleToggleClassInfo }
+        }
+        connections={{
+          checked: showConnections,
+          onChange: handleToggleConnections,
+        }}
+        nameDisplay={
+          isSubstitute ? substituteSettings.nameDisplay : effectiveNameDisplay
+        }
+        onNameDisplayChange={
+          isSubstitute
+            ? (nameDisplay) => updateSubstitute({ nameDisplay })
+            : setNameDisplay
+        }
+        names={studentNames}
+        featureAvailability={featureAvailability}
+        featureVisibility={featureVisibility}
+        onFeatureToggle={setFeatureVisible}
+      />
+    );
 
   return (
     <AppShell
