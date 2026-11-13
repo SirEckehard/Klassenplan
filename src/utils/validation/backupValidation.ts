@@ -1223,6 +1223,40 @@ function validateMixPresets(value: unknown): void {
   }
 }
 
+/**
+ * A room template in a file of its own (decision 0046): its name and its
+ * scene, checked as a backup's template is.
+ */
+export function validateSharedTemplate(
+  value: unknown,
+): asserts value is Pick<ClassroomTemplate, 'name' | 'scene'> {
+  if (!isObject(value)) {
+    throw new BackupValidationError(BACKUP_ERROR_MESSAGES.invalidData);
+  }
+  validateClassroomTemplates([{ ...value, id: 0 }]);
+}
+
+/**
+ * A mixing preset in a file of its own (decision 0046): its name and its
+ * weights, checked as a backup's own preset is.
+ */
+export function validateSharedPreset(
+  value: unknown,
+): asserts value is { name: string; weights: Record<string, unknown> } {
+  if (
+    !isObject(value) ||
+    !assertString(value.name, { maxLength: BACKUP_LIMITS.maxNameLength }) ||
+    value.name.trim() === ''
+  ) {
+    throw new BackupValidationError(BACKUP_ERROR_MESSAGES.invalidData);
+  }
+  validateMixPresets({
+    version: 1,
+    overrides: {},
+    presets: [{ ...value, id: 'shared' }],
+  });
+}
+
 /** One round of duties: a timestamp and duty id → student ids. */
 function validateDutyRound(value: unknown): void {
   if (

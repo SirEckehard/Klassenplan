@@ -174,7 +174,11 @@
       },
       "add": {
         "title": "Neu anlegen",
-        "body": "Klassen, Räume, Raumvorlagen und Voreinstellungen legst du in der Werkzeugleiste an."
+        "body": "Klassen, Räume, Raumvorlagen und Voreinstellungen legst du in der Werkzeugleiste an; „Aus Datei öffnen …“ holt eine Raumvorlage oder Voreinstellung aus einer Datei."
+      },
+      "share": {
+        "title": "Weitergeben",
+        "body": "„Als Datei speichern“ im Inspektor einer Raumvorlage oder Voreinstellung schreibt eine Datei ohne Schülerdaten – für Kolleginnen und Kollegen oder ein anderes Gerät."
       }
     }
   },
@@ -1034,7 +1038,8 @@
     "notice": {
       "saved": "Gespeichert",
       "planSaved": "Plan gespeichert",
-      "backupSaved": "Backup gespeichert"
+      "backupSaved": "Backup gespeichert",
+      "fileSaved": "Datei gespeichert"
     },
     "layers": {
       "class": "Klasse",
@@ -1420,6 +1425,20 @@
       "applied": "Voreinstellung „{{name}}“ übernommen.",
       "deleted": "Voreinstellung „{{name}}“ gelöscht.",
       "standardHint": "„Standard“ bleibt, wie er ist – der Weg zurück zu den Grundeinstellungen. Ändern kannst du die anderen Voreinstellungen und deine eigenen."
+    },
+    "share": {
+      "save": "Als Datei speichern",
+      "open": "Aus Datei öffnen …",
+      "templateFile": "Raumvorlage",
+      "presetFile": "Voreinstellung",
+      "saved": "„{{name}}“ als Datei gespeichert.",
+      "templateQuestion": "Raumvorlage „{{name}}“ übernehmen?",
+      "templateMeta": "Raumvorlage aus einer Datei",
+      "templateMessage": "Sie kommt zu deinen Raumvorlagen; was schon da ist, bleibt.",
+      "presetQuestion": "Voreinstellung „{{name}}“ übernehmen?",
+      "presetMeta": "Voreinstellung aus einer Datei",
+      "presetMessage": "Sie kommt zu deinen Voreinstellungen; was schon da ist, bleibt.",
+      "take": "Übernehmen"
     },
     "undone": "Rückgängig gemacht.",
     "redone": "Wiederhergestellt."

@@ -348,5 +348,50 @@ test('"Bibliothek" adds a preset and a room template', async ({ page }) => {
     await expect(page.getByText(/^Noch ohne Tische/)).toBeHidden();
   });
 
+  await test.step('the template as a file, opened again beside itself (decision 0046)', async () => {
+    // Without a save dialog the file arrives as a download.
+    await page.evaluate(() => {
+      Object.defineProperty(window, 'showSaveFilePicker', {
+        value: undefined,
+        configurable: true,
+      });
+    });
+    await page
+      .getByRole('complementary', { name: 'Bibliothek' })
+      .getByRole('button', { name: 'Als Datei speichern' })
+      .click();
+    const downloading = page.waitForEvent('download');
+    await page
+      .getByRole('dialog', { name: 'Datei herunterladen?' })
+      .getByRole('button', { name: 'Herunterladen' })
+      .click();
+    const download = await downloading;
+    expect(download.suggestedFilename()).toBe('Raumvorlage Labor.klassenplan');
+    const file = await download.path();
+
+    const choosing = page.waitForEvent('filechooser');
+    await page.getByRole('button', { name: 'Aus Datei öffnen …' }).click();
+    await (await choosing).setFiles(file);
+
+    const question = page.getByRole('dialog', {
+      name: 'Raumvorlage „Labor (2)“ übernehmen?',
+    });
+    await expect(question.getByText('Tische')).toBeVisible();
+    await question.getByRole('button', { name: 'Übernehmen' }).click();
+    await expect(question).toBeHidden();
+    await expect(
+      page.getByRole('option', { name: /^Labor \(2\)/ }),
+    ).toHaveAttribute('aria-selected', 'true');
+
+    // Undo takes back what the file added.
+    await statusBar(page)
+      .getByRole('button', { name: 'Letzte Aktion rückgängig machen' })
+      .click();
+    await expect(
+      page.getByRole('option', { name: /^Labor \(2\)/ }),
+    ).toHaveCount(0);
+    await expect(page.getByRole('option', { name: /^Labor/ })).toHaveCount(1);
+  });
+
   expect(consoleErrors).toEqual([]);
 });

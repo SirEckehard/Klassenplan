@@ -12,6 +12,7 @@ import {
 } from '@/utils/validation/backupLimits';
 import type { EncryptedBackupPayload } from '@/utils/validation/backupValidation';
 import type { BackupImportOutcome } from '@/services/backup/dataBackup';
+import type { SharedFile } from '@/utils/data/shareFiles';
 import i18n from '@/i18n';
 import {
   BACKUP_FILE_EXTENSION,
@@ -39,6 +40,7 @@ const WEB_CRYPTO_IMPORT_ERROR_MESSAGE = 'toast:backup.webCryptoImportError';
 const loadBackupDialogs = () => import('@/services/ui/backupDialogs');
 const loadBackupValidation = () =>
   import('@/utils/validation/backupValidation');
+const loadShareFiles = () => import('@/utils/data/shareFiles');
 
 const KDF_HASH = 'SHA-256';
 const KDF_ITERATIONS = 600000;
@@ -158,6 +160,11 @@ interface Options {
     text: string,
     opts?: { merge?: boolean },
   ) => Promise<BackupImportOutcome>;
+  /**
+   * Adds what a room template's or a preset's file brings (decision 0046),
+   * which comes the backup's way and is no backup.
+   */
+  openSharedFile?: (shared: SharedFile) => Promise<void>;
 }
 
 /**
@@ -215,6 +222,7 @@ function showBackupExportRefusal(error: BackupExportError) {
 export default function useDataBackup({
   exportAllAsJson,
   importAllFromJson,
+  openSharedFile,
 }: Options) {
   const importInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -281,7 +289,9 @@ export default function useDataBackup({
   /**
    * Restores a backup file: asks for its password, then how it applies. The
    * file comes from the file input or, in the installed app, from the system
-   * when a backup was opened with it (`useBackupFileLaunch`).
+   * when a backup was opened with it (`useBackupFileLaunch`). A room
+   * template's or a preset's file takes the same way in and is told apart by
+   * its content (decision 0046).
    */
   const importBackupFile = (file: File) => {
     if (file.size > BACKUP_LIMITS.encryptedFileBytes) {
@@ -301,6 +311,13 @@ export default function useDataBackup({
           parsed = JSON.parse(text);
         } catch {
           throw new BackupValidationError(BACKUP_ERROR_MESSAGES.unreadable);
+        }
+        const shared = openSharedFile
+          ? (await loadShareFiles()).readSharedFile(parsed, text.length)
+          : null;
+        if (shared && openSharedFile) {
+          await openSharedFile(shared);
+          return;
         }
         const encryptedPayload = parseEncryptedBackupPayload(parsed);
         if (!isWebCryptoAvailable()) {

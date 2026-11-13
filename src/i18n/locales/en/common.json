@@ -132,7 +132,11 @@
       "duties_one": "Duty",
       "duties_other": "Duties",
       "photos_one": "Photo",
-      "photos_other": "Photos"
+      "photos_other": "Photos",
+      "tables_one": "Table",
+      "tables_other": "Tables",
+      "seats_one": "Seat",
+      "seats_other": "Seats"
     }
   },
   "backupPassword": {

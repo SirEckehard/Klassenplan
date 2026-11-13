@@ -174,7 +174,11 @@
       },
       "add": {
         "title": "Creating",
-        "body": "Create classes, rooms, room templates and presets in the toolbar."
+        "body": "Create classes, rooms, room templates and presets in the toolbar; “Open from file …” brings in a room template or a preset from a file."
+      },
+      "share": {
+        "title": "Sharing",
+        "body": "“Save as file” in a room template’s or a preset’s inspector writes a file without student data – for colleagues or another device."
       }
     }
   },
@@ -1034,7 +1038,8 @@
     "notice": {
       "saved": "Saved",
       "planSaved": "Plan saved",
-      "backupSaved": "Backup saved"
+      "backupSaved": "Backup saved",
+      "fileSaved": "File saved"
     },
     "layers": {
       "class": "Class",
@@ -1420,6 +1425,20 @@
       "applied": "Preset “{{name}}” applied.",
       "deleted": "Preset “{{name}}” deleted.",
       "standardHint": "“Default” stays as it is – the way back to the basic settings. You can change the other presets and your own."
+    },
+    "share": {
+      "save": "Save as file",
+      "open": "Open from file …",
+      "templateFile": "Room template",
+      "presetFile": "Preset",
+      "saved": "“{{name}}” saved as a file.",
+      "templateQuestion": "Add room template “{{name}}”?",
+      "templateMeta": "Room template from a file",
+      "templateMessage": "It joins your room templates; what is already there stays.",
+      "presetQuestion": "Add preset “{{name}}”?",
+      "presetMeta": "Preset from a file",
+      "presetMessage": "It joins your presets; what is already there stays.",
+      "take": "Add"
     },
     "undone": "Undone.",
     "redone": "Redone."

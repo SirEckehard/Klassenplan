@@ -15,6 +15,7 @@ import {
   PencilLineIcon,
   PlusIcon,
   PrinterIcon,
+  ShareNetworkIcon,
   ShuffleIcon,
   SquaresFourIcon,
   UserIcon,
@@ -82,5 +83,6 @@ export const WORKSPACE_HELP_TOPICS = {
     { key: 'help.library.open', icon: ArrowSquareOutIcon },
     { key: 'help.library.history', icon: ClockCounterClockwiseIcon },
     { key: 'help.library.add', icon: FolderPlusIcon },
+    { key: 'help.library.share', icon: ShareNetworkIcon },
   ],
 } satisfies Record<string, readonly HelpTopic[]>;

@@ -183,7 +183,7 @@ export default function FAQ() {
         title: t('faq.layout.title'),
         description: t('faq.layout.description'),
         icon: HouseIcon,
-        items: ['best', 'measure', 'limits', 'rooms'].map((key) => ({
+        items: ['best', 'measure', 'limits', 'rooms', 'share'].map((key) => ({
           question: t(`faq.layout.${key}.q`),
           answer: <p>{t(`faq.layout.${key}.a`)}</p>,
         })),

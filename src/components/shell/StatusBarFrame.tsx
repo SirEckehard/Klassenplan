@@ -43,6 +43,7 @@ const NOTICE_TEXT: Record<StatusNoticeKind, string> = {
   saved: 'shell.notice.saved',
   planSaved: 'shell.notice.planSaved',
   backupSaved: 'shell.notice.backupSaved',
+  fileSaved: 'shell.notice.fileSaved',
 };
 
 /** The toolbar's switch: quiet, and as high as the bar's other controls. */

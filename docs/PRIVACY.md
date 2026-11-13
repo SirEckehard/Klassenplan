@@ -75,7 +75,10 @@ any other class
   day of the cover, and never badges or the gender tint, whatever is switched
   on elsewhere; photos and the class's school year and notes only when asked
   for. The note typed for it is printed and never stored
-  ([decision 0034](decisions/0034-substitute-sheet.md)).
+  ([decision 0034](decisions/0034-substitute-sheet.md)). A room template's or a
+  preset's file is not encrypted either; it holds tables and weights, nothing
+  about a student
+  ([decision 0046](decisions/0046-room-template-and-preset-files.md)).
 - **Nobody else.** Neither klassenplan.de nor a self-hosting operator receives
   student data.
 

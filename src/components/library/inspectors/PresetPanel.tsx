@@ -4,6 +4,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ArrowCounterClockwiseIcon,
+  DownloadIcon,
   FolderSimpleIcon,
   PackageIcon,
   UserIcon,
@@ -50,14 +51,16 @@ const weightsOf = (settings: MixSettings): MixPresetWeights =>
  * the plan's inspector shows them — every criterion, since a preset belongs
  * to no class — each change kept at once; "Standard" read only, the way back.
  * An own preset is renamed in the header and removed below, a changed shipped
- * one given back its own weights. Opened — from the status bar — it sets the
- * open class's criteria.
+ * one given back its own weights; either is saved as a file for a colleague,
+ * where it arrives as a preset of their own (decision 0046). Opened — from the
+ * status bar — it sets the open class's criteria.
  */
 export default function PresetPanel({
   preset,
   takenNames,
   onRename,
   onChangeWeights,
+  onSaveFile,
   onDelete,
   onRestore,
   renameRequest,
@@ -68,6 +71,8 @@ export default function PresetPanel({
   onRename: (name: string) => Promise<NameProblem | null>;
   /** Keeps the preset's new weights; never asked of "Standard". */
   onChangeWeights: (weights: MixPresetWeights) => void;
+  /** Saves the preset as a file; never asked of one every app ships as is. */
+  onSaveFile: () => void;
   onDelete: () => void;
   onRestore: () => void;
   renameRequest: number;
@@ -136,6 +141,13 @@ export default function PresetPanel({
               icon={ArrowCounterClockwiseIcon}
               label={t('mix.recipes.restore')}
               onClick={onRestore}
+            />
+          )}
+          {(!preset.builtin || preset.changed) && (
+            <InspectorActionRow
+              icon={DownloadIcon}
+              label={t('library.share.save')}
+              onClick={onSaveFile}
             />
           )}
           {/* In the section it speaks of, not loose under the panel. */}

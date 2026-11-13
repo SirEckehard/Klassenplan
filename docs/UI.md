@@ -1,6 +1,6 @@
 # The Interface
 
-> **Status:** current · **Last reviewed:** 2026-11-10 · **Source of truth:**
+> **Status:** current · **Last reviewed:** 2026-11-13 · **Source of truth:**
 > `src/components/shell/`, `src/components/SeatingPlanGenerator/`,
 > `src/contexts/InspectorContext.tsx`
 
@@ -336,7 +336,13 @@ afterwards.
   preset (`LibraryToolPanel`), each under a free name that the inspector offers
   to type over: the template empty — its tables are arranged in a room opened
   from it and brought back with "Vorlage „…“ ersetzen", which its panel says
-  while it has none —, the preset from the weights of "Standard". The page reads
+  while it has none —, the preset from the weights of "Standard". Its last
+  button, "Aus Datei öffnen …", opens the restore's file dialog: a room
+  template's or a preset's file (decision 0046) is added after a question that
+  names what it brings, chosen in the columns and taken back by undo, and a
+  backup is restored as from the toolbar's foot. A template with tables, an own
+  preset and a changed shipped one are saved as such a file from their panel
+  ("Als Datei speichern"), which the status bar's line confirms. The page reads
   the inspector and `ClassDialogsProvider` itself, so it renders inside
   `ShellProviders` (`shell/AppShell.tsx`), whose `AppShell` then nests no second
   set — above them its hooks got the inert fallbacks.

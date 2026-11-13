@@ -192,5 +192,12 @@
   },
   "mixPresets": {
     "saveFailed": "The preset could not be saved."
+  },
+  "sharedFile": {
+    "templateAdded": "Room template “{{name}}” added.",
+    "presetAdded": "Preset “{{name}}” added.",
+    "unreadable": "The file could not be opened. It is damaged or not a Klassenplan file.",
+    "newer": "This file comes from a newer version of Klassenplan. Update the app, then open it again.",
+    "tooLarge": "The file is too large for a room template or a preset."
   }
 }

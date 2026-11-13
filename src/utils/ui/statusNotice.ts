@@ -5,14 +5,16 @@ import { announce, getToastMessage, showToast } from './toast';
 /**
  * A short confirmation for the status bar's line: something was kept that
  * the screen does not show — a plan saved while its inspector is out of
- * sight, a backup written to a file, writes that work again after failing.
+ * sight, a backup or a template written to a file, writes that work again
+ * after failing.
  * The line says it for a few seconds where the layer's status stands, the
  * way the gear's row says "Aktuell" (decision 0037).
  *
  * The bars on screen listen; a page without one gets `false` back and says
  * it its own way — a toast.
  */
-export type StatusNoticeKind = 'saved' | 'planSaved' | 'backupSaved';
+export type StatusNoticeKind =
+  'saved' | 'planSaved' | 'backupSaved' | 'fileSaved';
 
 export interface StatusNotice {
   id: number;

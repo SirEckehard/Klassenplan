@@ -330,6 +330,10 @@
       "rooms": {
         "q": "Kann ich für eine Klasse mehrere Sitzpläne haben – etwa für den Fachraum?",
         "a": "Ja. Eine Klasse kann mehrere Räume haben, und jeder Raum behält seine eigenen Tische und Pläne. Für den Fachraum legst du in der Ebene Raum unter „Raum“ mit „Neuer Raum“ einen neuen Raum an oder öffnest unter „Vorlagen“ einen gespeicherten Raum – er wird dann ein eigener Raum der Klasse. Dort stellst du die Tische, mischst und speicherst den Plan. Über „Raum öffnen …“ wechselst du zwischen den Räumen; jeder öffnet sich so, wie du ihn verlassen hast, mit Sitzordnung und gesperrten Plätzen. Ein gespeicherter Plan öffnet seinen Raum mit."
+      },
+      "share": {
+        "q": "Wie gebe ich einen Raum oder eine Voreinstellung an Kolleginnen und Kollegen weiter?",
+        "a": "Speichere einen Raum zuerst als Vorlage. In der Bibliothek wählst du die Raumvorlage oder Voreinstellung und tippst im Inspektor auf „Als Datei speichern“. Die Datei endet auf .klassenplan und enthält keine Schülerdaten, deshalb ist sie nicht verschlüsselt – du kannst sie per Mail oder über die Schulcloud weitergeben. Wer sie bekommt, öffnet sie in der Bibliothek mit „Aus Datei öffnen …“ oder wie ein Backup; Klassenplan zeigt, was darin steckt, und legt sie zu den vorhandenen. Heißt dort schon etwas genauso, bekommt die neue eine Nummer, etwa „Raum 204 (2)“."
       }
     },
     "settings": {

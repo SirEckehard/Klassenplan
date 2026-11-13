@@ -351,6 +351,84 @@ describe('useDataBackup', () => {
     );
   });
 
+  it('hands a room template’s file on without a password (decision 0046)', async () => {
+    const importFn = vi.fn();
+    const openSharedFile = vi.fn().mockResolvedValue(undefined);
+    const { result } = renderHook(() =>
+      useDataBackup({
+        exportAllAsJson: vi.fn(),
+        importAllFromJson: importFn,
+        openSharedFile,
+      }),
+    );
+    const scene = { tables: [], totalStudents: 0 };
+    class FileReaderMock {
+      onload: null | (() => void) = null;
+      result = JSON.stringify({
+        format: 'klassenplan-room-template',
+        version: 1,
+        template: { name: 'Raum 204', scene },
+      });
+      readAsText = vi.fn().mockImplementation(function (this: FileReaderMock) {
+        this.onload?.();
+      });
+    }
+    vi.stubGlobal('FileReader', FileReaderMock);
+
+    await act(async () => {
+      result.current.importBackupFile(
+        new File(['{}'], 'Raumvorlage Raum 204.klassenplan'),
+      );
+      await Promise.resolve();
+    });
+
+    await waitFor(() =>
+      expect(openSharedFile).toHaveBeenCalledWith({
+        kind: 'template',
+        name: 'Raum 204',
+        scene,
+      }),
+    );
+    expect(mockPromptPassword).not.toHaveBeenCalled();
+    expect(importFn).not.toHaveBeenCalled();
+  });
+
+  it('says a damaged preset file is no file it can open', async () => {
+    const openSharedFile = vi.fn();
+    const { result } = renderHook(() =>
+      useDataBackup({
+        exportAllAsJson: vi.fn(),
+        importAllFromJson: vi.fn(),
+        openSharedFile,
+      }),
+    );
+    class FileReaderMock {
+      onload: null | (() => void) = null;
+      result = JSON.stringify({
+        format: 'klassenplan-mix-preset',
+        version: 1,
+        preset: { name: 'Ruhig', weights: 'none' },
+      });
+      readAsText = vi.fn().mockImplementation(function (this: FileReaderMock) {
+        this.onload?.();
+      });
+    }
+    vi.stubGlobal('FileReader', FileReaderMock);
+
+    await act(async () => {
+      result.current.importBackupFile(new File(['{}'], 'x.klassenplan'));
+      await Promise.resolve();
+    });
+
+    await waitFor(() =>
+      expect(showToastMock).toHaveBeenCalledWith(
+        'error',
+        'toast:sharedFile.unreadable',
+      ),
+    );
+    expect(openSharedFile).not.toHaveBeenCalled();
+  });
+
   it('merges into existing data when the restore dialog returns "merge"', async () => {
     const importFn = vi.fn().mockResolvedValue({
       merge: true,

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import { useTranslation } from 'react-i18next';
-import { FolderPlusIcon } from '@phosphor-icons/react';
+import { FolderPlusIcon, UploadIcon } from '@phosphor-icons/react';
 import { TOUR_ANCHORS } from '@/components/onboarding/tours';
 import { ENTITY_ICONS } from '@/components/shell/entityIcons';
 import {
@@ -15,8 +15,9 @@ import {
  * The toolbar of "Bibliothek", in the shape every layer's has: what can
  * be added — a class, a room of the class that is chosen, a room template, a
  * mixing preset, each under a free name that the inspector then offers to
- * type over — above the foot every rail shares. Plans are made where they are
- * mixed, on the plan layer.
+ * type over — or a template or a preset from a colleague's file, above the
+ * foot every rail shares. Plans are made where they are mixed, on the plan
+ * layer.
  */
 export default function LibraryToolPanel({
   density,
@@ -24,6 +25,7 @@ export default function LibraryToolPanel({
   onNewRoom,
   onNewTemplate,
   onNewPreset,
+  onOpenFile,
 }: {
   density: ToolRailDensity;
   onNewClass: () => void;
@@ -31,6 +33,8 @@ export default function LibraryToolPanel({
   onNewRoom?: () => void;
   onNewTemplate: () => void;
   onNewPreset: () => void;
+  /** A room template's or a preset's file (decision 0046), or a backup. */
+  onOpenFile: () => void;
 }) {
   const { t } = useTranslation('generator');
 
@@ -60,6 +64,11 @@ export default function LibraryToolPanel({
           icon={<ENTITY_ICONS.preset size={18} />}
           label={t('library.preset.newName')}
           onClick={onNewPreset}
+        />
+        <ToolRailButton
+          icon={<UploadIcon size={18} />}
+          label={t('library.share.open')}
+          onClick={onOpenFile}
         />
       </ToolRailGroup>
     </ToolRail>

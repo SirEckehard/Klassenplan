@@ -5,6 +5,7 @@ import type { ClassroomTemplate, ClassroomScene } from '@/types';
 import { announce, showToast, TOAST_MESSAGES } from '@/utils/ui/toast';
 import { logError } from '@/utils';
 import { useTemplateService } from './useTemplateService';
+import { subscribeToSharedImports } from '@/hooks/library/useShareFiles';
 import type { TemplateServiceError } from './useTemplateService';
 
 /**
@@ -71,6 +72,21 @@ export default function useTemplateManager(classroomScene: ClassroomScene) {
       showToast('error', getToastMessageForError('storage-error'));
     }
   }, [loadTemplatesService]);
+
+  // A template a colleague's file added (decision 0046) joins the list; the
+  // toast says so, since the list may be out of sight.
+  React.useEffect(
+    () =>
+      subscribeToSharedImports((entry) => {
+        if (entry.kind === 'template') {
+          reloadTemplates().catch((error: unknown) => {
+            logError('useTemplateManager.reloadFailed', { error });
+          });
+        }
+        return false;
+      }),
+    [reloadTemplates],
+  );
 
   /**
    * Keeps the room as a new template, or over the one `overwriteId` names.

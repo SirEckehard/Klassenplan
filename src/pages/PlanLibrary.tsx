@@ -69,6 +69,11 @@ import {
 } from '@/hooks/library/useLibraryHistory';
 import { usePlanUsageRecords } from '@/hooks/plan/usePlanUsageRecords';
 import { useMixPresets } from '@/hooks/ui/useMixPresets';
+import {
+  subscribeToSharedImports,
+  useShareFiles,
+  type SharedImport,
+} from '@/hooks/library/useShareFiles';
 import { withRecipe } from '@/hooks/ui/useMixRecipes';
 import {
   addMixPreset,
@@ -588,6 +593,52 @@ function PlanLibraryPage() {
   });
   const recordStep = (step: LibraryStep, offer?: string) =>
     history.record(step, { path: latestRef.current.path, offer });
+
+  // What a colleague's file added (decision 0046) is chosen, as an entry
+  // added here is, and undo takes it back. The file comes the backup's way,
+  // from this toolbar or from elsewhere.
+  const shareFiles = useShareFiles();
+  const takeSharedImport = async (entry: SharedImport) => {
+    if (entry.kind === 'preset') {
+      recordStep({
+        kind: 'ownPreset',
+        presetId: entry.presetId,
+        preset: null,
+        index: presets.data.presets.length,
+      });
+      const key = libraryKey({ kind: 'preset', presetId: entry.presetId });
+      setChosenPath([libraryKey({ kind: 'presets' }), key]);
+      showInspector(key);
+      return;
+    }
+    const list = await actions.loadTemplate();
+    setTemplates(list);
+    const index = list.findIndex((item) => item.id === entry.templateId);
+    if (index === -1) return;
+    recordStep({
+      kind: 'template',
+      templateId: entry.templateId,
+      template: null,
+      index,
+    });
+    const key = libraryKey({ kind: 'template', templateId: entry.templateId });
+    setChosenPath([libraryKey({ kind: 'templates' }), key]);
+    showInspector(key);
+  };
+  const takeSharedImportRef = React.useRef(takeSharedImport);
+  React.useLayoutEffect(() => {
+    takeSharedImportRef.current = takeSharedImport;
+  });
+  React.useEffect(
+    () =>
+      subscribeToSharedImports((entry) => {
+        takeSharedImportRef.current(entry).catch((error: unknown) => {
+          logError('Failed to show a shared file', { error }, 'PlanLibrary');
+        });
+        return true;
+      }),
+    [],
+  );
 
   const removeEntry = async (node: LibraryNode) => {
     switch (node.kind) {
@@ -1252,6 +1303,12 @@ function PlanLibraryPage() {
               showToast('error', 'toast:mixPresets.saveFailed');
               return null;
             }}
+            onSaveFile={() =>
+              void shareFiles.savePresetFile({
+                name,
+                weights: fullRecipeWeights(preset.weights),
+              })
+            }
             onChangeWeights={(weights) => {
               const step = isEditableBuiltin(preset.builtin)
                 ? overrideStep(preset.builtin)
@@ -1290,6 +1347,7 @@ function PlanLibraryPage() {
               }
               return result.error === 'duplicate' ? 'taken' : null;
             }}
+            onSaveFile={() => void shareFiles.saveTemplateFile(template)}
             onDelete={() => void removeEntry(current)}
             renameRequest={renameRequestCount}
           />
@@ -1348,6 +1406,7 @@ function PlanLibraryPage() {
               onNewRoom={classLibrary ? () => void addRoom() : undefined}
               onNewTemplate={() => void addTemplate()}
               onNewPreset={() => void addPreset()}
+              onOpenFile={actions.triggerImport}
             />
           )}
         </SmartSidebar>

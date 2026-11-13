@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import { useTranslation } from 'react-i18next';
-import { FolderSimpleIcon } from '@phosphor-icons/react';
+import { DownloadIcon, FolderSimpleIcon } from '@phosphor-icons/react';
 import {
+  InspectorActionRow,
   InspectorBody,
   InspectorDeleteFooter,
   InspectorHeader,
@@ -17,20 +18,23 @@ import { ValueRow } from './panelParts';
 
 /**
  * A room kept for every class: its name, renamed in the header, its tables,
- * and removing it. Opened — from the status bar — it becomes a room of its own
- * of the class that is open (decision 0024). One made here starts without
- * tables, and its hint says how it gets them.
+ * saving it as a file for a colleague (decision 0046), and removing it.
+ * Opened — from the status bar — it becomes a room of its own of the class
+ * that is open (decision 0024). One made here starts without tables, and its
+ * hint says how it gets them.
  */
 export default function TemplatePanel({
   template,
   templates,
   onRename,
+  onSaveFile,
   onDelete,
   renameRequest,
 }: {
   template: ClassroomTemplate;
   templates: ClassroomTemplate[];
   onRename: (name: string) => Promise<NameProblem | null>;
+  onSaveFile: () => void;
   onDelete: () => void;
   renameRequest: number;
 }) {
@@ -76,6 +80,13 @@ export default function TemplatePanel({
               t('sceneInspector.seats', { count: seats }),
             ].join(' · ')}
           </ValueRow>
+          <InspectorActionRow
+            icon={DownloadIcon}
+            label={t('library.share.save')}
+            // A room without tables is nothing to hand on.
+            disabled={template.scene.tables.length === 0}
+            onClick={onSaveFile}
+          />
           {/* In the section it speaks of, not loose under the panel. */}
           <p className="text-xs text-(--text-muted)">
             {template.scene.tables.length > 0

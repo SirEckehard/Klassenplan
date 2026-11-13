@@ -14,7 +14,9 @@ type FactKind =
   | 'templates'
   | 'presets'
   | 'duties'
-  | 'photos';
+  | 'photos'
+  | 'tables'
+  | 'seats';
 
 function fact(kind: FactKind, count: number): ConfirmFact {
   return {
@@ -41,6 +43,11 @@ export function classFacts(record: ClassContents): ConfirmFact[] {
 /** What goes with a room: its saved plans and its mixes. */
 export function roomFacts(planCount: number, mixCount: number): ConfirmFact[] {
   return [fact('plans', planCount), fact('mixes', mixCount)];
+}
+
+/** What a room brings: its tables and their seats. */
+export function tableFacts(tables: number, seats: number): ConfirmFact[] {
+  return [fact('tables', tables), fact('seats', seats)];
 }
 
 /** What is kept beside the classes, counted for a wipe of everything. */

@@ -27,6 +27,41 @@ in `src/config/backupFile.ts`.
   extension instead of appending one of its own; the save dialog pairs the
   extension with `application/x-klassenplan`.
 
+## Room templates and presets as files
+
+A room template or a mixing preset can be saved on its own, to hand to a
+colleague ([decision 0046](decisions/0046-room-template-and-preset-files.md)):
+`Raumvorlage Raum 204.klassenplan`, `Voreinstellung Stillarbeit.klassenplan`.
+It holds nothing about a student and is **plain JSON, not encrypted**:
+
+```json
+{
+  "format": "klassenplan-room-template",
+  "version": 1,
+  "app": "3.4.0",
+  "savedAt": "2026-11-13T08:00:00.000Z",
+  "template": {
+    "name": "Raum 204",
+    "scene": { "tables": [], "totalStudents": 0 }
+  }
+}
+```
+
+A preset's file says `"format": "klassenplan-mix-preset"` and carries
+`"preset": { "name", "weights", "criteriaVersion" }` — every criterion's
+weight, 0–10, and what the weights mean (decision 0031).
+
+- **Import** takes the backup's way — the restore's file dialog, "Aus Datei
+  öffnen …" in "Bibliothek", the installed app's file handler — and
+  `importBackupFile` reads `format` before it looks for the encrypted
+  envelope; no password is asked. `readSharedFile`
+  (`src/utils/data/shareFiles.ts`) checks the template or preset with the
+  backup's own validators, refuses a file over 1 MB and a version above 1, and
+  says a `klassenplan-…` format it does not know comes from a newer version.
+- **What it adds** stands beside what is here under a name of its own
+  ("Raum 204 (2)"); nothing is replaced, and a preset becomes the teacher's
+  own.
+
 ## Structure overview
 
 A backup (`ExportBundle`) contains the following required fields:
