@@ -321,6 +321,19 @@
     "neverAgain": "Nicht mehr erinnern",
     "faqLink": "Daten auf ein neues Gerät mitnehmen"
   },
+  "markerReview": {
+    "eyebrow": "Merkmale prüfen",
+    "stale_one": "Bei {{count}} Schüler sind die Merkmale seit mehr als {{weeks}} Wochen unverändert.",
+    "stale_other": "Bei {{count}} Schülern sind die Merkmale seit mehr als {{weeks}} Wochen unverändert.",
+    "why": "Merkmale beschreiben, wie sich jemand gerade verhält, und Kinder ändern sich. Stimmen sie noch?",
+    "review": "Zur Klassenliste",
+    "confirm": "Passt noch",
+    "later": "Später",
+    "row": "Merkmale geprüft",
+    "rowHint": "Nach {{weeks}} Wochen ohne Änderung fragt der Sitzplan, ob die Merkmale noch stimmen.",
+    "never": "noch nicht",
+    "now": "Jetzt geprüft"
+  },
   "mixButton": {
     "shortcut": "Mischen (Strg/⌘+Eingabetaste)"
   },

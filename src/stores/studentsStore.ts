@@ -16,12 +16,17 @@ import { createFeatureStoreLogger } from './featureStores';
 import { evaluateStateUpdater } from './storeUtils';
 import { schedulePhotoDeletion } from '@/hooks/student/studentPhotoTrash';
 import { withoutPartners } from '@/utils/student/partnerUtils';
+import { stampMarkerChange, stampNewStudent } from '@/utils/data/markerReview';
 
 /**
  * Apply a patch to a single student, keeping the two performance flags
- * mutually exclusive the way the row toggles present them.
+ * mutually exclusive the way the row toggles present them, and stamping the
+ * day when a marker changed (decision 0044).
  */
-const applyStudentPatch = (student: Student, patch: Partial<Student>) => {
+const applyStudentPatch = (student: Student, patch: Partial<Student>) =>
+  stampMarkerChange(student, patchStudent(student, patch), patch);
+
+const patchStudent = (student: Student, patch: Partial<Student>) => {
   const updated = { ...student, ...patch };
   if (patch.performanceStrong === true) {
     return {
@@ -227,13 +232,16 @@ const createStudentsStore = (
         // only once a file is imported, so it loads then instead of with the app.
         const { importStudentsFromCsv } =
           await import('@/services/csvImportService');
-        const acceptedRows = await importStudentsFromCsv({
-          file,
-          mode: selection?.mode,
-          className: selection?.className,
-          usePreset: selection?.usePreset,
-          currentStudents: get().students,
-        });
+        // Markers that arrive with a list are as new as markers set by hand.
+        const acceptedRows = (
+          await importStudentsFromCsv({
+            file,
+            mode: selection?.mode,
+            className: selection?.className,
+            usePreset: selection?.usePreset,
+            currentStudents: get().students,
+          })
+        ).map((student) => stampNewStudent(student));
 
         if (acceptedRows.length > 0) {
           setStudentsInternal((prev) => [...prev, ...acceptedRows]);

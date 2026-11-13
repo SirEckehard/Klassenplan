@@ -61,6 +61,9 @@ export const STORAGE_KEYS = {
     backupDataSince: 'spg.backupDataSince',
     backupReminderSnoozedUntil: 'spg.backupReminderSnoozedUntil',
     backupReminderDisabled: 'spg.backupReminderDisabled',
+    // Per class id, the day the question whether the markers still hold
+    // may come again after "Später" (decision 0044). Ids only, no names.
+    markerReviewSnoozedUntil: 'spg.markerReviewSnoozedUntil',
     mixSettings: 'spg.mixSettings',
     // Sort order of the class list in step 1. A way of looking at the list,
     // so it survives leaving and re-entering the step (search and filter do
@@ -241,6 +244,7 @@ export const PROJECT_LOCAL_STORAGE_KEYS = [
   STORAGE_KEYS.localStorage.backupDataSince,
   STORAGE_KEYS.localStorage.backupReminderSnoozedUntil,
   STORAGE_KEYS.localStorage.backupReminderDisabled,
+  STORAGE_KEYS.localStorage.markerReviewSnoozedUntil,
   STORAGE_KEYS.localStorage.mixSettings,
   STORAGE_KEYS.localStorage.studentSortMode,
   STORAGE_KEYS.localStorage.sidebarExpanded,

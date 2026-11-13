@@ -4,6 +4,7 @@ import ClassPanel from '@/components/library/inspectors/ClassPanel';
 import { useClassDialogs } from '@/contexts/ClassDialogsContext';
 import { useClassManagementContext } from '@/contexts/seatingPlan/ClassManagementContext';
 import { useSeatingPlanState } from '@/contexts/SeatingPlanContext';
+import { useMarkerReview } from '@/hooks/useMarkerReview';
 
 /**
  * The class layer's inspector while no student is open there: the class
@@ -17,6 +18,7 @@ export default function ClassInspector() {
     useClassManagementContext();
   const { students, rooms, seatingHistory } = useSeatingPlanState();
   const { requestDelete } = useClassDialogs();
+  const { reviewedAt, weeks, confirm } = useMarkerReview();
   const classId = activeClass.id;
   if (!classId) return null;
 
@@ -34,6 +36,9 @@ export default function ClassInspector() {
         .map((entry) => entry.name)}
       onCommit={(patch) => updateClassMetadata(classId, patch)}
       onDelete={() => requestDelete(classId)}
+      markersReviewedAt={reviewedAt}
+      markerReviewWeeks={weeks}
+      onMarkersReviewed={confirm}
     />
   );
 }

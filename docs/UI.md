@@ -184,7 +184,12 @@ afterwards.
   (`ClassInspector`, the very `ClassPanel` "Bibliothek" shows for a class, the
   two fields in `ClassMetadataFields`). They change nothing else about a class,
   so `updateClassMetadata` writes them without a reload — which would drop the
-  undo history — and without a message (`applyClassMetadata`).
+  undo history — and without a message (`applyClassMetadata`). A row there
+  says when the class's markers were last said to hold, with "Jetzt geprüft";
+  on the plan layer a card above the plan (`MarkerReviewReminder`, beside the
+  backup reminder) asks once they stood still for twelve weeks, with "Zur
+  Klassenliste", "Passt noch" and "Später"
+  ([decision 0044](decisions/0044-markers-carry-a-date.md)).
   `ClassDialogsProvider` holds what those places share — making a class with its
   busy state (`create`, which resolves with the new class's id), and the
   question before deleting one, the one dialog left.

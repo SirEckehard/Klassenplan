@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ### Added
 
 - A student can need the seat beside them free, and left-handers sit with nobody writing right-handed to their left
+- After twelve weeks without a change, the seating plan asks whether a class's markers still hold
 
 ### Improved
 

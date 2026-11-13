@@ -150,6 +150,7 @@ export default function FAQ() {
           'photos',
           'focusMode',
           'bulk',
+          'review',
           'demo',
           'nameGame',
         ].map((key) => ({

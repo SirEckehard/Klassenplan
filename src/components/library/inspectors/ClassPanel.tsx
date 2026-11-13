@@ -6,13 +6,19 @@ import {
   InspectorDeleteFooter,
   InspectorHeader,
   InspectorMediaTile,
+  InspectorRow,
   InspectorSection,
 } from '@/components/shell/InspectorPanel';
 import InspectorTitleField from '@/components/shell/InspectorTitleField';
 import { ENTITY_ICONS } from '@/components/shell/entityIcons';
 import ClassMetadataFields from '@/components/students/ClassMetadataFields';
 import type { UpdateClassMetadataPayload } from '@/types';
-import { checkName, formatStoredDate, MAX_NAME_LENGTH } from '@/utils';
+import {
+  checkName,
+  formatStoredDate,
+  MAX_NAME_LENGTH,
+  neutralButtonClass,
+} from '@/utils';
 import { ValueRow } from './panelParts';
 
 /**
@@ -36,6 +42,9 @@ export default function ClassPanel({
   onCommit,
   onDelete,
   renameRequest,
+  markersReviewedAt,
+  markerReviewWeeks,
+  onMarkersReviewed,
 }: {
   name: string;
   label?: string;
@@ -50,6 +59,12 @@ export default function ClassPanel({
   onDelete: () => void;
   /** Counts up whenever the name is asked for (F2), to take the focus. */
   renameRequest?: number;
+  /** The day the markers were last said to hold (decision 0044). */
+  markersReviewedAt?: string;
+  /** After how many weeks unchanged markers are asked about. */
+  markerReviewWeeks?: number;
+  /** "Jetzt geprüft"; without it the row is not shown. */
+  onMarkersReviewed?: () => void;
 }) {
   const { t } = useTranslation('generator');
 
@@ -97,6 +112,27 @@ export default function ClassPanel({
             <ValueRow label={t('library.class.lastUsed')}>
               {formatStoredDate(lastUsedAt.slice(0, 10))}
             </ValueRow>
+          )}
+          {onMarkersReviewed && (
+            <InspectorRow
+              label={t('markerReview.row')}
+              hint={t('markerReview.rowHint', { weeks: markerReviewWeeks })}
+            >
+              <span className="flex items-center gap-2">
+                <span className="text-control tabular-nums text-(--text-muted)">
+                  {markersReviewedAt
+                    ? formatStoredDate(markersReviewedAt)
+                    : t('markerReview.never')}
+                </span>
+                <button
+                  type="button"
+                  onClick={onMarkersReviewed}
+                  className={`${neutralButtonClass} shrink-0 px-2.5 py-1 text-xs`}
+                >
+                  {t('markerReview.now')}
+                </button>
+              </span>
+            </InspectorRow>
           )}
         </InspectorSection>
       </InspectorBody>

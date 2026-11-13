@@ -154,6 +154,22 @@ describe('class collection', () => {
     const summaries = expectData(await repository.listClasses());
     expect(summaries.find((entry) => entry.id === record.id)?.name).toBe('New');
   });
+
+  // Decision 0044: "Passt noch" notes the day on the class.
+  it('notes the day the markers were said to hold', async () => {
+    const record = expectData(
+      await repository.createClass({ name: '7b' }, { activate: true }),
+    );
+
+    const updated = expectData(
+      await repository.updateClassMetadata(record.id, {
+        markersReviewedAt: '2026-11-13',
+      }),
+    );
+
+    expect(updated.markersReviewedAt).toBe('2026-11-13');
+    expect(updated.name).toBe('7b');
+  });
 });
 
 describe('active class snapshot', () => {

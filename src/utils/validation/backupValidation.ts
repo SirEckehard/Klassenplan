@@ -220,6 +220,15 @@ function validateStudent(value: unknown): asserts value is Student {
   if ('leftHanded' in value && typeof value.leftHanded !== 'boolean') {
     throw new BackupValidationError(BACKUP_ERROR_MESSAGES.invalidData);
   }
+  // Since decision 0044; absent in older backups.
+  if (
+    !assertOptionalString(value.markersUpdatedAt, {
+      allowEmpty: false,
+      maxLength: BACKUP_LIMITS.maxTimestampLength,
+    })
+  ) {
+    throw new BackupValidationError(BACKUP_ERROR_MESSAGES.invalidData);
+  }
   // Optional: hasPhoto flag (export version ≥ 2, backwards compatible)
   if ('hasPhoto' in value && typeof value.hasPhoto !== 'boolean') {
     throw new BackupValidationError(BACKUP_ERROR_MESSAGES.invalidData);
@@ -911,6 +920,11 @@ function validateClassRecord(value: unknown) {
       maxLength: BACKUP_LIMITS.maxTimestampLength,
     }) ||
     !assertOptionalString(value.lastUsedAt, {
+      allowEmpty: false,
+      maxLength: BACKUP_LIMITS.maxTimestampLength,
+    }) ||
+    // Since decision 0044; absent in older backups.
+    !assertOptionalString(value.markersReviewedAt, {
       allowEmpty: false,
       maxLength: BACKUP_LIMITS.maxTimestampLength,
     })

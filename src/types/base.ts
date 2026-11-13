@@ -82,6 +82,11 @@ interface StudentBase {
   /** Writes with the left hand: an elbow that needs room on the left. */
   leftHanded?: boolean;
   /**
+   * The day a marker of the student last changed, `YYYY-MM-DD` (decision
+   * 0044). Absent for a student whose markers never changed since.
+   */
+  markersUpdatedAt?: string;
+  /**
    * Language skill level for partner pairing optimization.
    * undefined = not specified (no language-based constraints)
    */

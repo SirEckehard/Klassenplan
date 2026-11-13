@@ -68,6 +68,7 @@ const studentShapeArb = fc.record(
     prefersDoor: fc.boolean(),
     needsFreeNeighbourSeat: fc.boolean(),
     leftHanded: fc.boolean(),
+    markersUpdatedAt: isoDate.map((date) => date.slice(0, 10)),
     languageSkill: fc.constantFrom(
       'native',
       'fluent',
@@ -264,94 +265,111 @@ export const classRecordArb = (): fc.Arbitrary<ClassRecord> =>
       students: studentsArb(),
       scene: sceneArb(),
       roomIds: fc.uniqueArray(fc.uuid(), { minLength: 1, maxLength: 3 }),
+      reviewedAt: fc.option(
+        isoDate.map((date) => date.slice(0, 10)),
+        { nil: undefined },
+      ),
       planCount: fc.nat({ max: 3 }),
       mixCount: fc.nat({ max: 3 }),
     })
-    .chain(({ students, scene, roomIds, planCount, mixCount, ...base }) => {
-      const roomRef = fc.oneof(
-        fc.constantFrom(...roomIds),
-        fc.constant('room-that-is-gone'),
-        fc.constant(undefined),
-      );
-      const planArb: fc.Arbitrary<SavedPlan> = fc
-        .record({
-          id: fc.uuid(),
-          name: nameArb,
-          date: isoDate.map((date) => date.slice(0, 10)),
-          seating: seatingArb(students, scene),
-          roomId: roomRef,
-        })
-        .map(({ roomId, ...plan }) => ({
-          ...plan,
-          scene,
-          ...(roomId ? { roomId } : {}),
-        }));
-      const mixArb = (id: number): fc.Arbitrary<MixResult> =>
-        fc
+    .chain(
+      ({
+        students,
+        scene,
+        roomIds,
+        planCount,
+        mixCount,
+        reviewedAt,
+        ...base
+      }) => {
+        const roomRef = fc.oneof(
+          fc.constantFrom(...roomIds),
+          fc.constant('room-that-is-gone'),
+          fc.constant(undefined),
+        );
+        const planArb: fc.Arbitrary<SavedPlan> = fc
           .record({
-            timestamp: isoDate,
+            id: fc.uuid(),
+            name: nameArb,
+            date: isoDate.map((date) => date.slice(0, 10)),
             seating: seatingArb(students, scene),
             roomId: roomRef,
           })
-          .map(({ roomId, ...mix }) => ({
-            ...mix,
-            id,
-            mixSettings: { ...DEFAULT_MIX_WEIGHTS },
+          .map(({ roomId, ...plan }) => ({
+            ...plan,
+            scene,
             ...(roomId ? { roomId } : {}),
           }));
-      const parkedArb = fc.option(
-        seatingArb(students, scene).map((seating) => ({
-          scene,
-          seating,
-          lockedPositions: {},
-          circleLayout: null,
-          activePlanId: null,
-        })),
-        { nil: undefined },
-      );
-      return fc
-        .record({
-          currentSeating: seatingArb(students, scene),
-          plans: fc.tuple(...range(planCount).map(() => planArb)),
-          mixes: fc.tuple(...range(mixCount).map((index) => mixArb(index + 1))),
-          parked: fc.tuple(...roomIds.map(() => parkedArb)),
-          activeRoomId: fc.option(
-            fc.oneof(fc.constantFrom(...roomIds), fc.constant('gone')),
-            { nil: undefined },
-          ),
-          openPlan: fc.nat(),
-          mixSettings: mixSettingsArb,
-        })
-        .chain((parts) =>
-          locksArb(parts.currentSeating, scene).map((lockedPositions) => {
-            const rooms: RoomRecord[] = roomIds.map((id, index) => ({
+        const mixArb = (id: number): fc.Arbitrary<MixResult> =>
+          fc
+            .record({
+              timestamp: isoDate,
+              seating: seatingArb(students, scene),
+              roomId: roomRef,
+            })
+            .map(({ roomId, ...mix }) => ({
+              ...mix,
               id,
-              name: `Raum ${index + 1}`,
-              createdAt: base.createdAt,
-              ...(parts.parked[index] ? { parked: parts.parked[index] } : {}),
+              mixSettings: { ...DEFAULT_MIX_WEIGHTS },
+              ...(roomId ? { roomId } : {}),
             }));
-            const plans = parts.plans as SavedPlan[];
-            const record: ClassRecord = {
-              ...base,
-              updatedAt: base.createdAt,
-              students,
-              seatingHistory: plans,
-              mixHistory: parts.mixes as MixResult[],
-              currentSeating: parts.currentSeating,
-              lockedPositions,
-              mixSettings: parts.mixSettings,
-              classroomScene: scene,
-              circleLayout: null,
-              activePlanId:
-                plans.length > 0
-                  ? plans[parts.openPlan % plans.length]!.id
-                  : null,
-              rooms,
-              ...(parts.activeRoomId
-                ? { activeRoomId: parts.activeRoomId }
-                : {}),
-            };
-            return record;
-          }),
+        const parkedArb = fc.option(
+          seatingArb(students, scene).map((seating) => ({
+            scene,
+            seating,
+            lockedPositions: {},
+            circleLayout: null,
+            activePlanId: null,
+          })),
+          { nil: undefined },
         );
-    });
+        return fc
+          .record({
+            currentSeating: seatingArb(students, scene),
+            plans: fc.tuple(...range(planCount).map(() => planArb)),
+            mixes: fc.tuple(
+              ...range(mixCount).map((index) => mixArb(index + 1)),
+            ),
+            parked: fc.tuple(...roomIds.map(() => parkedArb)),
+            activeRoomId: fc.option(
+              fc.oneof(fc.constantFrom(...roomIds), fc.constant('gone')),
+              { nil: undefined },
+            ),
+            openPlan: fc.nat(),
+            mixSettings: mixSettingsArb,
+          })
+          .chain((parts) =>
+            locksArb(parts.currentSeating, scene).map((lockedPositions) => {
+              const rooms: RoomRecord[] = roomIds.map((id, index) => ({
+                id,
+                name: `Raum ${index + 1}`,
+                createdAt: base.createdAt,
+                ...(parts.parked[index] ? { parked: parts.parked[index] } : {}),
+              }));
+              const plans = parts.plans as SavedPlan[];
+              const record: ClassRecord = {
+                ...base,
+                updatedAt: base.createdAt,
+                students,
+                seatingHistory: plans,
+                mixHistory: parts.mixes as MixResult[],
+                currentSeating: parts.currentSeating,
+                lockedPositions,
+                mixSettings: parts.mixSettings,
+                classroomScene: scene,
+                circleLayout: null,
+                activePlanId:
+                  plans.length > 0
+                    ? plans[parts.openPlan % plans.length]!.id
+                    : null,
+                rooms,
+                ...(parts.activeRoomId
+                  ? { activeRoomId: parts.activeRoomId }
+                  : {}),
+                ...(reviewedAt ? { markersReviewedAt: reviewedAt } : {}),
+              };
+              return record;
+            }),
+          );
+      },
+    );

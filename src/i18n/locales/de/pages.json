@@ -187,6 +187,10 @@
         "q": "Wie bearbeite ich mehrere Schüler auf einmal?",
         "a": "Hake in der Liste mehrere Schüler an: Der Inspektor rechts setzt dann Geschlecht, Körpergröße, Sprachniveau, soziale Rolle oder einzelne Merkmale für alle gemeinsam. Suche, Filter und Sortierung über der Liste helfen dir, schnell die passenden Schüler zu finden."
       },
+      "review": {
+        "q": "Warum fragt Klassenplan, ob die Merkmale noch stimmen?",
+        "a": "Merkmale beschreiben, wie sich ein Schüler gerade verhält – Kinder ändern sich. Jedes Merkmal merkt sich, wann es zuletzt geändert wurde. Sind die Merkmale einer Klasse zwölf Wochen lang unverändert, fragt der Sitzplan einmal nach: Du kannst zur Klassenliste gehen, mit „Passt noch“ bestätigen oder die Frage um eine Woche verschieben. Geändert wird nichts von selbst. Im Inspektor der Klasse siehst du, wann du die Merkmale zuletzt bestätigt hast."
+      },
       "demo": {
         "q": "Kann ich Klassenplan ohne echte Schülerdaten ausprobieren?",
         "a": "Ja. Solange noch keine Klasse existiert, lädst du sie auf der leeren Klassenseite über „Beispielklasse laden“; später findest du den Eintrag in der Werkzeugleiste unter „Klassenliste importieren“. Klassenplan legt dann eine eigene Klasse mit 24 erfundenen Schülern, gezeichneten Porträts und einem eingerichteten Klassenraum an; deine anderen Klassen bleiben unverändert. Gibt es die Beispielklasse schon, bringt dich derselbe Eintrag zu ihr. Löschen kannst du sie jederzeit über die Klassenauswahl."

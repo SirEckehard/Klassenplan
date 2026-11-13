@@ -321,6 +321,19 @@
     "neverAgain": "Stop reminding me",
     "faqLink": "Moving your data to a new device"
   },
+  "markerReview": {
+    "eyebrow": "Review markers",
+    "stale_one": "The markers of {{count}} student have not changed for more than {{weeks}} weeks.",
+    "stale_other": "The markers of {{count}} students have not changed for more than {{weeks}} weeks.",
+    "why": "Markers describe how someone behaves right now, and children change. Do they still hold?",
+    "review": "To the class list",
+    "confirm": "Still right",
+    "later": "Later",
+    "row": "Markers reviewed",
+    "rowHint": "After {{weeks}} weeks without a change, the seating plan asks whether the markers still hold.",
+    "never": "not yet",
+    "now": "Reviewed now"
+  },
   "mixButton": {
     "shortcut": "Mix (Ctrl/⌘+Enter)"
   },

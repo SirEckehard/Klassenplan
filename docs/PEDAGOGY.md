@@ -26,7 +26,7 @@ Theoretical background:
 
 **Recommendations for teachers:**
 
-- Review and update attributes regularly (at least once per school term)
+- Review and update attributes regularly (at least once per school term). The app helps: every marker carries the day it changed, and after twelve weeks without a change the plan layer asks whether a class's markers still hold ([decision 0044](decisions/0044-markers-carry-a-date.md))
 - Use attributes as a tool for seating-plan optimization, not as character descriptions of children
 - Reflect on attributes in student conversations where pedagogically appropriate
 

@@ -431,7 +431,13 @@ export function useSeatingGenerator() {
       );
       setActiveClass((previous) =>
         previous.id === record.id
-          ? { ...previous, name, label, notes }
+          ? {
+              ...previous,
+              name,
+              label,
+              notes,
+              markersReviewedAt: record.markersReviewedAt,
+            }
           : previous,
       );
     },

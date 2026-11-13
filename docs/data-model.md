@@ -70,6 +70,7 @@ interface ClassRecord {
   activePlanId?: string | null;
   rooms?: RoomRecord[]; // decision 0024
   activeRoomId?: string | null;
+  markersReviewedAt?: string; // YYYY-MM-DD, decision 0044
 }
 
 interface RoomRecord {
@@ -380,6 +381,11 @@ list is `PROJECT_LOCAL_STORAGE_KEYS` in `storageKeys.ts`. Groups:
   greeted on World Teachers' Day (`spg.teachersDayGreeted`).
 - **Backup reminder:** `spg.lastBackupAt`, `spg.backupDataSince`,
   `spg.backupReminderSnoozedUntil`, `spg.backupReminderDisabled`.
+- **Marker review:** `spg.markerReviewSnoozedUntil`, the day the question
+  whether a class's markers still hold may come again, by class id
+  ([decision 0044](decisions/0044-markers-carry-a-date.md)). A student's
+  `markersUpdatedAt` and a class's `markersReviewedAt` live in the class
+  record.
 - **Consent:** `cookieConsent`, `spg.photoConsentConfirmed`.
 - **Migration mirror:** `spg.migrationVersion`, a synchronous copy of the
   IndexedDB value so start-up can skip opening the database when nothing is

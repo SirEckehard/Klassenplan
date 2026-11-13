@@ -153,6 +153,8 @@ export function useSeatingPersistence(state: SeatingState) {
         label: record.label,
         notes: record.notes,
         lastUsedAt: record.lastUsedAt,
+        createdAt: record.createdAt,
+        markersReviewedAt: record.markersReviewedAt,
       };
     },
     [],

@@ -66,6 +66,8 @@ export interface ClassRecord {
   rooms?: RoomRecord[];
   /** The open room: the one whose state the working fields above hold. */
   activeRoomId?: string | null;
+  /** The day "Passt noch" was last pressed, `YYYY-MM-DD` (decision 0044). */
+  markersReviewedAt?: string;
 }
 
 // Re-export with proper ClassRecord[] typing
@@ -95,6 +97,7 @@ export type UpdateClassMetadataPayload = {
   name?: string;
   label?: string;
   notes?: string;
+  markersReviewedAt?: string;
 };
 
 export type ActiveClassState = {
@@ -103,6 +106,8 @@ export type ActiveClassState = {
   label?: string;
   notes?: string;
   lastUsedAt?: string;
+  createdAt?: string;
+  markersReviewedAt?: string;
 };
 
 export const DEFAULT_ACTIVE_CLASS: ActiveClassState = {

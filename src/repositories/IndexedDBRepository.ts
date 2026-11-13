@@ -605,6 +605,9 @@ export class IndexedDBRepository implements ISeatingPlanRepository {
           if (patch.notes !== undefined) {
             record.notes = patch.notes;
           }
+          if (patch.markersReviewedAt !== undefined) {
+            record.markersReviewedAt = patch.markersReviewedAt;
+          }
           this.touchClass(record);
           return cloneValue(record);
         }),

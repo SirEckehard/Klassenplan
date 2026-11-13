@@ -187,6 +187,10 @@
         "q": "How do I edit several students at once?",
         "a": "Tick several students in the list: the inspector on the right then sets gender, height, language level, social role or individual attributes for all of them at once. Search, filters and sorting above the list help you find the right students quickly."
       },
+      "review": {
+        "q": "Why does Klassenplan ask whether the markers still hold?",
+        "a": "Markers describe how a student behaves right now – and children change. Every marker remembers when it last changed. Once a class’s markers have stayed the same for twelve weeks, the seating plan asks once: you can go to the class list, confirm with \"Still right\" or put the question off for a week. Nothing changes by itself. The class’s inspector shows when you last confirmed the markers."
+      },
       "demo": {
         "q": "Can I try Klassenplan without real student data?",
         "a": "Yes. As long as no class exists, load it from the empty class page with “Load sample class”; later you find the entry in the toolbar under “Import class list”. Klassenplan then creates a class of its own with 24 invented students, drawn portraits and a furnished classroom; your other classes stay untouched. If the sample class already exists, the same entry takes you to it. You can delete it at any time from the class switcher."
