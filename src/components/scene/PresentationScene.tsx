@@ -26,6 +26,8 @@ import {
   type PresentationPerspective,
 } from '@/utils/ui/boardOrientation';
 import BadgeTooltipLayer from '@/components/scene/BadgeTooltip';
+import { useTapGesture } from '@/hooks/ui/useDragGesture';
+import { occupiedSeatShapes, seatAtPoint } from '@/utils/ui/presentationSeats';
 import type { SeatBadgeView } from '@/utils/ui/seatBadges';
 import PresentationSpotlight, {
   presentationGroupTransform,
@@ -83,6 +85,13 @@ type PresentationSceneProps = {
    * flattens the warm neutrals the interface is built from.
    */
   contrast?: boolean;
+  /**
+   * The students missing today (decision 0045): their seats stay and are
+   * veiled, so the room still reads as it is set.
+   */
+  absentIds?: ReadonlySet<string>;
+  /** A tap on an occupied seat, telling apart a tap from a pan. */
+  onSeatTap?: (studentId: string) => void;
 };
 
 /** Padding around the classroom so seat photos docking outside seats aren't clipped. */
@@ -105,6 +114,8 @@ export default function PresentationScene({
   spotlight = null,
   spotlightDims = true,
   contrast = false,
+  absentIds,
+  onSeatTap,
 }: PresentationSceneProps) {
   // Contrast mode brings its own palette, so the theme stands down; what is
   // left of the plan is the seats, the names and the room's outline.
@@ -129,6 +140,31 @@ export default function PresentationScene({
   const groupTransform = presentationGroupTransform(frame);
 
   const svgRef = React.useRef<SVGSVGElement | null>(null);
+  const groupRef = React.useRef<SVGGElement | null>(null);
+  const seatShapes = React.useMemo(
+    () => occupiedSeatShapes(scene, seating),
+    [scene, seating],
+  );
+  const beginTap = useTapGesture();
+  // The seat under the finger, found by where the press lands in the room's
+  // own coordinates: the seats of the projection carry no targets of their
+  // own, and a layer of them would take the hover from the badges.
+  const handlePointerDown = onSeatTap
+    ? (event: React.PointerEvent<SVGSVGElement>) => {
+        const matrix = groupRef.current?.getScreenCTM?.();
+        if (!matrix) return;
+        const point = new DOMPoint(
+          event.clientX,
+          event.clientY,
+        ).matrixTransform(matrix.inverse());
+        const seat = seatAtPoint(seatShapes, point);
+        if (seat) beginTap(event, () => onSeatTap(seat.studentId));
+      }
+    : undefined;
+  const absentSeats =
+    absentIds && absentIds.size > 0
+      ? seatShapes.filter((shape) => absentIds.has(shape.studentId))
+      : [];
   const photoDisplayMode =
     perspective === 'teacher' && showPhotos && !contrast ? 'all' : 'off';
   const showSpecialNeeds = perspective === 'teacher' && showBadges && !contrast;
@@ -247,8 +283,9 @@ export default function PresentationScene({
           transform: `translate(${panX}px, ${panY}px) scale(${zoom})`,
           transformOrigin: 'center',
         }}
+        onPointerDown={handlePointerDown}
       >
-        <g transform={groupTransform}>
+        <g ref={groupRef} transform={groupTransform}>
           {featureViewModels.map(({ feature, styles }) => (
             <FeatureShape
               key={feature.id}
@@ -281,6 +318,24 @@ export default function PresentationScene({
               seatHighlights={
                 spotlitTableIndex === index ? spotlightLookup : null
               }
+            />
+          ))}
+          {/* A veil of the page over the seat of a student missing today,
+              never in the way of a pointer. */}
+          {absentSeats.map((shape) => (
+            <rect
+              key={`${shape.tableIndex}-${shape.seatIndex}`}
+              x={shape.x - shape.width / 2}
+              y={shape.y - shape.height / 2}
+              width={shape.width}
+              height={shape.height}
+              transform={`rotate(${shape.rotation} ${shape.x} ${shape.y})`}
+              style={{
+                fill: contrast ? '#ffffff' : 'var(--surface-page)',
+                fillOpacity: 0.72,
+              }}
+              pointerEvents="none"
+              data-absent={shape.studentId}
             />
           ))}
         </g>

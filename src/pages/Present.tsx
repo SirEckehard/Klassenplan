@@ -22,7 +22,9 @@ import { useEdgeReveal } from '@/hooks/ui/useEdgeReveal';
 import { useRandomStudentPicker } from '@/hooks/ui/useRandomStudentPicker';
 import { useEnsureCircleLayout } from '@/hooks/circle/useEnsureCircleLayout';
 import { useSeatingPlanState } from '@/contexts/SeatingPlanContext';
+import { clearAbsent, toggleAbsent, useAbsentIds } from '@/stores/absenceStore';
 import {
+  announce,
   hasPlanForScene,
   iconButtonClass,
   LOCAL_STORAGE_KEYS,
@@ -184,8 +186,30 @@ export default function Present() {
   );
   // A plan for tables the room no longer has is not drawn, so nobody is
   // drawn from it either.
+  // Who is missing today (decision 0045): a tap on the seat, kept for the
+  // day in memory alone; the draw leaves them out.
+  const classId = activeClass.id;
+  const absentIds = useAbsentIds(classId);
   const picker = useRandomStudentPicker(
     mode === 'circle' ? circleSeating : hasPlan ? currentSeating : NO_SEATING,
+    undefined,
+    absentIds,
+  );
+  const toggleMissing = useCallback(
+    (studentId: string) => {
+      if (!classId) return;
+      const name = students.find((student) => student.id === studentId)?.name;
+      const wasMissing = absentIds.has(studentId);
+      toggleAbsent(classId, studentId);
+      if (name) {
+        announce(
+          t(wasMissing ? 'present.absent.back' : 'present.absent.marked', {
+            name,
+          }),
+        );
+      }
+    },
+    [absentIds, classId, students, t],
   );
 
   const backToPlan = useBackToWorkspace(
@@ -360,6 +384,8 @@ export default function Present() {
               panY={pan.y}
               isDark={isDark}
               contrast={contrast}
+              absentIds={absentIds}
+              onSeatTap={classId ? toggleMissing : undefined}
               spotlight={
                 picker.picked
                   ? {
@@ -426,6 +452,8 @@ export default function Present() {
               nameDisplay={currentNameDisplay}
               onCycleNameDisplay={cycleNameDisplay}
               onPick={picker.total > 0 ? picker.pick : undefined}
+              absentCount={absentIds.size}
+              onClearAbsent={classId ? () => clearAbsent(classId) : undefined}
               onOpenGroups={() => openTool('/gruppen')}
               onOpenDuties={() => openTool('/dienste')}
               zoom={zoom}

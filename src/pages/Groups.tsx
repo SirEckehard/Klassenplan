@@ -6,6 +6,7 @@ import { DiceThreeIcon, WarningIcon } from '@phosphor-icons/react';
 import ToolPage, { ToolEmptyState } from '@/components/tools/ToolPage';
 import { PAGE_HELP_TOPICS } from '@/components/help/pageHelpTopics';
 import { useSeatingPlanState } from '@/contexts/SeatingPlanContext';
+import { useAbsentIds } from '@/stores/absenceStore';
 import { buildGroups, primaryButtonClass, type GroupDrawResult } from '@/utils';
 
 /** Group sizes a lesson actually asks for; two is a pair, six is a table. */
@@ -30,9 +31,16 @@ export default function Groups() {
   } | null>(null);
   const draw = lastDraw?.classId === activeClass.id ? lastDraw.result : null;
 
+  // Who was marked as missing today in the projection joins no group
+  // (decision 0045).
+  const absentIds = useAbsentIds(activeClass.id);
   const named = React.useMemo(
-    () => students.filter((student) => student.name.trim().length > 0),
-    [students],
+    () =>
+      students.filter(
+        (student) =>
+          student.name.trim().length > 0 && !absentIds.has(student.id),
+      ),
+    [students, absentIds],
   );
 
   const roll = React.useCallback(
@@ -49,7 +57,11 @@ export default function Groups() {
     <ToolPage
       route="/gruppen"
       title={t('tools.groups.title')}
-      subtitle={activeClass.name}
+      subtitle={
+        absentIds.size > 0
+          ? `${activeClass.name} · ${t('present.absent.count', { count: absentIds.size })}`
+          : activeClass.name
+      }
       help={PAGE_HELP_TOPICS.groups}
       footer={
         named.length > 0 ? (

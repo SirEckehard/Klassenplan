@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ### Added
 
 - A student can need the seat beside them free, and left-handers sit with nobody writing right-handed to their left
+- In the presentation, a tap on a seat marks who is missing today; "Who's next?" and "Build groups" leave them out
 - After twelve weeks without a change, the seating plan asks whether a class's markers still hold
 
 ### Improved

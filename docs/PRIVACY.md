@@ -33,6 +33,10 @@ Data leaves the browser only as a file the teacher exports.
 | Backup file                                                                                                                                                                                                          | Wherever the teacher saves it                 | Until the teacher deletes it                                               | Only with the password                                                                                                                                                               |
 | PDF, PNG, SVG, print and CSV exports                                                                                                                                                                                 | Wherever the teacher saves or prints them     | Until the teacher deletes them                                             | To anyone who gets the file — **not encrypted**                                                                                                                                      |
 
+Who is missing today, marked by a tap in the projection, is kept in the open
+page for the day and never stored
+([decision 0045](decisions/0045-missing-today.md)).
+
 Storage details, versions and the exact deletion paths are in
 [data-model.md](data-model.md).
 

@@ -12,6 +12,7 @@ import {
   DoorOpenIcon,
   GridNineIcon,
   HandPointingIcon,
+  UserMinusIcon,
   ImageIcon,
   PaletteIcon,
   StudentIcon,
@@ -176,6 +177,10 @@ type PresentationToolbarProps = {
   onCycleNameDisplay: () => void;
   /** Absent while there is nobody to draw (an empty circle, no seats). */
   onPick?: () => void;
+  /** How many are marked as missing today (decision 0045). */
+  absentCount?: number;
+  /** "Alle da": everybody is back. */
+  onClearAbsent?: () => void;
   /** Absent until the groups view exists for this class. */
   onOpenGroups?: () => void;
   /** Absent until the duties view exists for this class. */
@@ -210,6 +215,8 @@ export default function PresentationToolbar({
   nameDisplay,
   onCycleNameDisplay,
   onPick,
+  absentCount = 0,
+  onClearAbsent,
   onOpenGroups,
   onOpenDuties,
   zoom,
@@ -287,6 +294,17 @@ export default function PresentationToolbar({
             >
               <HandPointingIcon size={18} aria-hidden />
               <span>{t('present.pick')}</span>
+            </button>
+          )}
+          {absentCount > 0 && onClearAbsent && (
+            <button
+              type="button"
+              onClick={onClearAbsent}
+              title={t('present.absent.clearTitle')}
+              className={`${barIconButtonClass} ${quietClass} px-3`}
+            >
+              <UserMinusIcon size={18} aria-hidden />
+              <span>{t('present.absent.count', { count: absentCount })}</span>
             </button>
           )}
           {onOpenGroups && (

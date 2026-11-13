@@ -10,6 +10,7 @@ import {
   EyeIcon,
   FloppyDiskIcon,
   HandPointingIcon,
+  UserMinusIcon,
   HeartBreakIcon,
   ImagesIcon,
   MagnifyingGlassIcon,
@@ -35,6 +36,7 @@ export const PAGE_HELP_TOPICS = {
     { key: 'help.present.contrast', icon: SunIcon },
     { key: 'help.present.size', icon: MagnifyingGlassPlusIcon },
     { key: 'help.present.pick', icon: HandPointingIcon },
+    { key: 'help.present.absent', icon: UserMinusIcon },
     { key: 'help.present.fullscreen', icon: ArrowsOutIcon },
   ],
   whoIsNext: [

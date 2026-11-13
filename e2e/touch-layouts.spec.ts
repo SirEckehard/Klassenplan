@@ -671,5 +671,19 @@ test(
       // tables they take most of it.
       expect(bottom - top).toBeGreaterThan(1080 * 0.55);
     });
+
+    await test.step('a tap marks who is missing today, "Alle da" undoes it', async () => {
+      // Decision 0045: the seat stays and is veiled; nothing is stored.
+      const name = page.locator('svg g[data-table-index] text').first();
+      const box = await boxOf(name);
+      await page.touchscreen.tap(box.x + box.width / 2, box.y + box.height / 2);
+      await expect(page.locator('svg [data-absent]')).toHaveCount(1);
+      const chip = page.getByRole('button', { name: '1 fehlt heute' });
+      await expect(chip).toBeVisible();
+
+      await chip.click();
+      await expect(page.locator('svg [data-absent]')).toHaveCount(0);
+      await expect(chip).toHaveCount(0);
+    });
   },
 );

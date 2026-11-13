@@ -100,3 +100,36 @@ describe('useRandomStudentPicker', () => {
     expect(result.current.total).toBe(0);
   });
 });
+
+// Decision 0045: who is missing today is never drawn, and marking someone
+// keeps the round as it was.
+describe('useRandomStudentPicker with students missing today', () => {
+  it('never draws a student missing today', () => {
+    const absent = new Set(['a', 'b']);
+    const { result } = renderHook(() =>
+      useRandomStudentPicker(seating, [], absent),
+    );
+
+    expect(result.current.total).toBe(1);
+    for (let draw = 0; draw < 5; draw++) {
+      act(() => result.current.pick());
+      expect(result.current.picked?.student.id).toBe('c');
+    }
+  });
+
+  it('keeps who had a turn when someone is marked', () => {
+    vi.spyOn(Math, 'random').mockReturnValue(0);
+    const { result, rerender } = renderHook(
+      ({ absent }) => useRandomStudentPicker(seating, [], absent),
+      { initialProps: { absent: new Set<string>() as ReadonlySet<string> } },
+    );
+    act(() => result.current.pick());
+    const first = result.current.picked!.student.id;
+
+    rerender({ absent: new Set(['c']) });
+
+    expect(result.current.recent.map((student) => student.id)).toEqual([first]);
+    expect(result.current.total).toBe(2);
+    expect(result.current.remaining).toBe(1);
+  });
+});

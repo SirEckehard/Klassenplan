@@ -145,6 +145,10 @@
         "title": "Who's next?",
         "body": "Draws a random student and spotlights their seat – everyone gets a turn before anyone repeats."
       },
+      "absent": {
+        "title": "Missing today",
+        "body": "Tap a seat when someone is missing: the seat fades, and \"Who’s next?\" and \"Build groups\" leave them out. It lasts for today and is never stored."
+      },
       "fullscreen": {
         "title": "Fullscreen",
         "body": "The bar at the bottom slides away; point at or tap the bottom edge to bring it back."
@@ -239,7 +243,14 @@
     "groups": "Build groups",
     "groupsTitle": "Draw groups from this class",
     "duties": "Duties",
-    "dutiesTitle": "Hand out this class’s duties"
+    "dutiesTitle": "Hand out this class’s duties",
+    "absent": {
+      "marked": "{{name}} is missing today.",
+      "back": "{{name}} is back.",
+      "count_one": "{{count}} missing today",
+      "count_other": "{{count}} missing today",
+      "clearTitle": "Everybody is back – the marks last for today only and are never stored"
+    }
   },
   "mode": {
     "table": "Seating Plan",

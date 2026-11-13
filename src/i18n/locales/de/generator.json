@@ -145,6 +145,10 @@
         "title": "Wer kommt dran?",
         "body": "Zieht einen zufälligen Schüler und hebt seinen Platz hervor – jeder kommt einmal dran, bevor sich jemand wiederholt."
       },
+      "absent": {
+        "title": "Heute fehlt",
+        "body": "Tippe auf einen Platz, wenn jemand fehlt: Der Platz wird blass, „Wer kommt dran?“ und „Gruppen bilden“ lassen die Person aus. Gilt nur heute und wird nicht gespeichert."
+      },
       "fullscreen": {
         "title": "Vollbild",
         "body": "Die Leiste unten blendet sich aus; zeige oder tippe an den unteren Rand, um sie zurückzuholen."
@@ -239,7 +243,14 @@
     "groups": "Gruppen bilden",
     "groupsTitle": "Aus dieser Klasse Gruppen ziehen",
     "duties": "Dienste",
-    "dutiesTitle": "Dienste dieser Klasse verteilen"
+    "dutiesTitle": "Dienste dieser Klasse verteilen",
+    "absent": {
+      "marked": "{{name}} fehlt heute.",
+      "back": "{{name}} ist wieder da.",
+      "count_one": "{{count}} fehlt heute",
+      "count_other": "{{count}} fehlen heute",
+      "clearTitle": "Alle wieder da – die Markierungen gelten nur heute und werden nicht gespeichert"
+    }
   },
   "mode": {
     "table": "Sitzplan",

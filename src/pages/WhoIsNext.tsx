@@ -14,6 +14,7 @@ import PresentationScene from '@/components/scene/PresentationScene';
 import SimpleCircleView from '@/components/circle/SimpleCircleView';
 import StudentAvatar from '@/components/students/StudentAvatar';
 import { useSeatingPlanState } from '@/contexts/SeatingPlanContext';
+import { useAbsentIds } from '@/stores/absenceStore';
 import { useRandomStudentPicker } from '@/hooks/ui/useRandomStudentPicker';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { useIsDarkMode } from '@/hooks/useIsDarkMode';
@@ -71,9 +72,13 @@ export default function WhoIsNext() {
   const tableSeating = hasPlanForScene(classroomScene, currentSeating)
     ? currentSeating
     : NO_SEATING;
+  // Who was marked as missing today in the projection is not drawn
+  // (decision 0045).
+  const absentIds = useAbsentIds(activeClass.id);
   const picker = useRandomStudentPicker(
     usesCircle ? circleSeating : tableSeating,
     students,
+    absentIds,
   );
   const picked = picker.picked;
 
@@ -99,7 +104,11 @@ export default function WhoIsNext() {
     <ToolPage
       route="/wer-kommt-dran"
       title={t('tools.whoIsNext.title')}
-      subtitle={activeClass.name}
+      subtitle={
+        absentIds.size > 0
+          ? `${activeClass.name} · ${t('present.absent.count', { count: absentIds.size })}`
+          : activeClass.name
+      }
       help={PAGE_HELP_TOPICS.whoIsNext}
       footer={
         picker.total > 0 ? (

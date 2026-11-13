@@ -32,6 +32,8 @@ export interface RandomStudentPicker {
 
 type SeatEntry = PickedStudent;
 
+const NOBODY_ABSENT: ReadonlySet<string> = new Set();
+
 /**
  * "Who's next?" — draws a random seated student.
  *
@@ -46,6 +48,11 @@ export function useRandomStudentPicker(
    * on somebody, and on a phone there may be no plan at all.
    */
   fallbackStudents: Student[] = [],
+  /**
+   * Students missing today (decision 0045): never drawn, and not counted as
+   * waiting. Marking one keeps the round — who had a turn stays so.
+   */
+  absentIds: ReadonlySet<string> = NOBODY_ABSENT,
 ): RandomStudentPicker {
   const seatedStudents = React.useMemo<SeatEntry[]>(() => {
     const entries: SeatEntry[] = [];
@@ -98,14 +105,17 @@ export function useRandomStudentPicker(
         if (skippedId) {
           drawn.delete(skippedId);
         }
-        const pool = seatedStudents.filter(
+        const present = seatedStudents.filter(
+          (entry) => !absentIds.has(entry.student.id),
+        );
+        const pool = present.filter(
           (entry) =>
             !drawn.has(entry.student.id) && entry.student.id !== skippedId,
         );
         // Round complete → start the next one with the full class.
         const exhausted = pool.length === 0;
         const candidates = exhausted
-          ? seatedStudents.filter((entry) => entry.student.id !== skippedId)
+          ? present.filter((entry) => entry.student.id !== skippedId)
           : pool;
         if (candidates.length === 0) {
           return previous;
@@ -129,7 +139,7 @@ export function useRandomStudentPicker(
         };
       });
     },
-    [seatedStudents],
+    [seatedStudents, absentIds],
   );
 
   const pick = React.useCallback(() => draw(), [draw]);
@@ -142,10 +152,14 @@ export function useRandomStudentPicker(
     setRound({ picked: null, drawn: new Set(), history: [] });
   }, []);
 
+  const present = seatedStudents.filter(
+    (entry) => !absentIds.has(entry.student.id),
+  );
   return {
     picked: round.picked,
-    remaining: Math.max(seatedStudents.length - round.drawn.size, 0),
-    total: seatedStudents.length,
+    remaining: present.filter((entry) => !round.drawn.has(entry.student.id))
+      .length,
+    total: present.length,
     pick,
     skip,
     reset,

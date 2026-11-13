@@ -417,7 +417,7 @@
       "description": "Digitale Tafel, Sitzkreis, Ausdruck und Werkzeuge für den Unterricht.",
       "present": {
         "q": "Wie funktioniert der Präsentiermodus?",
-        "a": "„Präsentieren“ rechts in der Statusleiste – auf dem Handy in der Werkzeugleiste – zeigt den Sitzplan oder Sitzkreis groß an der digitalen Tafel. Alle Bedienelemente liegen in einer Leiste unter dem Plan: Lehrer- oder Schüleransicht (sie dreht den Plan aus Sicht der Klasse), Plan oder Kreis, Fotos, Farben, Raumelemente, ein Kontrastmodus für helle Räume und die Größe. Im Vollbild (Taste F) verschwindet die Leiste und erscheint wieder, sobald du mit dem Zeiger an den unteren Rand fährst oder dort tippst."
+        "a": "„Präsentieren“ rechts in der Statusleiste – auf dem Handy in der Werkzeugleiste – zeigt den Sitzplan oder Sitzkreis groß an der digitalen Tafel. Alle Bedienelemente liegen in einer Leiste unter dem Plan: Lehrer- oder Schüleransicht (sie dreht den Plan aus Sicht der Klasse), Plan oder Kreis, Fotos, Farben, Raumelemente, ein Kontrastmodus für helle Räume und die Größe. Im Vollbild (Taste F) verschwindet die Leiste und erscheint wieder, sobald du mit dem Zeiger an den unteren Rand fährst oder dort tippst. Fehlt jemand, tippe auf seinen Platz: Er wird blass, und „Wer kommt dran?“ wie „Gruppen bilden“ lassen ihn aus. Das gilt nur heute und wird nicht gespeichert."
       },
       "tools": {
         "q": "Was sind „Wer kommt dran?“, „Wo sitzt wer?“, „Gruppen bilden“ und „Dienste verteilen“?",

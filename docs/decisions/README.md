@@ -11,52 +11,53 @@ it says so instead of reconstructing one.
 
 ## Records
 
-| No.                                                  | Decision                                                       |
-| ---------------------------------------------------- | -------------------------------------------------------------- |
-| [0001](0001-offline-first-no-server.md)              | Offline-first: no server, no account                           |
-| [0002](0002-single-indexeddb-entry-point.md)         | One IndexedDB entry point, repositories return a `Result`      |
-| [0003](0003-algorithm-in-a-web-worker.md)            | The algorithm runs in a web worker with one implementation     |
-| [0004](0004-simulated-annealing-default.md)          | Simulated annealing as the app's refinement default            |
-| [0005](0005-xstate-for-canvas-interaction.md)        | State machines for canvas pointer and keyboard input           |
-| [0006](0006-svg-scene-fixed-coordinates.md)          | SVG scene with a fixed 900 × 600 coordinate system             |
-| [0007](0007-prerender-instead-of-ssr.md)             | Prerendered HTML instead of server-side rendering              |
-| [0008](0008-no-telemetry.md)                         | No telemetry, no remote logging                                |
-| [0009](0009-prompt-update-model.md)                  | Service worker updates only after confirmation                 |
-| [0010](0010-plan-usage-from-actions.md)              | Plan usage is derived from actions, not asked for              |
-| [0011](0011-english-under-en-on-de-domain.md)        | English under `/en` on the `.de` domain                        |
-| [0012](0012-legal-pages-for-self-hosted-builds.md)   | Operators link their own legal pages at build time             |
-| [0013](0013-one-performance-criterion.md)            | One performance criterion at a time                            |
-| [0014](0014-mix-history-records-refined-plan.md)     | The mix history records the refined plan (superseded)          |
-| [0015](0015-onboarding-sample-class-and-tour.md)     | A sample class and coach marks for the first visit             |
-| [0016](0016-hidden-criteria-carry-no-weight.md)      | Criteria the class has no data for carry no weight             |
-| [0017](0017-seats-are-paper-and-ink.md)              | A seat is paper and ink, not a gender colour (superseded)      |
-| [0018](0018-criteria-in-words-with-recipes.md)       | The criteria are set in words, and a recipe sets them all      |
-| [0019](0019-classroom-tools-as-routes.md)            | The three classroom tools are routes, not panels               |
-| [0020](0020-gender-tint-on-seats.md)                 | Seats carry a quiet gender tint again                          |
-| [0021](0021-seat-badges-explained.md)                | The badges on a seat explain themselves                        |
-| [0022](0022-one-drag-for-plan-and-circle.md)         | One drag for the plan and the circle, locks in the circle      |
-| [0023](0023-neighbourhood-reset.md)                  | The neighbourhoods can be reset in one click                   |
-| [0024](0024-rooms-of-a-class.md)                     | A class keeps its rooms, and "Bibliothek" shows them           |
-| [0025](0025-plan-usage-marked-by-hand.md)            | The plans in use can be marked by hand instead of detected     |
-| [0026](0026-tables-out-of-the-mix.md)                | Tables can be taken out of the mix, rooms fill from the front  |
-| [0027](0027-one-mix-session.md)                      | A mix is one session: construction and refinement agree        |
-| [0028](0028-duties-remembered-per-class.md)          | Class duties go round and are remembered per class             |
-| [0029](0029-one-address-per-page.md)                 | One address per page, every other spelling redirects for good  |
-| [0030](0030-class-file.md)                           | A class can be saved to a file and opened from one (proposed)  |
-| [0031](0031-one-criterion-model.md)                  | One criterion model for mixing, fulfilment and highlights      |
-| [0032](0032-repetition-reads-plans-in-use.md)        | Repetition counts the plans in use, never a mix                |
-| [0033](0033-wishes-take-turns.md)                    | Wishes take turns, friends who wish each other hold longer     |
-| [0034](0034-substitute-sheet.md)                     | A sheet for the substitute, with names and nothing else        |
-| [0035](0035-seats-stored-by-id.md)                   | Stored seats name their students by id                         |
-| [0036](0036-tables-carry-ids.md)                     | Tables carry ids, and locks name their table by id             |
-| [0037](0037-messages-where-they-belong.md)           | Fewer toasts, and the rest over the stage                      |
-| [0038](0038-own-mixing-presets.md)                   | Presets of one's own, and the shipped ones changeable          |
-| [0039](0039-one-head-on-every-page.md)               | One head on every page, the way back beside the page's bar     |
-| [0040](0040-the-logo-takes-its-seats.md)             | The logo takes its seats, and runs to its end                  |
-| [0041](0041-questions-where-they-belong.md)          | A question stands as near its button as it can                 |
-| [0042](0042-contributor-licence-agreement.md)        | Contributions come in under a licence agreement                |
-| [0043](0043-free-neighbour-seat-and-left-handers.md) | A free seat beside, and the left-hander's left                 |
-| [0044](0044-markers-carry-a-date.md)                 | Markers carry a date, and the app asks whether they still hold |
+| No.                                                  | Decision                                                        |
+| ---------------------------------------------------- | --------------------------------------------------------------- |
+| [0001](0001-offline-first-no-server.md)              | Offline-first: no server, no account                            |
+| [0002](0002-single-indexeddb-entry-point.md)         | One IndexedDB entry point, repositories return a `Result`       |
+| [0003](0003-algorithm-in-a-web-worker.md)            | The algorithm runs in a web worker with one implementation      |
+| [0004](0004-simulated-annealing-default.md)          | Simulated annealing as the app's refinement default             |
+| [0005](0005-xstate-for-canvas-interaction.md)        | State machines for canvas pointer and keyboard input            |
+| [0006](0006-svg-scene-fixed-coordinates.md)          | SVG scene with a fixed 900 × 600 coordinate system              |
+| [0007](0007-prerender-instead-of-ssr.md)             | Prerendered HTML instead of server-side rendering               |
+| [0008](0008-no-telemetry.md)                         | No telemetry, no remote logging                                 |
+| [0009](0009-prompt-update-model.md)                  | Service worker updates only after confirmation                  |
+| [0010](0010-plan-usage-from-actions.md)              | Plan usage is derived from actions, not asked for               |
+| [0011](0011-english-under-en-on-de-domain.md)        | English under `/en` on the `.de` domain                         |
+| [0012](0012-legal-pages-for-self-hosted-builds.md)   | Operators link their own legal pages at build time              |
+| [0013](0013-one-performance-criterion.md)            | One performance criterion at a time                             |
+| [0014](0014-mix-history-records-refined-plan.md)     | The mix history records the refined plan (superseded)           |
+| [0015](0015-onboarding-sample-class-and-tour.md)     | A sample class and coach marks for the first visit              |
+| [0016](0016-hidden-criteria-carry-no-weight.md)      | Criteria the class has no data for carry no weight              |
+| [0017](0017-seats-are-paper-and-ink.md)              | A seat is paper and ink, not a gender colour (superseded)       |
+| [0018](0018-criteria-in-words-with-recipes.md)       | The criteria are set in words, and a recipe sets them all       |
+| [0019](0019-classroom-tools-as-routes.md)            | The three classroom tools are routes, not panels                |
+| [0020](0020-gender-tint-on-seats.md)                 | Seats carry a quiet gender tint again                           |
+| [0021](0021-seat-badges-explained.md)                | The badges on a seat explain themselves                         |
+| [0022](0022-one-drag-for-plan-and-circle.md)         | One drag for the plan and the circle, locks in the circle       |
+| [0023](0023-neighbourhood-reset.md)                  | The neighbourhoods can be reset in one click                    |
+| [0024](0024-rooms-of-a-class.md)                     | A class keeps its rooms, and "Bibliothek" shows them            |
+| [0025](0025-plan-usage-marked-by-hand.md)            | The plans in use can be marked by hand instead of detected      |
+| [0026](0026-tables-out-of-the-mix.md)                | Tables can be taken out of the mix, rooms fill from the front   |
+| [0027](0027-one-mix-session.md)                      | A mix is one session: construction and refinement agree         |
+| [0028](0028-duties-remembered-per-class.md)          | Class duties go round and are remembered per class              |
+| [0029](0029-one-address-per-page.md)                 | One address per page, every other spelling redirects for good   |
+| [0030](0030-class-file.md)                           | A class can be saved to a file and opened from one (proposed)   |
+| [0031](0031-one-criterion-model.md)                  | One criterion model for mixing, fulfilment and highlights       |
+| [0032](0032-repetition-reads-plans-in-use.md)        | Repetition counts the plans in use, never a mix                 |
+| [0033](0033-wishes-take-turns.md)                    | Wishes take turns, friends who wish each other hold longer      |
+| [0034](0034-substitute-sheet.md)                     | A sheet for the substitute, with names and nothing else         |
+| [0035](0035-seats-stored-by-id.md)                   | Stored seats name their students by id                          |
+| [0036](0036-tables-carry-ids.md)                     | Tables carry ids, and locks name their table by id              |
+| [0037](0037-messages-where-they-belong.md)           | Fewer toasts, and the rest over the stage                       |
+| [0038](0038-own-mixing-presets.md)                   | Presets of one's own, and the shipped ones changeable           |
+| [0039](0039-one-head-on-every-page.md)               | One head on every page, the way back beside the page's bar      |
+| [0040](0040-the-logo-takes-its-seats.md)             | The logo takes its seats, and runs to its end                   |
+| [0041](0041-questions-where-they-belong.md)          | A question stands as near its button as it can                  |
+| [0042](0042-contributor-licence-agreement.md)        | Contributions come in under a licence agreement                 |
+| [0043](0043-free-neighbour-seat-and-left-handers.md) | A free seat beside, and the left-hander's left                  |
+| [0044](0044-markers-carry-a-date.md)                 | Markers carry a date, and the app asks whether they still hold  |
+| [0045](0045-missing-today.md)                        | Who is missing today, marked in the projection and never stored |
 
 ## Reasons still to be recorded
 

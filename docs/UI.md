@@ -908,7 +908,12 @@ afterwards.
   the name game's statistics — and are reachable from "Klassenwerkzeuge" at the
   foot of every toolbar ("Gruppen bilden" and "Dienste verteilen" also from the
   projection's bar); their way back goes through the history, so it returns to
-  where they were opened from — the projection in the view it was left in. While
+  where they were opened from — the projection in the view it was left in. A
+  tap on a seat in the projection marks its student as missing today: the seat
+  is veiled, the bar counts them ("2 fehlen heute", a press brings everybody
+  back), the draws and the groups leave them out and say so under their title,
+  and nothing is stored — a new day or a reload starts with everybody there
+  (`absenceStore`, decision 0045). While
   the class sits in the circle, "Wer kommt dran?" draws from the circle and
   names who sits on either side (`findCircleLocation`) instead of a table; under
   the name it shows the plan or the circle, there before the first draw, with
