@@ -562,8 +562,9 @@ export default function FAQ() {
     <PublicPage bannerLabel={t('faq.header.ariaOverview')}>
       <Seo {...metadata} structuredData={faqStructuredData} />
       {/* The same columns as the page below: the title over the contents,
-            the note on what a seating plan can do over the questions. */}
-      <div className="grid gap-8 pt-4 pb-10 lg:grid-cols-12 lg:items-start lg:gap-12 lg:pb-14">
+            the note on what a seating plan can do over the questions, level
+            with the title's middle rather than hanging from its top. */}
+      <div className="grid gap-8 pt-4 pb-10 lg:grid-cols-12 lg:items-center lg:gap-12 lg:pb-14">
         <div className="lg:col-span-4">
           <p className={pageEyebrowClass}>{t('faq.header.eyebrow')}</p>
           <h1 className={pageTitleClass}>{t('faq.header.title')}</h1>
@@ -571,26 +572,31 @@ export default function FAQ() {
             {t('faq.header.subtitle')}
           </p>
         </div>
+        {/* The icon stands in a column of its own, beside the title's first
+            line: the title and the text under it share one left edge, on a
+            phone, where the title takes two lines, as on a wide screen. */}
         <aside
           aria-labelledby="faq-disclaimer-title"
-          className="rounded-(--radius-card) bg-(--surface-sunken) p-5 sm:p-6 lg:col-span-8"
+          className="flex gap-3 rounded-(--radius-card) bg-(--surface-sunken) p-5 sm:p-6 lg:col-span-8"
         >
-          <h2
-            id="faq-disclaimer-title"
-            className="flex items-center gap-2 font-semibold text-(--text-page)"
-          >
-            <BookOpenIcon
-              size={18}
-              aria-hidden="true"
-              className="shrink-0 text-(--text-muted)"
-            />
-            {t('faq.disclaimer.title')}
-          </h2>
-          <div className="mt-2 space-y-2 text-(--text-muted)">
-            <p>{t('faq.disclaimer.body')}</p>
-            <p className="text-sm font-medium text-(--text-page)">
-              {t('faq.disclaimer.callToAction')}
-            </p>
+          <BookOpenIcon
+            size={20}
+            aria-hidden="true"
+            className="mt-0.5 shrink-0 text-(--text-muted)"
+          />
+          <div className="min-w-0">
+            <h2
+              id="faq-disclaimer-title"
+              className="font-semibold text-pretty text-(--text-page)"
+            >
+              {t('faq.disclaimer.title')}
+            </h2>
+            <div className="mt-2 space-y-2 text-pretty text-(--text-muted)">
+              <p>{t('faq.disclaimer.body')}</p>
+              <p className="text-sm font-medium text-(--text-page)">
+                {t('faq.disclaimer.callToAction')}
+              </p>
+            </div>
           </div>
         </aside>
       </div>
