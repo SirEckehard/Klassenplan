@@ -59,7 +59,7 @@ const CookieConsent: React.FC = () => {
       return false;
     }
   });
-  const bannerRef = useRef<HTMLDivElement | null>(null);
+  const bannerRef = useRef<HTMLElement | null>(null);
 
   function handleAccept() {
     // Store acknowledgment and hide the banner
@@ -122,9 +122,11 @@ const CookieConsent: React.FC = () => {
     return null;
   }
 
+  // A landmark of its own, so a screen reader finds it beside the page's.
   return (
-    <div
+    <section
       ref={bannerRef}
+      aria-label={t('cookieConsent.label')}
       className="fixed bottom-0 inset-x-0 bg-(--surface-sunken) text-(--text-page) p-4 shadow-lg z-50"
       style={{ paddingBottom: 'calc(1rem + env(safe-area-inset-bottom))' }}
     >
@@ -149,7 +151,7 @@ const CookieConsent: React.FC = () => {
           </button>
         </div>
       </div>
-    </div>
+    </section>
   );
 };
 

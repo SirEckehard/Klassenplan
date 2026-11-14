@@ -359,6 +359,7 @@
     "shortcut": "Mischen (Strg/⌘+Eingabetaste)"
   },
   "cookieConsent": {
+    "label": "Hinweis zur Speicherung",
     "message": "Diese Website speichert notwendige Informationen lokal in deinem Browser. Es werden keine Cookies verwendet und keine Daten an Server übertragen. Weitere Informationen findest du in der",
     "privacyLink": "Datenschutzerklärung",
     "accept": "Verstanden"

@@ -359,6 +359,7 @@
     "shortcut": "Mix (Ctrl/⌘+Enter)"
   },
   "cookieConsent": {
+    "label": "About storage",
     "message": "This website stores necessary information locally in your browser. No cookies are used and no data is transmitted to servers. More information in our",
     "privacyLink": "Privacy Policy",
     "accept": "Got it"
