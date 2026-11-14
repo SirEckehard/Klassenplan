@@ -19,10 +19,11 @@ import { fetchAsBase64 } from './svgRasterizer';
  * page's card view only, as files, never with the app: every other page keeps
  * its first load.
  *
- * A card sheet carries its font inside its SVG, its files inlined, so the
- * preview, the print, the PDF and the PNG all set the names in it; the page
- * itself loads it too, to measure the names with a canvas before they are
- * laid out.
+ * A card sheet names its font but does not carry it, since an own font may be
+ * megabytes: the preview links the shipped files (`cardFontPreviewCss`), the
+ * print and the PDF add them inlined once (`cardFontCss`) — cards are a PDF
+ * only. The page itself loads the font too, to measure the names with a
+ * canvas before they are laid out.
  */
 
 export type CardFontId =

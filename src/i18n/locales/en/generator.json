@@ -801,6 +801,7 @@
         "fontTooLarge": "The font is larger than 2 MB.",
         "notImage": "This file is no picture in PNG, JPEG or WebP format.",
         "imageTooLarge": "The picture is larger than 20 MB.",
+        "imageTooHeavy": "Even made smaller, the picture is too large to keep. A simpler picture or a photo as JPEG fits.",
         "saveFailed": "The file could not be saved.",
         "pdfFailed": "Name card PDF export failed. Please try again."
       }

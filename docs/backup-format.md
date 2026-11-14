@@ -190,7 +190,9 @@ too large, with its size, or not restorable, which is a bug to report).
   up to 30 and counts the ones left out.
 - In `cardFiles`, a font of type `font/woff2`, `font/woff`, `font/ttf` or
   `font/otf` and a picture of type `image/png`, `image/jpeg` or `image/webp`,
-  each name at most 255 characters and each data URL at most **3 MB**.
+  each name at most 255 characters and each data URL at most **6 MB**: twice
+  what the app writes (a font of 2 MB, a picture of 1.5 MB), so that a file
+  kept before a limit was tightened never stops a backup.
 
 ## Encryption
 

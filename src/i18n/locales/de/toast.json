@@ -199,5 +199,9 @@
     "unreadable": "Die Datei ließ sich nicht öffnen. Sie ist beschädigt oder keine Datei von Klassenplan.",
     "newer": "Diese Datei stammt aus einer neueren Version von Klassenplan. Aktualisiere die App und öffne sie dann erneut.",
     "tooLarge": "Die Datei ist zu groß für eine Raumvorlage oder Voreinstellung."
+  },
+  "cardFiles": {
+    "fontRemoved": "Schrift „{{name}}“ entfernt.",
+    "imageRemoved": "Bild „{{name}}“ entfernt."
   }
 }

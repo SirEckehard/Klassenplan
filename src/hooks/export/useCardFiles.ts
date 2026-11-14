@@ -17,9 +17,14 @@ import {
   prepareCardImage,
 } from '@/utils/image/processCardFile';
 import { blobToDataUrl } from '@/utils/image/processStudentPhoto';
+import i18n from '@/i18n';
 import { logError } from '@/utils';
+import { showToast } from '@/utils/ui/toast';
 
 const LOG_SOURCE = 'useCardFiles';
+
+/** As long as a deleted student's card stands. */
+const UNDO_DURATION_MS = 8000;
 
 export type LoadedCardFont = OwnCardFont & { name: string };
 export type LoadedCardImage = { name: string; dataUrl: string };
@@ -95,11 +100,45 @@ export function useCardFiles(active: boolean) {
     [keep],
   );
 
+  // Removing asks nothing and offers "Rückgängig" (decision 0041): the file
+  // may have come from a backup and lie nowhere else, so its bytes are held
+  // while the card stands.
   const remove = useCallback(async (kind: CardFileKind) => {
+    const stored = await getCardFile(kind);
+    const held = stored.success ? stored.data : undefined;
     const removed = await deleteCardFile(kind);
     if (!removed.success) {
       logError('Removing a card file failed', { kind }, LOG_SOURCE);
+      return;
     }
+    if (!held) return;
+    showToast(
+      'info',
+      i18n.t(
+        kind === 'font'
+          ? 'toast:cardFiles.fontRemoved'
+          : 'toast:cardFiles.imageRemoved',
+        { name: held.name },
+      ),
+      {
+        duration: UNDO_DURATION_MS,
+        action: {
+          label: i18n.t('common:buttons.undo'),
+          onClick: () => {
+            setCardFile(kind, held)
+              .then((restored) => {
+                if (!restored.success) {
+                  logError('Restoring a card file failed', { kind }, LOG_SOURCE);
+                  showToast('error', CARD_FILE_ERRORS.saveFailed);
+                }
+              })
+              .catch((error: unknown) => {
+                logError('Restoring a card file failed', { error }, LOG_SOURCE);
+              });
+          },
+        },
+      },
+    );
   }, []);
 
   return {

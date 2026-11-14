@@ -50,6 +50,7 @@ import {
   restoreCardFiles,
   setCardFile,
 } from '@/repositories/cardFileStore';
+import { CARD_IMAGE_MAX_BYTES } from '@/utils/image/processCardFile';
 
 /** A student photo as the app stores it: a small JPEG of about 12 KB. */
 const photoOfSize = (bytes: number) =>
@@ -192,6 +193,36 @@ describe('backup round trip', () => {
       await restoreCardFiles(undefined, { merge: false });
       const gone = await getCardFile('font');
       expect(gone.success && gone.data).toBeUndefined();
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  // Review of 2026-11-14: a photo kept as a 3 MB PNG stopped every backup.
+  // The largest picture and font the app keeps go into one, and so does a
+  // picture kept before the picture's weight was limited.
+  it('never lets the cards’ own files stop a backup', async () => {
+    vi.stubGlobal('indexedDB', {});
+    try {
+      await setCardFile('font', {
+        name: 'Schulschrift.ttf',
+        type: 'font/ttf',
+        data: new Uint8Array(2 * 1024 * 1024).fill(0x5a).buffer,
+      });
+      for (const bytes of [CARD_IMAGE_MAX_BYTES, 3_000_000]) {
+        await setCardFile('image', {
+          name: 'Klassenfoto.png',
+          type: 'image/png',
+          data: new Uint8Array(bytes).fill(0xa5).buffer,
+        });
+
+        const restored = parseExportBundle(
+          await exportClasses([busyClass(0, 1024)]),
+        );
+
+        expect(restored.cardFiles?.image?.name).toBe('Klassenfoto.png');
+        expect(restored.cardFiles?.font?.name).toBe('Schulschrift.ttf');
+      }
     } finally {
       vi.unstubAllGlobals();
     }

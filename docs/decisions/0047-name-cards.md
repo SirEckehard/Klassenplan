@@ -25,7 +25,7 @@ a font for beginners, pictures, drawings.
 
 - **A fifth view on the export page**, "Namensschilder", beside the plan, the
   circle, the list and the substitute's sheet, and a second way in on the
-  class layer ("Tischkarten drucken"), as the list has. It needs the class,
+  class layer ("Namensschilder drucken"), as the list has. It needs the class,
   not a plan: by name without one, table by table as the plan reads with one.
   The settings live in one object (`spg.export.cards`, `TableCardSettings`).
 - **Three formats**, all on A4: a tent card two to a page (cut across, folded
@@ -88,3 +88,22 @@ a font for beginners, pictures, drawings.
   weights travel with the export page's chunk.
 - **Snapshots:** `export-sheets.spec.ts` draws the three formats and the
   colouring mode.
+
+## Addendum of 2026-11-14: a picture a backup carries, and an undo
+
+The review before the release found that a photo saved as PNG or WebP was
+kept as a 1200 px PNG of up to 3 MB, more than the backup's check took for a
+card file, so the export refused every backup from then on (H4 on the
+review's checklist).
+
+- **A picture weighs 1.5 MB at most** (`CARD_IMAGE_MAX_BYTES`). A PNG or
+  WebP is kept as a PNG, which keeps a drawing's lines sharp, as long as it
+  stays within that; an opaque one that does not becomes a JPEG, a
+  transparent one a PNG of 900 or 600 px. One that fits none of them is
+  refused under the row that loaded it.
+- **The backup's check takes twice what the app writes** (a data URL of
+  6 MB), as it does for the presets (decision 0038), so that a file kept
+  before a limit was tightened never stops a backup.
+- **Removing the own font or picture asks nothing and offers "Rückgängig"**
+  for eight seconds, the file's bytes held while the card stands (decision
+  0041): a font that came with a backup may lie nowhere else.

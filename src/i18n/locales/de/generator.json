@@ -801,6 +801,7 @@
         "fontTooLarge": "Die Schrift ist größer als 2 MB.",
         "notImage": "Diese Datei ist kein Bild im Format PNG, JPEG oder WebP.",
         "imageTooLarge": "Das Bild ist größer als 20 MB.",
+        "imageTooHeavy": "Das Bild ist auch verkleinert zu groß zum Speichern. Ein schlichteres Bild oder ein Foto als JPEG passt.",
         "saveFailed": "Die Datei ließ sich nicht speichern.",
         "pdfFailed": "Namensschilder-PDF-Export fehlgeschlagen. Bitte versuche es erneut."
       }
