@@ -1,6 +1,6 @@
 # Design System – Klassenplan
 
-> **Status:** current · **Last reviewed:** 2026-11-10 · **Maintainer:** Eike
+> **Status:** current · **Last reviewed:** 2026-11-14 · **Maintainer:** Eike
 > Schäfer · **Describes:** Klassenplan 3.1.2
 
 This document describes the binding design tokens for Klassenplan. All values live in `src/index.css` and are reachable from TypeScript through `src/utils/ui/designTokens.ts`.
@@ -216,6 +216,7 @@ projector rather than for a screen.
 - A focus ring is a solid 2 px contour in `--focus-ring`, the muted ink, on every control and in every tone, never a soft glow. It says where the keyboard is, which is no action, so it leaves blue to what can be pressed and what is selected ([decision 0041](decisions/0041-questions-where-they-belong.md)). In a question or a dialog, whose button the script focuses, it follows `:focus` as a 1.5 px line 2 px off the button.
 - A row whose selection follows the focus — the class list's rows under the arrows, the columns of "Bibliothek" — carries no ring while the blue bar already marks it (`quietFocusRing`, `data-quiet-focus:focus-visible:ring-0`); the ring comes back when the focus arrives by Tab or moves without selecting.
 - Buttons and icon buttons have defined hover states (e.g. `--button-primary-bg-hover`). These apply in dark mode too, because `@layer base` overrides the variables rather than the utilities.
+- A hover is a pointer's: every `:hover` rule in `index.css` stands inside `@media (hover: hover)`, as Tailwind's `hover:` does on its own. A finger leaves a hover on the button it tapped until the next tap elsewhere — "Mischen" stayed in its lighter blue —, so a touch screen shows none; a new rule there is written the same way.
 - A `secondary-button` that switches something on carries `aria-pressed`, and while it is `true` the button wears the selection colours (`--surface-option-selected`, `--border-option-selected`, `--text-badge`) — hovered or not. The state a screen reader hears is the state on screen; no call site paints its own.
 
 ## 5. Tokens for student toggles

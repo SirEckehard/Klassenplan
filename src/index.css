@@ -494,8 +494,10 @@
     border-color 150ms ease,
     box-shadow 150ms ease;
 
-  &:hover {
-    border-color: var(--border-option-hover);
+  @media (hover: hover) {
+    &:hover {
+      border-color: var(--border-option-hover);
+    }
   }
 
   /* The card, not just the radio, reflects the selection. */
@@ -625,8 +627,14 @@
   cursor: pointer;
 }
 
-.primary-button:hover:not(:disabled) {
-  background-color: var(--button-primary-bg-hover);
+/* A hover is a pointer's. A finger leaves it on the button it tapped until
+   the next tap elsewhere — "Mischen" stayed in its lighter blue —, so every
+   hover rule of this file asks for a pointer that can hover, as Tailwind's
+   `hover:` does on its own. */
+@media (hover: hover) {
+  .primary-button:hover:not(:disabled) {
+    background-color: var(--button-primary-bg-hover);
+  }
 }
 
 .primary-button:focus-visible {
@@ -664,8 +672,10 @@
   cursor: pointer;
 }
 
-.secondary-button:hover:not(:disabled) {
-  background-color: var(--button-secondary-bg-hover);
+@media (hover: hover) {
+  .secondary-button:hover:not(:disabled) {
+    background-color: var(--button-secondary-bg-hover);
+  }
 }
 
 .secondary-button:focus-visible {
@@ -686,10 +696,12 @@
  * source: the state a screen reader hears is the state on screen.
  */
 .secondary-button[aria-pressed='true'],
-.secondary-button[aria-pressed='true']:hover:not(:disabled) {
-  border-color: var(--border-option-selected);
-  background-color: var(--surface-option-selected);
-  color: var(--text-badge);
+@media (hover: hover) {
+  .secondary-button[aria-pressed='true']:hover:not(:disabled) {
+    border-color: var(--border-option-selected);
+    background-color: var(--surface-option-selected);
+    color: var(--text-badge);
+  }
 }
 
 @utility neutral-button {
@@ -711,9 +723,11 @@
   cursor: pointer;
 }
 
-.neutral-button:hover:not(:disabled) {
-  background-color: var(--button-neutral-bg-hover);
-  color: var(--text-page);
+@media (hover: hover) {
+  .neutral-button:hover:not(:disabled) {
+    background-color: var(--button-neutral-bg-hover);
+    color: var(--text-page);
+  }
 }
 
 .neutral-button:focus-visible {
@@ -746,8 +760,10 @@
   cursor: pointer;
 }
 
-.danger-button:hover:not(:disabled) {
-  background-color: var(--button-danger-bg-hover);
+@media (hover: hover) {
+  .danger-button:hover:not(:disabled) {
+    background-color: var(--button-danger-bg-hover);
+  }
 }
 
 .danger-button:focus-visible {
@@ -798,8 +814,10 @@
   cursor: pointer;
 }
 
-.icon-button:hover:not(:disabled) {
-  background-color: var(--button-icon-bg-hover);
+@media (hover: hover) {
+  .icon-button:hover:not(:disabled) {
+    background-color: var(--button-icon-bg-hover);
+  }
 }
 
 .icon-button:focus-visible {
@@ -827,9 +845,11 @@
   cursor: pointer;
 }
 
-.quiet-link:hover {
-  color: var(--text-page);
-  text-decoration-line: underline;
+@media (hover: hover) {
+  .quiet-link:hover {
+    color: var(--text-page);
+    text-decoration-line: underline;
+  }
 }
 
 .quiet-link:focus-visible {
@@ -851,9 +871,11 @@
   cursor: pointer;
 }
 
-.quiet-icon-button:hover:not(:disabled) {
-  background-color: var(--button-icon-quiet-hover-bg);
-  color: var(--button-icon-quiet-hover-text);
+@media (hover: hover) {
+  .quiet-icon-button:hover:not(:disabled) {
+    background-color: var(--button-icon-quiet-hover-bg);
+    color: var(--button-icon-quiet-hover-text);
+  }
 }
 
 .quiet-icon-button:focus-visible {
@@ -883,9 +905,11 @@
   cursor: pointer;
 }
 
-.quiet-danger-icon-button:hover:not(:disabled) {
-  background-color: var(--button-icon-danger-bg);
-  color: var(--button-icon-danger-text);
+@media (hover: hover) {
+  .quiet-danger-icon-button:hover:not(:disabled) {
+    background-color: var(--button-icon-danger-bg);
+    color: var(--button-icon-danger-text);
+  }
 }
 
 .quiet-danger-icon-button:focus-visible {
@@ -912,8 +936,10 @@
   cursor: pointer;
 }
 
-.danger-icon-button:hover:not(:disabled) {
-  background-color: var(--button-icon-danger-hover);
+@media (hover: hover) {
+  .danger-icon-button:hover:not(:disabled) {
+    background-color: var(--button-icon-danger-hover);
+  }
 }
 
 .danger-icon-button:focus-visible {
@@ -940,8 +966,10 @@
   cursor: pointer;
 }
 
-.success-icon-button:hover:not(:disabled) {
-  background-color: var(--button-icon-success-hover);
+@media (hover: hover) {
+  .success-icon-button:hover:not(:disabled) {
+    background-color: var(--button-icon-success-hover);
+  }
 }
 
 .success-icon-button:focus-visible {
@@ -970,8 +998,10 @@
   cursor: pointer;
 }
 
-.muted-icon-button:hover:not(:disabled) {
-  background-color: var(--button-icon-muted-hover);
+@media (hover: hover) {
+  .muted-icon-button:hover:not(:disabled) {
+    background-color: var(--button-icon-muted-hover);
+  }
 }
 
 .muted-icon-button:focus-visible {
@@ -1070,8 +1100,10 @@
     color 150ms ease;
 }
 
-.pill-tab-inactive:hover {
-  background-color: var(--pill-tab-inactive-hover-bg);
+@media (hover: hover) {
+  .pill-tab-inactive:hover {
+    background-color: var(--pill-tab-inactive-hover-bg);
+  }
 }
 
 @utility menu-surface {
@@ -1111,8 +1143,10 @@
     color 150ms ease;
 }
 
-.menu-item:hover:not(:disabled) {
-  background-color: var(--surface-sunken);
+@media (hover: hover) {
+  .menu-item:hover:not(:disabled) {
+    background-color: var(--surface-sunken);
+  }
 }
 
 .menu-item:focus-visible {
@@ -1143,9 +1177,11 @@
     color 150ms ease;
 }
 
-.menu-item-danger:hover:not(:disabled) {
-  background-color: var(--button-icon-danger-bg);
-  color: var(--button-icon-danger-text);
+@media (hover: hover) {
+  .menu-item-danger:hover:not(:disabled) {
+    background-color: var(--button-icon-danger-bg);
+    color: var(--button-icon-danger-text);
+  }
 }
 
 .menu-item-danger:focus-visible {
@@ -1217,8 +1253,10 @@
   transition: border-color 150ms ease;
 }
 
-.toast-action:hover {
-  border-color: var(--toast-action-border-hover);
+@media (hover: hover) {
+  .toast-action:hover {
+    border-color: var(--toast-action-border-hover);
+  }
 }
 
 .toast-action:focus-visible {
@@ -1471,8 +1509,10 @@ html.dark {
   transition: color 150ms ease;
 }
 
-.seat-lock:hover {
-  color: var(--text-page);
+@media (hover: hover) {
+  .seat-lock:hover {
+    color: var(--text-page);
+  }
 }
 
 .seat-lock[aria-pressed='true'] {
