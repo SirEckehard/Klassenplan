@@ -73,7 +73,7 @@
     "doorFull": "Türnähe",
     "freeNeighbourFull": "Freier Nachbarplatz",
     "leftHandedFull": "Linkshänder",
-    "number": "Nr",
+    "number": "Nr.",
     "attributes": "Gesetzte Merkmale"
   },
   "studentList": {
@@ -88,9 +88,9 @@
     "delete": "Schüler löschen",
     "placeholderCountPlaceholder": "Anzahl",
     "printList": "Liste drucken",
-    "printListTitle": "Klassenliste mit Platz für Notizen drucken",
-    "printCards": "Tischkarten drucken",
-    "printCardsTitle": "Namensschilder für die Tische oder zum Anstecken drucken"
+    "printListTitle": "Klassenliste drucken",
+    "printCards": "Namensschilder drucken",
+    "printCardsTitle": "Namensschilder für die Klasse drucken"
   },
   "csv": {
     "import": "Klassenliste importieren",
