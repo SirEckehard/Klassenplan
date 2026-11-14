@@ -370,7 +370,7 @@ test('"Bibliothek" adds a preset and a room template', async ({ page }) => {
     const file = await download.path();
 
     const choosing = page.waitForEvent('filechooser');
-    await page.getByRole('button', { name: 'Aus Datei öffnen …' }).click();
+    await page.getByRole('button', { name: 'Raumvorlage aus Datei …' }).click();
     await (await choosing).setFiles(file);
 
     const question = page.getByRole('dialog', {

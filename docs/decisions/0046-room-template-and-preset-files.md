@@ -70,3 +70,14 @@ needs a password, and on a merge brings everything along.
   message instead of guessing.
 - A scene keeps its table ids. They name tables only within a room (decision
   0036), so a colleague's ids clash with nothing here.
+
+## Addendum of 2026-11-14: where a file is opened
+
+One "Aus Datei öffnen …" at the foot of the library's additions was hard to
+find and did not say what it opens (the maintainer's note of 2026-11-14). The
+library now has an entry beside each "new": "Raumvorlage aus Datei …" after
+"Neue Raumvorlage", "Voreinstellung aus Datei …" after "Neue Voreinstellung".
+Both open the same file dialog, and the file's content still decides: a preset
+picked through the first entry is added as a preset. The room layer's
+"Vorlagen" offers "Raum aus Datei öffnen …" below its menu of templates, the
+teacher's word for what the file brings there; the template joins that menu.

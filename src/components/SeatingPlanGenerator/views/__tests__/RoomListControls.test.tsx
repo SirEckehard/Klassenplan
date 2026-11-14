@@ -7,7 +7,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import '@/i18n';
 import type { RoomRecord, SavedPlan } from '@/types';
 import { confirmInlineQuestion, createMockSavedPlan } from '@/__tests__/utils';
-import { RoomListControls } from '../RoomSetupSections';
+import { RoomListControls, RoomTemplatesSection } from '../RoomSetupSections';
 
 const mocks = vi.hoisted(() => ({
   rooms: [] as RoomRecord[],
@@ -20,6 +20,7 @@ const mocks = vi.hoisted(() => ({
   confirmDialog: vi.fn(),
   showToast: vi.fn(),
   announce: vi.fn(),
+  triggerImport: vi.fn(),
 }));
 
 vi.mock('@/contexts/seatingPlan/seatingPlanSelectors', () => ({
@@ -34,6 +35,7 @@ vi.mock('@/contexts/seatingPlan/seatingPlanSelectors', () => ({
     createRoom: mocks.createRoom,
     renameRoom: mocks.renameRoom,
     deleteRoom: mocks.deleteRoom,
+    triggerImport: mocks.triggerImport,
   }),
 }));
 vi.mock('@/services/ui/dialogs', () => ({
@@ -252,5 +254,27 @@ describe('RoomListControls', () => {
     expect(
       screen.getAllByRole('button', { name: /^(Neuer Raum|New room)$/ }),
     ).toHaveLength(1);
+  });
+});
+
+describe('RoomTemplatesSection', () => {
+  it("opens a colleague's template from a file through the file dialog", async () => {
+    const user = userEvent.setup();
+    render(
+      <RoomTemplatesSection
+        templates={[]}
+        onSave={vi.fn().mockResolvedValue(true)}
+        onLoad={vi.fn()}
+        onRename={vi.fn()}
+        onDelete={vi.fn()}
+      />,
+    );
+
+    await user.click(
+      screen.getByRole('button', {
+        name: /Raum aus Datei öffnen|Open a room from file/i,
+      }),
+    );
+    expect(mocks.triggerImport).toHaveBeenCalledTimes(1);
   });
 });

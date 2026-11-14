@@ -351,8 +351,10 @@ afterwards.
   preset (`LibraryToolPanel`), each under a free name that the inspector offers
   to type over: the template empty — its tables are arranged in a room opened
   from it and brought back with "Vorlage „…“ ersetzen", which its panel says
-  while it has none —, the preset from the weights of "Standard". Its last
-  button, "Aus Datei öffnen …", opens the restore's file dialog: a room
+  while it has none —, the preset from the weights of "Standard".
+  "Raumvorlage aus Datei …" and "Voreinstellung aus Datei …", each after its
+  "Neue …", open the restore's file dialog, whose file's content decides what
+  comes: a room
   template's or a preset's file (decision 0046) is added after a question that
   names what it brings, chosen in the columns and taken back by undo, and a
   backup is restored as from the toolbar's foot. A template with tables, an own
@@ -699,7 +701,8 @@ afterwards.
   this room for other classes — named in a row of the panel, after the room,
   where a name a template already carries is not saved over by Enter but offers
   "Vorlage „…“ ersetzen" as a row of its own — and opens a kept one as a room of
-  its own from a menu of the same shape, renamed and removed there too
+  its own from a menu of the same shape, renamed and removed there too, and
+  "Raum aus Datei öffnen …" adds a colleague's template to that menu (decision 0046)
   (`RoomSetupSections`). That is where a room is rebuilt, not a dialog over the
   canvas; Ctrl/⌘+E lets the selection go and leads there, below `lg` the
   inspector's switch in the status bar is the way there — no second button above

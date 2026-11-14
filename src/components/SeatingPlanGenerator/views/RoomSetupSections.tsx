@@ -7,6 +7,7 @@ import {
   CheckIcon,
   FloppyDiskIcon,
   PlusIcon,
+  UploadIcon,
 } from '@phosphor-icons/react';
 import type { ClassroomTemplate, TableTemplateType } from '@/types';
 import {
@@ -341,7 +342,8 @@ const SAVED_NOTE_MS = 3000;
  * Rooms kept for other classes: this one saved as a template — named in the
  * panel, after the room — and the kept ones in a menu shaped as the header's
  * class menu — a click opens one as a room of its own, the pencil renames it
- * here in the panel, the bin removes it after asking.
+ * here in the panel, the bin removes it after asking — and one from a
+ * colleague's file, which then joins that menu (decision 0046).
  */
 export function RoomTemplatesSection({
   templates,
@@ -365,6 +367,7 @@ export function RoomTemplatesSection({
 }) {
   const { t } = useTranslation('generator');
   const state = useOptionalSeatingPlanState();
+  const actions = useOptionalSeatingPlanActions();
   const [renamingId, setRenamingId] = React.useState<number | null>(null);
   const [saving, setSaving] = React.useState(false);
   // The row that saved says so for a few seconds, as the gear's update check
@@ -470,6 +473,13 @@ export function RoomTemplatesSection({
             onDone={() => setRenamingId(null)}
           />
         </div>
+      )}
+      {actions && (
+        <InspectorActionRow
+          icon={UploadIcon}
+          label={t('sceneInspector.openTemplateFile')}
+          onClick={actions.triggerImport}
+        />
       )}
     </InspectorSection>
   );

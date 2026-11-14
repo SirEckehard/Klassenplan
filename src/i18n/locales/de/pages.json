@@ -333,7 +333,7 @@
       },
       "share": {
         "q": "Wie gebe ich einen Raum oder eine Voreinstellung an Kolleginnen und Kollegen weiter?",
-        "a": "Speichere einen Raum zuerst als Vorlage. In der Bibliothek wählst du die Raumvorlage oder Voreinstellung und tippst im Inspektor auf „Als Datei speichern“. Die Datei endet auf .klassenplan und enthält keine Schülerdaten, deshalb ist sie nicht verschlüsselt – du kannst sie per Mail oder über die Schulcloud weitergeben. Wer sie bekommt, öffnet sie in der Bibliothek mit „Aus Datei öffnen …“ oder wie ein Backup; Klassenplan zeigt, was darin steckt, und legt sie zu den vorhandenen. Heißt dort schon etwas genauso, bekommt die neue eine Nummer, etwa „Raum 204 (2)“."
+        "a": "Speichere einen Raum zuerst als Vorlage. In der Bibliothek wählst du die Raumvorlage oder Voreinstellung und tippst im Inspektor auf „Als Datei speichern“. Die Datei endet auf .klassenplan und enthält keine Schülerdaten, deshalb ist sie nicht verschlüsselt – du kannst sie per Mail oder über die Schulcloud weitergeben. Wer sie bekommt, öffnet sie in der Bibliothek mit „Raumvorlage aus Datei …“ bzw. „Voreinstellung aus Datei …“, eine Raumvorlage auch auf der Raum-Ebene mit „Raum aus Datei öffnen …“, oder wie ein Backup; Klassenplan zeigt, was darin steckt, und legt sie zu den vorhandenen. Heißt dort schon etwas genauso, bekommt die neue eine Nummer, etwa „Raum 204 (2)“."
       }
     },
     "settings": {

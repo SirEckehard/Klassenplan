@@ -333,7 +333,7 @@
       },
       "share": {
         "q": "How do I pass a room or a preset on to colleagues?",
-        "a": "Save a room as a template first. In the library, choose the room template or preset and tap “Save as file” in the inspector. The file ends in .klassenplan and holds no student data, so it is not encrypted – you can send it by email or through the school cloud. Whoever receives it opens it in the library with “Open from file …” or like a backup; Klassenplan shows what it holds and adds it beside what is already there. If something there has the same name, the new one gets a number, such as “Room 204 (2)”."
+        "a": "Save a room as a template first. In the library, choose the room template or preset and tap “Save as file” in the inspector. The file ends in .klassenplan and holds no student data, so it is not encrypted – you can send it by email or through the school cloud. Whoever receives it opens it in the library with “Room template from file …” or “Preset from file …”, a room template also on the room layer with “Open a room from file …”, or like a backup; Klassenplan shows what it holds and adds it beside what is already there. If something there has the same name, the new one gets a number, such as “Room 204 (2)”."
       }
     },
     "settings": {

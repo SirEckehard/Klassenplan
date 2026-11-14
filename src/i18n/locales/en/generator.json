@@ -174,7 +174,7 @@
       },
       "add": {
         "title": "Creating",
-        "body": "Create classes, rooms, room templates and presets in the toolbar; “Open from file …” brings in a room template or a preset from a file."
+        "body": "Create classes, rooms, room templates and presets in the toolbar; “Room template from file …” and “Preset from file …” bring them in from a colleague’s file."
       },
       "share": {
         "title": "Sharing",
@@ -1207,6 +1207,7 @@
     "fillFromFrontHint": "With more seats than students, the seats at the back stay free.",
     "setupChoose": "Choose a table type …",
     "openTemplate": "Open a template …",
+    "openTemplateFile": "Open a room from file …",
     "renameTemplateNamed": "Rename “{{name}}”",
     "deleteTemplateNamed": "Delete “{{name}}”",
     "renameRoomNamed": "Rename “{{name}}”",
@@ -1499,7 +1500,8 @@
     },
     "share": {
       "save": "Save as file",
-      "open": "Open from file …",
+      "openTemplate": "Room template from file …",
+      "openPreset": "Preset from file …",
       "templateFile": "Room template",
       "presetFile": "Preset",
       "saved": "“{{name}}” saved as a file.",

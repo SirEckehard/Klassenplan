@@ -15,8 +15,9 @@ import {
  * The toolbar of "Bibliothek", in the shape every layer's has: what can
  * be added — a class, a room of the class that is chosen, a room template, a
  * mixing preset, each under a free name that the inspector then offers to
- * type over — or a template or a preset from a colleague's file, above the
- * foot every rail shares. Plans are made where they are mixed, on the plan
+ * type over — or a template or a preset from a colleague's file, each beside
+ * its own "new", above the foot every rail shares. Both open the same file
+ * dialog: the file's content decides what it brings (decision 0046). Plans are made where they are mixed, on the plan
  * layer.
  */
 export default function LibraryToolPanel({
@@ -33,7 +34,10 @@ export default function LibraryToolPanel({
   onNewRoom?: () => void;
   onNewTemplate: () => void;
   onNewPreset: () => void;
-  /** A room template's or a preset's file (decision 0046), or a backup. */
+  /**
+   * A room template's or a preset's file (decision 0046), or a backup — the
+   * content decides, whichever of the two entries opened the dialog.
+   */
   onOpenFile: () => void;
 }) {
   const { t } = useTranslation('generator');
@@ -61,13 +65,18 @@ export default function LibraryToolPanel({
           onClick={onNewTemplate}
         />
         <ToolRailButton
+          icon={<UploadIcon size={18} />}
+          label={t('library.share.openTemplate')}
+          onClick={onOpenFile}
+        />
+        <ToolRailButton
           icon={<ENTITY_ICONS.preset size={18} />}
           label={t('library.preset.newName')}
           onClick={onNewPreset}
         />
         <ToolRailButton
           icon={<UploadIcon size={18} />}
-          label={t('library.share.open')}
+          label={t('library.share.openPreset')}
           onClick={onOpenFile}
         />
       </ToolRailGroup>

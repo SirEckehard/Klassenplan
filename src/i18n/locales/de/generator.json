@@ -174,7 +174,7 @@
       },
       "add": {
         "title": "Neu anlegen",
-        "body": "Klassen, Räume, Raumvorlagen und Voreinstellungen legst du in der Werkzeugleiste an; „Aus Datei öffnen …“ holt eine Raumvorlage oder Voreinstellung aus einer Datei."
+        "body": "Klassen, Räume, Raumvorlagen und Voreinstellungen legst du in der Werkzeugleiste an; „Raumvorlage aus Datei …“ und „Voreinstellung aus Datei …“ holen sie aus der Datei einer Kollegin oder eines Kollegen."
       },
       "share": {
         "title": "Weitergeben",
@@ -1207,6 +1207,7 @@
     "fillFromFrontHint": "Gibt es mehr Plätze als Schüler, bleiben die hinteren frei.",
     "setupChoose": "Tischart wählen …",
     "openTemplate": "Vorlage öffnen …",
+    "openTemplateFile": "Raum aus Datei öffnen …",
     "renameTemplateNamed": "„{{name}}“ umbenennen",
     "deleteTemplateNamed": "„{{name}}“ löschen",
     "renameRoomNamed": "„{{name}}“ umbenennen",
@@ -1499,7 +1500,8 @@
     },
     "share": {
       "save": "Als Datei speichern",
-      "open": "Aus Datei öffnen …",
+      "openTemplate": "Raumvorlage aus Datei …",
+      "openPreset": "Voreinstellung aus Datei …",
       "templateFile": "Raumvorlage",
       "presetFile": "Voreinstellung",
       "saved": "„{{name}}“ als Datei gespeichert.",
