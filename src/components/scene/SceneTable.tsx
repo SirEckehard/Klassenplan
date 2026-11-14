@@ -46,6 +46,9 @@ import { useHasHoverPointer } from '@/hooks/ui/useHasHoverPointer';
 /** The dashed outline of a table taken out of the mix. */
 const TABLE_OUT_OF_MIX_DASH = '5 4';
 
+/** How much of a photo stays of a student missing today. */
+const ABSENT_PHOTO_OPACITY = 0.45;
+
 type TableProps = {
   table: ClassroomTable;
   index: number;
@@ -112,6 +115,11 @@ type TableProps = {
    * 'off' keeps the plain small dots. Hover is interactive (editor) only.
    */
   photoDisplayMode?: PhotoDisplayMode;
+  /**
+   * The students missing today (decision 0045): their photo turns grey and
+   * pale, as the projection veils their seat.
+   */
+  absentIds?: ReadonlySet<string>;
 };
 
 function SceneTable({
@@ -154,6 +162,7 @@ function SceneTable({
   seatHighlights = null,
   seatMarkerMode = 'full',
   photoDisplayMode = 'off',
+  absentIds,
 }: TableProps) {
   const tableRef = useRef<SVGGElement>(null);
   // The rotate handle only appears while the table is selected or hovered.
@@ -490,12 +499,15 @@ function SceneTable({
           showGenderColors,
         ).stroke;
         const clipId = `chair-photo-${index}-${dot.key}`;
+        const absent = !!seatStudent && !!absentIds?.has(seatStudent.id);
+        const greyId = `chair-photo-grey-${index}-${dot.key}`;
         return (
           <g
             key={`chair-${dot.key}`}
             transform={uprightTransform}
             pointerEvents="none"
-            opacity={lifted ? 0.35 : undefined}
+            opacity={lifted ? 0.35 : absent ? ABSENT_PHOTO_OPACITY : undefined}
+            filter={absent ? `url(#${greyId})` : undefined}
             {...{ [SEAT_FLIGHT_PART_ATTR]: seatFlightKey(index, dot.key) }}
           >
             {/* Inner group carries the entrance animation (hover mode only) so
@@ -512,6 +524,11 @@ function SceneTable({
               }
             >
               <defs>
+                {absent && (
+                  <filter id={greyId}>
+                    <feColorMatrix type="saturate" values="0" />
+                  </filter>
+                )}
                 <clipPath id={clipId}>
                   <circle cx={photoCx} cy={photoCy} r={photoRadius} />
                 </clipPath>

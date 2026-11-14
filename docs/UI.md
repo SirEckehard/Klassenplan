@@ -938,8 +938,9 @@ afterwards.
   where they were opened from — the projection in the view it was left in. A
   tap on a seat in the projection marks its student as missing today: the seat
   is veiled in its own shape with its table's surface (`SeatShape.outline`), so
-  it reads as nearly empty and no veil shows past the table's round corner; a
-  second finger abandons the tap, so a pinch never marks anybody
+  it reads as nearly empty and no veil shows past the table's round corner, and
+  in the teacher's view their photo turns grey and pale (`absentIds` on
+  `SceneTable`); a second finger abandons the tap, so a pinch never marks anybody
   (`useTapGesture`). The bar counts them ("2 fehlen heute") and a press on the
   count lists them above it — a name brings that student back, "Löschen"
   everybody. The list hangs on the bar itself (`AbsentMenu`), not on `<body>`

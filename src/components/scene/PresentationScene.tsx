@@ -326,6 +326,7 @@ export default function PresentationScene({
               lockSeatLabelOrientation={true}
               seatLabelRotation={-rotation}
               photoDisplayMode={photoDisplayMode}
+              absentIds={absentIds}
               nameDisplay={nameDisplay}
               nameLabels={nameLabels}
               nameFontSize={nameFontSize}
@@ -359,6 +360,7 @@ export default function PresentationScene({
       </>
     ),
     [
+      absentIds,
       absentSeats,
       colors,
       contrast,

@@ -74,7 +74,8 @@ On a phone the first use showed three things (the maintainer's notes of
 - **The veil has the seat's shape.** It was a rectangle in the page's colour
   over the seat, whose corners showed past the table's round ones. It is the
   seat's own outline (`SeatShape.outline`) in the table's surface colour, so
-  the seat reads as nearly empty.
+  the seat reads as nearly empty. In the teacher's view the photo beside the
+  seat, which the veil does not reach, turns grey and pale with it.
 - **A second finger abandons the tap** (`useTapGesture`): a finger resting on a
   seat through a pinch marked its student when it lifted.
 

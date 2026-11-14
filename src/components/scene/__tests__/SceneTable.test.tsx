@@ -853,3 +853,42 @@ describe('SceneTable seat highlights', () => {
     });
   });
 });
+
+describe('SceneTable photos of the students missing today', () => {
+  const withPhoto: Student = { ...student, hasPhoto: true };
+  const photoUrls = new Map([['s1', 'data:image/png;base64,AA==']]);
+
+  const renderPhoto = (absentIds?: ReadonlySet<string>) =>
+    render(
+      <svg>
+        <TableIcon
+          table={baseTable}
+          index={0}
+          students={[withPhoto]}
+          photoUrls={photoUrls}
+          photoDisplayMode="all"
+          absentIds={absentIds}
+          selected={false}
+          editable={false}
+        />
+      </svg>,
+    );
+
+  it('turns the photo of a missing student grey and pale', () => {
+    const { container } = renderPhoto(new Set(['s1']));
+    const photo = container.querySelector('image')?.closest('[filter]');
+    expect(photo).not.toBeNull();
+    expect(photo).toHaveAttribute('opacity', '0.45');
+    expect(container.querySelector('feColorMatrix')).toHaveAttribute(
+      'type',
+      'saturate',
+    );
+  });
+
+  it('leaves the photo of a student who is there as it is', () => {
+    const { container } = renderPhoto(new Set(['s2']));
+    expect(container.querySelector('image')).not.toBeNull();
+    expect(container.querySelector('[filter]')).toBeNull();
+    expect(container.querySelector('feColorMatrix')).toBeNull();
+  });
+});
