@@ -73,7 +73,7 @@
     "doorFull": "Near door",
     "freeNeighbourFull": "Free seat beside",
     "leftHandedFull": "Left-handed",
-    "number": "No",
+    "number": "No.",
     "attributes": "Attributes set"
   },
   "studentList": {
@@ -88,9 +88,9 @@
     "delete": "Delete student",
     "placeholderCountPlaceholder": "Count",
     "printList": "Print list",
-    "printListTitle": "Print the class list with room for notes",
-    "printCards": "Print table cards",
-    "printCardsTitle": "Print name cards for the desks or to wear"
+    "printListTitle": "Print the class list",
+    "printCards": "Print name cards",
+    "printCardsTitle": "Print name cards for the class"
   },
   "csv": {
     "import": "Import class list",

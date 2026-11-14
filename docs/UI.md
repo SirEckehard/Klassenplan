@@ -201,7 +201,7 @@ afterwards.
   placeholders, the room's tables and elements, "Bibliothek"'s classes, rooms,
   room templates and presets), Ansichtseinstellungen (what the view shows),
   Verwalten (on the class layer the class list's import and export side by side,
-  "Liste drucken" and "Tischkarten drucken"). The toolbar holds what goes onto the stage and how it
+  "Liste drucken" and "Namensschilder drucken"). The toolbar holds what goes onto the stage and how it
   looks; naming, saving, opening and removing the thing a layer shows is its
   inspector's — the plan layer has no Verwalten. A layer leaves out a group it
   has nothing for but never reorders one. `ClassToolPanel`, `RoomToolPanel`,
@@ -298,7 +298,7 @@ afterwards.
   loaded from a file in the row below), look (motifs or a picture of the
   teacher's, paper, border, writing lines, colouring in), what they say and
   their order; a file that will not do says so under its row. They need
-  students, not a plan: "Tischkarten drucken" on the class layer opens the
+  students, not a plan: "Namensschilder drucken" on the class layer opens the
   page on them as "Liste drucken" does on the list, by name until someone is
   seated. Their settings live in one object (`spg.export.cards`,
   `useTableCardSheet`), the font is measured before the names are laid out,
