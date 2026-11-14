@@ -1,6 +1,6 @@
 # Privacy
 
-> **Status:** current · **Last reviewed:** 2026-11-04 · **For:** developers,
+> **Status:** current · **Last reviewed:** 2026-11-14 · **For:** developers,
 > self-hosting operators and schools evaluating Klassenplan
 
 This document describes what personal data Klassenplan handles, where it goes and

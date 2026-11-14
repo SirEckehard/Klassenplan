@@ -28,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - In the presentation, the student "Who's next?" draws lights up in Safari too instead of staying dark
 - On a touch screen, a button no longer keeps its highlight after a tap
 - In "Library", "Last opened" now also counts opening the app, not only a switch of class
+- Other small fixes
 
 ## [3.3.2] - 2026-11-08
 

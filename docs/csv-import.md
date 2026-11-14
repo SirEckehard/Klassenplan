@@ -1,6 +1,6 @@
 # CSV Import Format
 
-> **Status:** current · **Last reviewed:** 2026-11-06 · **Source of truth:**
+> **Status:** current · **Last reviewed:** 2026-11-14 · **Source of truth:**
 > `src/utils/csv/`, `src/utils/data/csvUtils.ts`, `src/services/csvImportService.ts`
 
 Which files the class list import accepts, how it recognises columns, and how

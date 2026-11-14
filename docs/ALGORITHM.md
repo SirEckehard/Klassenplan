@@ -1,6 +1,6 @@
 # Algorithm Documentation
 
-> **Status:** current · **Last reviewed:** 2026-11-02
+> **Status:** current · **Last reviewed:** 2026-11-14
 
 This document describes the algorithms used in the Klassenplan seating generator.
 
