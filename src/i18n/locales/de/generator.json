@@ -253,6 +253,8 @@
       "back": "{{name}} ist wieder da.",
       "count_one": "{{count}} fehlt heute",
       "count_other": "{{count}} fehlen heute",
+      "listTitle": "Zeigt, wer heute fehlt",
+      "clear": "Löschen",
       "clearTitle": "Alle wieder da – die Markierungen gelten nur heute und werden nicht gespeichert"
     }
   },

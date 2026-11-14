@@ -33,6 +33,8 @@ export interface RandomStudentPicker {
 type SeatEntry = PickedStudent;
 
 const NOBODY_ABSENT: ReadonlySet<string> = new Set();
+/** One list for "no fallback", so the draw keeps its identity between renders. */
+const NO_FALLBACK: Student[] = [];
 
 /**
  * "Who's next?" — draws a random seated student.
@@ -47,7 +49,7 @@ export function useRandomStudentPicker(
    * Drawn from when no plan is seated yet — the class list is enough to call
    * on somebody, and on a phone there may be no plan at all.
    */
-  fallbackStudents: Student[] = [],
+  fallbackStudents: Student[] = NO_FALLBACK,
   /**
    * Students missing today (decision 0045): never drawn, and not counted as
    * waiting. Marking one keeps the round — who had a turn stays so.

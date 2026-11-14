@@ -132,4 +132,17 @@ describe('useTapGesture', () => {
     move('pointerup', 0);
     expect(leftBehind).not.toHaveBeenCalled();
   });
+
+  it('is abandoned by a second finger, wherever it lands', () => {
+    const { result } = renderHook(() => useTapGesture());
+    const onTap = vi.fn();
+    act(() => result.current(press('touch'), onTap));
+    // The press that began the tap reaches the window as well.
+    move('pointerdown', 0);
+    // A pinch: the first finger rests, the second comes down and travels.
+    move('pointerdown', 120, 8);
+    move('pointermove', 200, 8);
+    move('pointerup', 0);
+    expect(onTap).not.toHaveBeenCalled();
+  });
 });

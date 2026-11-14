@@ -68,6 +68,28 @@ async function expectCanvasInSight(page: Page): Promise<void> {
   expect(frameBox.y + 100).toBeLessThan(barBox.y);
 }
 
+/**
+ * The list of the students missing today is open, above the bar's count and
+ * inside the window — on a phone the bar's row scrolls and clips what is in
+ * it, and in fullscreen only the projection itself is on screen.
+ */
+async function expectAbsentListOverBar(
+  page: Page,
+  name: string,
+): Promise<Locator> {
+  const list = page.getByRole('dialog', { name });
+  await expect(list).toBeVisible();
+  const listBox = await boxOf(list);
+  const countBox = await boxOf(page.getByRole('button', { name }));
+  const width = page.viewportSize()?.width ?? 0;
+  expect(listBox.y).toBeGreaterThanOrEqual(0);
+  expect(listBox.y + listBox.height).toBeLessThanOrEqual(countBox.y);
+  expect(listBox.x).toBeGreaterThanOrEqual(0);
+  expect(listBox.x + listBox.width).toBeLessThanOrEqual(width);
+  await expect(list.getByRole('button', { name: 'Löschen' })).toBeVisible();
+  return list;
+}
+
 async function loadSampleClass(page: Page): Promise<void> {
   await page.goto('/generator');
   await page
@@ -672,18 +694,66 @@ test(
       expect(bottom - top).toBeGreaterThan(1080 * 0.55);
     });
 
-    await test.step('a tap marks who is missing today, "Alle da" undoes it', async () => {
+    await test.step('a tap marks who is missing today, the count lists them', async () => {
       // Decision 0045: the seat stays and is veiled; nothing is stored.
       const name = page.locator('svg g[data-table-index] text').first();
       const box = await boxOf(name);
       await page.touchscreen.tap(box.x + box.width / 2, box.y + box.height / 2);
       await expect(page.locator('svg [data-absent]')).toHaveCount(1);
-      const chip = page.getByRole('button', { name: '1 fehlt heute' });
-      await expect(chip).toBeVisible();
+      const count = page.getByRole('button', { name: '1 fehlt heute' });
+      await expect(count).toBeVisible();
 
-      await chip.click();
+      // A press on the count takes nothing back: it shows who is missing.
+      await count.click();
+      await expect(page.locator('svg [data-absent]')).toHaveCount(1);
+      await expectAbsentListOverBar(page, '1 fehlt heute');
+
+      await page
+        .getByRole('dialog', { name: '1 fehlt heute' })
+        .getByRole('button', { name: 'Löschen' })
+        .click();
       await expect(page.locator('svg [data-absent]')).toHaveCount(0);
-      await expect(chip).toHaveCount(0);
+      await expect(count).toHaveCount(0);
+      await expect(page.getByRole('dialog')).toHaveCount(0);
     });
+  },
+);
+
+test(
+  'a phone lists who is missing over the bar that scrolls',
+  { tag: '@phone' },
+  async ({ page }) => {
+    await loadSampleClass(page);
+    await mixThePlan(page);
+    // On a phone the way to the projection is in the toolbar's drawer.
+    await statusBar(page)
+      .getByRole('button', { name: 'Werkzeugleiste' })
+      .click();
+    await page
+      .getByRole('complementary', { name: 'Werkzeugleiste' })
+      .getByRole('button', { name: 'Präsentieren' })
+      .click();
+    await expect(
+      page.getByRole('button', { name: 'Präsentation beenden' }),
+    ).toBeVisible();
+
+    const names = page.locator('svg g[data-table-index] text');
+    for (const index of [0, 1]) {
+      const box = await boxOf(names.nth(index));
+      await page.touchscreen.tap(box.x + box.width / 2, box.y + box.height / 2);
+    }
+    await expect(page.locator('svg [data-absent]')).toHaveCount(2);
+
+    // The bar is one row that scrolls sideways there: the list hangs on the
+    // bar, not inside the row, which would clip it.
+    await page.getByRole('button', { name: '2 fehlen heute' }).click();
+    const list = await expectAbsentListOverBar(page, '2 fehlen heute');
+
+    // A name brings that student back and leaves the list for the next.
+    await list.getByRole('button').first().click();
+    await expect(page.locator('svg [data-absent]')).toHaveCount(1);
+    await expect(
+      page.getByRole('dialog', { name: '1 fehlt heute' }),
+    ).toBeVisible();
   },
 );

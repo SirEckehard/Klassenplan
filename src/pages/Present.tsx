@@ -38,7 +38,9 @@ import { NAME_DISPLAY_MODES } from '@/components/SeatingPlanGenerator/canvas/nam
 import HelpButton from '@/components/ui/buttons/HelpButton';
 import { PAGE_HELP_TOPICS } from '@/components/help/pageHelpTopics';
 import PresentationScene from '@/components/scene/PresentationScene';
-import PresentationToolbar from '@/components/scene/PresentationToolbar';
+import PresentationToolbar, {
+  type AbsentStudent,
+} from '@/components/scene/PresentationToolbar';
 import SimpleCircleView from '@/components/circle/SimpleCircleView';
 import type { SeatingArrangement } from '@/types';
 import type { SeatingMode } from '@/types/Circle';
@@ -118,18 +120,33 @@ export default function Present() {
   const [perspective, setPerspective] = useState<PresentationPerspective>(
     openedWith?.perspective ?? 'student',
   );
+  // Every handler the bar gets keeps its identity: the bar is memoised, so
+  // that a finger moving the plan does not render it again with every step.
   const [showBadges, setShowBadges] = useState(false);
+  const toggleBadges = useCallback(() => setShowBadges((value) => !value), []);
   const [showPhotos, setShowPhotos] = usePersistentState(
     LOCAL_STORAGE_KEYS.presentShowPhotos,
     true,
+  );
+  const togglePhotos = useCallback(
+    () => setShowPhotos((value) => !value),
+    [setShowPhotos],
   );
   const [showColors, setShowColors] = usePersistentState(
     LOCAL_STORAGE_KEYS.presentShowColors,
     true,
   );
+  const toggleColors = useCallback(
+    () => setShowColors((value) => !value),
+    [setShowColors],
+  );
   const [showFeatures, setShowFeatures] = usePersistentState(
     LOCAL_STORAGE_KEYS.presentShowFeatures,
     true,
+  );
+  const toggleFeatures = useCallback(
+    () => setShowFeatures((value) => !value),
+    [setShowFeatures],
   );
   const [zoom, setZoom] = usePersistentState(LOCAL_STORAGE_KEYS.presentZoom, 1);
   // Black on white for a bright room; the projection's own decision, kept
@@ -137,6 +154,10 @@ export default function Present() {
   const [contrast, setContrast] = usePersistentState(
     LOCAL_STORAGE_KEYS.presentContrast,
     false,
+  );
+  const toggleContrast = useCallback(
+    () => setContrast((value) => !value),
+    [setContrast],
   );
   // The beamer keeps its own name rule and starts at the first name: it is
   // read from the back row, where "Mia W." is two words too many. The editor's
@@ -149,11 +170,17 @@ export default function Present() {
   // cycles through the modes and names the current one in its tooltip.
   const nameDisplayIndex = Math.max(0, NAME_DISPLAY_MODES.indexOf(nameDisplay));
   const currentNameDisplay = NAME_DISPLAY_MODES[nameDisplayIndex];
-  const cycleNameDisplay = () =>
-    setNameDisplay(
-      () =>
-        NAME_DISPLAY_MODES[(nameDisplayIndex + 1) % NAME_DISPLAY_MODES.length],
-    );
+  const cycleNameDisplay = useCallback(
+    () =>
+      setNameDisplay(
+        (current) =>
+          NAME_DISPLAY_MODES[
+            (Math.max(0, NAME_DISPLAY_MODES.indexOf(current)) + 1) %
+              NAME_DISPLAY_MODES.length
+          ],
+      ),
+    [setNameDisplay],
+  );
   const { pan, containerRef, pointerHandlers, canPan, setZoomLevel, reset } =
     usePanZoom({
       zoom,
@@ -211,6 +238,17 @@ export default function Present() {
     },
     [absentIds, classId, students, t],
   );
+  // The bar lists them by name, in the class's own order.
+  const absentStudents = useMemo<AbsentStudent[]>(
+    () =>
+      students
+        .filter((student) => absentIds.has(student.id))
+        .map(({ id, name }) => ({ id, name })),
+    [students, absentIds],
+  );
+  const clearMissing = useCallback(() => {
+    if (classId) clearAbsent(classId);
+  }, [classId]);
 
   const backToPlan = useBackToWorkspace(
     useCallback(() => navigate('/generator'), [navigate]),
@@ -241,13 +279,19 @@ export default function Present() {
   // "Gruppen bilden" and "Dienste verteilen" go back through the history, so
   // this entry is where their way back lands: it is brought up to the view on
   // screen first.
-  const openTool = (route: '/gruppen' | '/dienste') => {
-    navigate('/present', {
-      replace: true,
-      state: { mode, perspective, fromWorkspace: openedWith?.fromWorkspace },
-    });
-    navigate(route);
-  };
+  const fromWorkspace = openedWith?.fromWorkspace;
+  const openTool = useCallback(
+    (route: '/gruppen' | '/dienste') => {
+      navigate('/present', {
+        replace: true,
+        state: { mode, perspective, fromWorkspace },
+      });
+      navigate(route);
+    },
+    [navigate, mode, perspective, fromWorkspace],
+  );
+  const openGroups = useCallback(() => openTool('/gruppen'), [openTool]);
+  const openDuties = useCallback(() => openTool('/dienste'), [openTool]);
 
   const hasCircle = !!circleLayout && circleLayout.students.length > 0;
   const hasContent = mode === 'circle' ? hasCircle : hasPlan;
@@ -258,37 +302,45 @@ export default function Present() {
     ? 'bg-(--present-contrast-bg)'
     : 'bg-(--surface-sunken)';
 
+  // The head says what is on the wall and for whom, with no way back of its
+  // own: that is "Beenden" in the bar at the bottom, within reach of the
+  // teacher standing in front of it, like everything else that acts on the
+  // plan. One element for as long as it says the same, so zooming the plan
+  // leaves it alone.
+  const className = activeClass.name;
+  const header = useMemo(
+    () => (
+      <AppHeader
+        start={
+          <HeaderTitle
+            title={
+              isTeacher ? t('present.teacherView') : t('present.studentView')
+            }
+            subtitle={className}
+          />
+        }
+        help={
+          <HelpButton
+            faqSection="unterricht"
+            title={t('help.present.title')}
+            topics={PAGE_HELP_TOPICS.present}
+            shortcutContexts={PRESENT_SHORTCUTS}
+          />
+        }
+      />
+    ),
+    [isTeacher, className, t],
+  );
+
   return (
     // Fixed to the window, the page leaves the body's distance from a phone's
     // notch behind and keeps its own.
     <div
       className={`fixed inset-0 flex flex-col pr-[env(safe-area-inset-right)] pl-[env(safe-area-inset-left)] ${wallClass}`}
     >
-      {/* The head says what is on the wall and for whom, with no way back of
-          its own: that is "Beenden" in the bar at the bottom, within reach of
-          the teacher standing in front of it, like everything else that acts
-          on the plan. In fullscreen the room sees the plan alone, so the head
-          is not drawn at all. */}
-      {!isFullscreen && (
-        <AppHeader
-          start={
-            <HeaderTitle
-              title={
-                isTeacher ? t('present.teacherView') : t('present.studentView')
-              }
-              subtitle={activeClass.name}
-            />
-          }
-          help={
-            <HelpButton
-              faqSection="unterricht"
-              title={t('help.present.title')}
-              topics={PAGE_HELP_TOPICS.present}
-              shortcutContexts={PRESENT_SHORTCUTS}
-            />
-          }
-        />
-      )}
+      {/* In fullscreen the room sees the plan alone, so the head is not
+          drawn at all. */}
+      {!isFullscreen && header}
 
       <main
         id="main"
@@ -440,22 +492,23 @@ export default function Present() {
               onModeChange={setMode}
               isTeacher={isTeacher}
               showBadges={showBadges}
-              onToggleBadges={() => setShowBadges((value) => !value)}
+              onToggleBadges={toggleBadges}
               showPhotos={showPhotos}
-              onTogglePhotos={() => setShowPhotos((value) => !value)}
+              onTogglePhotos={togglePhotos}
               showColors={showColors}
-              onToggleColors={() => setShowColors((value) => !value)}
+              onToggleColors={toggleColors}
               showFeatures={showFeatures}
-              onToggleFeatures={() => setShowFeatures((value) => !value)}
+              onToggleFeatures={toggleFeatures}
               contrast={contrast}
-              onToggleContrast={() => setContrast((value) => !value)}
+              onToggleContrast={toggleContrast}
               nameDisplay={currentNameDisplay}
               onCycleNameDisplay={cycleNameDisplay}
               onPick={picker.total > 0 ? picker.pick : undefined}
-              absentCount={absentIds.size}
-              onClearAbsent={classId ? () => clearAbsent(classId) : undefined}
-              onOpenGroups={() => openTool('/gruppen')}
-              onOpenDuties={() => openTool('/dienste')}
+              absent={absentStudents}
+              onMarkBack={classId ? toggleMissing : undefined}
+              onClearAbsent={classId ? clearMissing : undefined}
+              onOpenGroups={openGroups}
+              onOpenDuties={openDuties}
               zoom={zoom}
               minZoom={PRESENT_MIN_ZOOM}
               maxZoom={PRESENT_MAX_ZOOM}

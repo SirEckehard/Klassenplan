@@ -1,6 +1,6 @@
 # The Interface
 
-> **Status:** current · **Last reviewed:** 2026-11-13 · **Source of truth:**
+> **Status:** current · **Last reviewed:** 2026-11-14 · **Source of truth:**
 > `src/components/shell/`, `src/components/SeatingPlanGenerator/`,
 > `src/contexts/InspectorContext.tsx`
 
@@ -914,7 +914,13 @@ afterwards.
   the plan was in use for the way back (`holdUntilLeft`) — the wall faces the
   class; the contrast mode draws it black on white for a bright room, and the
   beamer keeps its own name rule (`spg.present.nameDisplay`, first names) apart
-  from the editor's.
+  from the editor's. Two fingers or one move the plan with every step they
+  take, so a step changes the plan's transform and nothing else: the head is
+  one element for as long as it says the same, the bar is memoised and gets
+  handlers that keep their identity (only its size slider follows the zoom),
+  and what the plan draws is one memoised subtree of `PresentationScene` — a
+  new control on the page goes behind one of these three, never into the
+  render a finger drives.
 - **A tool used standing up is a route, not a panel.** "Wer kommt dran?"
   (`/wer-kommt-dran`), "Wo sitzt wer?" (`/wo-sitzt-wer`), "Gruppen bilden"
   (`/gruppen`), "Dienste verteilen" (`/dienste`) and the name game
@@ -931,10 +937,17 @@ afterwards.
   projection's bar); their way back goes through the history, so it returns to
   where they were opened from — the projection in the view it was left in. A
   tap on a seat in the projection marks its student as missing today: the seat
-  is veiled, the bar counts them ("2 fehlen heute", a press brings everybody
-  back), the draws and the groups leave them out and say so under their title,
-  and nothing is stored — a new day or a reload starts with everybody there
-  (`absenceStore`, decision 0045). While
+  is veiled in its own shape with its table's surface (`SeatShape.outline`), so
+  it reads as nearly empty and no veil shows past the table's round corner; a
+  second finger abandons the tap, so a pinch never marks anybody
+  (`useTapGesture`). The bar counts them ("2 fehlen heute") and a press on the
+  count lists them above it — a name brings that student back, "Löschen"
+  everybody. The list hangs on the bar itself (`AbsentMenu`), not on `<body>`
+  and not in the bar's row: in fullscreen only the projection is on screen, and
+  a phone's row scrolls and would clip it; it follows its count when the row
+  scrolls. The draws and the groups leave the missing out and say so under
+  their title, and nothing is stored — a new day or a reload starts with
+  everybody there (`absenceStore`, decision 0045). While
   the class sits in the circle, "Wer kommt dran?" draws from the circle and
   names who sits on either side (`findCircleLocation`) instead of a table; under
   the name it shows the plan or the circle, there before the first draw, with

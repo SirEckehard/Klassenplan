@@ -43,6 +43,25 @@ describe('the seats of the projection', () => {
     },
   );
 
+  it('gives a seat the outline its table cuts, where the seat is drawn', () => {
+    const scene: ClassroomScene = { tables: [double(90)], totalStudents: 2 };
+    const [upper, lower] = occupiedSeatShapes(scene, [[ada, ben]]);
+
+    // Round where the corners are the table's, square where the seats meet:
+    // a veil in this shape never shows past the table's corner.
+    expect(upper!.outline).toBe('M8 0H47A8 8 0 0 1 55 8V65H0V8A8 8 0 0 1 8 0Z');
+    expect(lower!.outline).toBe(
+      'M0 0H55V57A8 8 0 0 1 47 65H8A8 8 0 0 1 0 57V0Z',
+    );
+    // In the table's own frame, turned with it, the lower seat one seat down.
+    expect(upper!.outlineTransform).toBe(
+      'translate(427.5 265) rotate(90) translate(-27.5 -65) translate(0 0)',
+    );
+    expect(lower!.outlineTransform).toBe(
+      'translate(427.5 265) rotate(90) translate(-27.5 -65) translate(0 65)',
+    );
+  });
+
   it('leaves out empty seats', () => {
     const scene: ClassroomScene = { tables: [double(0)], totalStudents: 1 };
     const shapes = occupiedSeatShapes(scene, [[ada, null]]);

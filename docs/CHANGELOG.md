@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ### Added
 
 - A student can need the seat beside them free, and left-handers sit with nobody writing right-handed to their left
-- In the presentation, a tap on a seat marks who is missing today; "Who's next?" and "Build groups" leave them out
+- In the presentation, a tap on a seat marks who is missing today and the bar lists them; "Who's next?" and "Build groups" leave them out
 - After twelve weeks without a change, the seating plan asks whether a class's markers still hold
 - Room templates and presets can be saved as a file and handed on to colleagues
 - Name cards for desks or to wear, in fonts for beginning readers, with motifs, coloured paper and writing lines
@@ -20,10 +20,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - On a phone and a tablet, tables and room elements come from "Add" at the status bar, without scrolling below the room
 - The help is shorter, sorted into topics and up to date, and its keyboard shortcuts – now in the presentation too – scroll into view when opened
 - The tour matches the help, crosses the screen in reading order and glides from step to step
+- In the presentation, zooming and moving the plan with your fingers runs more smoothly
 
 ### Fixed
 
 - In the presentation, the student "Who's next?" draws lights up in Safari too instead of staying dark
+- On a touch screen, a button no longer keeps its highlight after a tap
 
 ## [3.3.2] - 2026-11-08
 

@@ -253,6 +253,8 @@
       "back": "{{name}} is back.",
       "count_one": "{{count}} missing today",
       "count_other": "{{count}} missing today",
+      "listTitle": "Shows who is missing today",
+      "clear": "Clear",
       "clearTitle": "Everybody is back – the marks last for today only and are never stored"
     }
   },

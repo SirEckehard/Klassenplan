@@ -10,6 +10,7 @@ import {
   calculateSeatLayout,
   calculateSeatPosition,
 } from '@/utils/math/positionCalculations';
+import { insetSeatPath, seatTableCorners } from '@/utils/ui/seatMark';
 
 export interface SeatShape {
   tableIndex: number;
@@ -22,6 +23,13 @@ export interface SeatShape {
   height: number;
   /** The table's turn, in degrees */
   rotation: number;
+  /**
+   * The seat's outline as its table cuts it (`insetSeatPath`), in the seat's
+   * own coordinates, and the transform that puts it where the seat is drawn:
+   * a veil over the seat takes its shape, the table's round corners included.
+   */
+  outline: string;
+  outlineTransform: string;
 }
 
 /** Every occupied seat of the plan as a shape. */
@@ -34,8 +42,20 @@ export function occupiedSeatShapes(
     const seats = seating[tableIndex];
     if (!seats?.some(Boolean)) return;
     const layout = calculateSeatLayout(table);
+    const { cols, rows, seatWidth, seatHeight } = layout;
+    // The table's own frame, as `SceneTable` places it.
+    const tableTransform =
+      `translate(${table.x + table.width / 2} ${table.y + table.height / 2}) ` +
+      `rotate(${table.rotation ?? 0}) ` +
+      `translate(${-table.width / 2} ${-table.height / 2})`;
     seats.forEach((student, seatIndex) => {
       if (!student || seatIndex >= table.seatCount) return;
+      // A seat the layout has no place for takes the next cell in reading
+      // order, as on the table itself.
+      const { col, row } = layout.positions[seatIndex] ?? {
+        col: seatIndex % cols,
+        row: Math.floor(seatIndex / cols),
+      };
       const centre = calculateSeatPosition({
         mode: 'scene',
         table,
@@ -51,6 +71,13 @@ export function occupiedSeatShapes(
         width: layout.seatWidth,
         height: layout.seatHeight,
         rotation: table.rotation ?? 0,
+        outline: insetSeatPath(
+          seatWidth,
+          seatHeight,
+          0,
+          seatTableCorners(col, row, cols, rows),
+        ),
+        outlineTransform: `${tableTransform} translate(${col * seatWidth} ${row * seatHeight})`,
       });
     });
   });

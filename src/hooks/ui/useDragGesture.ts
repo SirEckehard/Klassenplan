@@ -137,8 +137,9 @@ export function useDragGesture(): {
  * something that can be dragged — the lock on a seat or a place of the
  * circle. It acts on the release, and only when the press stayed within the
  * drag threshold, so a press that travels picks the student up instead of
- * locking them. A cancelled pointer, a second press or the view going away
- * act on nothing.
+ * locking them. A cancelled pointer, a second press — another finger
+ * anywhere on the screen, the start of a pinch — or the view going away act
+ * on nothing.
  */
 export function useTapGesture(): (
   event: React.PointerEvent,
@@ -175,14 +176,22 @@ export function useTapGesture(): (
       const handleCancel = (cancelEvent: PointerEvent) => {
         if (cancelEvent.pointerId === pointerId) stop();
       };
+      // Another finger, wherever it lands: two fingers zoom, and the one
+      // that rested through the pinch must not count as a tap when it lifts.
+      // The press that began this tap reaches the window too, and is its own.
+      const handleDown = (downEvent: PointerEvent) => {
+        if (downEvent.pointerId !== pointerId) stop();
+      };
 
       window.addEventListener('pointermove', handleMove);
       window.addEventListener('pointerup', handleUp);
       window.addEventListener('pointercancel', handleCancel);
+      window.addEventListener('pointerdown', handleDown);
       cleanupRef.current = () => {
         window.removeEventListener('pointermove', handleMove);
         window.removeEventListener('pointerup', handleUp);
         window.removeEventListener('pointercancel', handleCancel);
+        window.removeEventListener('pointerdown', handleDown);
       };
     },
     [stop],

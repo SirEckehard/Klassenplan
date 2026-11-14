@@ -14,6 +14,7 @@ import {
   svgFontFamily,
 } from '@/utils';
 import { getBackdropFeatureStyles, getFeatureStyles } from '@/utils/ui';
+import { getTableColors } from '@/utils/ui/tableAppearance';
 import {
   featuresForTableFrame,
   frameContentBounds,
@@ -27,7 +28,11 @@ import {
 } from '@/utils/ui/boardOrientation';
 import BadgeTooltipLayer from '@/components/scene/BadgeTooltip';
 import { useTapGesture } from '@/hooks/ui/useDragGesture';
-import { occupiedSeatShapes, seatAtPoint } from '@/utils/ui/presentationSeats';
+import {
+  occupiedSeatShapes,
+  seatAtPoint,
+  type SeatShape,
+} from '@/utils/ui/presentationSeats';
 import type { SeatBadgeView } from '@/utils/ui/seatBadges';
 import PresentationSpotlight, {
   presentationGroupTransform,
@@ -97,6 +102,11 @@ type PresentationSceneProps = {
 /** Padding around the classroom so seat photos docking outside seats aren't clipped. */
 const EDGE_PADDING = 48;
 
+/** How far the seat of a student missing today fades into its table. */
+const ABSENT_VEIL_OPACITY = 0.72;
+
+const NO_SEATS: readonly SeatShape[] = [];
+
 export default function PresentationScene({
   scene,
   seating,
@@ -161,10 +171,16 @@ export default function PresentationScene({
         if (seat) beginTap(event, () => onSeatTap(seat.studentId));
       }
     : undefined;
-  const absentSeats =
-    absentIds && absentIds.size > 0
-      ? seatShapes.filter((shape) => absentIds.has(shape.studentId))
-      : [];
+  const absentSeats = React.useMemo(
+    () =>
+      absentIds && absentIds.size > 0
+        ? seatShapes.filter((shape) => absentIds.has(shape.studentId))
+        : NO_SEATS,
+    [absentIds, seatShapes],
+  );
+  // The veil is the table's own surface: the seat reads as nearly empty, and
+  // nothing of the veil shows where it ends.
+  const veilFill = getTableColors(dark, contrast).fill;
   const photoDisplayMode =
     perspective === 'teacher' && showPhotos && !contrast ? 'all' : 'off';
   const showSpecialNeeds = perspective === 'teacher' && showBadges && !contrast;
@@ -266,25 +282,23 @@ export default function PresentationScene({
         : buildSpotlightLookup({ tableIndex: spotTable, seatIndex: spotSeat }),
     [spotTable, spotSeat],
   );
-  const spotlitTableIndex = spotlight?.tableIndex ?? -1;
+  const spotlitTableIndex = spotTable ?? -1;
+  // The same target for as long as it names the same seat, whatever object
+  // the caller hands over on a render.
+  const spotlightTarget = React.useMemo<SpotlightTarget | null>(
+    () =>
+      spotTable === undefined || spotSeat === undefined
+        ? null
+        : { tableIndex: spotTable, seatIndex: spotSeat },
+    [spotTable, spotSeat],
+  );
 
-  return (
-    <>
-      <svg
-        ref={svgRef}
-        xmlns="http://www.w3.org/2000/svg"
-        width="100%"
-        height="100%"
-        viewBox={`${viewBox.x} ${viewBox.y} ${viewBox.width} ${viewBox.height}`}
-        preserveAspectRatio="xMidYMid meet"
-        fontFamily={svgFontFamily}
-        style={{
-          display: 'block',
-          transform: `translate(${panX}px, ${panY}px) scale(${zoom})`,
-          transformOrigin: 'center',
-        }}
-        onPointerDown={handlePointerDown}
-      >
+  // Everything the plan draws, kept apart from how it is zoomed and moved: a
+  // pinch changes the transform sixty times a second and more, and none of
+  // this with it.
+  const content = React.useMemo(
+    () => (
+      <>
         <g ref={groupRef} transform={groupTransform}>
           {featureViewModels.map(({ feature, styles }) => (
             <FeatureShape
@@ -320,20 +334,15 @@ export default function PresentationScene({
               }
             />
           ))}
-          {/* A veil of the page over the seat of a student missing today,
-              never in the way of a pointer. */}
+          {/* A veil over the seat of a student missing today, in the seat's
+              own shape and never in the way of a pointer. */}
           {absentSeats.map((shape) => (
-            <rect
+            <path
               key={`${shape.tableIndex}-${shape.seatIndex}`}
-              x={shape.x - shape.width / 2}
-              y={shape.y - shape.height / 2}
-              width={shape.width}
-              height={shape.height}
-              transform={`rotate(${shape.rotation} ${shape.x} ${shape.y})`}
-              style={{
-                fill: contrast ? '#ffffff' : 'var(--surface-page)',
-                fillOpacity: 0.72,
-              }}
+              d={shape.outline}
+              transform={shape.outlineTransform}
+              fill={veilFill}
+              fillOpacity={ABSENT_VEIL_OPACITY}
               pointerEvents="none"
               data-absent={shape.studentId}
             />
@@ -342,11 +351,58 @@ export default function PresentationScene({
         <PresentationSpotlight
           scene={scene}
           seating={seating}
-          target={spotlight}
+          target={spotlightTarget}
           viewBox={viewBox}
           frame={frame}
           dim={spotlightDims}
         />
+      </>
+    ),
+    [
+      absentSeats,
+      colors,
+      contrast,
+      dark,
+      featureViewModels,
+      frame,
+      groupTransform,
+      nameDisplay,
+      nameFontSize,
+      nameLabels,
+      photoDisplayMode,
+      photoUrls,
+      rotation,
+      scene,
+      seating,
+      showSpecialNeeds,
+      spotlightDims,
+      spotlightLookup,
+      spotlightTarget,
+      spotlitTableIndex,
+      students,
+      veilFill,
+      viewBox,
+    ],
+  );
+
+  return (
+    <>
+      <svg
+        ref={svgRef}
+        xmlns="http://www.w3.org/2000/svg"
+        width="100%"
+        height="100%"
+        viewBox={`${viewBox.x} ${viewBox.y} ${viewBox.width} ${viewBox.height}`}
+        preserveAspectRatio="xMidYMid meet"
+        fontFamily={svgFontFamily}
+        style={{
+          display: 'block',
+          transform: `translate(${panX}px, ${panY}px) scale(${zoom})`,
+          transformOrigin: 'center',
+        }}
+        onPointerDown={handlePointerDown}
+      >
+        {content}
       </svg>
       {showSpecialNeeds && (
         <BadgeTooltipLayer svgRef={svgRef} allStudents={students} />
