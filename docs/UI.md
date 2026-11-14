@@ -943,14 +943,17 @@ afterwards.
   is veiled in its own shape with its table's surface (`SeatShape.outline`), so
   it reads as nearly empty and no veil shows past the table's round corner, and
   in the teacher's view their photo turns grey and pale (`absentIds` on
-  `SceneTable`); a second finger abandons the tap, so a pinch never marks anybody
+  `SceneTable`); a second finger abandons the tap, so a pinch never marks anybody,
+  and only the main button taps, so a right click marks nobody either
   (`useTapGesture`). The bar counts them ("2 fehlen heute") and a press on the
-  count lists them above it — a name brings that student back, "Löschen"
-  everybody. The list hangs on the bar itself (`AbsentMenu`), not on `<body>`
-  and not in the bar's row: in fullscreen only the projection is on screen, and
-  a phone's row scrolls and would clip it; it follows its count when the row
-  scrolls. The draws and the groups leave the missing out and say so under
-  their title, and nothing is stored — a new day or a reload starts with
+  count lists them above it — a name brings that student back ("Lea
+  zurückholen"), "Alle da" everybody, in ink, since nothing is deleted. The list
+  hangs on the bar itself (`AbsentMenu`), not on `<body>` and not in the bar's
+  row: in fullscreen only the projection is on screen, and a phone's row
+  scrolls and would clip it; it follows its count when the row scrolls. The
+  draws, the groups and the duties leave the missing out and say so under their
+  title; a student just drawn and then marked goes back into the round, as with
+  "Überspringen". Nothing is stored — a new day or a reload starts with
   everybody there (`absenceStore`, decision 0045). While
   the class sits in the circle, "Wer kommt dran?" draws from the circle and
   names who sits on either side (`findCircleLocation`) instead of a table; under

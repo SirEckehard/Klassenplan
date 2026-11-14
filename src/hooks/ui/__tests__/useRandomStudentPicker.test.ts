@@ -132,4 +132,30 @@ describe('useRandomStudentPicker with students missing today', () => {
     expect(result.current.total).toBe(2);
     expect(result.current.remaining).toBe(1);
   });
+
+  // "Wer kommt dran?" draws Anna, Anna is not there, the teacher taps her
+  // seat: the light goes out, and Anna had no turn.
+  it('puts out the light on the one just drawn when they are marked', () => {
+    vi.spyOn(Math, 'random').mockReturnValue(0);
+    const { result, rerender } = renderHook(
+      ({ absent }) => useRandomStudentPicker(seating, [], absent),
+      { initialProps: { absent: new Set<string>() as ReadonlySet<string> } },
+    );
+    act(() => result.current.pick());
+    act(() => result.current.pick());
+    const [current, earlier] = result.current.recent.map((s) => s.id);
+
+    rerender({ absent: new Set([current!]) });
+
+    expect(result.current.picked).toBeNull();
+    expect(result.current.recent.map((student) => student.id)).toEqual([
+      earlier,
+    ]);
+    expect(result.current.total).toBe(2);
+    expect(result.current.remaining).toBe(1);
+
+    // Back again later the same day, they are still waiting for a turn.
+    rerender({ absent: new Set<string>() });
+    expect(result.current.remaining).toBe(2);
+  });
 });

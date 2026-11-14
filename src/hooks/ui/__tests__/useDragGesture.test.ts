@@ -145,4 +145,30 @@ describe('useTapGesture', () => {
     move('pointerup', 0);
     expect(onTap).not.toHaveBeenCalled();
   });
+
+  // A right click opens the context menu and a middle click scrolls; neither
+  // marks a student as missing or locks a seat.
+  it('acts on the main button alone', () => {
+    const { result } = renderHook(() => useTapGesture());
+    const onTap = vi.fn();
+    for (const button of [1, 2]) {
+      act(() =>
+        result.current(
+          { ...press('mouse'), button } as unknown as React.PointerEvent,
+          onTap,
+        ),
+      );
+      move('pointerup', 0);
+    }
+    expect(onTap).not.toHaveBeenCalled();
+
+    act(() =>
+      result.current(
+        { ...press('mouse'), button: 0 } as unknown as React.PointerEvent,
+        onTap,
+      ),
+    );
+    move('pointerup', 0);
+    expect(onTap).toHaveBeenCalledTimes(1);
+  });
 });

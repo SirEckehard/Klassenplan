@@ -421,7 +421,7 @@
       "description": "Interactive whiteboard, seating circle, printing and classroom tools.",
       "present": {
         "q": "How does presentation mode work?",
-        "a": "“Present” at the right of the status bar – on a phone in the toolbar – shows the seating plan or circle large on the interactive whiteboard. Every control sits in one bar below the plan: teacher or student view (which turns the plan to the class’s point of view), plan or circle, photos, colours, room elements, a contrast mode for bright rooms and the size. In fullscreen (key F) the bar disappears and comes back as soon as the pointer nears the bottom edge or you tap there. If someone is missing, tap their seat: it fades, and \"Who’s next?\" and \"Build groups\" leave them out. It lasts for today and is never stored."
+        "a": "“Present” at the right of the status bar – on a phone in the toolbar – shows the seating plan or circle large on the interactive whiteboard. Every control sits in one bar below the plan: teacher or student view (which turns the plan to the class’s point of view), plan or circle, photos, colours, room elements, a contrast mode for bright rooms and the size. In fullscreen (key F) the bar disappears and comes back as soon as the pointer nears the bottom edge or you tap there. If someone is missing, tap their seat: it fades, and \"Who’s next?\", \"Build groups\" and \"Hand out duties\" leave them out. It lasts for today and is never stored."
       },
       "tools": {
         "q": "What are “Who’s next?”, “Where does who sit?”, “Build groups” and “Hand out duties”?",

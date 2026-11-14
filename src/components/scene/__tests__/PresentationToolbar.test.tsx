@@ -92,7 +92,11 @@ describe('PresentationToolbar', () => {
     });
     expect(onClearAbsent).not.toHaveBeenCalled();
 
-    fireEvent.click(within(list).getByRole('button', { name: /Ada Lovelace/ }));
+    // Each name says what a press does, not what it did (announced after).
+    const ada = within(list).getByRole('button', {
+      name: /^(Ada Lovelace zurückholen|Bring Ada Lovelace back)$/,
+    });
+    fireEvent.click(ada);
     expect(onMarkBack).toHaveBeenCalledWith('ada');
     // The list stays for the next name.
     expect(screen.getByRole('dialog')).toBeInTheDocument();
@@ -101,7 +105,7 @@ describe('PresentationToolbar', () => {
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
-  it('brings everybody back with "Löschen" and closes the list', () => {
+  it('brings everybody back with "Alle da" and closes the list', () => {
     const onClearAbsent = vi.fn();
     renderBar({ absent: missing, onMarkBack: vi.fn(), onClearAbsent });
 
@@ -110,7 +114,7 @@ describe('PresentationToolbar', () => {
     );
     fireEvent.click(
       within(screen.getByRole('dialog')).getByRole('button', {
-        name: /^(Löschen|Clear)$/,
+        name: /^(Alle da|All here)$/,
       }),
     );
 

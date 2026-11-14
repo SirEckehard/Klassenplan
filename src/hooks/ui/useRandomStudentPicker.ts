@@ -52,7 +52,8 @@ export function useRandomStudentPicker(
   fallbackStudents: Student[] = NO_FALLBACK,
   /**
    * Students missing today (decision 0045): never drawn, and not counted as
-   * waiting. Marking one keeps the round — who had a turn stays so.
+   * waiting. Marking one keeps the round — who had a turn stays so — except
+   * for the one just drawn, who goes back as with "Überspringen".
    */
   absentIds: ReadonlySet<string> = NOBODY_ABSENT,
 ): RandomStudentPicker {
@@ -143,6 +144,20 @@ export function useRandomStudentPicker(
     },
     [seatedStudents, absentIds],
   );
+
+  // The one just drawn turns out to be missing (marked in the projection):
+  // that is "Überspringen" by another hand. The light goes out, and the
+  // student goes back into the round, since they had no turn.
+  const pickedId = round.picked?.student.id;
+  if (pickedId !== undefined && absentIds.has(pickedId)) {
+    const drawn = new Set(round.drawn);
+    drawn.delete(pickedId);
+    setRound({
+      picked: null,
+      drawn,
+      history: round.history.filter((student) => student.id !== pickedId),
+    });
+  }
 
   const pick = React.useCallback(() => draw(), [draw]);
 

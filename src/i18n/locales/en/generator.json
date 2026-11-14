@@ -147,7 +147,7 @@
       },
       "absent": {
         "title": "Missing today",
-        "body": "Tap a seat when someone is missing: the seat fades, and \"Who’s next?\" and \"Build groups\" leave them out. It lasts for today and is never stored."
+        "body": "Tap a seat when someone is missing: the seat fades, and \"Who’s next?\", \"Build groups\" and \"Hand out duties\" leave them out. It lasts for today and is never stored."
       },
       "fullscreen": {
         "title": "Fullscreen",
@@ -251,10 +251,11 @@
     "absent": {
       "marked": "{{name}} is missing today.",
       "back": "{{name}} is back.",
+      "bringBack": "Bring {{name}} back",
       "count_one": "{{count}} missing today",
       "count_other": "{{count}} missing today",
       "listTitle": "Shows who is missing today",
-      "clear": "Clear",
+      "clear": "All here",
       "clearTitle": "Everybody is back – the marks last for today only and are never stored"
     }
   },

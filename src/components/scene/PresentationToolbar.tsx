@@ -16,7 +16,6 @@ import {
   PaletteIcon,
   StudentIcon,
   SunIcon,
-  TrashIcon,
   UserCheckIcon,
   UserMinusIcon,
   UserSquareIcon,
@@ -27,7 +26,6 @@ import {
 import {
   formatPercent,
   menuItemClass,
-  menuItemDangerClass,
   menuSurfaceClass,
   type NameDisplayMode,
 } from '@/utils';
@@ -212,7 +210,7 @@ type PresentationToolbarProps = BarControlsProps &
     absent?: readonly AbsentStudent[];
     /** One of them is there again. */
     onMarkBack?: (studentId: string) => void;
-    /** "Löschen": everybody is back. */
+    /** "Alle da": everybody is back. */
     onClearAbsent?: () => void;
     zoom: number;
     minZoom: number;
@@ -491,7 +489,7 @@ const ABSENT_MENU_REACH = '8rem';
 
 /**
  * The students missing today, above the count that opens it: a press on a
- * name brings that student back, "Löschen" everybody.
+ * name brings that student back, "Alle da" everybody.
  *
  * It hangs on the bar itself rather than on `<body>`: in fullscreen only the
  * projection is on screen, and the bar's row scrolls on a phone and would
@@ -542,7 +540,8 @@ function AbsentMenu({
       }}
     >
       {absent.map((student) => {
-        const back = t('present.absent.back', { name: student.name });
+        // Named for what a press does; what it did is announced after.
+        const bringBack = t('present.absent.bringBack', { name: student.name });
         return (
           <button
             key={student.id}
@@ -551,8 +550,8 @@ function AbsentMenu({
               menuRef.current?.focus();
               onMarkBack(student.id);
             }}
-            aria-label={back}
-            title={back}
+            aria-label={bringBack}
+            title={bringBack}
             className={`${menuItemClass} pointer-coarse:min-h-11`}
           >
             <span className="min-w-0 flex-1 truncate">{student.name}</span>
@@ -565,13 +564,14 @@ function AbsentMenu({
         );
       })}
       <div className="my-1 h-px bg-(--border-card)" role="separator" />
+      {/* Nothing is deleted, the marks of the day are set back: no rose. */}
       <button
         type="button"
         onClick={onClear}
         title={t('present.absent.clearTitle')}
-        className={`${menuItemDangerClass} pointer-coarse:min-h-11`}
+        className={`${menuItemClass} pointer-coarse:min-h-11`}
       >
-        <TrashIcon size={16} aria-hidden className="shrink-0" />
+        <UserCheckIcon size={16} aria-hidden className="shrink-0" />
         {t('present.absent.clear')}
       </button>
     </div>

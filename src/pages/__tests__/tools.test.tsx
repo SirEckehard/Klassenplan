@@ -9,13 +9,14 @@
 import '@testing-library/jest-dom/vitest';
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import '@/i18n';
 import Groups from '../Groups';
 import Duties from '../Duties';
 import WhoIsNext from '../WhoIsNext';
 import SeatFinder from '../SeatFinder';
 import { setupLocalStorageMock } from '@/__tests__/utils';
+import { resetAbsences, toggleAbsent } from '@/stores/absenceStore';
 
 const seatingState = vi.hoisted(() => ({
   current: {
@@ -427,6 +428,38 @@ describe('Dienste verteilen', () => {
 
     await vi.waitFor(() => expect(dutyMemory.get('class-1')).toEqual(stored));
     expect(screen.getByText(ada.name)).toBeInTheDocument();
+  });
+});
+
+// Decision 0045: who is missing today, marked in the projection, gets no duty
+// either; the rotation brings them first in a later round by itself.
+describe('Dienste verteilen with students missing today', () => {
+  afterEach(() => resetAbsences());
+
+  it('hands the duty to who is there and says how many are missing', async () => {
+    seatingState.current = { ...seatingState.current, students: [ada, ben] };
+    dutyMemory.set('class-1', {
+      duties: [{ id: 'board', name: 'Tafeldienst', count: 2 }],
+      current: null,
+      rounds: [],
+    });
+    act(() => toggleAbsent('class-1', 'ada'));
+
+    renderPage(<Duties />);
+    fireEvent.click(
+      await screen.findByRole('button', {
+        name: /^(Dienste verteilen|Hand out duties)$/,
+      }),
+    );
+
+    await vi.waitFor(() =>
+      expect(dutyMemory.get('class-1')).toMatchObject({
+        current: { assignments: { board: ['ben'] } },
+      }),
+    );
+    expect(
+      screen.getByText(/1 fehlt heute|1 missing today/),
+    ).toBeInTheDocument();
   });
 });
 

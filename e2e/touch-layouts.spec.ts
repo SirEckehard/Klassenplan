@@ -86,7 +86,7 @@ async function expectAbsentListOverBar(
   expect(listBox.y + listBox.height).toBeLessThanOrEqual(countBox.y);
   expect(listBox.x).toBeGreaterThanOrEqual(0);
   expect(listBox.x + listBox.width).toBeLessThanOrEqual(width);
-  await expect(list.getByRole('button', { name: 'Löschen' })).toBeVisible();
+  await expect(list.getByRole('button', { name: 'Alle da' })).toBeVisible();
   return list;
 }
 
@@ -710,7 +710,7 @@ test(
 
       await page
         .getByRole('dialog', { name: '1 fehlt heute' })
-        .getByRole('button', { name: 'Löschen' })
+        .getByRole('button', { name: 'Alle da' })
         .click();
       await expect(page.locator('svg [data-absent]')).toHaveCount(0);
       await expect(count).toHaveCount(0);

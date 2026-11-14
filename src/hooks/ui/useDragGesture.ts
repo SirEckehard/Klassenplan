@@ -139,7 +139,8 @@ export function useDragGesture(): {
  * drag threshold, so a press that travels picks the student up instead of
  * locking them. A cancelled pointer, a second press — another finger
  * anywhere on the screen, the start of a pinch — or the view going away act
- * on nothing.
+ * on nothing, and neither does a press of any but the main button: a right
+ * click opens the context menu, a middle click scrolls.
  */
 export function useTapGesture(): (
   event: React.PointerEvent,
@@ -157,6 +158,8 @@ export function useTapGesture(): (
   return React.useCallback(
     (event: React.PointerEvent, onTap: () => void) => {
       stop();
+      // A finger and a pen press as the main button (0) too.
+      if (event.button > 0) return;
 
       const pointerId = event.pointerId;
       const threshold = thresholdFor(event.pointerType);

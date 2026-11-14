@@ -14,6 +14,7 @@ import {
 import ToolPage, { ToolEmptyState } from '@/components/tools/ToolPage';
 import { PAGE_HELP_TOPICS } from '@/components/help/pageHelpTopics';
 import { useSeatingPlanState } from '@/contexts/SeatingPlanContext';
+import { useAbsentIds } from '@/stores/absenceStore';
 import {
   emptyClassDuties,
   loadClassDuties,
@@ -88,6 +89,14 @@ export default function Duties() {
   const named = React.useMemo(
     () => students.filter((student) => student.name.trim().length > 0),
     [students],
+  );
+  // Who was marked as missing today in the projection gets no duty
+  // (decision 0045). The rotation puts first whoever held fewer duties, so
+  // they come first in a later round without anything kept for it.
+  const absentIds = useAbsentIds(classId);
+  const present = React.useMemo(
+    () => named.filter((student) => !absentIds.has(student.id)),
+    [named, absentIds],
   );
 
   const update = React.useCallback(
@@ -169,7 +178,9 @@ export default function Duties() {
     const before = state;
     const trimmed = { ...state, current: round };
     update(
-      again ? redrawDutyRound(trimmed, named) : startDutyRound(trimmed, named),
+      again
+        ? redrawDutyRound(trimmed, present)
+        : startDutyRound(trimmed, present),
     );
     if (!before.current) return;
     showToast('info', 'toast:duties.redistributed', {
@@ -187,7 +198,7 @@ export default function Duties() {
     const id = pickForDuty(
       duty.id,
       round,
-      named,
+      present,
       state.rounds,
       Math.random,
       replacing,
@@ -269,10 +280,14 @@ export default function Duties() {
     <ToolPage
       route="/dienste"
       title={t('tools.duties.title')}
-      subtitle={activeClass.name}
+      subtitle={
+        absentIds.size > 0
+          ? `${activeClass.name} · ${t('present.absent.count', { count: absentIds.size })}`
+          : activeClass.name
+      }
       help={PAGE_HELP_TOPICS.duties}
       footer={
-        named.length > 0 && state && state.duties.length > 0 ? (
+        present.length > 0 && state && state.duties.length > 0 ? (
           <div className="flex gap-2">
             {round && (
               <button
@@ -383,11 +398,11 @@ export default function Duties() {
 
               {!round ? (
                 <p className="rounded-lg border border-(--border-card) bg-(--surface-card) px-4 py-6 text-center text-sm text-(--text-muted)">
-                  {t('tools.duties.hint', { total: named.length })}
+                  {t('tools.duties.hint', { total: present.length })}
                 </p>
               ) : (
                 <>
-                  {short > 0 && wanted > named.length && (
+                  {short > 0 && wanted > present.length && (
                     <p
                       role="status"
                       className="mb-3 flex items-start gap-2 rounded-lg border border-(--border-card) bg-(--status-warn-surface) px-3 py-2 text-xs text-(--status-warn-text)"
@@ -400,7 +415,7 @@ export default function Duties() {
                       <span>
                         {t('tools.duties.shortfall', {
                           count: short,
-                          total: named.length,
+                          total: present.length,
                         })}
                       </span>
                     </p>

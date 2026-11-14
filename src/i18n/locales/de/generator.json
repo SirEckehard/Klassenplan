@@ -147,7 +147,7 @@
       },
       "absent": {
         "title": "Heute fehlt",
-        "body": "Tippe auf einen Platz, wenn jemand fehlt: Der Platz wird blass, „Wer kommt dran?“ und „Gruppen bilden“ lassen die Person aus. Gilt nur heute und wird nicht gespeichert."
+        "body": "Tippe auf einen Platz, wenn jemand fehlt: Der Platz wird blass, „Wer kommt dran?“, „Gruppen bilden“ und „Dienste verteilen“ lassen die Person aus. Gilt nur heute und wird nicht gespeichert."
       },
       "fullscreen": {
         "title": "Vollbild",
@@ -251,10 +251,11 @@
     "absent": {
       "marked": "{{name}} fehlt heute.",
       "back": "{{name}} ist wieder da.",
+      "bringBack": "{{name}} zurückholen",
       "count_one": "{{count}} fehlt heute",
       "count_other": "{{count}} fehlen heute",
       "listTitle": "Zeigt, wer heute fehlt",
-      "clear": "Löschen",
+      "clear": "Alle da",
       "clearTitle": "Alle wieder da – die Markierungen gelten nur heute und werden nicht gespeichert"
     }
   },

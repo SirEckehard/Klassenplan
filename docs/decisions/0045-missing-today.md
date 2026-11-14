@@ -29,7 +29,7 @@ personal data a seating plan does not need.
   and a layer of them would take the hover from the badges.
 - **The projection's bar** counts them ("2 fehlen heute"); a press on the count
   lists them above the bar, where a name brings that student back and
-  "Löschen" everybody (see the addendum). A screen reader hears each mark
+  "Alle da" everybody (see the addenda). A screen reader hears each mark
   (`announce`).
 - **The draw and the groups leave them out:** the projection's and
   "Wer kommt dran?"'s draw never picks them, and marking someone keeps the
@@ -80,3 +80,22 @@ On a phone the first use showed three things (the maintainer's notes of
   seat through a pinch marked its student when it lifted.
 
 Nothing about what is kept changes: the marks stay in memory, for the day.
+
+## Addendum of 2026-11-14: the review before the release
+
+The review of 2026-11-14 (N30, N31, N35, I14 on its checklist) brought four
+changes the maintainer chose:
+
+- **Only the main button taps** (`useTapGesture`): a right click, which opens
+  the context menu, and a middle click marked a student as missing. The lock
+  on a seat and on a place of the circle use the same gesture and follow.
+- **The one just drawn goes back.** Marking the student "Wer kommt dran?"
+  has just drawn works as "Überspringen": the light goes out, and the student
+  goes back into the round, having had no turn.
+- **"Alle da" instead of "Löschen"**, in ink with the sign of the names: the
+  marks of the day are set back, nothing is deleted, and rose is for what is
+  lost. Each name in the list is labelled with what a press does ("Lea
+  zurückholen"); what it did is announced after.
+- **"Dienste verteilen" leaves the missing out** as well, and says how many
+  under its title. Nothing is kept for them: the rotation puts first whoever
+  held fewer duties, so they come first in a later round by themselves.
