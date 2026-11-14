@@ -33,6 +33,8 @@ const students = [
     performanceWeak: true,
     prefersDoor: true,
     languageSkill: 'daz',
+    needsFreeNeighbourSeat: true,
+    leftHanded: true,
   }),
   createMockStudent({ id: 'c', gender: 'diverse' }),
 ];
@@ -63,5 +65,24 @@ describe('useMixCriteria', () => {
         expect(CRITERIA_FAMILY_MAP[criterion.key]).toBe(category.id);
       }
     }
+  });
+
+  it('offers every criterion the class has data for', () => {
+    const { result } = renderHook(() =>
+      useMixCriteria({
+        settings: { ...DEFAULT_MIX_WEIGHTS },
+        setMixSettings: vi.fn(),
+        students,
+      }),
+    );
+    const keys = result.current.categories.flatMap((category) =>
+      category.criteria.map((criterion) => criterion.key),
+    );
+
+    // The second distractibility weight moves with the first, without a row.
+    const offered = Object.keys(CRITERIA_FAMILY_MAP).filter(
+      (key) => key !== 'avoidConcentrationNearRestless',
+    );
+    expect([...keys].sort()).toEqual(offered.sort());
   });
 });

@@ -196,6 +196,16 @@ export const buildMixCriteriaCategories = (
         label: t('mix.criteria.preferDoorSeats.label'),
         description: t('mix.criteria.preferDoorSeats.desc'),
       },
+      {
+        key: 'keepNeighbourSeatFree',
+        label: t('mix.criteria.keepNeighbourSeatFree.label'),
+        description: t('mix.criteria.keepNeighbourSeatFree.desc'),
+      },
+      {
+        key: 'seatLeftHandersLeft',
+        label: t('mix.criteria.seatLeftHandersLeft.label'),
+        description: t('mix.criteria.seatLeftHandersLeft.desc'),
+      },
     ],
   },
 ];
