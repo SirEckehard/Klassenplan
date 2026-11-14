@@ -27,13 +27,36 @@ describe('a marker', () => {
     expect(hasMarkers(plain({ restless: true }))).toBe(true);
     expect(hasMarkers(plain({ wishPartnerIds: ['b'] }))).toBe(true);
     expect(hasMarkers(plain({ languageSkill: 'daz' }))).toBe(true);
-    expect(hasMarkers(plain({ leftHanded: true }))).toBe(true);
+    expect(hasMarkers(plain({ needsFreeNeighbourSeat: true }))).toBe(true);
   });
 
   it('is not the name, the gender or the photo', () => {
     expect(
       hasMarkers(plain({ name: 'Bea', gender: 'girl', hasPhoto: true })),
     ).toBe(false);
+  });
+
+  // Review of 2026-11-14: the hand and the height do not change with the
+  // weeks, so they neither carry a day nor bring the question.
+  it('is not the hand a child writes with or its height', () => {
+    expect(hasMarkers(plain({ leftHanded: true, height: 'tall' }))).toBe(false);
+    const before = plain({ markersUpdatedAt: '2026-01-01' });
+    const patch = { leftHanded: true, height: 'small' } as Partial<Student>;
+    expect(
+      stampMarkerChange(
+        before,
+        { ...before, ...patch } as Student,
+        patch,
+        '2026-11-13',
+      ).markersUpdatedAt,
+    ).toBe('2026-01-01');
+    expect(
+      staleMarkerCount({
+        students: [plain({ leftHanded: true }), plain({ height: 'tall' })],
+        createdAt: '2026-01-01',
+        now: NOW,
+      }),
+    ).toBe(0);
   });
 
   it('stamps the day it changes', () => {

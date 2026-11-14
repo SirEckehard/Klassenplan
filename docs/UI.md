@@ -188,8 +188,14 @@ afterwards.
   says when the class's markers were last said to hold, with "Jetzt geprüft";
   on the plan layer a card above the plan (`MarkerReviewReminder`, beside the
   backup reminder) asks once they stood still for twelve weeks, with "Zur
-  Klassenliste", "Passt noch" and "Später"
-  ([decision 0044](decisions/0044-markers-carry-a-date.md)).
+  Klassenliste", "Passt noch", "Alle Klassen passen noch" where there is more
+  than one class, and "Später"
+  ([decision 0044](decisions/0044-markers-carry-a-date.md)). The notices above
+  the layer — what is new, the backup, the markers — stand one at a time, in
+  that order (`*:not-first:hidden` on their container, each rendering nothing
+  until it is due), and below `lg` keep their sentence and their answers
+  only, without icon, reason or link: stacked and full, they pushed the plan
+  off a phone and halved it on a tablet.
   `ClassDialogsProvider` holds what those places share — making a class with its
   busy state (`create`, which resolves with the new class's id), and the
   question before deleting one, the one dialog left.

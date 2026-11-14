@@ -70,3 +70,26 @@ data kept no longer than it is needed — and leaves it to the one who keeps it.
 - **localStorage** gains `spg.markerReviewSnoozedUntil`: class ids and days,
   no names; "Alle Daten löschen" clears it.
 - **The plans** do not change: the dates are read by the card alone.
+
+## Addendum of 2026-11-14: the review before the release
+
+The review of 2026-11-14 (M15, N34, A6 on its checklist) brought three
+changes the maintainer chose:
+
+- **The hand and the height are no markers to review.** Whether a child
+  writes with the left hand or is tall does not change with the weeks; asked
+  about every twelve weeks, the question wore thin. Neither carries a day any
+  more nor brings the card; the card's sentence about behaviour fits what is
+  left.
+- **One answer for every class.** A class from before the dates counts from
+  the day it was made, and most were made with the school year: they reach
+  twelve weeks together, in the weeks after the release. Where there is more
+  than one class, the card offers "Alle Klassen passen noch", which notes the
+  day on every class (`confirmAll` in `useMarkerReview`) and says for how many
+  it did.
+- **One card at a time, short below `lg`.** The update notice, the backup
+  reminder and this card stood one above the other and, thirteen weeks on
+  without a backup, pushed the plan off a phone and halved it on a tablet.
+  They now show one at a time in that order, and below `lg` with their
+  sentence and their answers only; `touch-layouts.spec.ts` keeps the plan in
+  sight with a notice due.

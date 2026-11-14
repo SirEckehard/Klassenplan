@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - The help is shorter, sorted into topics and up to date, and its keyboard shortcuts – now in the presentation too – scroll into view when opened
 - The tour matches the help, crosses the screen in reading order and glides from step to step
 - In the presentation, zooming and moving the plan with your fingers runs more smoothly
+- Notices above the seating plan come one at a time and keep the plan in view on a phone or tablet
 
 ### Fixed
 

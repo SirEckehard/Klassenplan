@@ -29,8 +29,11 @@ const MARKER_REVIEW_SNOOZE_DAYS = 7;
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 /**
- * What describes a student for the mixing: behaviour, needs, wishes,
- * languages, roles, preferences. Not the name, the gender or the photo.
+ * What describes a student for the mixing and can change in a school year:
+ * behaviour, needs, wishes, languages, roles, preferences. Not the name, the
+ * gender or the photo, and not the hand a child writes with or how tall it
+ * is, which nobody needs to be asked about every twelve weeks (review of
+ * 2026-11-14). Only these carry the day they changed.
  */
 const MARKER_KEYS = [
   'restless',
@@ -39,7 +42,6 @@ const MARKER_KEYS = [
   'needsFrontSeat',
   'performanceStrong',
   'performanceWeak',
-  'height',
   'languageSkill',
   'socialRole',
   'wishPartnerIds',
@@ -49,7 +51,6 @@ const MARKER_KEYS = [
   'prefersWindow',
   'prefersDoor',
   'needsFreeNeighbourSeat',
-  'leftHanded',
 ] as const satisfies readonly (keyof Student)[];
 
 /** A value as a marker reads it: unset, false and an empty list are one. */
@@ -60,7 +61,7 @@ const markerValue = (value: unknown): string => {
   return String(value);
 };
 
-/** Whether a student carries any marker at all. */
+/** Whether a student carries any marker the review asks about. */
 export const hasMarkers = (student: Student): boolean =>
   MARKER_KEYS.some((key) => markerValue(student[key]) !== '');
 

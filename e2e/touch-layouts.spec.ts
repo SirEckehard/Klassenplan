@@ -757,3 +757,37 @@ test(
     ).toBeVisible();
   },
 );
+
+// Review of 2026-11-14: thirteen weeks on, without a backup, the backup's and
+// the markers' notices stood one above the other and pushed the plan below a
+// phone's screen. One notice at a time, short below `lg`, the plan in sight.
+test(
+  'a notice due above the plan stands alone and leaves the plan in sight',
+  { tag: ['@phone', '@tablet'] },
+  async ({ page }) => {
+    await loadSampleClass(page);
+    await page.clock.setFixedTime(new Date(Date.now() + 13 * 7 * 864e5));
+    await page.reload();
+    await expect(
+      page.getByRole('button', { name: /Aktive Klasse: Beispielklasse/ }),
+    ).toContainText('24 Schüler');
+    await page.getByRole('button', { name: 'Weiter zum Raum' }).click();
+    await page.getByRole('button', { name: 'Weiter zum Sitzplan' }).click();
+    await expect(page.getByRole('group', { name: /^Sitzplan:/ })).toBeVisible();
+
+    const notices = page.locator('[data-workspace-notices] > *');
+    const markers = page.getByRole('region', { name: 'Merkmale prüfen' });
+    // The backup comes first, the markers wait behind it.
+    await expect(notices.filter({ visible: true })).toHaveCount(1);
+    await expect(
+      page.getByRole('button', { name: 'Backup erstellen' }),
+    ).toBeVisible();
+    await expect(markers).toBeHidden();
+    await expectCanvasInSight(page);
+
+    await page.getByRole('button', { name: 'Später erinnern' }).click();
+    await expect(markers).toBeVisible();
+    await expect(notices.filter({ visible: true })).toHaveCount(1);
+    await expectCanvasInSight(page);
+  },
+);

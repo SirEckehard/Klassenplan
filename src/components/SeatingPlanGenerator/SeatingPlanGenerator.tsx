@@ -49,8 +49,14 @@ export default function SeatingPlanGenerator() {
       <AppShell>
         {/* Transient notices above the layer. They keep a gutter of their own:
             the shell has none from `lg` up, where its columns are the margins.
-            `empty:hidden` keeps the gutter from showing when neither fires. */}
-        <div className="empty:hidden lg:px-5 lg:pt-5">
+            `empty:hidden` keeps the gutter from showing when none fires. One
+            at a time, in this order — each renders nothing until it is due,
+            so the first child is the one to show: stacked, they pushed the
+            plan off a phone (review of 2026-11-14). */}
+        <div
+          className="empty:hidden lg:px-5 lg:pt-5 *:not-first:hidden"
+          data-workspace-notices=""
+        >
           <PostUpdateNotice />
           <BackupReminder />
           <MarkerReviewReminder />

@@ -3,7 +3,9 @@
 import { useCallback, useMemo, useState } from 'react';
 import { useClassManagementContext } from '@/contexts/seatingPlan/ClassManagementContext';
 import { useSeatingPlanState } from '@/contexts/SeatingPlanContext';
+import i18n from '@/i18n';
 import { logError, toIsoDate } from '@/utils';
+import { announce } from '@/utils/ui/toast';
 import {
   isMarkerReviewSnoozed,
   MARKER_REVIEW_AGE_WEEKS,
@@ -22,6 +24,14 @@ export interface MarkerReviewView {
   reviewedAt?: string;
   /** "Passt noch": the class's markers hold as of today */
   confirm: () => void;
+  /** How many classes there are: more than one offers `confirmAll` */
+  classCount: number;
+  /**
+   * "Alle Klassen passen noch": every class's markers hold as of today. Most
+   * classes are made with the school year and reach the review age in the
+   * same weeks; one answer spares a card per class (review of 2026-11-14).
+   */
+  confirmAll: () => void;
   /** "Später": asks again in a week */
   later: () => void;
 }
@@ -31,7 +41,8 @@ export interface MarkerReviewView {
  * the two answers to the question.
  */
 export function useMarkerReview(): MarkerReviewView {
-  const { activeClass, updateClassMetadata } = useClassManagementContext();
+  const { activeClass, classSummaries, updateClassMetadata } =
+    useClassManagementContext();
   const { students } = useSeatingPlanState();
   // "Später" writes to localStorage, which renders nothing by itself.
   const [, setSnoozes] = useState(0);
@@ -65,6 +76,32 @@ export function useMarkerReview(): MarkerReviewView {
     );
   }, [classId, updateClassMetadata]);
 
+  const confirmAll = useCallback(() => {
+    const today = toIsoDate();
+    const ids = classSummaries.map((entry) => entry.id);
+    // One after the other: each writes the class collection.
+    ids
+      .reduce<Promise<unknown>>(
+        (previous, id) =>
+          previous.then(() =>
+            updateClassMetadata(id, { markersReviewedAt: today }),
+          ),
+        Promise.resolve(),
+      )
+      .then(() => {
+        announce(
+          i18n.t('generator:markerReview.confirmedAll', { count: ids.length }),
+        );
+      })
+      .catch((error: unknown) => {
+        logError(
+          'Could not note the marker review of every class',
+          { error },
+          'useMarkerReview',
+        );
+      });
+  }, [classSummaries, updateClassMetadata]);
+
   const later = useCallback(() => {
     if (!classId) return;
     snoozeMarkerReview(classId);
@@ -77,6 +114,8 @@ export function useMarkerReview(): MarkerReviewView {
     weeks: MARKER_REVIEW_AGE_WEEKS,
     reviewedAt: activeClass.markersReviewedAt,
     confirm,
+    classCount: classSummaries.length,
+    confirmAll,
     later,
   };
 }

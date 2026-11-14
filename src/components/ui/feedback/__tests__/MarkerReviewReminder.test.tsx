@@ -18,6 +18,7 @@ const mocks = vi.hoisted(() => ({
   students: [] as Student[],
   createdAt: '2025-01-01T08:00:00.000Z' as string | undefined,
   reviewedAt: undefined as string | undefined,
+  classIds: ['c1'] as string[],
   handleStepChange: vi.fn(),
   updateClassMetadata: vi.fn(async () => true),
 }));
@@ -36,6 +37,7 @@ vi.mock('@/contexts/seatingPlan/ClassManagementContext', () => ({
       createdAt: mocks.createdAt,
       markersReviewedAt: mocks.reviewedAt,
     },
+    classSummaries: mocks.classIds.map((id) => ({ id })),
     updateClassMetadata: mocks.updateClassMetadata,
   }),
 }));
@@ -53,6 +55,7 @@ beforeEach(async () => {
   ];
   mocks.createdAt = '2025-01-01T08:00:00.000Z';
   mocks.reviewedAt = undefined;
+  mocks.classIds = ['c1'];
   await i18n.changeLanguage('de');
 });
 
@@ -82,12 +85,36 @@ describe('MarkerReviewReminder', () => {
     render(<MarkerReviewReminder />);
 
     await userEvent.click(
-      screen.getByRole('button', { name: /Passt noch|Still right/i }),
+      screen.getByRole('button', { name: /^(Passt noch|Still right)$/i }),
     );
 
     expect(mocks.updateClassMetadata).toHaveBeenCalledWith('c1', {
       markersReviewedAt: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
     });
+    // With one class there is nobody else to answer for.
+    expect(
+      screen.queryByRole('button', { name: /Alle Klassen|all classes/i }),
+    ).not.toBeInTheDocument();
+  });
+
+  // Review of 2026-11-14: most classes are made with the school year and
+  // reach the review age together; one answer stands for all of them.
+  it('notes the day for every class on "Alle Klassen passen noch"', async () => {
+    mocks.classIds = ['c1', 'c2', 'c3'];
+    render(<MarkerReviewReminder />);
+
+    await userEvent.click(
+      screen.getByRole('button', { name: /Alle Klassen|all classes/i }),
+    );
+
+    await vi.waitFor(() =>
+      expect(mocks.updateClassMetadata).toHaveBeenCalledTimes(3),
+    );
+    for (const id of mocks.classIds) {
+      expect(mocks.updateClassMetadata).toHaveBeenCalledWith(id, {
+        markersReviewedAt: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
+      });
+    }
   });
 
   it('leads to the class list', async () => {

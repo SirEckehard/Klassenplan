@@ -189,7 +189,7 @@
       },
       "review": {
         "q": "Why does Klassenplan ask whether the markers still hold?",
-        "a": "Markers describe how a student behaves right now – and children change. Every marker remembers when it last changed. Once a class’s markers have stayed the same for twelve weeks, the seating plan asks once: you can go to the class list, confirm with \"Still right\" or put the question off for a week. Nothing changes by itself. The class’s inspector shows when you last confirmed the markers."
+        "a": "Markers describe how a student behaves right now – and children change. Every marker remembers when it last changed – except left-handed and height, which do not change. Once a class’s markers have stayed the same for twelve weeks, the seating plan asks once: you can go to the class list, confirm with \"Still right\" – for every class at once with \"Still right for all classes\" – or put the question off for a week. Nothing changes by itself. The class’s inspector shows when you last confirmed the markers."
       },
       "demo": {
         "q": "Can I try Klassenplan without real student data?",

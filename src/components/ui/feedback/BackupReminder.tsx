@@ -15,7 +15,9 @@ import { logError } from '@/utils';
  * Everything lives in this browser, so an evicted origin or a new laptop means
  * the classes are gone unless a backup file exists. The reminder is the only
  * place the app ever says so on its own — hence the explicit "never again",
- * which a teacher who keeps backups elsewhere is entitled to.
+ * which a teacher who keeps backups elsewhere is entitled to. Below `lg` the
+ * plan has to fit the page beside it: the card keeps its sentence and its
+ * answers, the icon, the reason and the way to the FAQ go.
  */
 export default function BackupReminder() {
   const { t } = useTranslation('generator');
@@ -49,13 +51,13 @@ export default function BackupReminder() {
     <section
       aria-live="polite"
       role="status"
-      className="mb-6 rounded-lg border border-(--border-option-selected) bg-(--surface-option-selected) px-4 py-5 text-(--text-page)"
+      className="mb-6 rounded-lg border border-(--border-option-selected) bg-(--surface-option-selected) px-4 py-5 text-(--text-page) max-lg:mb-3 max-lg:py-3"
     >
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:gap-5">
-        <span className="inline-flex h-12 w-12 items-center justify-center rounded-lg bg-(--surface-card) text-(--text-badge)">
+        <span className="inline-flex h-12 w-12 items-center justify-center rounded-lg bg-(--surface-card) text-(--text-badge) max-lg:hidden">
           <FileLockIcon aria-hidden="true" className="h-6 w-6" />
         </span>
-        <div className="flex-1 space-y-3">
+        <div className="flex-1 space-y-3 max-lg:space-y-2">
           <div>
             <p className="text-xs font-semibold uppercase tracking-wide text-(--text-muted)">
               {t('backupReminder.eyebrow')}
@@ -65,7 +67,7 @@ export default function BackupReminder() {
                 ? t('backupReminder.aged', { count: ageInDays })
                 : t('backupReminder.never')}
             </p>
-            <p className="mt-1 text-sm text-(--text-muted)">
+            <p className="mt-1 text-sm text-(--text-muted) max-lg:hidden">
               {t('backupReminder.why')}
             </p>
           </div>
@@ -94,7 +96,7 @@ export default function BackupReminder() {
           </div>
           <LocalizedLink
             to="/faq#backups"
-            className="inline-flex items-center gap-1 text-sm font-medium text-(--text-muted) underline decoration-(--border-card) underline-offset-4 transition hover:text-(--text-page) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring) focus-visible:ring-offset-2"
+            className="inline-flex items-center gap-1 text-sm font-medium text-(--text-muted) underline decoration-(--border-card) underline-offset-4 transition hover:text-(--text-page) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring) focus-visible:ring-offset-2 max-lg:hidden"
           >
             {t('backupReminder.faqLink')}
             <ArrowRightIcon aria-hidden="true" className="h-4 w-4" />

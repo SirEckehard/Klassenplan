@@ -89,13 +89,13 @@ export default function PostUpdateNotice() {
     <section
       aria-live="polite"
       role="status"
-      className="mb-6 rounded-2xl border border-(--border-option-selected) bg-(--surface-option-selected) px-4 py-5 text-(--text-page) shadow-xs backdrop-blur"
+      className="mb-6 rounded-2xl border border-(--border-option-selected) bg-(--surface-option-selected) px-4 py-5 text-(--text-page) shadow-xs backdrop-blur max-lg:mb-3 max-lg:py-3"
     >
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:gap-5">
-        <span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-(--button-primary-bg)/15 text-(--text-badge)/30">
+        <span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-(--button-primary-bg)/15 text-(--text-badge)/30 max-lg:hidden">
           <MegaphoneIcon aria-hidden="true" className="h-6 w-6" />
         </span>
-        <div className="flex-1 space-y-3">
+        <div className="flex-1 space-y-3 max-lg:space-y-2">
           <div>
             <p className="text-xs font-semibold uppercase tracking-wide text-(--text-badge)">
               {t('updateNotice.newInVersion', {
@@ -110,7 +110,7 @@ export default function PostUpdateNotice() {
                 {formatLongDate(latestChangelogEntry.date)}
               </time>
             ) : null}
-            <p className="mt-2 text-sm text-(--text-muted)">
+            <p className="mt-2 text-sm text-(--text-muted) max-lg:hidden">
               {t('updateNotice.intro')}
             </p>
           </div>

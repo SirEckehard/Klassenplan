@@ -189,7 +189,7 @@
       },
       "review": {
         "q": "Warum fragt Klassenplan, ob die Merkmale noch stimmen?",
-        "a": "Merkmale beschreiben, wie sich ein Schüler gerade verhält – Kinder ändern sich. Jedes Merkmal merkt sich, wann es zuletzt geändert wurde. Sind die Merkmale einer Klasse zwölf Wochen lang unverändert, fragt der Sitzplan einmal nach: Du kannst zur Klassenliste gehen, mit „Passt noch“ bestätigen oder die Frage um eine Woche verschieben. Geändert wird nichts von selbst. Im Inspektor der Klasse siehst du, wann du die Merkmale zuletzt bestätigt hast."
+        "a": "Merkmale beschreiben, wie sich ein Schüler gerade verhält – Kinder ändern sich. Jedes Merkmal merkt sich, wann es zuletzt geändert wurde – außer Linkshänder und Körpergröße, die sich nicht ändern. Sind die Merkmale einer Klasse zwölf Wochen lang unverändert, fragt der Sitzplan einmal nach: Du kannst zur Klassenliste gehen, mit „Passt noch“ bestätigen – auf einmal für alle Klassen mit „Alle Klassen passen noch“ – oder die Frage um eine Woche verschieben. Geändert wird nichts von selbst. Im Inspektor der Klasse siehst du, wann du die Merkmale zuletzt bestätigt hast."
       },
       "demo": {
         "q": "Kann ich Klassenplan ohne echte Schülerdaten ausprobieren?",

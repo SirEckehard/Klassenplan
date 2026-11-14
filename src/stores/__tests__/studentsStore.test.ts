@@ -225,15 +225,16 @@ describe('studentsStore', () => {
   describe('updateStudent', () => {
     // Decision 0044: the day a marker changed, for the question whether the
     // markers still hold.
-    it('stamps the day a marker changes, and not for the name', () => {
+    it('stamps the day a marker changes, and not for the name or the hand', () => {
       const s = studentStore.getState().addStudent('A');
 
       studentStore.getState().updateStudent(s.id, { name: 'Ada' });
+      studentStore.getState().updateStudent(s.id, { leftHanded: true });
       expect(studentStore.getState().students[0]!.markersUpdatedAt).toBe(
         undefined,
       );
 
-      studentStore.getState().updateStudent(s.id, { leftHanded: true });
+      studentStore.getState().updateStudent(s.id, { shy: true });
       expect(studentStore.getState().students[0]!.markersUpdatedAt).toMatch(
         /^\d{4}-\d{2}-\d{2}$/,
       );
