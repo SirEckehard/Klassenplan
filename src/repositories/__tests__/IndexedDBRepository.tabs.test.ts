@@ -221,3 +221,53 @@ describe('telling another window’s changes to the open class', () => {
     );
   });
 });
+
+describe('noting the open class as opened', () => {
+  let now = Date.parse('2026-11-14T08:00:00.000Z');
+  const later = () => {
+    now += 60_000;
+    vi.setSystemTime(now);
+  };
+
+  beforeEach(() => {
+    memory.clear();
+    vi.stubGlobal('indexedDB', {});
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(now);
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
+  });
+
+  const storedClass = async (id: string) =>
+    expectData(
+      await new IndexedDBRepository().loadClassCollection(),
+    ).classes.find((entry) => entry.id === id);
+
+  it('stamps the class a newly opened window opens, and only its opening', async () => {
+    const { tabA, sevenA } = await twoTabs();
+    const before = await storedClass(sevenA.id);
+    expectData(await tabA.loadActiveClassSnapshot());
+    later();
+
+    const tabB = new IndexedDBRepository();
+    expectData(await tabB.markOpenClassOpened());
+
+    const after = await storedClass(sevenA.id);
+    expect(after?.lastUsedAt).toBe(new Date(now).toISOString());
+    expect(after?.updatedAt).toBe(before?.updatedAt);
+    // Opening changes nothing in the class: the other window stays in step.
+    expect(expectData(await tabA.isOpenClassChangedElsewhere())).toBe(false);
+  });
+
+  it('writes nothing while there is no class', async () => {
+    const result = await new IndexedDBRepository().markOpenClassOpened();
+
+    expect(result.success).toBe(false);
+    expect(
+      expectData(await new IndexedDBRepository().loadClassCollection()).classes,
+    ).toEqual([]);
+  });
+});

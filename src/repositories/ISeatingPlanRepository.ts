@@ -62,6 +62,11 @@ export interface ISeatingPlanRepository {
   setActiveClass(classId: string): Promise<Result<ClassRecord>>;
   deleteClass(classId: string): Promise<Result<void>>;
   saveClassCollection(collection: ClassCollectionState): Promise<Result<void>>;
+  /**
+   * Notes the class this window opens as opened now (`lastUsedAt`), without
+   * touching `updatedAt`; nothing is written while no class exists.
+   */
+  markOpenClassOpened(): Promise<Result<void>>;
   loadActiveClassSnapshot(): Promise<Result<ActiveClassSnapshot>>;
   /**
    * Whether another window of the app wrote the open class since this one

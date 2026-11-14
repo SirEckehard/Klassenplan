@@ -705,6 +705,25 @@ export class IndexedDBRepository implements ISeatingPlanRepository {
     );
   }
 
+  async markOpenClassOpened(): Promise<Result<void>> {
+    return this.withErrorHandling(
+      () =>
+        this.changeCollection((collection) => {
+          const record = this.getOpenClassRecord(collection);
+          if (!record) {
+            this.refuse(RepositoryErrorType.NOT_FOUND, 'No class open');
+          }
+          // `lastUsedAt` alone: `updatedAt` is what other windows tell a
+          // change of the class by, and opening it changes nothing in it.
+          record.lastUsedAt = new Date().toISOString();
+        }),
+      {
+        logMessage: 'Failed to mark the open class as opened in IndexedDB',
+        errorMessage: 'Failed to mark the open class as opened',
+      },
+    );
+  }
+
   async loadActiveClassSnapshot(): Promise<Result<ActiveClassSnapshot>> {
     return this.withActiveClassRead(
       (stored) => {

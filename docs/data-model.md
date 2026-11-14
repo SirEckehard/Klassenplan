@@ -1,6 +1,6 @@
 # Data Model
 
-> **Status:** current · **Last reviewed:** 2026-11-04 · **Source of truth:**
+> **Status:** current · **Last reviewed:** 2026-11-14 · **Source of truth:**
 > `src/utils/data/storageKeys.ts`, `src/types/`, `src/repositories/`
 
 Everything Klassenplan stores lives in the teacher's browser. This document
@@ -59,8 +59,8 @@ interface ClassRecord {
   label?: string;
   notes?: string;
   createdAt: string; // ISO 8601
-  updatedAt: string;
-  lastUsedAt?: string;
+  updatedAt: string; // any change to the class; other windows reload on it
+  lastUsedAt?: string; // last opened: at app start or a switch to it
   students: Student[];
   seatingHistory: SavedPlan[];
   mixHistory: MixResult[];

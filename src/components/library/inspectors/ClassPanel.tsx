@@ -15,6 +15,7 @@ import ClassMetadataFields from '@/components/students/ClassMetadataFields';
 import type { UpdateClassMetadataPayload } from '@/types';
 import {
   checkName,
+  formatDate,
   formatStoredDate,
   MAX_NAME_LENGTH,
   neutralButtonClass,
@@ -110,7 +111,7 @@ export default function ClassPanel({
           <ValueRow label={t('library.class.plans')}>{planCount}</ValueRow>
           {lastUsedAt && (
             <ValueRow label={t('library.class.lastUsed')}>
-              {formatStoredDate(lastUsedAt.slice(0, 10))}
+              {formatDate(lastUsedAt)}
             </ValueRow>
           )}
           {onMarkersReviewed && (

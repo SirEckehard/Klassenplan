@@ -492,6 +492,20 @@ export function useSeatingPersistence(state: SeatingState) {
     let cancelled = false;
     (async () => {
       try {
+        // Opening the app opens its class: "Zuletzt geöffnet" counts it, not
+        // only a switch to another class. Before the read, so it shows.
+        const marked = await repository.markOpenClassOpened();
+        if (
+          !marked.success &&
+          marked.error.type !== RepositoryErrorType.NOT_FOUND
+        ) {
+          logWarn(
+            'Failed to mark the open class as opened',
+            { error: marked.error },
+            'useSeatingPersistence',
+          );
+        }
+        if (cancelled) return;
         const snapshot = await fetchPersistedState();
         if (cancelled) return;
         applyPersistedState(snapshot);
@@ -511,7 +525,7 @@ export function useSeatingPersistence(state: SeatingState) {
     return () => {
       cancelled = true;
     };
-  }, [applyPersistedState, fetchPersistedState, sweepOrphans]);
+  }, [applyPersistedState, fetchPersistedState, repository, sweepOrphans]);
 
   // Use extracted class data persistence hook for auto-persist effects
   const { reloadCurrentClassData } = useClassDataPersistence(
