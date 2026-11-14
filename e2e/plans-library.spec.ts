@@ -259,8 +259,13 @@ test('a preset of your own is kept and found in "Bibliothek"', async ({
       'Voreinstellung: Stillarbeit',
     );
 
-    // The class keeps which preset its criteria came from.
+    // The class keeps which preset its criteria came from. The way to the
+    // plan waits for the class to be read back: before its students are
+    // there, the plan layer refuses (no students) and the page stays put.
     await page.reload();
+    await expect(
+      page.getByRole('button', { name: `${STUDENTS[0]} im Inspektor öffnen` }),
+    ).toBeVisible();
     await page.getByRole('button', { name: 'Sitzplan', exact: true }).click();
     await expect(presetButton).toHaveAccessibleName(
       'Voreinstellung: Stillarbeit',
