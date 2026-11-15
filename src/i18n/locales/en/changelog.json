@@ -1,4 +1,20 @@
 {
+  "v3_4_0": {
+    "0": "Name cards for desks or to wear, in fonts for beginning readers, with motifs, coloured paper and writing lines",
+    "1": "In the presentation, a tap on a seat marks who is missing today and the bar lists them; \"Who's next?\", \"Build groups\" and \"Hand out duties\" leave them out",
+    "2": "A student can need the seat beside them free, and left-handers sit with nobody writing right-handed to their left",
+    "3": "After twelve weeks without a change, the seating plan asks whether a class's markers still hold",
+    "4": "Room templates and presets can be saved as a file and handed on to colleagues",
+    "5": "On a phone and a tablet, tables and room elements come from \"Add\" at the status bar, without scrolling below the room",
+    "6": "The help is shorter, sorted into topics and up to date, and its keyboard shortcuts – now in the presentation too – scroll into view when opened",
+    "7": "The tour matches the help, crosses the screen in reading order and glides from step to step",
+    "8": "In the presentation, zooming and moving the plan with your fingers runs more smoothly",
+    "9": "Notices above the seating plan come one at a time and keep the plan in view on a phone or tablet",
+    "10": "In the presentation, the student \"Who's next?\" draws lights up in Safari too instead of staying dark",
+    "11": "On a touch screen, a button no longer keeps its highlight after a tap",
+    "12": "In \"Library\", \"Last opened\" now also counts opening the app, not only a switch of class",
+    "13": "Other small fixes"
+  },
   "v3_3_2": {
     "0": "In the seating plan, the presentation, \"Where does who sit?\", \"Who's next?\" and the export the room steps back behind the students: furniture only as an outline, thinner lines, no grid",
     "1": "The lock on a seat always sits in its upper left, however the table is turned, and never covers the name",

@@ -1,4 +1,20 @@
 {
+  "v3_4_0": {
+    "0": "Namensschilder für den Tisch oder zum Anstecken, in Schriften für Leseanfänger, mit Motiven, farbigem Papier und Schreiblinien",
+    "1": "In der Präsentation markiert ein Tipp auf einen Platz, wer heute fehlt, und die Leiste nennt sie; „Wer kommt dran?“, „Gruppen bilden“ und „Dienste verteilen“ lassen sie aus",
+    "2": "Wenn enin Schüler, und Linkshänder sitzen so, dass links neben ihnen niemand rechtshändig schreibt",
+    "3": "Nach zwölf Wochen ohne Änderung fragt der Sitzplan, ob die Merkmale einer Klasse noch stimmen",
+    "4": "Raumvorlagen und Voreinstellungen lassen sich als Datei speichern und an Kolleginnen und Kollegen weitergeben",
+    "5": "Auf Handy und Tablet kommen Tische und Raumelemente aus „Hinzufügen“ an der Statusleiste, ohne unter den Raum zu scrollen",
+    "6": "Die Hilfe ist kürzer, nach Themen geordnet und aktuell, und ihre Tastenkürzel – jetzt auch in der Präsentation – scrollen beim Öffnen ins Bild",
+    "7": "Die Tour passt zur Hilfe, geht in Leserichtung über den Bildschirm und gleitet von Schritt zu Schritt",
+    "8": "In der Präsentation lässt sich der Plan mit den Fingern flüssiger zoomen und verschieben",
+    "9": "Hinweise über dem Sitzplan erscheinen einzeln und lassen den Plan auf Handy und Tablet im Blick",
+    "10": "In der Präsentation leuchtet der Schüler, den „Wer kommt dran?“ zieht, auch in Safari auf, statt dunkel zu bleiben",
+    "11": "Auf einem Touchscreen bleibt ein Knopf nach dem Tippen nicht mehr hervorgehoben",
+    "12": "In der „Bibliothek“ zählt „Zuletzt geöffnet“ jetzt auch das Öffnen der App, nicht nur einen Klassenwechsel",
+    "13": "Weitere kleine Fehler behoben"
+  },
   "v3_3_2": {
     "0": "Im Sitzplan, in der Präsentation, bei „Wo sitzt wer?“, „Wer kommt dran?“ und im Export tritt der Raum hinter die Schüler zurück: Möbel nur als Umriss, dünnere Linien, kein Raster",
     "1": "Das Schloss auf einem Platz sitzt immer oben links, wie auch immer der Tisch gedreht ist, und verdeckt nie den Namen",
