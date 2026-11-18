@@ -56,35 +56,35 @@ Recommended before commits: `npm test -- --run && npm run lint && npm run typech
 
 ## Deployment
 
-A production-ready [`Dockerfile`](Dockerfile) (multi-stage build with nginx) ships with the repository. Release tags publish a multi-arch image (amd64/arm64) to GitHub Container Registry:
+A production-ready [`Dockerfile`](Dockerfile) (multi-stage build with nginx) ships with the repository. Release tags publish a multi-arch image (amd64/arm64) to GitHub Container Registry. One command starts it on port 8080:
 
 ```bash
-docker pull ghcr.io/sireckehard/klassenplan:latest
+docker run -d --name klassenplan -p 8080:80 --restart unless-stopped ghcr.io/sireckehard/klassenplan:3.4
 ```
 
-Tags follow the release: `3.4.0` and `3.4` pin a version, `latest` always tracks the newest release. The easiest way to run it is via [`docker-compose.yml`](docker-compose.yml):
+Tags follow the release: `3.4.0` and `3.4` pin a version, `latest` always tracks the newest release. To set variables and update with one command, use [`docker-compose.yml`](docker-compose.yml):
 
 ```bash
 docker compose up -d           # uses the published image, serves on port 8080
-docker compose up -d --build   # builds from this repository instead
 docker compose pull && docker compose up -d   # update to the current image
+docker compose up -d --build   # builds from this repository instead
 ```
 
-The compose file reads these optional variables from a `.env` file next to it (see [`.env.example`](.env.example)):
+The compose file reads these optional variables from a `.env` file next to it (see [`.env.example`](.env.example)); with `docker run`, pass them as `-e NAME=value`. The image applies them each time it starts ([decision 0048](docs/decisions/0048-instance-configured-at-start.md)), so the published image serves your own instance without a build of your own:
 
-| Variable                     | Default                  | Effect                                                                                           |
-| ---------------------------- | ------------------------ | ------------------------------------------------------------------------------------------------ |
-| `KLASSENPLAN_VERSION`        | `latest`                 | Pins the image tag, e.g. `3.4.0`                                                                 |
-| `KLASSENPLAN_PORT`           | `8080`                   | Host port the container is published on                                                          |
-| `SITE_URL`                   | `https://klassenplan.de` | Baked into canonical/hreflang/og:url — only used by `--build`                                    |
-| `IMPRINT_URL`, `PRIVACY_URL` | empty                    | Your own Impressum and Datenschutzerklärung instead of klassenplan.de's — only used by `--build` |
-| `CONTACT_EMAIL`              | empty                    | Your contact address for the contact page and the error reports — only used by `--build`         |
+| Variable                     | Default                  | Effect                                                                  |
+| ---------------------------- | ------------------------ | ----------------------------------------------------------------------- |
+| `SITE_URL`                   | `https://klassenplan.de` | The address the instance is served under: canonical, hreflang, sitemap  |
+| `IMPRINT_URL`, `PRIVACY_URL` | empty                    | Your own Impressum and Datenschutzerklärung instead of klassenplan.de's |
+| `CONTACT_EMAIL`              | empty                    | Your contact address for the contact page and the error reports         |
+| `KLASSENPLAN_VERSION`        | `latest`                 | Compose only: pins the image tag, e.g. `3.4.0`                          |
+| `KLASSENPLAN_PORT`           | `8080`                   | Compose only: host port the container is published on                   |
 
-TLS terminates upstream — put a reverse proxy in front. When building for a host other than klassenplan.de, set `SITE_URL`: `SITE_URL=https://example.org docker compose up -d --build`.
+TLS terminates upstream — put a reverse proxy in front. Serve it over HTTPS: browsers install the app and let it work offline only on a secure address.
 
-**Publishing your own instance?** Set `IMPRINT_URL`, `PRIVACY_URL` and `CONTACT_EMAIL` as well. Without the first two the build ships the legal pages of klassenplan.de, including the maintainer's address; without the third your users' bug reports go to that maintainer too — see [PRIVACY.md](docs/PRIVACY.md#running-your-own-instance).
+**Publishing your own instance?** Set `IMPRINT_URL`, `PRIVACY_URL` and `CONTACT_EMAIL`. Without the first two the instance shows the legal pages of klassenplan.de, including the maintainer's address; without the third your users' bug reports go to that maintainer too — see [PRIVACY.md](docs/PRIVACY.md#running-your-own-instance). Given as build arguments instead (`docker build --build-arg IMPRINT_URL=…`), klassenplan.de's legal texts stay out of the bundle altogether.
 
-The static bundle produced by `npm run build` can alternatively be served on any static host (Vercel, Netlify, GitHub Pages, your own web server).
+**Without Docker.** Every release carries `klassenplan-X.Y.Z.tar.gz`: the site as the image serves it, the script that gives it your address, legal pages and contact, and configurations for Caddy, Apache and nginx — for a school server, a NAS or a Raspberry Pi with a web server of its own ([deploy/README.md](deploy/README.md)). Built from the repository, the same site is `npm run build:static` (prerendered pages, needs Chromium); a plain `npm run build` has no file per page, so a reload on any page but the start page needs a rewrite to `index.html` on the server.
 
 ## Project structure
 

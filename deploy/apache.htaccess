@@ -1,0 +1,73 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2026 Eike Schäfer
+#
+# Klassenplan on Apache 2.4, from the release archive
+# (docs/school-deployment.md). Copy this file as `.htaccess` into the
+# directory the archive's site/ was copied to; it needs `AllowOverride All`
+# there and the modules rewrite, headers and mime (deflate or brotli
+# optional). Serve it over HTTPS — the service worker and the installation as
+# an app need it.
+#
+# The same rules as the image's nginx.conf: one address per page (decision
+# 0029), a real 404, nothing of the dot directories, long caching for what has
+# a hash in its name, the security headers of docs/SECURITY.md.
+
+Options -Indexes -MultiViews
+DirectoryIndex index.html
+ErrorDocument 404 /404.html
+AddType application/manifest+json .webmanifest
+AddType application/speculationrules+json speculationrules.json
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # .instance holds what configure-instance.sh reads; /.well-known stays.
+  RewriteRule "(^|/)\.(?!well-known/)" - [R=404,L]
+
+  # /faq is a directory; without this Apache answers it with a 301 to /faq/.
+  DirectorySlash Off
+
+  # One address per page: /faq/ moves for good to /faq.
+  RewriteCond %{REQUEST_URI} ^(.+)/$
+  RewriteRule ^ %1 [R=301,L]
+
+  # /faq is served from faq/index.html.
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteCond %{REQUEST_FILENAME}/index.html -f
+  RewriteRule ^(.+)$ $1/index.html [L]
+</IfModule>
+
+<IfModule mod_headers.c>
+  Header always set Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self' blob:; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'"
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "DENY"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Permissions-Policy "geolocation=(), microphone=(), camera=(), browsing-topics=(), interest-cohort=()"
+  Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+
+  # Pages: always ask, so a release's new chunk names arrive at once.
+  <FilesMatch "\.html$">
+    Header set Cache-Control "no-cache, must-revalidate"
+    Header set Speculation-Rules "\"/speculationrules.json\""
+  </FilesMatch>
+  # A content hash in the name: never changes.
+  <If "%{REQUEST_URI} =~ m#^/(entry|chunks|vendor|assets|css)/# || %{REQUEST_URI} =~ m#^/workbox-#">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </If>
+  # Same name across releases: a day, then revalidate.
+  <If "%{REQUEST_URI} =~ m#^/(brand|preview)/# || %{REQUEST_URI} =~ m#^/(browser-check\.js|manifest\.webmanifest|sitemap\.xml)$#">
+    Header set Cache-Control "public, max-age=86400, must-revalidate"
+  </If>
+  <Files "sw.js">
+    Header set Cache-Control "no-store, no-cache, must-revalidate"
+  </Files>
+</IfModule>
+
+<IfModule mod_brotli.c>
+  AddOutputFilterByType BROTLI_COMPRESS text/html text/css text/plain text/xml application/javascript text/javascript application/json application/xml image/svg+xml application/manifest+json
+</IfModule>
+<IfModule !mod_brotli.c>
+  <IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/css text/plain text/xml application/javascript text/javascript application/json application/xml image/svg+xml application/manifest+json
+  </IfModule>
+</IfModule>

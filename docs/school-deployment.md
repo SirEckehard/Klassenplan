@@ -1,6 +1,6 @@
 # Klassenplan in a school
 
-> **Status:** current · **Last reviewed:** 2026-10-15 · **For:** a school's IT,
+> **Status:** current · **Last reviewed:** 2026-11-18 · **For:** a school's IT,
 > school authorities, self-hosting operators
 
 This page is for whoever looks after a school's computers. It explains what
@@ -68,13 +68,22 @@ at the top right of the app, which shows the steps for their browser.
 ## Hosting it yourself
 
 A school or a school authority can run its own instance — useful when the
-policy allows only internal addresses, or to have its own legal pages. The
-repository publishes a container image; setup, configuration variables and
-updates are described in the README under
-[Deployment](../README.md#deployment). The obligations of an operator (legal
-notice, privacy notice, contact address) are in
-[PRIVACY.md](PRIVACY.md#running-your-own-instance), the response headers in
-[SECURITY.md](SECURITY.md).
+policy allows only internal addresses, or to have its own legal pages. It
+needs no database and no application server: static files and a web server.
+
+- **With Docker**, one command starts the published image, and four variables
+  give it the school's address, legal pages and contact when it starts
+  (`SITE_URL`, `IMPRINT_URL`, `PRIVACY_URL`, `CONTACT_EMAIL`; no build of
+  one's own). Setup and updates are in the README under
+  [Deployment](../README.md#deployment).
+- **Without Docker** — a school server with Apache, a NAS, a Raspberry Pi —
+  every release carries `klassenplan-X.Y.Z.tar.gz`: the site, the script that
+  sets the same four values, and configurations for Caddy, Apache and nginx
+  ([deploy/README.md](../deploy/README.md)).
+
+The obligations of an operator (legal notice, privacy notice, contact address)
+are in [PRIVACY.md](PRIVACY.md#running-your-own-instance), the response headers
+in [SECURITY.md](SECURITY.md).
 
 **Serve it over HTTPS.** Browsers allow installation and a service worker only
 on a secure origin. Over plain HTTP — an intranet host without a certificate —

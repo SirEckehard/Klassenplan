@@ -123,6 +123,7 @@ jobs:
     needs: merge
     permissions:
       contents: write
+      packages: read
     steps:
       - uses: actions/checkout@v7
 
@@ -165,3 +166,30 @@ jobs:
           else
             gh release create "$TAG" --verify-tag "${flags[@]}"
           fi
+
+      - uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # The site as the image serves it, for a web server without Docker: the
+      # build out of the image just pushed, the start script that gives it
+      # its operator (decision 0048) and the server configurations.
+      - name: Attach the site for a web server of one's own
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          version="${TAG#v}"
+          name="klassenplan-$version"
+          docker create --name site "$IMAGE:$version" >/dev/null
+          mkdir -p "$name"
+          docker cp site:/usr/share/klassenplan/site "$name/site"
+          docker rm site >/dev/null
+          test -f "$name/site/.instance/build.env"
+          cp scripts/configure-instance.sh deploy/README.md deploy/Caddyfile \
+            deploy/apache.htaccess nginx.conf nginx-security-headers.conf \
+            "$name/"
+          tar -czf "$name.tar.gz" "$name"
+          gh release upload "$TAG" "$name.tar.gz" --clobber

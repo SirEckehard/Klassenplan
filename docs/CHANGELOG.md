@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ### Improved
 
 - Saving as PDF is several times faster, most of all for name cards on slower computers
+- Whoever runs Klassenplan for a school sets its address, legal pages and contact when starting the Docker image, and every release also comes as files for a web server without Docker
 
 ### Fixed
 

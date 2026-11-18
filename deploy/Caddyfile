@@ -1,0 +1,70 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Copyright (C) 2026 Eike Schäfer
+#
+# Klassenplan on Caddy, from the release archive (docs/school-deployment.md).
+# Caddy fetches the HTTPS certificate itself — the service worker and the
+# installation as an app need HTTPS. Set the address and the directory the
+# archive's site/ was copied to, or export KLASSENPLAN_ADDRESS and
+# KLASSENPLAN_ROOT:
+#
+#   KLASSENPLAN_ADDRESS=klassenplan.schule.de caddy run --config Caddyfile
+#
+# The same rules as the image's nginx.conf: one address per page (decision
+# 0029), a real 404, nothing of the dot directories, long caching for what has
+# a hash in its name, the security headers of docs/SECURITY.md.
+
+{$KLASSENPLAN_ADDRESS:klassenplan.example.org} {
+	root * {$KLASSENPLAN_ROOT:/srv/klassenplan}
+
+	header {
+		Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self' blob:; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		Permissions-Policy "geolocation=(), microphone=(), camera=(), browsing-topics=(), interest-cohort=()"
+		Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+	}
+
+	# .instance holds what configure-instance.sh reads; /.well-known stays.
+	@hidden {
+		path /.*
+		not path /.well-known/*
+	}
+	respond @hidden 404
+
+	# One address per page: /faq/ moves for good to /faq.
+	@slash path_regexp slash ^(.+)/$
+	redir @slash {re.slash.1} permanent
+
+	# A content hash in the name: never changes.
+	@hashed path /entry/* /chunks/* /vendor/* /assets/* /css/* /workbox-*
+	header @hashed Cache-Control "public, max-age=31536000, immutable"
+	# Same name across releases: a day, then revalidate.
+	@named path /brand/* /browser-check.js /manifest.webmanifest /sitemap.xml /preview/*
+	header @named Cache-Control "public, max-age=86400, must-revalidate"
+	header /sw.js Cache-Control "no-store, no-cache, must-revalidate"
+	# Pages (no extension) and the HTML they are served from: always ask.
+	@pages {
+		not path_regexp \.[A-Za-z0-9]+$
+	}
+	header @pages {
+		Cache-Control "no-cache, must-revalidate"
+		Speculation-Rules "\"/speculationrules.json\""
+	}
+	header /speculationrules.json Content-Type "application/speculationrules+json"
+
+	# /faq is served from faq/index.html, without a detour through /faq/.
+	try_files {path} {path}/index.html
+	file_server {
+		precompressed br gzip
+	}
+	encode zstd gzip
+
+	handle_errors {
+		@notfound expression {err.status_code} == 404
+		handle @notfound {
+			rewrite * /404.html
+			file_server
+		}
+	}
+}
