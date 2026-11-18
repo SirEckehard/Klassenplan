@@ -7,17 +7,19 @@ services:
     image: ghcr.io/sireckehard/klassenplan:${KLASSENPLAN_VERSION:-latest}
     build:
       context: .
-      args:
-        # Baked into canonical/hreflang/og:url at build time (see .env.example).
-        # Set SITE_URL when building for a host other than klassenplan.de.
-        SITE_URL: ${SITE_URL:-https://klassenplan.de}
-        # Your own Impressum and Datenschutzerklärung — set both when you publish
-        # an instance; empty keeps the pages of klassenplan.de.
-        IMPRINT_URL: ${IMPRINT_URL:-}
-        PRIVACY_URL: ${PRIVACY_URL:-}
-        # Where the contact page and the error reports write to; empty keeps
-        # the address of klassenplan.de's maintainer.
-        CONTACT_EMAIL: ${CONTACT_EMAIL:-}
+    environment:
+      # Your instance, taken when the container starts — no build of your own
+      # needed (see .env.example, decision 0048). Empty keeps klassenplan.de's.
+      # The address the instance is served under: canonical, hreflang,
+      # og:url, sitemap.
+      SITE_URL: ${SITE_URL:-}
+      # Your own Impressum and Datenschutzerklärung — set both when you publish
+      # an instance; empty keeps the pages of klassenplan.de.
+      IMPRINT_URL: ${IMPRINT_URL:-}
+      PRIVACY_URL: ${PRIVACY_URL:-}
+      # Where the contact page and the error reports write to; empty keeps
+      # the address of klassenplan.de's maintainer.
+      CONTACT_EMAIL: ${CONTACT_EMAIL:-}
     ports:
       # TLS terminates upstream (see nginx.conf) — put a reverse proxy in front.
       - '${KLASSENPLAN_PORT:-8080}:80'

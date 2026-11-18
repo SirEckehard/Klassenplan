@@ -17,13 +17,20 @@
 // Run via `npm run build:static` (never as a postbuild hook — plain
 // `vite build` must stay usable without a Chromium install).
 import { promises as fs } from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { preview } from 'vite';
 import { chromium } from 'playwright';
 import { logError, logInfo } from './utils/logger.mjs';
+import { readContactEmail } from '../src/config/contactEmail.ts';
+import {
+  LEGAL_PAGE_URL_TOKENS,
+  readLegalPageUrls,
+} from '../src/config/legalPageUrls.ts';
 import {
   distDir,
   expandRoutes,
+  getForwardedLegalRoutes,
   getSiteUrl,
   NOT_FOUND_FILE,
   NOT_FOUND_PATH,
@@ -146,6 +153,112 @@ async function writeCaptures(captures) {
   }
 }
 
+/**
+ * Where the start script of the published image finds what it needs
+ * (`scripts/configure-instance.sh`, decision 0048): the build's own address
+ * and contact, and the legal pages as forwarding pages. A dot directory, so
+ * nginx serves none of it.
+ */
+const INSTANCE_DIR = '.instance';
+const FORWARD_DIR = path.join(INSTANCE_DIR, 'forward');
+const FORWARD_PREVIEW_PORT = PREVIEW_PORT + 1;
+
+/** Stands in for an operator's URL while the forwarding pages are drawn. */
+const placeholderUrlFor = (route) =>
+  `https://${route.slice(1)}.klassenplan.invalid/`;
+
+/**
+ * Draws the legal pages this build keeps as forwarding pages, for an image
+ * that is given `IMPRINT_URL` or `PRIVACY_URL` when it starts. A copy of the
+ * bundle gets a placeholder URL in place of the "none" token, the pages are
+ * rendered from it, and the placeholder goes back to the token, which the
+ * start script replaces in the pages as in the bundle. The pages exist before
+ * the start, so the HTML never shows klassenplan.de's texts.
+ */
+async function captureForwardingPages(browser, siteUrl, entries, preloads) {
+  const forwarded = getForwardedLegalRoutes();
+  const legal = entries.filter(
+    (entry) =>
+      Object.hasOwn(LEGAL_PAGE_URL_TOKENS, entry.basePath) &&
+      !forwarded.has(entry.basePath),
+  );
+  if (legal.length === 0) return [];
+
+  const copy = await fs.mkdtemp(path.join(os.tmpdir(), 'klassenplan-forward-'));
+  try {
+    await fs.cp(distDir, copy, { recursive: true });
+    for (const file of await fs.readdir(copy, { recursive: true })) {
+      if (!file.endsWith('.js')) continue;
+      const absolute = path.join(copy, file);
+      const source = await fs.readFile(absolute, 'utf-8');
+      let replaced = source;
+      for (const [route, token] of Object.entries(LEGAL_PAGE_URL_TOKENS)) {
+        replaced = replaced.replaceAll(token, placeholderUrlFor(route));
+      }
+      if (replaced !== source) {
+        await fs.writeFile(absolute, replaced, 'utf-8');
+        await fs.rm(`${absolute}.br`, { force: true });
+      }
+    }
+
+    const server = await preview({
+      preview: { port: FORWARD_PREVIEW_PORT, strictPort: true },
+      build: { outDir: copy },
+    });
+    const baseUrl = server.resolvedUrls.local[0].replace(/\/$/, '');
+    const captures = [];
+    try {
+      for (const entry of legal) {
+        let html = await capture(browser, baseUrl, siteUrl, entry, preloads);
+        const token = LEGAL_PAGE_URL_TOKENS[entry.basePath];
+        html = html.replaceAll(placeholderUrlFor(entry.basePath), token);
+        if (!html.includes(token)) {
+          throw new Error(
+            `Forwarding page ${entry.localizedPath} does not link to the operator's page`,
+          );
+        }
+        captures.push({
+          file: path.join(FORWARD_DIR, outputFileFor(entry.localizedPath)),
+          html,
+        });
+        logInfo(
+          'Rendered forwarding page',
+          { path: entry.localizedPath },
+          SOURCE,
+        );
+      }
+    } finally {
+      await server.close();
+    }
+    return captures;
+  } finally {
+    await fs.rm(copy, { recursive: true, force: true });
+  }
+}
+
+/**
+ * The address, contact and legal pages this build has: the start script
+ * replaces the first two and knows from the others which legal pages it may
+ * still set.
+ */
+async function writeInstanceInfo(siteUrl) {
+  const contact = readContactEmail(process.env);
+  const legal = readLegalPageUrls(process.env);
+  const file = path.join(distDir, INSTANCE_DIR, 'build.env');
+  await fs.mkdir(path.dirname(file), { recursive: true });
+  await fs.writeFile(
+    file,
+    [
+      `BUILD_SITE_URL=${siteUrl}`,
+      `BUILD_CONTACT_EMAIL=${contact}`,
+      `BUILD_IMPRINT_URL=${legal['/impressum'] ?? ''}`,
+      `BUILD_PRIVACY_URL=${legal['/datenschutz'] ?? ''}`,
+      '',
+    ].join('\n'),
+    'utf-8',
+  );
+}
+
 async function run() {
   const siteUrl = getSiteUrl();
   const entries = expandRoutes(await readRoutes());
@@ -160,43 +273,57 @@ async function run() {
 
   const captures = [];
   try {
-    // NotFound declares the address it was asked for as its canonical, so the
-    // probe waits for that one; the page is noindex either way.
-    captures.push({
-      file: NOT_FOUND_FILE,
-      html: await capture(
-        browser,
-        baseUrl,
-        siteUrl,
-        { localizedPath: NOT_FOUND_PATH, lang: 'de' },
-        shellPreloads,
-      ),
-    });
-    logInfo('Rendered not-found page', { path: NOT_FOUND_PATH }, SOURCE);
+    try {
+      // NotFound declares the address it was asked for as its canonical, so the
+      // probe waits for that one; the page is noindex either way.
+      captures.push({
+        file: NOT_FOUND_FILE,
+        html: await capture(
+          browser,
+          baseUrl,
+          siteUrl,
+          { localizedPath: NOT_FOUND_PATH, lang: 'de' },
+          shellPreloads,
+        ),
+      });
+      logInfo('Rendered not-found page', { path: NOT_FOUND_PATH }, SOURCE);
 
-    for (const entry of entries) {
-      const html = await capture(
-        browser,
-        baseUrl,
-        siteUrl,
-        entry,
-        shellPreloads,
-      );
-      captures.push({ file: outputFileFor(entry.localizedPath), html });
-      logInfo(
-        'Rendered route',
-        { path: entry.localizedPath, lang: entry.lang },
-        SOURCE,
-      );
+      for (const entry of entries) {
+        const html = await capture(
+          browser,
+          baseUrl,
+          siteUrl,
+          entry,
+          shellPreloads,
+        );
+        captures.push({ file: outputFileFor(entry.localizedPath), html });
+        logInfo(
+          'Rendered route',
+          { path: entry.localizedPath, lang: entry.lang },
+          SOURCE,
+        );
+      }
+    } finally {
+      await server.close();
     }
+
+    // From a copy of the bundle as it is before the captures overwrite it.
+    captures.push(
+      ...(await captureForwardingPages(
+        browser,
+        siteUrl,
+        entries,
+        shellPreloads,
+      )),
+    );
   } finally {
     await browser.close();
-    await server.close();
   }
 
   // Written only after the browser is gone: overwriting dist/index.html while
   // the preview server is still serving it would poison later navigations.
   await writeCaptures(captures);
+  await writeInstanceInfo(siteUrl);
 
   logInfo(
     'Prerender complete',

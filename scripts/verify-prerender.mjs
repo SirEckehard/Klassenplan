@@ -9,9 +9,12 @@
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { logError, logInfo } from './utils/logger.mjs';
+import { DEFAULT_CONTACT_EMAIL } from '../src/config/contactEmail.ts';
+import { LEGAL_PAGE_URL_TOKENS } from '../src/config/legalPageUrls.ts';
 import {
   distDir,
   expandRoutes,
+  getForwardedLegalRoutes,
   getLocalizedPath,
   getSiteUrl,
   NOT_FOUND_FILE,
@@ -167,6 +170,72 @@ function checkNotFound(html, siteUrl) {
   return errors;
 }
 
+/**
+ * The legal pages an image may forward when it starts (decision 0048): drawn
+ * as forwarding pages, `noindex`, linking to the placeholder the start script
+ * replaces, without a word of klassenplan.de's own pages — and the bundle
+ * still holds that placeholder for the script to find.
+ */
+async function checkForwardingPages(entries, siteUrl) {
+  const forwarded = getForwardedLegalRoutes();
+  const legal = entries.filter(
+    (entry) =>
+      Object.hasOwn(LEGAL_PAGE_URL_TOKENS, entry.basePath) &&
+      !forwarded.has(entry.basePath),
+  );
+  const failures = [];
+  for (const entry of legal) {
+    const file = path.join(
+      '.instance',
+      'forward',
+      outputFileFor(entry.localizedPath),
+    );
+    let html;
+    try {
+      html = await fs.readFile(path.resolve(distDir, file), 'utf-8');
+    } catch {
+      failures.push(`${file}\n    - file missing`);
+      continue;
+    }
+    const errors = checkEntry(html, { ...entry, noindex: true }, siteUrl);
+    if (!html.includes(LEGAL_PAGE_URL_TOKENS[entry.basePath])) {
+      errors.push("no link to the operator's page (placeholder missing)");
+    }
+    if (html.includes(DEFAULT_CONTACT_EMAIL)) {
+      errors.push("carries klassenplan.de's own legal page");
+    }
+    if (errors.length > 0) {
+      failures.push(`${file}\n    - ${errors.join('\n    - ')}`);
+    }
+  }
+
+  if (legal.length > 0) {
+    const scripts = (await fs.readdir(distDir, { recursive: true })).filter(
+      (file) => file.endsWith('.js'),
+    );
+    const bundle = (
+      await Promise.all(
+        scripts.map((file) => fs.readFile(path.join(distDir, file), 'utf-8')),
+      )
+    ).join('\n');
+    for (const entry of legal) {
+      const token = LEGAL_PAGE_URL_TOKENS[entry.basePath];
+      if (!bundle.includes(token)) {
+        failures.push(
+          `bundle\n    - ${token} missing: an image start could not set ${entry.basePath}`,
+        );
+      }
+    }
+  }
+
+  try {
+    await fs.access(path.resolve(distDir, '.instance', 'build.env'));
+  } catch {
+    failures.push('.instance/build.env\n    - file missing');
+  }
+  return [...new Set(failures)];
+}
+
 async function run() {
   const siteUrl = getSiteUrl();
   const entries = expandRoutes(await readRoutes());
@@ -202,6 +271,8 @@ async function run() {
   } catch {
     failures.push(`${NOT_FOUND_FILE}\n    - file missing`);
   }
+
+  failures.push(...(await checkForwardingPages(entries, siteUrl)));
 
   if (failures.length > 0) {
     logError(

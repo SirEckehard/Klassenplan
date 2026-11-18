@@ -1,6 +1,6 @@
 # Privacy
 
-> **Status:** current · **Last reviewed:** 2026-11-14 · **For:** developers,
+> **Status:** current · **Last reviewed:** 2026-11-18 · **For:** developers,
 > self-hosting operators and schools evaluating Klassenplan
 
 This document describes what personal data Klassenplan handles, where it goes and
@@ -112,9 +112,11 @@ any other class
 - **Set your own legal pages.** Without configuration a build ships the
   Impressum and the Datenschutzerklärung of klassenplan.de — the maintainer's
   name and address and the Hetzner hosting. Set `IMPRINT_URL` and `PRIVACY_URL`
-  to your own pages and build the image (`docker compose up -d --build`): the
-  footer then links there, `/impressum` and `/datenschutz` only point there, and
-  klassenplan.de's texts are not part of the build
+  to your own pages — on `docker run`, in the compose file or for the release
+  archive's script: the footer then links there, and `/impressum` and
+  `/datenschutz` only point there; klassenplan.de's pages are never loaded
+  ([decision 0048](decisions/0048-instance-configured-at-start.md)). Given as
+  build arguments instead, their texts are not part of the build at all
   ([decision 0012](decisions/0012-legal-pages-for-self-hosted-builds.md)). Your
   privacy policy has to describe your instance, including its access logs.
 - **Set your own contact address.** `CONTACT_EMAIL` decides where the contact

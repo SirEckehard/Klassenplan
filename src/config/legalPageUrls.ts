@@ -17,6 +17,17 @@ export type LegalPageRoute = '/impressum' | '/datenschutz';
 
 export type LegalPageUrls = Readonly<Record<LegalPageRoute, string | null>>;
 
+/**
+ * What the bundle holds for a legal page no URL was given for at build time:
+ * a placeholder that means "none", which the start script of the published
+ * image replaces when the operator sets `IMPRINT_URL` or `PRIVACY_URL`
+ * (`scripts/configure-instance.sh`, decision 0048).
+ */
+export const LEGAL_PAGE_URL_TOKENS: Readonly<Record<LegalPageRoute, string>> = {
+  '/impressum': '__KP_IMPRINT_URL__',
+  '/datenschutz': '__KP_PRIVACY_URL__',
+};
+
 const parseLegalPageUrl = (
   variable: string,
   raw: string | undefined,

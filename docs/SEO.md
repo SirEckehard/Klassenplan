@@ -82,7 +82,11 @@ It must **not** be derived from `window.location.origin`: prerendering runs
 against `http://localhost:4173`, and preview deploys run on staging hosts. Both
 would otherwise be baked into canonical, hreflang and `og:url`.
 
-A build for a staging host must set `SITE_URL` accordingly.
+A build for a staging host must set `SITE_URL` accordingly. The published
+image takes another address when it starts instead: `configure-instance.sh`
+replaces the build's own in every text file of the copy it serves — canonical,
+hreflang, `og:url`, JSON-LD, sitemap, robots — and drops forwarded legal pages
+from the sitemap ([decision 0048](decisions/0048-instance-configured-at-start.md)).
 
 ## Things that will silently break prerendering
 

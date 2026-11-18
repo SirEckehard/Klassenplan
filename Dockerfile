@@ -24,12 +24,15 @@ COPY . .
 ARG SITE_URL=https://klassenplan.de
 ENV SITE_URL=${SITE_URL}
 # The operator's own Impressum and Datenschutzerklärung (see .env.example).
-# Left empty, the build keeps the legal pages of klassenplan.de.
+# Left empty, the build keeps the legal pages of klassenplan.de — and the
+# image takes them when it starts instead (decision 0048). Given here, the
+# texts of klassenplan.de stay out of the bundle altogether.
 ARG IMPRINT_URL=
 ARG PRIVACY_URL=
 ENV IMPRINT_URL=${IMPRINT_URL} PRIVACY_URL=${PRIVACY_URL}
 # The operator's contact address for the contact page and the error reports.
-# Left empty, both write to the maintainer of klassenplan.de.
+# Left empty, both write to the maintainer of klassenplan.de; the image takes
+# one when it starts too.
 ARG CONTACT_EMAIL=
 ENV CONTACT_EMAIL=${CONTACT_EMAIL}
 RUN npm run build:static
@@ -54,8 +57,14 @@ RUN apt-get update \
     && ln -sf /dev/stdout /var/log/nginx/access.log \
     && ln -sf /dev/stderr /var/log/nginx/error.log
 
-# Copy built assets from builder stage
-COPY --from=builder /app/dist /usr/share/nginx/html
+# The build, unchanged. On every start the entrypoint copies it to nginx's
+# root and gives the copy the operator's SITE_URL, IMPRINT_URL, PRIVACY_URL
+# and CONTACT_EMAIL from the environment (decision 0048) — no build of one's
+# own needed for that.
+COPY --from=builder /app/dist /usr/share/klassenplan/site
+# Executable in the repository; COPY keeps the mode (no BuildKit needed).
+COPY scripts/configure-instance.sh /usr/local/bin/configure-instance
+COPY scripts/docker-entrypoint.sh /usr/local/bin/docker-entrypoint
 
 # Copy nginx configuration. Debian's main nginx.conf includes
 # /etc/nginx/conf.d/*.conf (server blocks) and /etc/nginx/modules-enabled/*.conf
@@ -70,5 +79,6 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
 # Expose port 80
 EXPOSE 80
 
-# Start nginx
+# Configure the copy, then start nginx
+ENTRYPOINT ["docker-entrypoint"]
 CMD ["nginx", "-g", "daemon off;"]

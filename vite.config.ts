@@ -11,7 +11,10 @@ import path from 'path';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import type { Alias, PluginOption } from 'vite';
-import { readLegalPageUrls } from './src/config/legalPageUrls.ts';
+import {
+  LEGAL_PAGE_URL_TOKENS,
+  readLegalPageUrls,
+} from './src/config/legalPageUrls.ts';
 import { readContactEmail } from './src/config/contactEmail.ts';
 import { thirdPartyLicenses } from './scripts/utils/thirdPartyLicenses.ts';
 import { iconWeightsPlugin } from './scripts/utils/iconWeights.ts';
@@ -434,12 +437,14 @@ export default defineConfig({
     'import.meta.env.VITE_SITE_URL': JSON.stringify(
       (process.env.SITE_URL ?? 'https://klassenplan.de').replace(/\/$/, ''),
     ),
-    // Read by src/config/legalPages.ts; empty keeps the bundled pages.
+    // Read by src/config/legalPages.ts. Unset, a placeholder that means
+    // "the bundled page" and that the published image's start script can
+    // replace (decision 0048).
     'import.meta.env.VITE_IMPRINT_URL': JSON.stringify(
-      legalPageUrls['/impressum'] ?? '',
+      legalPageUrls['/impressum'] ?? LEGAL_PAGE_URL_TOKENS['/impressum'],
     ),
     'import.meta.env.VITE_PRIVACY_URL': JSON.stringify(
-      legalPageUrls['/datenschutz'] ?? '',
+      legalPageUrls['/datenschutz'] ?? LEGAL_PAGE_URL_TOKENS['/datenschutz'],
     ),
     // Read by src/config/links.ts; empty keeps the maintainer's address.
     'import.meta.env.VITE_CONTACT_EMAIL': JSON.stringify(contactEmail),

@@ -6,6 +6,7 @@
  * warms the module cache held inside it, which is what lets an already-loaded
  * route render without suspending.
  */
+import { getExternalLegalPageUrl } from '@/config/legalPages';
 import { lazyWithRetry } from '@/utils/performance/lazyWithRetry';
 
 export const StartPage = lazyWithRetry(() => import('@/pages/StartPage'));
@@ -24,8 +25,18 @@ export const Groups = lazyWithRetry(() => import('@/pages/Groups'));
 export const Duties = lazyWithRetry(() => import('@/pages/Duties'));
 // A build with IMPRINT_URL / PRIVACY_URL aliases these two modules to forwarding
 // pages (vite.config.ts), which keeps klassenplan.de's texts out of that build.
-export const Impressum = lazyWithRetry(() => import('@/pages/Impressum'));
-export const Datenschutz = lazyWithRetry(() => import('@/pages/Datenschutz'));
+// The published image takes them when it starts instead (decision 0048): then
+// the route forwards, and klassenplan.de's page is never loaded.
+export const Impressum = lazyWithRetry(() =>
+  getExternalLegalPageUrl('/impressum')
+    ? import('@/pages/legal/ImprintForward')
+    : import('@/pages/Impressum'),
+);
+export const Datenschutz = lazyWithRetry(() =>
+  getExternalLegalPageUrl('/datenschutz')
+    ? import('@/pages/legal/PrivacyForward')
+    : import('@/pages/Datenschutz'),
+);
 export const Feedback = lazyWithRetry(() => import('@/pages/Feedback'));
 export const FAQ = lazyWithRetry(() => import('@/pages/FAQ'));
 export const Changelog = lazyWithRetry(() => import('@/pages/Changelog'));

@@ -1,6 +1,8 @@
 # 0012 – Operators link their own legal pages at build time
 
-- **Status:** accepted
+- **Status:** accepted; the published image is configured at start since
+  [decision 0048](0048-instance-configured-at-start.md), which answers the
+  objection below
 - **In place since:** v2.1.0 (2026-09-16)
 - **Sources:** [PRIVACY.md](../PRIVACY.md#running-your-own-instance), proposal
   agreed with the maintainer on 2026-09-14, `src/config/legalPageUrls.ts`
@@ -49,7 +51,10 @@ klassenplan.de.
 ## Consequences
 
 - An operator has to build the image (`docker compose up -d --build`); the
-  published image cannot be reconfigured.
+  published image cannot be reconfigured. Since
+  [decision 0048](0048-instance-configured-at-start.md) it takes the same
+  variables when it starts; the build arguments remain for keeping
+  klassenplan.de's texts out of the bundle.
 - The operator still writes the privacy policy for their instance, including its
   access logs.
 - Links to the legal pages must go through `LegalPageLink`, never a plain
