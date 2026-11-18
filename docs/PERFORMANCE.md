@@ -6,7 +6,7 @@ Klassenplan approaches performance from two angles: Core Web Vitals at runtime, 
 
 ## Budgets
 
-Klassenplan has no server, so there are no service level objectives in the usual sense. These budgets take their place. Bundle figures from 2026-11-14, algorithm figures from 2026-10-18, Core Web Vitals from 2026-09-14, layout shift from 2026-11-06.
+Klassenplan has no server, so there are no service level objectives in the usual sense. These budgets take their place. Bundle figures from 2026-11-14, algorithm figures from 2026-10-18, Core Web Vitals from 2026-09-14, layout shift from 2026-11-06, the reference device from 2026-11-18.
 
 | Area                                 | Budget                                                        | Current                                                                                                                  | Checked by                                                                                                          |
 | ------------------------------------ | ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------- |
@@ -14,7 +14,8 @@ Klassenplan has no server, so there are no service level objectives in the usual
 | Largest chunk                        | ≤ 78 KB brotli, ≤ 330 KB raw                                  | 50.5 KB brotli, 193.8 KB raw                                                                                             | same                                                                                                                |
 | CSS                                  | ≤ 24 KB brotli, ≤ 200 KB raw                                  | 14.0 KB brotli, 91.8 KB raw                                                                                              | same                                                                                                                |
 | Core Web Vitals                      | "good": LCP ≤ 2.5 s, INP ≤ 200 ms, CLS ≤ 0.1                  | Start page CLS 0.067 after prerendering ([SEO.md](SEO.md)); the workspace 0 on a first visit and a reload; no field data | Logged in the browser only (`webVitals.ts`); the workspace's layout shift ≤ 0.05 by `e2e/layout-shift.spec.ts` (CI) |
-| "Mischen" with criteria, 36 students | ≤ 500 ms on the slowest supported device                      | ≈ 72 ms under Vitest 5, Apple M1 Pro (three starts)                                                                      | `npm run bench`, by hand                                                                                            |
+| "Mischen" with criteria, 36 students | ≤ 500 ms on the slowest supported device                      | ≈ 72 ms under Vitest 5, Apple M1 Pro (three starts); 414 ms for 24 students on the reference device                      | `npm run bench` and `npm run measure:slow-device`, by hand                                                          |
+| Input on the reference device        | longest input event ≤ 200 ms (INP "good")                     | 104 ms, dragging a student                                                                                               | `npm run measure:slow-device`, by hand                                                                              |
 | Offline use                          | The generator works without a connection after the first load | Since v1.2.0                                                                                                             | Not tested automatically                                                                                            |
 
 The runtime budget is deliberately not a CI check: timings on a shared runner vary too much for a fixed ceiling. It is re-measured with `npm run bench` when the algorithm changes.
@@ -41,6 +42,72 @@ What the numbers show:
 - **A swap is cheap.** It is computed exactly from the relations of the two seats (`swapDelta`) instead of scoring both tables anew, which is what pays for the three starts.
 - **Annealing hardly depends on class size.** It runs a fixed cooling schedule (see [ALGORITHM.md](ALGORITHM.md#configuration)).
 - **Class size is not what limits the algorithm up to 36 students.** Larger classes were not measured.
+
+### Slow devices
+
+Classrooms run whiteboard PCs, old laptops and older iPads. The **reference
+device** is an Apple M1 Pro slowed down six times by Chromium
+(`Emulation.setCPUThrottlingRate`), about a laptop or whiteboard PC with a
+Celeron of the N4000 kind by single-core benchmark — an estimate, not a
+measurement on such a machine. `npm run measure:slow-device` builds the
+production bundle, serves it with `vite preview` and walks a teacher's day
+with the sample class (24 students) at each factor of `SLOW_DEVICE_CPU`
+(default `1,6`), `SLOW_DEVICE_RUNS` times (default 3), and prints the
+medians; `test-results/slow-device.json` keeps every run
+(`e2e/perf/slow-device.perf.ts`, `playwright.slow-device.config.ts`, not part
+of CI).
+
+Median of three runs, milliseconds, the longest input event in brackets,
+2026-11-18:
+
+| Step                                              |   CPU ÷1 |     CPU ÷4 | CPU ÷6 (reference) |
+| ------------------------------------------------- | -------: | ---------: | -----------------: |
+| Opening the workspace (a reload, files cached)    |       97 |        397 |                619 |
+| To the plan layer                                 | 351 (16) |   442 (40) |           548 (64) |
+| "Mischen", until the new plan stands              |  98 (16) |   209 (24) |           291 (40) |
+| "Mischen", until every student has landed         | 540 (16) |   663 (24) |           768 (40) |
+| "Mischen" without a worker, until the plan stands |       96 |        267 |                414 |
+| Dropping a student, until both have landed        | 462 (24) |   490 (72) |          543 (104) |
+| Seating plan as PDF                               | 466 (24) |   948 (24) |         1,323 (24) |
+| Name cards as PDF (12 pages)                      | 453 (16) | 5,449 (16) |         7,992 (16) |
+| Encrypted backup                                  | 384 (24) |   458 (24) |           522 (24) |
+
+How to read it:
+
+- **Chromium slows the main thread only, never a worker** ("Operation is only
+  supported for pages, not workers"), and the mix is computed in one. The row
+  without a worker mixes on the main thread instead
+  (`algorithmWorkerClient`'s fallback), which the throttling reaches: its time
+  is what the reference device takes to compute; its input delay means
+  nothing, since a real device keeps the main thread free.
+- **A landing includes the glide** of 420 ms (`MOTION_DURATION.seatGlide`).
+- **Waits are timed in the page**, frame by frame: Playwright's own waiting
+  polls at growing intervals and rounded a wait up to 350 or 850 ms.
+- **A file's time** runs from the click to the question "Datei
+  herunterladen?" and from "Herunterladen" to the file; answering is no wait.
+- **Long JavaScript loops suffer more than the factor** under throttling, and
+  their time on a fast machine depends on whether V8 has optimised them yet:
+  in 3.4.0 the name cards' PDF took 1.2 s after a seating plan's PDF and
+  11–12 s as the first export of a visit, both at CPU ÷1. Compare runs in the same order.
+
+**The PDF export, before and after 2026-11-18.** Every page is rasterised at
+300 dpi. It went to jsPDF as a PNG, which jsPDF decoded and packed again in
+JavaScript (`addImage` with `MEDIUM`): nearly all of a PDF's time, about
+0.9 s per A4 page on a cold M1 and 5.8 s at CPU ÷6. Now the rasteriser hands
+over the RGB pixels deflated by the browser (`renderSvgToDeflatedRgb`,
+`CompressionStream`), and a format of its own tells jsPDF to write them as
+they are (`DEFLATEDRGB` in `pdfExportFunctions.ts`, guarded by
+`pdfPageBitmap.test.ts` against the real jsPDF). The pixels are the same, byte
+for byte on all 13 pages of the fixture's seating plan and name cards; the
+files came out smaller (394 → 266 KB, 4.5 → 3.1 MB).
+
+| PDF, sample class        | 3.4.0, CPU ÷1 cold | now, CPU ÷1 cold | 3.4.0, CPU ÷6 | now, CPU ÷6 |
+| ------------------------ | -----------------: | ---------------: | ------------: | ----------: |
+| Seating plan, one page   |              1.2 s |            0.4 s |         6.5 s |       1.3 s |
+| Name cards, twelve pages |             12.3 s |            1.6 s |          79 s |       8.0 s |
+
+What is left of the name cards' eight seconds is drawing twelve pages at
+300 dpi and reading their pixels back — native work on the main thread.
 
 ### Mix quality
 

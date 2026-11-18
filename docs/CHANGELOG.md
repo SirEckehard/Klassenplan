@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Improved
+
+- Saving as PDF is several times faster, most of all for name cards on slower computers
+
 ### Fixed
 
 - A window still running an older version no longer saves over classes a newer version saved, and asks for a reload instead

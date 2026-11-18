@@ -140,19 +140,27 @@ async function drawSvgToCanvas(
 }
 
 /**
- * Rasterize SVG markup into a lossless PNG Data URL (used by the PDF export).
+ * Rasterize SVG markup into the PDF export's page bitmap: its pixels as red,
+ * green and blue, packed by the browser's own deflate.
  *
- * @param background Optional opaque backdrop, e.g. `'#ffffff'` for print.
+ * A PNG went the long way: the canvas encoded it, and jsPDF decoded it again
+ * and packed it anew in JavaScript — a second per A4 page at 300 dpi on a
+ * fast laptop, many on a whiteboard PC, all on the main thread. The pixels
+ * are the same; the deflate stream (zlib, what a PDF's `FlateDecode` reads)
+ * comes from `CompressionStream` instead.
+ *
+ * @param background Opaque backdrop, e.g. `'#ffffff'` for print: a page
+ *   bitmap carries no alpha.
  * @param extraFontCss `@font-face` rules beside the UI font's: the table
  *   cards' font (decision 0047), its files inlined.
  */
-export async function renderSvgToPngDataUrl(
+export async function renderSvgToDeflatedRgb(
   svgMarkup: string,
   widthPx: number,
   heightPx: number,
-  background?: string,
+  background: string,
   extraFontCss?: string,
-): Promise<string> {
+): Promise<Uint8Array<ArrayBuffer>> {
   const canvas = await drawSvgToCanvas(
     svgMarkup,
     widthPx,
@@ -160,7 +168,21 @@ export async function renderSvgToPngDataUrl(
     background,
     extraFontCss,
   );
-  return canvas.toDataURL('image/png', 1);
+  const context = canvas.getContext('2d');
+  if (!context) {
+    throw new Error('Canvas context could not be created.');
+  }
+  const rgba = context.getImageData(0, 0, widthPx, heightPx).data;
+  const rgb = new Uint8Array(new ArrayBuffer((rgba.length / 4) * 3));
+  for (let from = 0, to = 0; from < rgba.length; from += 4, to += 3) {
+    rgb[to] = rgba[from];
+    rgb[to + 1] = rgba[from + 1];
+    rgb[to + 2] = rgba[from + 2];
+  }
+  const packed = new Blob([rgb])
+    .stream()
+    .pipeThrough(new CompressionStream('deflate'));
+  return new Uint8Array(await new Response(packed).arrayBuffer());
 }
 
 /**

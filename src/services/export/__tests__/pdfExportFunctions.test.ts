@@ -10,15 +10,18 @@ const pdf = vi.hoisted(() => ({
 }));
 
 vi.mock('jspdf', () => ({
-  jsPDF: vi.fn(function jsPDF() {
-    return pdf;
-  }),
+  jsPDF: Object.assign(
+    vi.fn(function jsPDF() {
+      return pdf;
+    }),
+    { API: {} },
+  ),
 }));
 
 vi.mock('@/utils/export/svgRasterizer', () => ({
   extractSvgElement: () =>
     document.createElementNS('http://www.w3.org/2000/svg', 'svg'),
-  renderSvgToPngDataUrl: vi.fn(async () => 'data:image/png;base64,'),
+  renderSvgToDeflatedRgb: vi.fn(async () => new Uint8Array([0x78, 0x9c])),
 }));
 
 vi.mock('@/utils/ui/downloadConfirmation', () => ({

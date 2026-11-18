@@ -20,7 +20,7 @@ import type { SheetNotes } from '@/utils/ui/substituteSheet';
 import { getStudentPhotoDataUrl } from '@/hooks/student/studentPhotoCache';
 import {
   extractSvgElement,
-  renderSvgToPngDataUrl,
+  renderSvgToDeflatedRgb,
 } from '@/utils/export/svgRasterizer';
 
 /**
@@ -201,14 +201,52 @@ const EXPORT_DPI = 300;
 const PIXELS_PER_MM = EXPORT_DPI / 25.4;
 
 /**
- * Deflate level jsPDF applies to the embedded page bitmap.
- *
- * Lossless — the pixels are identical to `'NONE'`, only the stream is packed
- * (`MEDIUM` = zlib level 6 with the PNG "average" predictor). Without it jsPDF
- * writes the raw samples, which is ~25 MB for an A4 page at 300 dpi, plus
- * another ~8 MB of soft mask; large flat areas shrink that to a couple of MB.
+ * The page bitmap's format for jsPDF: red, green and blue, deflated already
+ * (`renderSvgToDeflatedRgb`). jsPDF picks an image's processor by its
+ * format's name (`process<FORMAT>`) and writes a stream that names its own
+ * filter as it is, so this one only says what the bytes are. Through `PNG`
+ * jsPDF decoded the bitmap and packed it again in JavaScript, which was
+ * nearly all of a PDF's time.
  */
-const PDF_IMAGE_COMPRESSION = 'MEDIUM' as const;
+const DEFLATED_RGB = 'DEFLATEDRGB';
+
+/** The size of each page bitmap handed to jsPDF, which passes only bytes. */
+const bitmapSizes = new WeakMap<
+  Uint8Array,
+  { width: number; height: number }
+>();
+
+type JsPdfModule = typeof import('jspdf');
+type ImageProcessorHost = {
+  __addimage__: { arrayBufferToBinaryString(bytes: Uint8Array): string };
+};
+
+let deflatedRgbRegistered = false;
+
+function registerDeflatedRgb({ jsPDF }: JsPdfModule): void {
+  if (deflatedRgbRegistered) return;
+  deflatedRgbRegistered = true;
+  (jsPDF.API as unknown as Record<string, unknown>)[`process${DEFLATED_RGB}`] =
+    function processDeflatedRgb(
+      this: ImageProcessorHost,
+      bytes: Uint8Array,
+      index: number,
+      alias: string,
+    ) {
+      const size = bitmapSizes.get(bytes);
+      if (!size) return null;
+      return {
+        data: this.__addimage__.arrayBufferToBinaryString(bytes),
+        width: size.width,
+        height: size.height,
+        colorSpace: 'DeviceRGB',
+        bitsPerComponent: 8,
+        filter: 'FlateDecode',
+        index,
+        alias,
+      };
+    };
+}
 
 /** Page backdrop for the rasterized bitmap — opaque, so no soft mask is needed. */
 const PDF_PAGE_BACKGROUND = '#ffffff';
@@ -221,7 +259,9 @@ async function renderPdfPages(
   orientation: 'landscape' | 'portrait',
   extraFontCss?: string,
 ): Promise<import('jspdf').jsPDF> {
-  const { jsPDF } = await import('jspdf');
+  const jsPdfModule = await import('jspdf');
+  registerDeflatedRgb(jsPdfModule);
+  const { jsPDF } = jsPdfModule;
   const pdf = new jsPDF({
     orientation,
     unit: 'mm',
@@ -240,27 +280,21 @@ async function renderPdfPages(
     svgElement.setAttribute('preserveAspectRatio', 'xMidYMid meet');
 
     const serializedSvg = new XMLSerializer().serializeToString(svgElement);
-    const imageDataUrl = await renderSvgToPngDataUrl(
+    const bitmap = await renderSvgToDeflatedRgb(
       serializedSvg,
       widthPx,
       heightPx,
       PDF_PAGE_BACKGROUND,
       extraFontCss,
     );
+    bitmapSizes.set(bitmap, { width: widthPx, height: heightPx });
 
     if (index > 0) {
       pdf.addPage('a4', orientation);
     }
-    pdf.addImage(
-      imageDataUrl,
-      'PNG',
-      0,
-      0,
-      width,
-      height,
-      undefined,
-      PDF_IMAGE_COMPRESSION,
-    );
+    // A name of its own per page: jsPDF would otherwise hash the bitmap to
+    // find one.
+    pdf.addImage(bitmap, DEFLATED_RGB, 0, 0, width, height, `page-${index}`);
   }
 
   return pdf;
