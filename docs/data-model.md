@@ -1,6 +1,6 @@
 # Data Model
 
-> **Status:** current · **Last reviewed:** 2026-11-14 · **Source of truth:**
+> **Status:** current · **Last reviewed:** 2026-11-18 · **Source of truth:**
 > `src/utils/data/storageKeys.ts`, `src/types/`, `src/repositories/`
 
 Everything Klassenplan stores lives in the teacher's browser. This document
@@ -234,6 +234,15 @@ database connection under the page — Safari does after a while in the
 background — `idbClient` opens the default store anew and repeats the call
 once.
 
+A class collection whose `version` is above `CLASS_COLLECTION_VERSION` was
+written by a newer version — another window took an update while this one
+runs the version before, or the operator went back to an older image. The
+repository then reads it as well as it can and writes nothing over it: every
+write is refused with `NEWER_DATA` (`src/repositories/newerStoredData.ts`), the
+queue neither retries nor toasts, and the status bar shows "Neu laden" in place
+of "Nicht gespeichert", which reloads the page. Without the guard, whichever
+old window saved last would put the newer shape back into its own.
+
 Once a class is active, `ensureStoragePersistence()` asks the browser once per
 page load to exempt the site from storage eviction (`navigator.storage.persist`;
 Chromium decides silently, Firefox asks the user) and warns once when the quota
@@ -407,24 +416,26 @@ list is `PROJECT_LOCAL_STORAGE_KEYS` in `storageKeys.ts`. Groups:
 
 ## Versions and migrations
 
-| What                     | Version                           | Stored in                                    | Behaviour                                                                                                                                                                                                                                                                                        |
-| ------------------------ | --------------------------------- | -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Class collection         | `CLASS_COLLECTION_VERSION` = 3    | `version` field                              | Stamped on every write. Version 1 has no rooms; reading repairs it (`ensureClassRooms`), and an older build passes over the rooms it does not know. Version 2 holds whole students on the seats, version 3 their ids; reading takes both, and a build before version 3 cannot read what it wrote |
-| Pre-collection storage   | —                                 | legacy `spg.*` keys                          | Read into a first class when no collection exists                                                                                                                                                                                                                                                |
-| Table template migration | `CURRENT_MIGRATION_VERSION` = 1   | `spg.migrationVersion` + localStorage mirror | `runMigration()` in `src/index.tsx`, before the first render: migrates the room scene, templates and saved plans (`utils/migration/tableMigration.ts`). A failure is logged and does not block start-up                                                                                          |
-| App data stamp           | `APP_DATA_VERSION` = 2            | `spg.version`                                | Stamped on every load                                                                                                                                                                                                                                                                            |
-| Plan usage record        | 1                                 | `version` field                              | Other versions read as empty                                                                                                                                                                                                                                                                     |
-| Name game statistics     | 1                                 | `version` field                              |                                                                                                                                                                                                                                                                                                  |
-| Class duties             | 1                                 | `version` field                              | Other versions read as empty                                                                                                                                                                                                                                                                     |
-| Mixing presets           | 1                                 | `version` field                              | A newer version is read as no presets and never written over                                                                                                                                                                                                                                     |
-| Photo store              | `STUDENT_PHOTO_STORE_VERSION` = 1 | `__photoStoreVersion` key                    | Stamped by the start-up sweep                                                                                                                                                                                                                                                                    |
-| Backup file              | 3                                 | `version` in the bundle                      | Versions 1 and 2 stay importable ([backup-format.md](backup-format.md))                                                                                                                                                                                                                          |
+| What                     | Version                           | Stored in                                    | Behaviour                                                                                                                                                                                                                                                                                                                                                                      |
+| ------------------------ | --------------------------------- | -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Class collection         | `CLASS_COLLECTION_VERSION` = 3    | `version` field                              | Stamped on every write. Version 1 has no rooms; reading repairs it (`ensureClassRooms`), and an older build passes over the rooms it does not know. Version 2 holds whole students on the seats, version 3 their ids; reading takes both, and a build before version 3 cannot read what it wrote. A build after 3.4.0 writes nothing over a higher version (`newerStoredData`) |
+| Pre-collection storage   | —                                 | legacy `spg.*` keys                          | Read into a first class when no collection exists                                                                                                                                                                                                                                                                                                                              |
+| Table template migration | `CURRENT_MIGRATION_VERSION` = 1   | `spg.migrationVersion` + localStorage mirror | `runMigration()` in `src/index.tsx`, before the first render: migrates the room scene, templates and saved plans (`utils/migration/tableMigration.ts`). A failure is logged and does not block start-up                                                                                                                                                                        |
+| App data stamp           | `APP_DATA_VERSION` = 2            | `spg.version`                                | Stamped on every load                                                                                                                                                                                                                                                                                                                                                          |
+| Plan usage record        | 1                                 | `version` field                              | Other versions read as empty                                                                                                                                                                                                                                                                                                                                                   |
+| Name game statistics     | 1                                 | `version` field                              |                                                                                                                                                                                                                                                                                                                                                                                |
+| Class duties             | 1                                 | `version` field                              | Other versions read as empty                                                                                                                                                                                                                                                                                                                                                   |
+| Mixing presets           | 1                                 | `version` field                              | A newer version is read as no presets and never written over                                                                                                                                                                                                                                                                                                                   |
+| Photo store              | `STUDENT_PHOTO_STORE_VERSION` = 1 | `__photoStoreVersion` key                    | Stamped by the start-up sweep                                                                                                                                                                                                                                                                                                                                                  |
+| Backup file              | 3                                 | `version` in the bundle                      | Versions 1 and 2 stay importable ([backup-format.md](backup-format.md))                                                                                                                                                                                                                                                                                                        |
 
 ### Changing a stored shape
 
 1. Bump the version constant next to the store and keep a reader for the old
    shape — installations upgrade whenever the teacher next opens the app, which
-   can be months later.
+   can be months later. A window still on the version before writes nothing
+   over the new shape (`newerStoredData`, builds after 3.4.0), but shows it as
+   it misreads it until the teacher reloads.
 2. Update `src/utils/validation/backupValidation.ts` and
    [backup-format.md](backup-format.md): backups carry the same shapes and are
    imported years after they were written.

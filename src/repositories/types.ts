@@ -40,6 +40,12 @@ export enum RepositoryErrorType {
    * state, not a fault — whoever reads the open class says nothing then.
    */
   NO_ACTIVE_CLASS = 'NO_ACTIVE_CLASS',
+  /**
+   * What is stored was written by a newer version of the app, which this
+   * build does not know: nothing is written over it (`newerStoredData`). A
+   * reload, not a retry, is the way out.
+   */
+  NEWER_DATA = 'NEWER_DATA',
   UNKNOWN_ERROR = 'UNKNOWN_ERROR',
 }
 

@@ -11,15 +11,24 @@
  * bar beside them.
  */
 import { useSyncExternalStore } from 'react';
+import {
+  hasNewerStoredData,
+  subscribeNewerStoredData,
+} from '@/repositories/newerStoredData';
 
-export type PersistStatus = 'saved' | 'failed';
+/**
+ * `newer`: what is stored comes from a newer version, so nothing is written
+ * until a reload (`newerStoredData`). It wins over the other two, which a
+ * write can change; this one only a reload does.
+ */
+export type PersistStatus = 'saved' | 'failed' | 'newer';
 
 let status: PersistStatus = 'saved';
 const listeners = new Set<() => void>();
 let retryHandler: (() => void) | null = null;
 
 export function getPersistStatus(): PersistStatus {
-  return status;
+  return hasNewerStoredData() ? 'newer' : status;
 }
 
 export function setPersistStatus(next: PersistStatus): void {
@@ -30,8 +39,10 @@ export function setPersistStatus(next: PersistStatus): void {
 
 function subscribePersistStatus(listener: () => void): () => void {
   listeners.add(listener);
+  const stopNewer = subscribeNewerStoredData(listener);
   return () => {
     listeners.delete(listener);
+    stopNewer();
   };
 }
 

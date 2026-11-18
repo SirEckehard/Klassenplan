@@ -52,6 +52,7 @@ import {
   type ClassEdit,
 } from '@/utils/data/classRooms';
 import { normalizeSeatingHistory } from '@/utils/data/planNormalization';
+import { isFromNewerVersion, noteNewerStoredData } from './newerStoredData';
 import { dropMissingPartners } from '@/utils/student/partnerUtils';
 
 const REPOSITORY_LOG_SOURCE = 'IndexedDBRepository';
@@ -83,6 +84,19 @@ function cloneValue<T>(value: T): T {
 /** The stored collection as every operation works on it: repaired. */
 function repairCollection(stored: ClassCollectionState): ClassCollectionState {
   return ensureCollectionRooms(ensureActiveClass(stored));
+}
+
+/**
+ * Whether `stored` was written by a newer version of the app. Says so to the
+ * status bar on the way (`noteNewerStoredData`): from then on nothing is
+ * written over it.
+ */
+function isNewerCollection(
+  stored: ClassCollectionState | null | undefined,
+): stored is ClassCollectionState {
+  if (!isFromNewerVersion(stored, CLASS_COLLECTION_VERSION)) return false;
+  noteNewerStoredData();
+  return true;
 }
 
 /**
@@ -194,6 +208,13 @@ export class IndexedDBRepository implements ISeatingPlanRepository {
     }
     this.legacyChecked = true;
 
+    // A newer version wrote it: read as well as this build can, and never
+    // written back — repaired in this build's understanding, it would lose
+    // what the newer one keeps.
+    if (isNewerCollection(stored)) {
+      return hydrateCollection(repairCollection(stored));
+    }
+
     // Data from before rooms existed — or from an older build — gets them
     // here, once, and is written back so the ids it got stay (decision
     // 0024). Another tab may have repaired it in the meantime; its ids stay.
@@ -207,6 +228,11 @@ export class IndexedDBRepository implements ISeatingPlanRepository {
     await idbUpdate<ClassCollectionState>(
       DB_KEYS.classCollection,
       (current) => {
+        // Another window of a newer version wrote it in the meantime.
+        if (isNewerCollection(current)) {
+          written = current;
+          return current;
+        }
         written = dehydrateCollection(
           current ? repairCollection(current) : ensured,
         );
@@ -269,6 +295,10 @@ export class IndexedDBRepository implements ISeatingPlanRepository {
     await idbUpdate<ClassCollectionState>(
       DB_KEYS.classCollection,
       (current) => {
+        if (isNewerCollection(current)) {
+          written = current;
+          return current;
+        }
         written = dehydrateCollection(
           current ? repairCollection(current) : collection,
         );
@@ -326,6 +356,12 @@ export class IndexedDBRepository implements ISeatingPlanRepository {
       await idbUpdate<ClassCollectionState>(
         DB_KEYS.classCollection,
         (stored) => {
+          if (isNewerCollection(stored)) {
+            this.refuse(
+              RepositoryErrorType.NEWER_DATA,
+              'Stored classes were written by a newer version',
+            );
+          }
           const collection = hydrateCollection(
             stored ? repairCollection(stored) : createClassCollection(),
           );
@@ -689,10 +725,29 @@ export class IndexedDBRepository implements ISeatingPlanRepository {
   ): Promise<Result<void>> {
     return this.withErrorHandling(
       async () => {
-        // Replaces what is stored, so nothing is read first.
+        // Replaces what is stored; it is read only to leave a newer
+        // version's data alone.
         const ensured = repairCollection(collection);
         ensured.version = CLASS_COLLECTION_VERSION;
-        await idbSet(DB_KEYS.classCollection, dehydrateCollection(ensured));
+        try {
+          await idbUpdate<ClassCollectionState>(
+            DB_KEYS.classCollection,
+            (stored) => {
+              if (isNewerCollection(stored)) {
+                this.refuse(
+                  RepositoryErrorType.NEWER_DATA,
+                  'Stored classes were written by a newer version',
+                );
+              }
+              return dehydrateCollection(ensured);
+            },
+          );
+        } catch (error) {
+          if (error instanceof NothingToWrite) {
+            return error.answer as Result<void>;
+          }
+          throw error;
+        }
         this.legacyChecked = true;
         this.openClassId = ensured.activeClassId;
         this.openClassStamp = undefined;

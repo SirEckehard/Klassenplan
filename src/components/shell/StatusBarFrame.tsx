@@ -133,6 +133,11 @@ export function StatusCheckIcon() {
   );
 }
 
+/** A reload brings the version that wrote what is stored. */
+function reloadPage() {
+  window.location.reload();
+}
+
 /**
  * The bar at the bottom of the shell, without what a surface says in it.
  *
@@ -160,7 +165,9 @@ export function StatusCheckIcon() {
  *
  * When writes to storage fail, "Nicht gespeichert" stands in the same place
  * until one succeeds (`persistStatus`): that is a warning, so it is a button
- * in the alert's ink that tries again at once.
+ * in the alert's ink that tries again at once. When what is stored comes from
+ * a newer version, this window writes nothing more (`newerStoredData`), and
+ * the same place holds "Neu laden", which brings that version.
  *
  * A new version waiting is a state too: "Neue Version", a quiet button that
  * takes it on (`useUpdateReady`). And what was kept without the screen
@@ -200,7 +207,9 @@ export default function StatusBarFrame({
   } = useInspector();
   const { setFloatNode } = useStatusBarSlot();
   const isOnline = useOnlineStatus();
-  const unsaved = usePersistStatus() === 'failed';
+  const persistStatus = usePersistStatus();
+  const unsaved = persistStatus === 'failed';
+  const newerData = persistStatus === 'newer';
   const updateReady = useUpdateReady();
   const notice = useStatusNotice();
   useRegisterStatusBar();
@@ -342,6 +351,18 @@ export default function StatusBarFrame({
               <span className={statusBarWordClass}>{t('shell.unsaved')}</span>
             </button>
           )}
+          {newerData && (
+            <button
+              type="button"
+              onClick={reloadPage}
+              aria-label={t('shell.newerDataReload')}
+              title={t('shell.newerDataReload')}
+              className={`${secondaryButtonClass} ${touchHitAreaClass} h-9 shrink-0 gap-2 px-3 text-(--status-alert-text) max-sm:w-9 max-sm:px-0`}
+            >
+              <WarningCircleIcon size={16} aria-hidden="true" />
+              <span className={statusBarWordClass}>{t('shell.newerData')}</span>
+            </button>
+          )}
           {updateReady && (
             <button
               type="button"
@@ -358,11 +379,13 @@ export default function StatusBarFrame({
           )}
           {/* A polite status of its own, out of the flow, so going offline or
               a new version is said once while the bar as a whole stays
-              quiet. The failed write announces itself through its toast. */}
+              quiet. The failed write announces itself through its toast;
+              data of a newer version has none, so it is said here. */}
           <span role="status" className="sr-only">
             {[
               isOnline ? '' : t('common:offline.badge'),
               updateReady ? t('common:pwa.updateAvailable') : '',
+              newerData ? t('shell.newerDataReload') : '',
             ]
               .filter(Boolean)
               .join('. ')}

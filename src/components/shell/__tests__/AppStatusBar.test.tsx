@@ -36,7 +36,23 @@ const mocks = vi.hoisted(() => ({
     circleLayout: null as CircleLayout | null,
   },
   handleStepChange: vi.fn(),
+  // Whether the repository found classes of a newer version; it holds for
+  // the page, so the tests steer a stand-in instead.
+  newer: { found: false, listeners: new Set<() => void>() },
 }));
+
+vi.mock('@/repositories/newerStoredData', () => ({
+  hasNewerStoredData: () => mocks.newer.found,
+  subscribeNewerStoredData: (listener: () => void) => {
+    mocks.newer.listeners.add(listener);
+    return () => mocks.newer.listeners.delete(listener);
+  },
+}));
+
+const setNewerStoredData = (found: boolean) => {
+  mocks.newer.found = found;
+  for (const listener of [...mocks.newer.listeners]) listener();
+};
 
 vi.mock('@/contexts/SeatingPlanContext', () => ({
   useSeatingPlanState: () => mocks.state,
@@ -505,6 +521,35 @@ describe('AppStatusBar', () => {
     } finally {
       unregister();
       act(() => setPersistStatus('saved'));
+    }
+  });
+
+  it('asks for a reload when a newer version saved the classes', async () => {
+    setState({ step: 1, students: named(2) });
+    const reload = vi.fn();
+    vi.stubGlobal('location', { ...window.location, reload });
+    try {
+      render(<AppStatusBar />);
+      act(() => setPersistStatus('failed'));
+      act(() => setNewerStoredData(true));
+
+      // It takes the place of "Nicht gespeichert": no retry can help.
+      expect(
+        within(status()).queryByRole('button', {
+          name: /nicht gespeichert|not saved/i,
+        }),
+      ).toBeNull();
+      await userEvent.click(
+        within(status()).getByRole('button', {
+          name: /neuere Version|newer version/i,
+        }),
+      );
+
+      expect(reload).toHaveBeenCalledTimes(1);
+    } finally {
+      act(() => setNewerStoredData(false));
+      act(() => setPersistStatus('saved'));
+      vi.unstubAllGlobals();
     }
   });
 

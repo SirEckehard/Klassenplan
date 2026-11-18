@@ -26,6 +26,7 @@ import type {
 import { INITIAL_PERSIST_VERSIONS } from './types';
 import {
   isMissingClassPersistError,
+  isNewerDataPersistError,
   type PersistErrorHandlingReturn,
 } from './usePersistErrorHandling';
 import { registerPersistRetry } from './persistStatus';
@@ -265,7 +266,8 @@ export function usePersistQueue(
             }
           } else if (
             isActiveClass &&
-            !isMissingClassPersistError(result.error)
+            !isMissingClassPersistError(result.error) &&
+            !isNewerDataPersistError(result.error)
           ) {
             failed = true;
             requeue(classJobs, changedKeys);

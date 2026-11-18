@@ -1132,6 +1132,8 @@
     "inspectorShowNamed": "Show {{name}}",
     "unsaved": "Not saved",
     "unsavedRetry": "Changes not saved – try again now",
+    "newerData": "Reload",
+    "newerDataReload": "A newer version of Klassenplan saved the classes. This window no longer saves – reload",
     "status": {
       "noStudents": "No students yet",
       "students_one": "{{count}} student",

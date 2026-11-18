@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Fixed
+
+- A window still running an older version no longer saves over classes a newer version saved, and asks for a reload instead
+
 ## [3.4.0] - 2026-11-15
 
 ### Added

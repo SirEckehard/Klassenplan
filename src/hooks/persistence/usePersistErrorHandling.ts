@@ -31,6 +31,14 @@ export const isMissingClassPersistError = (
       error.type === RepositoryErrorType.NO_ACTIVE_CLASS),
   );
 
+/**
+ * Whether a write was refused because a newer version wrote what is stored.
+ * No toast and no retry: the status bar asks for a reload instead.
+ */
+export const isNewerDataPersistError = (
+  error?: RepositoryError | null,
+): boolean => error?.type === RepositoryErrorType.NEWER_DATA;
+
 export interface PersistErrorHandlingReturn {
   /** Process persist result and handle errors */
   persistSnapshotResult: (
@@ -61,6 +69,8 @@ export function usePersistErrorHandling(
 
   const markFailed = useCallback(() => {
     if (!hasActiveClass) return;
+    // The bar already asks for a reload; no write can succeed before it.
+    if (getPersistStatus() === 'newer') return;
     const firstFailure = getPersistStatus() !== 'failed';
     setPersistStatus('failed');
     const now = Date.now();
@@ -96,6 +106,15 @@ export function usePersistErrorHandling(
         logWarn(
           `Persist ${contextLabel} skipped (no active class)`,
           { error: result.error },
+          'usePersistErrorHandling',
+        );
+        return;
+      }
+
+      if (isNewerDataPersistError(result.error)) {
+        logWarn(
+          `Persist ${contextLabel} refused (stored data from a newer version)`,
+          {},
           'usePersistErrorHandling',
         );
         return;

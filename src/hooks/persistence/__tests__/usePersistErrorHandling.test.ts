@@ -66,6 +66,22 @@ describe('usePersistErrorHandling', () => {
     expect(toasts[1]?.message).toBe(i18n.t(TOAST_MESSAGES.SAVE_RECOVERED));
   });
 
+  it('leaves data of a newer version to the status bar', () => {
+    const { result } = renderHook(() => usePersistErrorHandling(true));
+    const refused: Result<unknown> = {
+      success: false,
+      error: { type: RepositoryErrorType.NEWER_DATA, message: 'newer' },
+    };
+
+    act(() => {
+      result.current.persistSnapshotResult(refused, ['students']);
+    });
+
+    // No toast and no "Nicht gespeichert": a retry cannot help, a reload does.
+    expect(toasts).toEqual([]);
+    expect(getPersistStatus()).toBe('saved');
+  });
+
   it('stays quiet about a write that went through anyway', () => {
     const { result } = renderHook(() => usePersistErrorHandling(true));
 

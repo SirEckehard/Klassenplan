@@ -1132,6 +1132,8 @@
     "inspectorShowNamed": "{{name}} einblenden",
     "unsaved": "Nicht gespeichert",
     "unsavedRetry": "Änderungen nicht gespeichert – jetzt erneut versuchen",
+    "newerData": "Neu laden",
+    "newerDataReload": "Eine neuere Version von Klassenplan hat die Klassen gespeichert. Dieses Fenster speichert nichts mehr – neu laden",
     "status": {
       "noStudents": "Noch keine Schüler",
       "students_one": "{{count}} Schüler",
