@@ -34,6 +34,7 @@ it for Antigravity — edit this file, never those two.
 - Licences: `npm run check:licenses` (every production package in the lockfile is under a licence of `ALLOWED_LICENSES` in `scripts/utils/thirdPartyLicenses.ts`; the build itself writes `dist/third-party-licenses.txt` and fails on the same; `docs/SECURITY.md` § 4)
 - Docs consistency: `npm run check:docs` (relative links, heading anchors and `src/…`-style paths in Markdown resolve; `docs/CHANGELOG.md` is skipped)
 - Algorithm runtime: `npm run bench` (by hand, not in CI; figures in `docs/PERFORMANCE.md`)
+- Slow devices: `npm run measure:slow-device` (by hand, not in CI: the production bundle at CPU ÷1 and ÷6 — `SLOW_DEVICE_CPU=1,4,6`, `SLOW_DEVICE_RUNS` — opening the workspace, mixing, dragging, the PDFs and the backup; Chromium throttles no worker, so the mix is timed once more without one; figures in `docs/PERFORMANCE.md` § Slow devices)
 - Mix quality: `MIX_QUALITY=1 npx vitest run mixQuality --silent=false` (by hand: six rooms, 30 seeds each, every criterion's fulfilment and the time per mix; figures in `docs/PERFORMANCE.md` and decision 0031)
 - Mix runs: `MIX_RUNS=1 npx vitest run mixRuns --silent=false` (by hand: six plans one after the other in three rooms, 30 seeds each — how wishes take turns, whether friends stay together, how pairs repeat and every criterion's fulfilment over the run; figures in decision 0033)
 
@@ -274,6 +275,7 @@ import { generateId, logError, errorHandlers } from '@/utils';
 - `npm run check:licenses` - Production dependencies under licences compatible with the AGPL (the build writes `dist/third-party-licenses.txt`)
 - `npm run check:live-seo` - The deployed site's addresses: one per page, permanent redirects, real 404 (`SITE_URL`, needs the network)
 - `npm run bench` - Seating algorithm runtime benchmark (by hand)
+- `npm run measure:slow-device` - What a teacher waits for on the reference device, CPU ÷6 (by hand; builds first)
 - `vitest run --reporter=verbose` - Run tests with detailed output
 - `vitest run src/path/to/test.test.ts` - Run single test file
 

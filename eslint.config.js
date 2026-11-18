@@ -206,7 +206,12 @@ export default defineConfig([
 
   // Tooling and config files: no import rules
   {
-    files: ['vite.config.ts', 'playwright.config.ts', 'eslint.config.js'],
+    files: [
+      'vite.config.ts',
+      'playwright.config.ts',
+      'playwright.slow-device.config.ts',
+      'eslint.config.js',
+    ],
     languageOptions: {
       parserOptions: {
         project: null,
@@ -238,6 +243,7 @@ export default defineConfig([
       'src/**/__tests__/**/*',
       'src/setupTests.ts',
       'e2e/**/*.spec.ts',
+      'e2e/**/*.perf.ts',
     ],
     languageOptions: {
       parserOptions: {

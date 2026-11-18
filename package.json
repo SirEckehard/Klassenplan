@@ -46,6 +46,7 @@
     "test": "vitest",
     "test:coverage": "vitest run --coverage",
     "bench": "vitest bench --run --reporter=verbose",
+    "measure:slow-device": "vite build && playwright test -c playwright.slow-device.config.ts",
     "test:e2e": "playwright test",
     "test:visual": "node scripts/visual-snapshots.mjs",
     "test:visual:update": "node scripts/visual-snapshots.mjs --update",

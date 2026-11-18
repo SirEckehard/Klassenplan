@@ -10,7 +10,9 @@
     "src/types/**/*.d.ts",
     "src/vite-env.d.ts",
     "e2e/**/*.spec.ts",
-    "playwright.config.ts"
+    "e2e/**/*.perf.ts",
+    "playwright.config.ts",
+    "playwright.slow-device.config.ts"
   ],
   "exclude": []
 }
