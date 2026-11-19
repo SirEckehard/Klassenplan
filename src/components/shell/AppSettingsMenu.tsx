@@ -180,7 +180,7 @@ export default function AppSettingsMenu() {
             className={`${menuSurfaceClass} w-64 p-1`}
           >
             <div className="flex items-center justify-between gap-2 px-3 py-2">
-              <AppearanceControls />
+              <AppearanceControls className="shrink-0" />
               <UpdateCheckButton />
             </div>
             <MenuCheckRow

@@ -84,14 +84,17 @@ const UpdateCheckButton: React.FC = () => {
         type="button"
         onClick={updateReady ? applyPendingUpdate : checkNow}
         disabled={checking}
-        className={`group rounded ${said ? 'px-1 py-1.5' : 'p-1.5'} hover:bg-(--surface-option-selected) transition-colors cursor-pointer disabled:cursor-default`}
+        className={`group min-w-0 rounded ${said ? 'px-1 py-0.5' : 'p-1.5'} hover:bg-(--surface-option-selected) transition-colors cursor-pointer disabled:cursor-default`}
         aria-label={said ? undefined : label}
         title={
           updateReady ? t('pwa.updateReadyTitle') : said ? undefined : label
         }
       >
         {said ? (
-          <span className="flex h-4 items-center gap-1 whitespace-nowrap text-xs leading-none font-medium text-(--text-page)">
+          // Beside the theme and language switches the menu leaves about
+          // 120 px: a longer answer ("Prüfung fehlgeschlagen") breaks onto
+          // a second line instead of running past the menu's edge.
+          <span className="flex min-h-4 items-center gap-1 text-right text-xs leading-tight font-medium text-(--text-page)">
             {said.icon}
             {said.text}
           </span>

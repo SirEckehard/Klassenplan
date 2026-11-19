@@ -415,6 +415,34 @@ test(
 );
 
 /**
+ * The update check answers in place of its button, beside the theme and the
+ * language switches. "Prüfung fehlgeschlagen" once ran past the menu's edge,
+ * which no role or name notices; offline is the long answer a test can call.
+ */
+test(
+  "the update check's answer stays inside the settings",
+  EVERY_DEVICE,
+  async ({ page, context }) => {
+    await page.goto('/');
+    await gearInHead(page).click();
+    const settings = page.getByRole('dialog', { name: 'Einstellungen' });
+    await expect(settings).toBeVisible();
+
+    await context.setOffline(true);
+    await settings.getByRole('button', { name: 'Auf Updates prüfen' }).click();
+    const answer = settings.getByRole('button', {
+      name: 'Offline · später prüfen',
+    });
+
+    const menu = await boxOf(settings);
+    const box = await boxOf(answer);
+    expect(box.x).toBeGreaterThanOrEqual(menu.x);
+    expect(box.x + box.width).toBeLessThanOrEqual(menu.x + menu.width);
+    await context.setOffline(false);
+  },
+);
+
+/**
  * The logo's flight between the start page and the workspace rests on the old
  * and the new head changing in one commit, which only a real router and a real
  * browser show. The copies live for a moment, so a watcher notes each flight:
