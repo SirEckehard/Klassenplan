@@ -7,9 +7,15 @@
 // The PNGs in assets/preview/ are the lossless masters, usually written by
 // capture-preview-screenshots.mjs; they stay out of public/, so no build ships
 // them. For each master this writes into public/preview/ the full-size
-// `<name>.avif` and `<name>.webp`, which the lightbox and the web app manifest
-// use, and `<name>-<width>.avif` / `<name>-<width>.webp` for every width in
-// src/data/previewImages.json that is smaller than the master itself.
+// `<name>.avif`, which the lightbox and the web app manifest use, and
+// `<name>-<width>.avif` for every width in src/data/previewImages.json that is
+// smaller than the master itself.
+//
+// WebP is only the fallback for a browser without AVIF — among the supported
+// ones Safari 16.4 to 17 on macOS 11 and 12, where AVIF depends on the system.
+// It comes in one width (`webpWidth`, `<name>-960.webp`; the full size for a
+// narrower master), since a copy per width doubled the screenshots in every
+// image and archive for a handful of visitors.
 //
 // Why: the carousel slot is at most 488 CSS px wide, but every visitor
 // downloaded the 2990 px originals — PageSpeed Insights counted 357 KiB of it
@@ -94,7 +100,9 @@ async function isUpToDate(output, masterMtime) {
 }
 
 async function main() {
-  const { variantWidths } = JSON.parse(await fs.readFile(configPath, 'utf-8'));
+  const { variantWidths, webpWidth } = JSON.parse(
+    await fs.readFile(configPath, 'utf-8'),
+  );
   const masters = (await fs.readdir(masterDir))
     .filter((name) => name.endsWith('.png'))
     .sort();
@@ -106,6 +114,7 @@ async function main() {
   const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'kp-preview-'));
   let written = 0;
   let skipped = 0;
+  const webpFiles = new Set();
 
   try {
     for (const master of masters) {
@@ -114,7 +123,7 @@ async function main() {
       const { width } = await readPngSize(masterPath);
       const { mtimeMs } = await fs.stat(masterPath);
 
-      // The full-size pair first (no suffix, no resize), then one per width.
+      // The full-size file first (no suffix, no resize), then one per width.
       const outputs = [
         { suffix: '', resize: [], quality: FULL_SIZE_QUALITY },
         ...variantWidths
@@ -127,14 +136,21 @@ async function main() {
           })),
       ];
 
+      // The one WebP: at `webpWidth`, or full-size for a narrower master.
+      const webpSuffix = webpWidth < width ? `-${webpWidth}` : '';
+      webpFiles.add(`${base}${webpSuffix}.webp`);
+
       for (const { suffix, resize, quality } of outputs) {
         const avif = path.join(previewDir, `${base}${suffix}.avif`);
-        const webp = path.join(previewDir, `${base}${suffix}.webp`);
+        const webp =
+          suffix === webpSuffix
+            ? path.join(previewDir, `${base}${suffix}.webp`)
+            : null;
 
         if (
           !force &&
           (await isUpToDate(avif, mtimeMs)) &&
-          (await isUpToDate(webp, mtimeMs))
+          (webp === null || (await isUpToDate(webp, mtimeMs)))
         ) {
           skipped += 1;
           continue;
@@ -164,23 +180,34 @@ async function main() {
           scaledPng,
           avif,
         ]);
-        run('cwebp', [
-          '-quiet',
-          '-q',
-          quality.webp,
-          '-m',
-          '6',
-          ...resize,
-          masterPath,
-          '-o',
-          webp,
-        ]);
+        if (webp !== null) {
+          run('cwebp', [
+            '-quiet',
+            '-q',
+            quality.webp,
+            '-m',
+            '6',
+            ...resize,
+            masterPath,
+            '-o',
+            webp,
+          ]);
+        }
 
         written += 1;
       }
     }
   } finally {
     await fs.rm(tmpDir, { recursive: true, force: true });
+  }
+
+  // A WebP no slide asks for any more — another width, a screenshot gone.
+  let removed = 0;
+  for (const name of await fs.readdir(previewDir)) {
+    if (name.endsWith('.webp') && !webpFiles.has(name)) {
+      await fs.rm(path.join(previewDir, name));
+      removed += 1;
+    }
   }
 
   // Always recomputed, even when every file was skipped: a screenshot replaced
@@ -190,7 +217,7 @@ async function main() {
 
   logInfo(
     'Preview variants ready',
-    { written, skipped, version, versionChanged },
+    { written, skipped, removed, version, versionChanged },
     SOURCE,
   );
 }

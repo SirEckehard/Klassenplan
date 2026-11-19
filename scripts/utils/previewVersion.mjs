@@ -41,6 +41,7 @@ export async function writePreviewVersion(configPath, version) {
   const content =
     '{\n' +
     `  "variantWidths": [${config.variantWidths.join(', ')}],\n` +
+    `  "webpWidth": ${config.webpWidth},\n` +
     `  "version": "${version}"\n` +
     '}\n';
   await fs.writeFile(configPath, content);

@@ -109,13 +109,22 @@ function slideUrl(base: string, ext: 'avif' | 'webp', width?: number) {
 }
 
 /** Downscaled copies plus the full-size file as the largest candidate. */
-function slideSrcSet(base: string, width: number, ext: 'avif' | 'webp') {
+function slideSrcSet(base: string, width: number) {
   return [
     ...previewImages.variantWidths
       .filter((w) => w < width)
-      .map((w) => `${slideUrl(base, ext, w)} ${w}w`),
-    `${slideUrl(base, ext)} ${width}w`,
+      .map((w) => `${slideUrl(base, 'avif', w)} ${w}w`),
+    `${slideUrl(base, 'avif')} ${width}w`,
   ].join(', ');
+}
+
+/**
+ * The WebP fallback for a browser without AVIF (Safari 16.4 to 17 on macOS 11
+ * and 12) comes in one width only, the full size for a narrower screenshot.
+ */
+function slideWebpUrl(base: string, width: number) {
+  const { webpWidth } = previewImages;
+  return slideUrl(base, 'webp', webpWidth < width ? webpWidth : undefined);
 }
 
 /**
@@ -216,17 +225,12 @@ export default function HeroMockup() {
             return (
               <picture key={entry.slug}>
                 <source
-                  srcSet={slideSrcSet(b, entry.width, 'avif')}
+                  srcSet={slideSrcSet(b, entry.width)}
                   sizes={sizes}
                   type="image/avif"
                 />
-                <source
-                  srcSet={slideSrcSet(b, entry.width, 'webp')}
-                  sizes={sizes}
-                  type="image/webp"
-                />
                 <img
-                  src={slideUrl(b, 'webp')}
+                  src={slideWebpUrl(b, entry.width)}
                   alt={t(entry.labelKey)}
                   aria-hidden={!isActive}
                   loading={isActive ? 'eager' : 'lazy'}
@@ -332,17 +336,10 @@ export default function HeroMockup() {
                   )}
                   type="image/avif"
                 />
-                <source
-                  srcSet={slideUrl(
-                    slideBase(SLIDES[current].slug, lang, isDark),
-                    'webp',
-                  )}
-                  type="image/webp"
-                />
                 <img
-                  src={slideUrl(
+                  src={slideWebpUrl(
                     slideBase(SLIDES[current].slug, lang, isDark),
-                    'webp',
+                    SLIDES[current].width,
                   )}
                   alt={t(SLIDES[current].labelKey)}
                   decoding="async"

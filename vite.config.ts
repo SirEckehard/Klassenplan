@@ -265,25 +265,27 @@ export default defineConfig({
             ],
           },
         ],
+        // AVIF: the browsers that show these (Chrome, Edge) all read it, and
+        // the start page keeps no full-size WebP (generate-preview-images).
         screenshots: [
           {
-            src: 'preview/03_sitzplan_de_light.webp',
+            src: 'preview/03_sitzplan_de_light.avif',
             sizes: '2880x1920',
-            type: 'image/webp',
+            type: 'image/avif',
             form_factor: 'wide',
             label: 'Sitzplan mit Kriterien im Inspektor',
           },
           {
-            src: 'preview/02_editor_de_light.webp',
+            src: 'preview/02_editor_de_light.avif',
             sizes: '2880x1920',
-            type: 'image/webp',
+            type: 'image/avif',
             form_factor: 'wide',
             label: 'Klassenraum-Editor mit Tischen und Raumelementen',
           },
           {
-            src: 'preview/05_praesentation_de_light.webp',
+            src: 'preview/05_praesentation_de_light.avif',
             sizes: '1424x2236',
-            type: 'image/webp',
+            type: 'image/avif',
             form_factor: 'narrow',
             label: 'Präsentationsmodus für die digitale Tafel und das Tablet',
           },
