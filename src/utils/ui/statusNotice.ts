@@ -14,7 +14,12 @@ import { announce, getToastMessage, showToast } from './toast';
  * it its own way — a toast.
  */
 export type StatusNoticeKind =
-  'saved' | 'planSaved' | 'backupSaved' | 'fileSaved';
+  | 'saved'
+  | 'planSaved'
+  | 'backupSaved'
+  | 'fileSaved'
+  | 'autoBackupOn'
+  | 'autoBackupOff';
 
 export interface StatusNotice {
   id: number;

@@ -38,7 +38,8 @@
     "presetsLeftOut_other": "{{count}} presets of your own from the backup were not added: there can be no more than {{max}}.",
     "mergedNothing": "The backup's classes and templates are already here.",
     "beforeUpdateRestored": "Data from before the update restored.",
-    "beforeUpdateGone": "The data from before the update is no longer kept."
+    "beforeUpdateGone": "The data from before the update is no longer kept.",
+    "autoBackupFailed": "The automatic backup could not be written. Set it up again under “Backup”."
   },
   "backupValidation": {
     "payloadTooLarge": "Import failed. Content is too large.",

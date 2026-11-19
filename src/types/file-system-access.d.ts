@@ -25,8 +25,36 @@ declare global {
     setConsumer(consumer: (params: LaunchParams) => void): void;
   }
 
+  // Choosing a folder and keeping access to it (the automatic backup,
+  // decision 0050). Chromium on the desktop only.
+  interface DirectoryPickerOptions {
+    id?: string;
+    mode?: 'read' | 'readwrite';
+    startIn?: 'desktop' | 'documents' | 'downloads' | FileSystemHandle;
+  }
+
+  interface FileSystemHandlePermissionDescriptor {
+    mode?: 'read' | 'readwrite';
+  }
+
+  interface FileSystemHandle {
+    queryPermission?(
+      descriptor?: FileSystemHandlePermissionDescriptor,
+    ): Promise<PermissionState>;
+    requestPermission?(
+      descriptor?: FileSystemHandlePermissionDescriptor,
+    ): Promise<PermissionState>;
+  }
+
+  interface FileSystemDirectoryHandle {
+    keys(): AsyncIterableIterator<string>;
+  }
+
   // File System Access API method for choosing a file to save
   interface Window {
+    showDirectoryPicker?: (
+      options?: DirectoryPickerOptions,
+    ) => Promise<FileSystemDirectoryHandle>;
     showSaveFilePicker: (
       options?: SaveFilePickerOptions,
     ) => Promise<FileSystemFileHandle>;

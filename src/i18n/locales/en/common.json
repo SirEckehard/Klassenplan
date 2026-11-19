@@ -166,7 +166,10 @@
     "submitCreate": "Create backup",
     "submitUnlock": "Decrypt",
     "checking": "Decrypting …",
-    "errorWrong": "This password does not open the backup. Check how it is spelled and try again."
+    "errorWrong": "This password does not open the backup. Check how it is spelled and try again.",
+    "autoTitle": "Encrypt the automatic backup",
+    "autoSubtitle": "Every backup in the chosen folder is encrypted with this password (at least {{min}} characters). Klassenplan does not remember it: without the password no backup can be restored.",
+    "submitAuto": "Set up backup"
   },
   "backupRestore": {
     "title": "Restore backup",

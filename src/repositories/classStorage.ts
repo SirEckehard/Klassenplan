@@ -24,9 +24,11 @@
  * whole `ClassCollectionState`, as the backup does.
  */
 import {
+  changeStored,
   deleteValues,
   listKeys,
   readValue,
+  UNCHANGED,
   updateValue,
   writeValue,
 } from './idbClient';
@@ -62,28 +64,6 @@ export interface RetiredCollection extends ClassCollectionState {
   retiredAt: string;
   /** The version the classes were stored in then. */
   retiredFromVersion: number;
-}
-
-/** What a change returns to end its transaction without writing. */
-export const UNCHANGED: unique symbol = Symbol('unchanged');
-
-/**
- * `updateValue` that may leave the value alone: `change` returns `UNCHANGED`
- * and nothing is written — returning `undefined` would store it.
- */
-export async function changeStored<T>(
-  key: string,
-  change: (current: T | undefined) => T | typeof UNCHANGED,
-): Promise<void> {
-  try {
-    await updateValue<T>(key, (current) => {
-      const next = change(current);
-      if (next === UNCHANGED) throw UNCHANGED;
-      return next;
-    });
-  } catch (error) {
-    if (error !== UNCHANGED) throw error;
-  }
 }
 
 export const classRecordKey = (classId: string): string =>

@@ -166,7 +166,10 @@
     "submitCreate": "Backup erstellen",
     "submitUnlock": "Entschlüsseln",
     "checking": "Wird entschlüsselt …",
-    "errorWrong": "Mit diesem Passwort lässt sich das Backup nicht öffnen. Prüfe die Schreibweise und versuche es noch einmal."
+    "errorWrong": "Mit diesem Passwort lässt sich das Backup nicht öffnen. Prüfe die Schreibweise und versuche es noch einmal.",
+    "autoTitle": "Automatische Sicherung verschlüsseln",
+    "autoSubtitle": "Jede Sicherung im gewählten Ordner wird mit diesem Passwort verschlüsselt (mindestens {{min}} Zeichen). Klassenplan merkt es sich nicht: Ohne das Passwort lässt sich keine Sicherung wiederherstellen.",
+    "submitAuto": "Sicherung einrichten"
   },
   "backupRestore": {
     "title": "Backup wiederherstellen",

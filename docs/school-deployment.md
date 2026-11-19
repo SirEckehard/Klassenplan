@@ -127,6 +127,15 @@ a desktop, a double-click on such a file opens the app and restores it; the
 browser asks once whether Klassenplan may open these files. Klassenplan reminds
 a teacher when the last backup is more than 30 days old.
 
+**The automatic backup** ([decision 0050](decisions/0050-automatic-backup.md))
+does it for them in Chrome and Edge: "Backup" → "Automatisch sichern …" takes a
+folder — OneDrive, a home drive on the network — and a password, and from then
+on writes an encrypted backup there once a day after a change, keeping the
+newest seven. This is the way through profiles that are reset: the folder
+survives, and the backup opens with its password on any computer. After a
+browser restart Chrome asks for the folder again ("Sicherung fortsetzen" in the
+status bar); in the installed app the permission lasts.
+
 ## Checklist
 
 - [ ] The instance (klassenplan.de or your own) is reachable over HTTPS.

@@ -21,7 +21,8 @@ import {
   type PasswordStrength,
 } from '@/utils/validation/passwordStrength';
 
-export type BackupPasswordMode = 'create' | 'unlock';
+/** `auto`: the password of the automatic backup, set once (decision 0050). */
+export type BackupPasswordMode = 'create' | 'unlock' | 'auto';
 
 type BackupPasswordModalProps = {
   open: boolean;
@@ -62,7 +63,8 @@ export default function BackupPasswordModal({
   check,
 }: BackupPasswordModalProps) {
   const { t } = useTranslation('common');
-  const isCreate = mode === 'create';
+  const isCreate = mode !== 'unlock';
+  const isAuto = mode === 'auto';
   const [password, setPassword] = useState('');
   const [confirmation, setConfirmation] = useState('');
   const [revealed, setRevealed] = useState(false);
@@ -128,15 +130,20 @@ export default function BackupPasswordModal({
       open={open}
       onClose={onCancel}
       title={
-        isCreate
-          ? t('backupPassword.createTitle')
-          : t('backupPassword.unlockTitle')
+        isAuto
+          ? t('backupPassword.autoTitle')
+          : isCreate
+            ? t('backupPassword.createTitle')
+            : t('backupPassword.unlockTitle')
       }
       subtitle={
         isCreate
-          ? t('backupPassword.createSubtitle', {
-              min: MIN_BACKUP_PASSWORD_LENGTH,
-            })
+          ? t(
+              isAuto
+                ? 'backupPassword.autoSubtitle'
+                : 'backupPassword.createSubtitle',
+              { min: MIN_BACKUP_PASSWORD_LENGTH },
+            )
           : t('backupPassword.unlockSubtitle')
       }
       icon={
@@ -257,11 +264,13 @@ export default function BackupPasswordModal({
             aria-busy={checking || undefined}
             disabled={checking}
           >
-            {isCreate
-              ? t('backupPassword.submitCreate')
-              : checking
-                ? t('backupPassword.checking')
-                : t('backupPassword.submitUnlock')}
+            {isAuto
+              ? t('backupPassword.submitAuto')
+              : isCreate
+                ? t('backupPassword.submitCreate')
+                : checking
+                  ? t('backupPassword.checking')
+                  : t('backupPassword.submitUnlock')}
           </button>
         </div>
       </form>

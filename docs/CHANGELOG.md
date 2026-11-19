@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- In Chrome and Edge, "Backup" can save an encrypted backup into a folder of your choice by itself, once a day after a change
+
 ### Improved
 
 - Saving stays quick however many classes there are, and for 30 days after the update "Backup" can bring back the classes as they were before it

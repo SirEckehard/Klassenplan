@@ -38,7 +38,8 @@
     "presetsLeftOut_other": "{{count}} eigene Voreinstellungen aus dem Backup konnten nicht hinzugefügt werden: Mehr als {{max}} gehen nicht.",
     "mergedNothing": "Die Klassen und Vorlagen aus dem Backup gibt es hier schon.",
     "beforeUpdateRestored": "Stand vor dem Update wiederhergestellt.",
-    "beforeUpdateGone": "Der Stand vor dem Update wird nicht mehr aufbewahrt."
+    "beforeUpdateGone": "Der Stand vor dem Update wird nicht mehr aufbewahrt.",
+    "autoBackupFailed": "Die automatische Sicherung ließ sich nicht schreiben. Richte sie unter „Backup“ neu ein."
   },
   "backupValidation": {
     "payloadTooLarge": "Import fehlgeschlagen. Inhalt ist zu groß.",

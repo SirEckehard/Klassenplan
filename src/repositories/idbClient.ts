@@ -128,6 +128,28 @@ export const updateValue = <T>(
         own ? idbUpdate<T>(key, updater, own) : idbUpdate<T>(key, updater),
       );
 
+/** What a change returns to end its transaction without writing. */
+export const UNCHANGED: unique symbol = Symbol('unchanged');
+
+/**
+ * `updateValue` that may leave the value alone: `change` returns `UNCHANGED`
+ * and nothing is written — returning `undefined` would store it.
+ */
+export async function changeStored<T>(
+  key: IDBValidKey,
+  change: (current: T | undefined) => T | typeof UNCHANGED,
+): Promise<void> {
+  try {
+    await updateValue<T>(key, (current) => {
+      const next = change(current);
+      if (next === UNCHANGED) throw UNCHANGED;
+      return next;
+    });
+  } catch (error) {
+    if (error !== UNCHANGED) throw error;
+  }
+}
+
 /** Delete a key (no-op when it does not exist). */
 export const deleteValue = (
   key: IDBValidKey,

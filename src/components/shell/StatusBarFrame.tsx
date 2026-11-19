@@ -8,6 +8,7 @@ import {
   ArrowLineRightIcon,
   CheckIcon,
   CloudSlashIcon,
+  FolderSimpleLockIcon,
   SlidersHorizontalIcon,
   WarningCircleIcon,
   WrenchIcon,
@@ -25,7 +26,11 @@ import {
   retryPersistNow,
   usePersistStatus,
 } from '@/hooks/persistence/persistStatus';
-import { quietIconButtonClass, secondaryButtonClass } from '@/utils';
+import {
+  autoBackupActions,
+  useAutoBackupState,
+} from '@/hooks/persistence/autoBackupStatus';
+import { logError, quietIconButtonClass, secondaryButtonClass } from '@/utils';
 import {
   applyPendingUpdate,
   useUpdateReady,
@@ -44,6 +49,8 @@ const NOTICE_TEXT: Record<StatusNoticeKind, string> = {
   planSaved: 'shell.notice.planSaved',
   backupSaved: 'shell.notice.backupSaved',
   fileSaved: 'shell.notice.fileSaved',
+  autoBackupOn: 'shell.notice.autoBackupOn',
+  autoBackupOff: 'shell.notice.autoBackupOff',
 };
 
 /** The toolbar's switch: quiet, and as high as the bar's other controls. */
@@ -211,6 +218,8 @@ export default function StatusBarFrame({
   const unsaved = persistStatus === 'failed';
   const newerData = persistStatus === 'newer';
   const updateReady = useUpdateReady();
+  // The automatic backup waits for its folder to be allowed again (0050).
+  const backupWaiting = useAutoBackupState().waiting;
   const notice = useStatusNotice();
   useRegisterStatusBar();
   const isDesktop = layoutMode === 'desktop';
@@ -377,6 +386,28 @@ export default function StatusBarFrame({
               </span>
             </button>
           )}
+          {backupWaiting && (
+            <button
+              type="button"
+              onClick={() => {
+                autoBackupActions.resume().catch((error: unknown) => {
+                  logError(
+                    'Resuming the automatic backup failed',
+                    { error },
+                    'StatusBarFrame',
+                  );
+                });
+              }}
+              aria-label={t('shell.autoBackupWaitingTitle')}
+              title={t('shell.autoBackupWaitingTitle')}
+              className={`${secondaryButtonClass} ${touchHitAreaClass} h-9 shrink-0 gap-2 px-3 max-sm:w-9 max-sm:px-0`}
+            >
+              <FolderSimpleLockIcon size={16} aria-hidden="true" />
+              <span className={statusBarWordClass}>
+                {t('shell.autoBackupWaiting')}
+              </span>
+            </button>
+          )}
           {/* A polite status of its own, out of the flow, so going offline or
               a new version is said once while the bar as a whole stays
               quiet. The failed write announces itself through its toast;
@@ -386,6 +417,7 @@ export default function StatusBarFrame({
               isOnline ? '' : t('common:offline.badge'),
               updateReady ? t('common:pwa.updateAvailable') : '',
               newerData ? t('shell.newerDataReload') : '',
+              backupWaiting ? t('shell.autoBackupWaitingTitle') : '',
             ]
               .filter(Boolean)
               .join('. ')}

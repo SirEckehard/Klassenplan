@@ -16,6 +16,7 @@ import {
   ToolboxIcon,
   UploadIcon,
   ClockCounterClockwiseIcon,
+  FolderSimpleLockIcon,
   UsersThreeIcon,
 } from '@phosphor-icons/react';
 import FloatingDropdown from '@/components/students/FloatingDropdown';
@@ -28,8 +29,18 @@ import { useClickOutside } from '@/hooks/ui/useClickOutside';
 import { usePopoverFocus } from '@/hooks/ui/usePopoverFocus';
 import { useBreakpointUp } from '@/hooks/ui/useBreakpoint';
 import { useClassesFromBeforeUpdate } from '@/hooks/persistence/useClassesFromBeforeUpdate';
+import {
+  autoBackupActions,
+  supportsAutoBackup,
+  useAutoBackupState,
+} from '@/hooks/persistence/autoBackupStatus';
 import { useGuardedPlanExits } from '@/components/shell/PlanExits';
-import { logError, menuItemClass, menuSurfaceClass } from '@/utils';
+import {
+  formatDateAndTime,
+  logError,
+  menuItemClass,
+  menuSurfaceClass,
+} from '@/utils';
 
 /**
  * One entry, in the two densities the rail has. Paper and one accent: an entry
@@ -182,6 +193,7 @@ function ToolRailFoot({ planPresent }: { planPresent: boolean }) {
   const { handleExportAll, triggerImport, restoreClassesFromBeforeUpdate } =
     useSeatingPlanActions();
   const keptFromBeforeUpdate = useClassesFromBeforeUpdate();
+  const autoBackup = useAutoBackupState();
 
   const classTools = [
     {
@@ -304,6 +316,46 @@ function ToolRailFoot({ planPresent }: { planPresent: boolean }) {
                   aria-hidden="true"
                 />
                 {t('generator:storage.beforeUpdate')}
+              </button>
+            )}
+            {/* Into a folder of the teacher's choosing, where the browser
+                can write into one (decision 0050). */}
+            {supportsAutoBackup() && (
+              <button
+                type="button"
+                onClick={() => {
+                  close();
+                  // Called in the click: the folder picker needs it.
+                  const action = autoBackup.configured
+                    ? autoBackupActions.stop()
+                    : autoBackupActions.setUp();
+                  action.catch((error: unknown) => {
+                    logError('Automatic backup failed', { error }, 'ToolRail');
+                  });
+                }}
+                className={menuItemClass}
+              >
+                <FolderSimpleLockIcon
+                  className={footMenuIconClass}
+                  aria-hidden="true"
+                />
+                {autoBackup.configured ? (
+                  <span className="flex min-w-0 flex-col">
+                    <span>{t('generator:storage.autoBackupStop')}</span>
+                    <span className="text-xs text-(--text-muted)">
+                      {autoBackup.lastWrittenAt
+                        ? t('generator:storage.autoBackupLast', {
+                            folder: autoBackup.folderName,
+                            when: formatDateAndTime(autoBackup.lastWrittenAt),
+                          })
+                        : t('generator:storage.autoBackupWhere', {
+                            folder: autoBackup.folderName,
+                          })}
+                    </span>
+                  </span>
+                ) : (
+                  t('generator:storage.autoBackup')
+                )}
               </button>
             )}
           </div>

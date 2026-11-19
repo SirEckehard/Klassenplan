@@ -198,7 +198,7 @@ too large, with its size, or not restorable, which is a bug to report).
 
 Backups are encrypted symmetrically with the browser's Web Crypto API. The
 primitives are implemented in
-[`src/hooks/useDataBackup.ts`](../src/hooks/useDataBackup.ts)
+[`src/utils/data/backupCrypto.ts`](../src/utils/data/backupCrypto.ts)
 (`deriveKey`, `encryptJson`, `decryptJson`):
 
 | Parameter             | Value                                                                                     |
@@ -228,6 +228,14 @@ export (minimum 8 characters, confirmed with a second prompt) and is never
 stored; without the correct password, decryption is impossible. On import, a
 declared `kdf.iterations` value outside 100,000–10,000,000 is rejected so a
 tampered envelope can neither weaken the derivation nor stall the browser.
+
+**The automatic backup** ([decision 0050](decisions/0050-automatic-backup.md))
+writes the same envelope into a folder the teacher chose
+(`klassenplan-auto-YYYY-MM-DD.klassenplan`, the newest seven kept). Its key was
+derived once from a password of its own (`deriveStoredBackupKey`), so all its
+files share one salt until it is set up anew; each still has a fresh IV. The
+key that stays in the browser may only encrypt and cannot be exported — the
+files open with the password alone, through the same import.
 
 ## Type definitions & validation
 

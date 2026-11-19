@@ -5,6 +5,8 @@ import {
   writeValue as idbSet,
   updateValue as idbUpdate,
   deleteValue as idbDel,
+  changeStored,
+  UNCHANGED,
 } from './idbClient';
 import type {
   Student,
@@ -58,7 +60,6 @@ import { normalizeSeatingHistory } from '@/utils/data/planNormalization';
 import { noteNewerStoredData } from './newerStoredData';
 import {
   CLASS_STORAGE_VERSION,
-  changeStored,
   classRecordKey,
   emptyClassIndex,
   isNewerStorage,
@@ -70,7 +71,6 @@ import {
   retireCollection,
   retiredCollectionExpiry,
   storedClassOf,
-  UNCHANGED,
   writeStoredCollection,
   type RetiredCollection,
   type StoredClass,

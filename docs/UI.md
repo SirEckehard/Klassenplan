@@ -43,7 +43,7 @@ afterwards.
   `hooks/ui/statusBarPresence`). While writes to storage fail, "Nicht
   gespeichert" stands in the same place, a button in the alert's ink that tries
   again at once (`hooks/persistence/persistStatus`). A new version waiting
-  stands there too, a quiet "Neue Version" that takes it on (`useUpdateReady`),
+  stands there too, a quiet "Neue Version" that takes it on (`useUpdateReady`), and "Sicherung fortsetzen" while the automatic backup waits for its folder to be allowed again (`autoBackupStatus`, decision 0050),
   and what was kept without the screen showing it — a plan saved while its
   inspector is out of sight, a backup written, writes that work again — the line
   says for three seconds in place of the layer's status (`confirmInStatusBar`);
@@ -218,7 +218,7 @@ afterwards.
   carries what every layer needs, identical on every layer and on the export
   page: "Bibliothek" (a link to `/bibliothek`, marked as the current page there;
   the gear of the pages beside the app leads there too), "Klassenwerkzeuge" (one
-  menu for the four class-tool routes below), "Backup" (export/import, and for 30 days after the switch to a key per class "Stand vor dem Update …", decision 0049) and
+  menu for the four class-tool routes below), "Backup" (export/import, and for 30 days after the switch to a key per class "Stand vor dem Update …", decision 0049, and in Chrome and Edge "Automatisch sichern …" — a folder and a password, then an encrypted file a day; set up, the row ends it and names the folder and the last file, decision 0050) and
   "Unterstützen". On a narrow phone (below `sm`) the plan layer's foot starts
   with "Präsentieren", which its status bar has no room for beside "Exportieren"
   (`planPresent`); an iPad mini in portrait has room for both in the bar. The

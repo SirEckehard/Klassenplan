@@ -262,7 +262,10 @@ encryption, browser profile). Anyone with access to the device profile can read
 the data — treat the device accordingly. Encryption applies to **exported
 backups** (AES-GCM 256, PBKDF2 with 600,000 iterations, user-chosen password of
 at least 8 characters with confirmation — see
-[backup-format.md](backup-format.md)).
+[backup-format.md](backup-format.md)). The automatic backup
+([decision 0050](decisions/0050-automatic-backup.md)) keeps no password: it
+keeps an AES-GCM key derived from one, non-extractable and allowed to encrypt
+only, so access to the profile lets nobody read the files it writes.
 
 **Plan usage record:** Klassenplan notes which seating plans were actually in
 use (presented, exported, saved under a chosen name, rearranged by hand — or,

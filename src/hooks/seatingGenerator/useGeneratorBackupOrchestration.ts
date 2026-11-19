@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
+import { useAutoBackup } from '@/hooks/useAutoBackup';
 import useDataBackup from '../useDataBackup';
 import { useShareFiles } from '../library/useShareFiles';
 import type { BackupImportOutcome } from '@/services/backup/dataBackup';
@@ -50,6 +51,7 @@ export function useGeneratorBackupOrchestration(
     importBackupFile,
     restoreClassesFromBeforeUpdate,
   } = useDataBackup({ exportAllAsJson, importAllFromJson, openSharedFile });
+  useAutoBackup({ exportAllAsJson });
 
   return {
     importInputRef,

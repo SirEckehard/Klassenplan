@@ -369,6 +369,10 @@
     "exportBackup": "Export backup",
     "importBackup": "Import backup",
     "beforeUpdate": "Data from before the update …",
+    "autoBackup": "Back up automatically …",
+    "autoBackupStop": "Stop backing up automatically",
+    "autoBackupWhere": "In “{{folder}}”",
+    "autoBackupLast": "In “{{folder}}”, last {{when}}",
     "backupExported": "Backup exported.",
     "historyTitle": "Library",
     "mixHistory": "Recent mixes",
@@ -1117,7 +1121,9 @@
       "saved": "Saved",
       "planSaved": "Plan saved",
       "backupSaved": "Backup saved",
-      "fileSaved": "File saved"
+      "fileSaved": "File saved",
+      "autoBackupOn": "Automatic backup set up",
+      "autoBackupOff": "Automatic backup stopped"
     },
     "layers": {
       "class": "Class",
@@ -1157,7 +1163,9 @@
       "seatsOutOfMix_one": "{{count}} seat out of the mix",
       "seatsOutOfMix_other": "{{count}} seats out of the mix"
     },
-    "teachersDay": "Today is World Teachers' Day: thank you for your work!"
+    "teachersDay": "Today is World Teachers' Day: thank you for your work!",
+    "autoBackupWaiting": "Resume backup",
+    "autoBackupWaitingTitle": "The automatic backup waits until you allow its folder again"
   },
   "sceneInspector": {
     "deleteFeature": "Delete room element",

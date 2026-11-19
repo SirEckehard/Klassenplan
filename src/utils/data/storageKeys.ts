@@ -160,6 +160,9 @@ export const STORAGE_KEYS = {
     // 0047): one of each, a file's name, type and contents.
     cardFont: 'spg.cardFont',
     cardImage: 'spg.cardImage',
+    // The automatic backup (decision 0050): the folder it writes to, its
+    // encrypt-only key and when it last wrote. Never part of a backup.
+    autoBackup: 'spg.autoBackup',
     version: 'spg.version',
   },
 } as const;

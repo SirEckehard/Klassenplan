@@ -369,6 +369,10 @@
     "exportBackup": "Backup exportieren",
     "importBackup": "Backup importieren",
     "beforeUpdate": "Stand vor dem Update …",
+    "autoBackup": "Automatisch sichern …",
+    "autoBackupStop": "Automatische Sicherung beenden",
+    "autoBackupWhere": "In „{{folder}}“",
+    "autoBackupLast": "In „{{folder}}“, zuletzt {{when}}",
     "backupExported": "Backup exportiert.",
     "historyTitle": "Bibliothek",
     "mixHistory": "Letzte Mischungen",
@@ -1117,7 +1121,9 @@
       "saved": "Gespeichert",
       "planSaved": "Plan gespeichert",
       "backupSaved": "Backup gespeichert",
-      "fileSaved": "Datei gespeichert"
+      "fileSaved": "Datei gespeichert",
+      "autoBackupOn": "Automatische Sicherung eingerichtet",
+      "autoBackupOff": "Automatische Sicherung beendet"
     },
     "layers": {
       "class": "Klasse",
@@ -1157,7 +1163,9 @@
       "seatsOutOfMix_one": "{{count}} Platz nicht in der Mischung",
       "seatsOutOfMix_other": "{{count}} Plätze nicht in der Mischung"
     },
-    "teachersDay": "Heute ist Weltlehrertag: Danke für deine Arbeit!"
+    "teachersDay": "Heute ist Weltlehrertag: Danke für deine Arbeit!",
+    "autoBackupWaiting": "Sicherung fortsetzen",
+    "autoBackupWaitingTitle": "Die automatische Sicherung wartet, bis du ihren Ordner wieder freigibst"
   },
   "sceneInspector": {
     "deleteFeature": "Raumelement löschen",

@@ -35,6 +35,7 @@ module that imports `idb-keyval` ([decision 0002](decisions/0002-single-indexedd
 | `spg.mixPresets`         | `MixPresetData`       | Mixing presets of the teacher's own, shared by all classes |
 | `spg.cardFont`           | `CardFile`            | The name cards' own font: name, type, bytes                |
 | `spg.cardImage`          | `CardFile`            | The name cards' own picture, made smaller on loading       |
+| `spg.autoBackup`         | `AutoBackupConfig`    | The automatic backup's folder, encrypt-only key, last file |
 | `spg.migrationVersion`   | `number`              | Version of the last completed table migration              |
 | `spg.version`            | `number`              | `APP_DATA_VERSION` (currently 2), stamped on every load    |
 
