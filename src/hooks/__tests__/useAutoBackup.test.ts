@@ -169,6 +169,22 @@ describe('the automatic backup', () => {
     expect(result.current.lastWrittenAt?.slice(0, 10)).toBe('2026-11-20');
   });
 
+  it('knows at once that it is set up, before the first look', async () => {
+    const folder = makeFolder();
+    await setUpWith(folder, new Date(NOW - HOUR).toISOString());
+
+    const { result } = mount();
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(0);
+    });
+
+    expect(result.current).toMatchObject({
+      configured: true,
+      folderName: 'Klassenplan-Sicherung',
+    });
+    expect(folder.files.size).toBe(0);
+  });
+
   it('writes nothing more the same day', async () => {
     const folder = makeFolder();
     await setUpWith(folder, new Date(NOW - HOUR / 2).toISOString());

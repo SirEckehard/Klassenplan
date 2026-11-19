@@ -4,8 +4,10 @@ import { useEffect, useRef } from 'react';
 import { useSeatingRepository } from '@/hooks/useSeatingRepository';
 import {
   registerAutoBackupActions,
+  setAutoBackupState,
   type AutoBackupDeps,
 } from '@/hooks/persistence/autoBackupStatus';
+import { loadAutoBackupConfig } from '@/repositories/autoBackupStore';
 import {
   loadOnDemand,
   reportChunkLoadFailure,
@@ -80,6 +82,28 @@ export function useAutoBackup({
       }),
     [],
   );
+
+  // Whether it is set up, at once: the backup menu offers to set it up or to
+  // stop it, and the first look below waits for the start-up to settle.
+  useEffect(() => {
+    let live = true;
+    loadAutoBackupConfig()
+      .then((config) => {
+        if (!live || !config) return;
+        setAutoBackupState({
+          configured: true,
+          folderName: config.folderName,
+          lastWrittenAt: config.lastWrittenAt,
+          waiting: false,
+        });
+      })
+      .catch((error: unknown) => {
+        logError('Failed to read the automatic backup', { error }, LOG_SOURCE);
+      });
+    return () => {
+      live = false;
+    };
+  }, []);
 
   useEffect(() => {
     const runCheck = () => {
