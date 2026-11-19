@@ -80,20 +80,55 @@ function BadgeTooltip({
   hovered: HoveredBadge;
   allStudents: Student[];
 }) {
-  const { t } = useTranslation(['generator', 'students']);
   const student = allStudents.find(
     (candidate) => candidate.id === hovered.studentId,
   );
-  const badges = student ? getAllStudentBadges(student, allStudents) : [];
-  const isMore = hovered.badgeKey === BADGE_MORE_KEY;
-  const shown = isMore
-    ? hovered.hiddenKeys
-        .map((key) => badges.find((badge) => badge.key === key))
-        .filter((badge): badge is StudentBadge => Boolean(badge))
-    : badges.filter((badge) => badge.key === hovered.badgeKey);
+  const shown = shownBadges(
+    student ? getAllStudentBadges(student, allStudents) : [],
+    hovered.badgeKey,
+    hovered.hiddenKeys,
+  );
   if (shown.length === 0) return null;
 
-  const { rect } = hovered;
+  return (
+    <FloatingCard rect={hovered.rect}>
+      <BadgeLines badges={shown} isMore={hovered.badgeKey === BADGE_MORE_KEY} />
+    </FloatingCard>
+  );
+}
+
+/**
+ * The badges a card explains: the one pointed at, or — on a "+N" — the ones
+ * it stands for, in reading order.
+ */
+export function shownBadges(
+  badges: StudentBadge[],
+  badgeKey: string,
+  hiddenKeys: readonly string[],
+): StudentBadge[] {
+  if (badgeKey === BADGE_MORE_KEY) {
+    return hiddenKeys
+      .map((key) => badges.find((badge) => badge.key === key))
+      .filter((badge): badge is StudentBadge => Boolean(badge));
+  }
+  return badges.filter((badge) => badge.key === badgeKey);
+}
+
+/**
+ * A card that floats beside what it explains: centred over the box, kept
+ * clear of the window's edges, below the box where there is no room above
+ * it. Takes no pointer events, so it never stands between the pointer and
+ * the next thing to hover.
+ */
+export function FloatingCard({
+  rect,
+  children,
+  className = '',
+}: {
+  rect: HoveredBadge['rect'];
+  children: React.ReactNode;
+  className?: string;
+}) {
   const viewportWidth = window.innerWidth;
   const centerX = Math.min(
     Math.max(rect.left + rect.width / 2, EDGE_CLEARANCE),
@@ -104,22 +139,38 @@ function BadgeTooltip({
   return (
     <div
       role="tooltip"
-      className={`${menuSurfaceClass} pointer-events-none fixed z-50 flex max-w-64 flex-col gap-2 px-3 py-2`}
+      className={`${menuSurfaceClass} pointer-events-none fixed z-50 flex max-w-64 flex-col gap-2 px-3 py-2 ${className}`}
       style={{
         left: centerX,
         top: above ? rect.top - 6 : rect.top + rect.height + 6,
         transform: above ? 'translate(-50%, -100%)' : 'translate(-50%, 0)',
       }}
     >
+      {children}
+    </div>
+  );
+}
+
+/** The badges in words, headed by "N weitere Merkmale" behind a "+N". */
+export function BadgeLines({
+  badges,
+  isMore,
+}: {
+  badges: StudentBadge[];
+  isMore: boolean;
+}) {
+  const { t } = useTranslation('generator');
+  return (
+    <>
       {isMore && (
         <p className={`${dataHeadingClass} text-(--text-muted)`}>
-          {t('generator:seat.badgeTooltip.more', { count: shown.length })}
+          {t('seat.badgeTooltip.more', { count: badges.length })}
         </p>
       )}
-      {shown.map((badge) => (
+      {badges.map((badge) => (
         <BadgeLine key={badge.key} badge={badge} />
       ))}
-    </div>
+    </>
   );
 }
 

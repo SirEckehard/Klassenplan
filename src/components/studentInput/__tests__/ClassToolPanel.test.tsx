@@ -84,14 +84,18 @@ describe('ClassToolPanel', () => {
     expect(handlers.onAddStudent).toHaveBeenCalledTimes(1);
   });
 
-  it('switches between the three ways of looking at the class', () => {
-    const handlers = renderPanel();
+  it('switches between the two ways of looking at the class', () => {
+    const handlers = renderPanel({ view: 'relations' });
 
-    fireEvent.click(getButton(/^(Merkmale|Attributes)$/i));
-    expect(handlers.onViewChange).toHaveBeenCalledWith('focus');
+    fireEvent.click(getButton(/^(Klassenliste|Class list)$/i));
+    expect(handlers.onViewChange).toHaveBeenCalledWith('list');
 
     fireEvent.click(getButton(/Beziehungen|Relationships/i));
     expect(handlers.onViewChange).toHaveBeenCalledWith('relations');
+    // The brush in the list's head took the focus mode's place.
+    expect(
+      screen.queryByRole('button', { name: /^(Merkmale|Attributes)$/i }),
+    ).not.toBeInTheDocument();
   });
 
   it('marks the view that is on screen', () => {
@@ -115,7 +119,7 @@ describe('ClassToolPanel', () => {
   it('holds back what an empty class cannot use yet', () => {
     renderPanel({ studentCount: 0 });
 
-    expect(getButton(/^(Merkmale|Attributes)$/i)).toBeDisabled();
+    expect(getButton(/Beziehungen|Relationships/i)).toBeDisabled();
     expect(
       getButton(/Klassenliste exportieren|Export class list/i),
     ).toBeDisabled();

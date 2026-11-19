@@ -46,7 +46,6 @@ import InspectorPortal from '@/components/shell/InspectorPortal';
 import ClassInspector from '@/components/students/ClassInspector';
 import StatusBarPortal from '@/components/shell/StatusBarPortal';
 import { useInspector } from '@/contexts/InspectorContext';
-import AttributeFocusMode from '@/components/studentInput/AttributeFocusMode';
 import ListScrollFab from '@/components/studentInput/ListScrollFab';
 import { useIsLgUp } from '@/hooks/ui/useIsLgUp';
 import { useIsPhone } from '@/hooks/ui/useLayoutMode';
@@ -57,6 +56,11 @@ import {
   withdrawStudentUndoOffer,
 } from '@/hooks/student/studentUndoOffer';
 import { useDemoClass } from '@/hooks/onboarding/useDemoClass';
+import {
+  brushMarker,
+  brushPatch,
+  type BrushKey,
+} from '@/components/students/markerBrush';
 import { FROM_WORKSPACE_STATE } from '@/hooks/useReturnToApp';
 
 /**
@@ -85,6 +89,7 @@ function StudentInput({
   updateStudents,
   importCsv,
   downloadStudentsCsv,
+  mixSettings,
 }: StudentInputProps) {
   const { t } = useTranslation('students');
   const navigate = useLocalizedNavigate();
@@ -216,9 +221,13 @@ function StudentInput({
 
   // Search / filter / sort and multi-select only appear once a class is big
   // enough for them to help; below that they would just be chrome.
-  // Two ways into the same data: the roster answers "who is in this class",
-  // the focus mode answers "who is restless" for everyone at once.
+  // Two ways into the same data: the roster answers "who is in this class"
+  // — with the brush in its head also "who is restless" — and the relations
+  // who wants to sit with whom.
   const [listMode, setListMode] = useState<ClassViewMode>('list');
+  // The brush (decision 0051): one marker, and every row pressed sets it or
+  // takes it off. Null while it is put away.
+  const [brushKey, setBrushKey] = useState<BrushKey | null>(null);
   // A search that clearly means one student opens that student as the
   // teacher types, as a step with the arrows does: the focus stays in the
   // field, so the next letter still types. Not while students are ticked —
@@ -272,7 +281,57 @@ function StudentInput({
   ]);
   const showListTools = students.length >= STUDENT_LIST_TOOLS_THRESHOLD;
   const selectionActive =
-    showListTools && listMode === 'list' && selection.selectedCount > 0;
+    showListTools &&
+    listMode === 'list' &&
+    brushKey === null &&
+    selection.selectedCount > 0;
+
+  // Taking the brush up lets the ticks go: a row pressed then marks, and the
+  // inspector's bulk panel would edit students the list no longer shows as
+  // ticked. Another view puts it away.
+  const { clear: clearSelection } = selection;
+  const chooseBrush = useCallback(
+    (key: BrushKey) => {
+      clearSelection();
+      setBrushKey(key);
+    },
+    [clearSelection],
+  );
+  const endBrush = useCallback(() => setBrushKey(null), []);
+  // Every row re-renders with a changed student anyway: it is handed the
+  // whole class for its partner badges.
+  const strokeBrush = useCallback(
+    (studentId: string, key: BrushKey) => {
+      const student = students.find((candidate) => candidate.id === studentId);
+      if (student) {
+        updateStudent(studentId, brushPatch(student, brushMarker(key)));
+      }
+    },
+    [students, updateStudent],
+  );
+  const listBrush = useMemo(
+    () => ({
+      active: brushKey,
+      onChoose: chooseBrush,
+      onEnd: endBrush,
+      onStroke: strokeBrush,
+    }),
+    [brushKey, chooseBrush, endBrush, strokeBrush],
+  );
+  const changeListMode = useCallback((mode: ClassViewMode) => {
+    setListMode(mode);
+    setBrushKey(null);
+  }, []);
+  useKeyboardShortcuts(
+    { escape: endBrush },
+    {
+      capture: true,
+      preventDefault: false,
+      ignoreWhileTyping: false,
+      condition: () =>
+        brushKey !== null && escapeIsUnclaimed() && !isAnyDialogOpen(),
+    },
+  );
   // The ticked students are edited in the inspector: from `lg` up its column,
   // on a tablet its drawer, which leaves the list's checkboxes in reach, and
   // on a phone the sheet an opened student gets — from the status bar's
@@ -374,7 +433,7 @@ function StudentInput({
           hasActiveClass={hasActiveClass}
           studentCount={students.length}
           view={listMode}
-          onViewChange={setListMode}
+          onViewChange={changeListMode}
           newStudentName={newStudentName}
           onNewStudentNameChange={setNewStudentName}
           onAddStudent={handleAddStudent}
@@ -427,7 +486,7 @@ function StudentInput({
           back should land above the list either way — below the sticky
           header, not under it (`scroll-mt-20`). From `lg` up the list's
           stage is a column the list card shrinks into, so only the list
-          scrolls; the focus mode and the relations keep the stage's scroll. */}
+          scrolls; the relations keep the stage's scroll. */}
       <div
         ref={listTopRef}
         className={`${workspaceStageClass} scroll-mt-20 space-y-4 ${listMode === 'list' ? 'lg:flex lg:flex-col' : ''}`}
@@ -573,13 +632,7 @@ function StudentInput({
             </div>
           )}
 
-          {listMode === 'focus' ? (
-            <AttributeFocusMode
-              students={students}
-              updateStudent={updateStudent}
-              onFinish={() => setListMode('list')}
-            />
-          ) : listMode === 'relations' ? (
+          {listMode === 'relations' ? (
             <RelationsView students={students} />
           ) : showListTools && listView.visibleStudents.length === 0 ? (
             <div className="flex flex-col items-center gap-3 px-1 py-6 text-center text-sm text-(--text-muted)">
@@ -612,6 +665,8 @@ function StudentInput({
                   ? { totalCount: students.length, onClear: listView.clear }
                   : undefined
               }
+              mixSettings={mixSettings}
+              brush={listBrush}
             />
           )}
         </>
@@ -621,9 +676,7 @@ function StudentInput({
         <div ref={listEndRef} aria-hidden="true" className="lg:hidden" />
       </div>
 
-      {/* The attribute pass keeps its way on stuck to the bottom edge, where
-          this button would lie on top of it. */}
-      {students.length > 0 && listMode !== 'focus' && (
+      {students.length > 0 && (
         <StatusBarPortal slot="float">
           <ListScrollFab hint={scrollHint} onScroll={handleScrollHint} />
         </StatusBarPortal>

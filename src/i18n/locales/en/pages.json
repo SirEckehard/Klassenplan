@@ -179,9 +179,9 @@
         "q": "Can I store photos of my students?",
         "a": "Yes. Click a student in the class list; in the inspector on the right you add a photo through their portrait. The images are downscaled and stored exclusively on this device – they are never transferred. Using student photos requires consent from the school management, the students and their parents. Photos can be shown or hidden in the seating plan, in presentation mode and in the export, and they make the name game possible for learning your students’ names."
       },
-      "focusMode": {
+      "brush": {
         "q": "How do I set an attribute for the whole class quickly?",
-        "a": "With “Attributes”, under “View” in the toolbar. The view asks everyone one question – “Who is currently restless?”, for instance – and you tap the students it currently applies to. Then it moves on to the next attribute until every yes/no attribute of the class is set."
+        "a": "With “Mark” at the top of the class list. Choose an attribute – the list then asks, say, “Who is currently restless?” –, tap every student it applies to and move on to the next attribute. “Done” or Escape ends the marking."
       },
       "bulk": {
         "q": "How do I edit several students at once?",

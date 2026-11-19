@@ -22,9 +22,17 @@
         "title": "Editing several",
         "body": "Select several students to edit them together."
       },
+      "brush": {
+        "title": "Marking",
+        "body": "Choose an attribute under “Mark” at the top of the list and tap every student it applies to."
+      },
+      "cards": {
+        "title": "Attributes explained",
+        "body": "Point at an attribute or press and hold it: the card says what it means and what it does in the mix."
+      },
       "views": {
-        "title": "Attributes and relationships",
-        "body": "In “Attributes” the whole class is asked about one attribute after another, “Relationships” shows every partner wish."
+        "title": "Relationships",
+        "body": "“Relationships” in the toolbar shows every partner wish of the class at a glance."
       }
     },
     "layout": {

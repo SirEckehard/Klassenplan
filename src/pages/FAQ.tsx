@@ -148,7 +148,7 @@ export default function FAQ() {
           'classes',
           'csv',
           'photos',
-          'focusMode',
+          'brush',
           'bulk',
           'review',
           'demo',

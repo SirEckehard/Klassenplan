@@ -271,9 +271,7 @@ export default function StartPage() {
                     </h3>
                     <p className="mt-1 text-pretty text-(--text-muted)">
                       {t(layer.textKey, {
-                        question: quote(
-                          'students:focusMode.questions.restless',
-                        ),
+                        question: quote('students:brush.questions.restless'),
                       })}
                     </p>
                   </div>

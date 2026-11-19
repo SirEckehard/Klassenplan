@@ -10,7 +10,6 @@ import {
   ListBulletsIcon,
   IdentificationCardIcon,
   PrinterIcon,
-  SquaresFourIcon,
   TableIcon,
   UserPlusIcon,
   UsersThreeIcon,
@@ -33,8 +32,8 @@ import { downloadCsvTemplate } from '@/utils/csv/csvTemplateDownload';
 import { openCsvFormatHelp } from '@/utils/ui/csvFormatHelp';
 import { TOUR_ANCHORS } from '@/components/onboarding/tours';
 
-/** Which of the three ways into the class data is on screen. */
-export type ClassViewMode = 'list' | 'focus' | 'relations';
+/** Which of the two ways into the class data is on screen. */
+export type ClassViewMode = 'list' | 'relations';
 
 type Props = {
   density: ToolRailDensity;
@@ -136,17 +135,10 @@ export default function ClassToolPanel({
       >
         <ToolRailButton
           icon={<ListBulletsIcon size={18} />}
-          label={t('students:focusMode.listMode')}
+          label={t('students:views.list')}
           active={view === 'list'}
           disabled={!hasStudents}
           onClick={() => onViewChange('list')}
-        />
-        <ToolRailButton
-          icon={<SquaresFourIcon size={18} />}
-          label={t('students:focusMode.title')}
-          active={view === 'focus'}
-          disabled={!hasStudents}
-          onClick={() => onViewChange('focus')}
         />
         <ToolRailButton
           icon={<GraphIcon size={18} />}

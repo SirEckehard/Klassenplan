@@ -384,6 +384,8 @@ export {
   optionCardHintClass,
   dataFamilyClass,
   dataChipClass,
+  dataChipOffClass,
+  dataChipQuietClass,
   dataHeadingClass,
   primaryButtonClass,
   secondaryButtonClass,

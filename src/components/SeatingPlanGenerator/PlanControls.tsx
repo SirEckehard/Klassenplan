@@ -201,6 +201,7 @@ export default function PlanControls() {
               updateStudents={updateStudents}
               importCsv={importCsv}
               downloadStudentsCsv={downloadStudentsCsv}
+              mixSettings={mixSettings}
             />
           </SectionErrorBoundary>
         </Suspense>

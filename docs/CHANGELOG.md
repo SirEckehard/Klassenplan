@@ -10,10 +10,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ### Added
 
 - In Chrome and Edge, "Backup" can save an encrypted backup into a folder of your choice by itself, once a day after a change
+- The class list explains an attribute when you point at it or press and hold it, as the seating plan does
+- "Mark" at the top of the class list sets an attribute on many students and replaces the "Attributes" view
 
 ### Improved
 
 - Saving stays quick however many classes there are, and for 30 days after the update "Backup" can bring back the classes as they were before it
+- On a phone and an upright tablet the class list shows attributes as icons and unfolds them with an arrow
 
 ### Fixed
 

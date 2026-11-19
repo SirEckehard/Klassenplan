@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
-import type { Student } from '@/types';
+import type { MixSettings, Student } from '@/types';
 import type { CsvImportSelection } from '@/utils/data/csvUtils';
 
 export type StudentInputProps = {
@@ -21,4 +21,9 @@ export type StudentInputProps = {
   updateStudents: (ids: string[], patch: Partial<Student>) => void;
   importCsv: (file: File, selection?: CsvImportSelection) => Promise<Student[]>;
   downloadStudentsCsv: () => void;
+  /**
+   * The mix's weights: a marker's card says what the mix makes of it, and a
+   * marker the mix weighs nothing of right now is drawn dashed.
+   */
+  mixSettings?: MixSettings;
 };

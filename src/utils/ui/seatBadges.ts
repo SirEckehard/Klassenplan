@@ -9,7 +9,12 @@
  * the projection and the exports) do with them, kept pure so the rules can be
  * tested without drawing anything.
  */
-import type { MixSettings, SeatingArrangement, Student } from '@/types';
+import type {
+  MixSettings,
+  ScalarMixSettingKey,
+  SeatingArrangement,
+  Student,
+} from '@/types';
 import type { DataFamily } from './designTokens';
 import type { BadgeDisplayMode } from './badgePreferences';
 import type { SeatHighlightLookup } from './statisticsHighlight';
@@ -54,6 +59,20 @@ export function isBadgeCriterionActive(
   settings: Partial<MixSettings>,
 ): boolean {
   return getBadgeCriteria(badge.key).some((key) => (settings[key] ?? 0) > 0);
+}
+
+/**
+ * The criteria a badge feeds as the criteria panel shows them: distraction
+ * near restlessness has no control of its own and is set with
+ * distractibility (`criterionWeight`), so it is named as that.
+ */
+export function getShownBadgeCriteria(badgeKey: string): ScalarMixSettingKey[] {
+  const shown = getBadgeCriteria(badgeKey).map((key) =>
+    key === 'avoidConcentrationNearRestless'
+      ? 'avoidConcentrationTogether'
+      : key,
+  );
+  return [...new Set(shown)];
 }
 
 /**

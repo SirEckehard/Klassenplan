@@ -30,6 +30,7 @@ export const TOUR_ANCHORS = {
   classSwitcher: 'class-switcher',
   classViews: 'class-views',
   addStudents: 'add-students',
+  listBrush: 'list-brush',
   studentRow: 'student-row',
   proceedToLayout: 'proceed-layout',
   library: 'library',
@@ -71,6 +72,8 @@ export const TOURS: Record<TourId, readonly TourMark[]> = {
     // The toolbar from the top: the views, then who joins the class.
     { anchor: TOUR_ANCHORS.classViews, textKey: 'help.students.views' },
     { anchor: TOUR_ANCHORS.addStudents, textKey: 'help.students.add' },
+    // The stage from the top: the list's head with the brush, then a row.
+    { anchor: TOUR_ANCHORS.listBrush, textKey: 'help.students.brush' },
     // It ends on the data staying on this device, which leads to the foot.
     { anchor: TOUR_ANCHORS.studentRow, textKey: 'help.students.edit' },
     // The foot every toolbar shares, and the switch under it in the status

@@ -74,7 +74,7 @@
     "freeNeighbourFull": "Freier Nachbarplatz",
     "leftHandedFull": "Linkshänder",
     "number": "Nr.",
-    "attributes": "Gesetzte Merkmale"
+    "attributes": "Merkmale"
   },
   "studentList": {
     "addStudent": "Schüler hinzufügen",
@@ -325,19 +325,18 @@
       "space": "Platz & Raum"
     }
   },
-  "focusMode": {
-    "title": "Merkmale",
-    "listMode": "Klassenliste",
-    "hint": "Wähle alle Schüler aus, auf die das gerade zutrifft. Überdenke die Zuschreibungen immer wieder und passe sie bei Bedarf an.",
-    "selected_one": "{{count}} ausgewählt",
-    "selected_other": "{{count}} ausgewählt",
-    "clear": "Auswahl leeren",
-    "progress": "Merkmal {{index}} von {{total}}",
-    "previousPass": "Zurück: {{label}}",
-    "nextPass": "Weiter: {{label}}",
-    "firstPass": "Erstes Merkmal",
-    "finish": "Durchgang beenden",
-    "empty": "Füge zuerst Schüler hinzu.",
+  "views": {
+    "list": "Klassenliste"
+  },
+  "brush": {
+    "title": "Markieren",
+    "label": "Markieren",
+    "start": "Markieren: ein Merkmal bei mehreren Schülern setzen",
+    "markers": "Merkmal zum Markieren",
+    "done": "Fertig",
+    "count_one": "{{count}} Schüler",
+    "count_other": "{{count}} Schüler",
+    "stroke": "{{marker}} bei {{name}}",
     "questions": {
       "restless": "Wer zeigt aktuell Unruhe?",
       "concentrationIssues": "Wer lässt sich aktuell leicht ablenken?",
@@ -350,6 +349,21 @@
       "needsFreeNeighbourSeat": "Wer braucht den Platz daneben frei?",
       "leftHanded": "Wer schreibt mit links?"
     }
+  },
+  "card": {
+    "mix": "Beim Mischen: {{criteria}}",
+    "mixOff": "Beim Mischen gerade aus: {{criteria}}",
+    "criterion": "{{criterion}} · {{importance}}",
+    "offShort": "zählt beim Mischen gerade nicht",
+    "count_one": "{{count}} Merkmal",
+    "count_other": "{{count}} Merkmale",
+    "none": "Noch keine Merkmale",
+    "changed": "Merkmale geändert am {{date}}"
+  },
+  "expand": {
+    "expand": "Merkmale von {{name}} aufklappen",
+    "collapse": "Merkmale von {{name}} zuklappen",
+    "edit": "Bearbeiten"
   },
   "relations": {
     "avoidHeading": "Distanzpartner",

@@ -44,6 +44,12 @@ export type DataFamily = keyof typeof dataFamilyClass;
 
 export const dataChipClass = 'data-chip';
 
+/** On top of `dataChipClass`: a marker the mix weighs nothing of right now. */
+export const dataChipOffClass = 'data-chip-off';
+
+/** On top of `dataChipClass`: a marker offered to choose, not the one chosen. */
+export const dataChipQuietClass = 'data-chip-quiet';
+
 export const dataHeadingClass = 'data-heading';
 
 export const primaryButtonClass = 'primary-button';

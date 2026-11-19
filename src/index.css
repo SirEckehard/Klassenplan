@@ -546,14 +546,40 @@
   display: inline-flex;
   align-items: center;
   gap: 0.3125rem;
-  padding: 0.1875rem 0.5rem;
+  /* The border is part of every chip, transparent but on a dashed one
+     (`data-chip-off`), so the two are the same size. */
+  padding: calc(0.1875rem - 1px) calc(0.5rem - 1px);
+  border: 1px var(--data-chip-border-style, solid)
+    var(--data-chip-border, transparent);
   font-size: 0.75rem;
   line-height: 1rem;
   font-weight: 500;
   white-space: nowrap;
   border-radius: 0.375rem;
-  background-color: var(--data-chip-surface, var(--data-person-surface));
+  background-color: var(
+    --data-chip-fill,
+    var(--data-chip-surface, var(--data-person-surface))
+  );
   color: var(--data-chip-text, var(--data-person-text));
+}
+
+/* A marker the mix weighs nothing of right now: an outline in the family's
+   colour instead of its fill. */
+/* A marker offered to choose, not the one chosen: an outline, its family's
+   colour on hover. */
+@utility data-chip-quiet {
+  --data-chip-fill: transparent;
+  --data-chip-border: var(--border-card);
+
+  &:hover {
+    --data-chip-border: var(--data-chip-accent, var(--border-card));
+  }
+}
+
+@utility data-chip-off {
+  --data-chip-fill: transparent;
+  --data-chip-border-style: dashed;
+  --data-chip-border: var(--data-chip-accent, var(--border-card));
 }
 
 @utility data-behavior {
@@ -599,6 +625,12 @@
 }
 
 /* A section heading takes its family's accent as the text colour. */
+/* What a finger held on an element does instead of the browser's own menu
+   (a card in the class list, `useStudentCard`). */
+@utility touch-callout-none {
+  -webkit-touch-callout: none;
+}
+
 @utility data-heading {
   font-size: 0.625rem;
   font-weight: 700;

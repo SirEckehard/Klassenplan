@@ -106,8 +106,9 @@ test('a first visitor tries the sample class with the tours as a guide', async (
   await test.step('step 1 — the class list tour reads the screen and ends with help', async () => {
     expect(await walkTour(page)).toEqual([
       'Klassen',
-      'Merkmale und Beziehungen',
+      'Beziehungen',
       'Schüler hinzufügen',
+      'Markieren',
       'Schüler bearbeiten',
       'Bibliothek',
       'Daten sichern',

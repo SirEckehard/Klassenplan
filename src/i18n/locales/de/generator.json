@@ -20,11 +20,19 @@
       },
       "several": {
         "title": "Mehrere bearbeiten",
-        "body": "Markiere mehrere Schüler, um sie gemeinsam zu bearbeiten."
+        "body": "Wähle mehrere Schüler aus, um sie gemeinsam zu bearbeiten."
+      },
+      "brush": {
+        "title": "Markieren",
+        "body": "Wähle über „Markieren“ oben in der Liste ein Merkmal und tippe alle Schüler an, auf die es zutrifft."
+      },
+      "cards": {
+        "title": "Merkmale erklärt",
+        "body": "Zeige auf ein Merkmal oder halte es gedrückt: Die Karte sagt, was es bedeutet und was es beim Mischen bewirkt."
       },
       "views": {
-        "title": "Merkmale und Beziehungen",
-        "body": "In „Merkmale“ wird ein Merkmal nach dem anderen für die ganze Klasse abgefragt, „Beziehungen“ zeigt alle Partnerwünsche."
+        "title": "Beziehungen",
+        "body": "„Beziehungen“ in der Werkzeugleiste zeigt alle Partnerwünsche der Klasse auf einen Blick."
       }
     },
     "layout": {

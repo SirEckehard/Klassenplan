@@ -105,7 +105,7 @@ export default function AppShell({
   );
   const frame = (
     // The status bar's height, for what stands above it — the drawers, the
-    // focus mode's thumb bar, the floating controls
+    // floating controls
     // (`useFloatingActionOffset`). The bar reaches into the bottom safe area,
     // so that is part of its height, measured or not.
     <div

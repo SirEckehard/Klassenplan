@@ -202,7 +202,7 @@ afterwards.
 - **One toolbar shape for every layer** (`ToolRail`), in two parts and in both
   densities of `SmartSidebar` — 208px with labels, 60px as icons, the groups
   told apart by a hairline rather than a gap. On top the layer's own groups,
-  always in this order: Ansicht (which view is on the stage — list, focus mode,
+  always in this order: Ansicht (which view is on the stage — list,
   relations; table plan, circle), Hinzufügen (the class layer's students and
   placeholders, the room's tables and elements, "Bibliothek"'s classes, rooms,
   room templates and presets), Ansichtseinstellungen (what the view shows),
@@ -425,7 +425,8 @@ afterwards.
   take their share, and a row of fixed height spilled wrapped chips over the
   rows below. Where they go under it, the checkbox stands on the name's line and
   the chips start under the name, and the list's head says "Alle auswählen"
-  instead of naming columns the rows do not have (`StudentListHeader`). On a
+  instead of naming columns the rows do not have (`StudentListHeader`). On
+  every width the head ends in the brush (below). On a
   phone the row above the list is the search and one button for the filter and
   the sort (`StudentListViewMenu`, a dot on it while a filter hides students),
   and what a search or a filter left ("3 von 24", with its ✕) stands in the
@@ -512,15 +513,48 @@ afterwards.
   own says so with "Jetzt neu mischen". The first entry's mix stays the wizard's
   (`triggerAutoMix`), which sets `autoMixing` with the step so the view stands
   aside.
-- **Three ways into the same student data.** The roster answers "who is in this
-  class"; `AttributeFocusMode` asks one question of everybody at once ("Wer
-  zeigt aktuell Unruhe?") and is how the eight yes/no flags get filled in;
-  `RelationsView` answers who wants to sit next to whom across the class — a
-  card per pair with both faces, the pairs both sides named marked and first —
-  and shows who has named nobody yet. A new yes/no flag belongs in the focus
-  mode's `PASSES` list as well as in the inspector; attributes with more than
-  two values stay inspector-only. A view that wants the full width sets
-  `suspended` on `InspectorContext`.
+- **Two ways into the same student data.** The roster answers "who is in this
+  class" and, with the brush in its head, "who is restless"; `RelationsView`
+  answers who wants to sit next to whom across the class — a card per pair
+  with both faces, the pairs both sides named marked and first — and shows who
+  has named nobody yet. A view that wants the full width sets `suspended` on
+  `InspectorContext`.
+- **The brush sets one marker on many** (decision 0051) — the one place the
+  list edits, since the inspector edits a student or a selection. "Markieren" at
+  the end of the list's head takes it up (`StudentListHeader`): the head
+  becomes the markers to choose from, in the order the inspector groups them
+  (`BRUSH_MARKERS`, the ten yes/no markers; a level or a partner needs a
+  choice on every row), the question the chosen one asks of the class ("Wer
+  zeigt aktuell Unruhe?") with how many of the rows shown carry it, and
+  "Fertig". Every row pressed then sets or takes off that marker
+  (`brushPatch`, which takes the one it rules out along, as the inspector
+  does), shows whether it carries it in a ring at its end, and opens nobody;
+  the checkboxes and the arrow to unfold go while it is out, and taking it up
+  lets the ticks go. "Fertig", Escape or another view puts it away. Each
+  stroke is one step of the class list's undo. A new yes/no marker belongs in
+  `BRUSH_MARKERS` as well as in the inspector.
+- **A marker explains itself where it stands** (decision 0051). Under a mouse
+  or a pen a badge in the list opens the card a badge on a seat opens
+  (`BadgeLines` in `FloatingCard`), with a line on what the mix makes of it —
+  the criteria it feeds and their importance, or that they are off
+  (`getShownBadgeCriteria`); a partner badge lights the rows of the classmates
+  it names in the social family's colour, as a badge on a seat lights seats.
+  The pointer resting on a name or a face opens the student at a glance: the
+  markers by family and the day they last changed (`markersUpdatedAt`). A
+  finger holds instead: a long press opens the same card until the next touch
+  and does not open the row (`useStudentCard`, `touch-callout-none`). A badge
+  the mix weighs nothing of right now is drawn dashed, in the list only
+  (`data-chip-off`).
+- **Below `lg` a row shows the seats' icons** (decision 0051) — a phone and a
+  tablet upright, where the list is narrow: the badges as the plan draws them,
+  families a gap apart, in one line, what does not fit behind "+N"
+  (`StudentChips variant="icons"`, `fittingBadgeCount`), so every row is as
+  tall as the next. An arrow at the row's end unfolds its markers in words in
+  place (`StudentMarkerDetails`): each family under its heading, what a marker
+  means and whether it counts in the mix, the partners as names that bring
+  their rows into view and light them a moment, the day they changed, and
+  "Bearbeiten", which opens the student. Several rows can stand unfolded; the
+  row itself still opens the student. From `lg` up the badges are words.
 
 ## Seats and the plan
 

@@ -74,7 +74,7 @@
     "freeNeighbourFull": "Free seat beside",
     "leftHandedFull": "Left-handed",
     "number": "No.",
-    "attributes": "Attributes set"
+    "attributes": "Attributes"
   },
   "studentList": {
     "addStudent": "Add student",
@@ -325,19 +325,18 @@
       "space": "Seat & room"
     }
   },
-  "focusMode": {
-    "title": "Attributes",
-    "listMode": "Class list",
-    "hint": "Select every student it currently applies to. Revisit these labels regularly and adjust them where needed.",
-    "selected_one": "{{count}} selected",
-    "selected_other": "{{count}} selected",
-    "clear": "Clear selection",
-    "progress": "Attribute {{index}} of {{total}}",
-    "previousPass": "Back: {{label}}",
-    "nextPass": "Next: {{label}}",
-    "firstPass": "First attribute",
-    "finish": "Finish pass",
-    "empty": "Add students first.",
+  "views": {
+    "list": "Class list"
+  },
+  "brush": {
+    "title": "Mark",
+    "label": "Mark",
+    "start": "Mark: set one attribute on several students",
+    "markers": "Attribute to mark",
+    "done": "Done",
+    "count_one": "{{count}} student",
+    "count_other": "{{count}} students",
+    "stroke": "{{marker}} for {{name}}",
     "questions": {
       "restless": "Who is currently restless?",
       "concentrationIssues": "Who is currently easily distracted?",
@@ -350,6 +349,21 @@
       "needsFreeNeighbourSeat": "Who needs the seat beside them free?",
       "leftHanded": "Who writes with the left hand?"
     }
+  },
+  "card": {
+    "mix": "In the mix: {{criteria}}",
+    "mixOff": "Off in the mix right now: {{criteria}}",
+    "criterion": "{{criterion}} · {{importance}}",
+    "offShort": "does not count in the mix right now",
+    "count_one": "{{count}} attribute",
+    "count_other": "{{count}} attributes",
+    "none": "No attributes yet",
+    "changed": "Attributes changed on {{date}}"
+  },
+  "expand": {
+    "expand": "Show the attributes of {{name}}",
+    "collapse": "Hide the attributes of {{name}}",
+    "edit": "Edit"
   },
   "relations": {
     "avoidHeading": "Keep apart",

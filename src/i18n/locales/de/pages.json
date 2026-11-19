@@ -179,9 +179,9 @@
         "q": "Kann ich Fotos meiner Schüler hinterlegen?",
         "a": "Ja. Klicke einen Schüler in der Klassenliste an; im Inspektor rechts fügst du über sein Porträt ein Foto hinzu. Die Bilder werden verkleinert und ausschließlich lokal auf diesem Gerät gespeichert – sie werden nie übertragen. Für den Einsatz von Schülerfotos brauchst du das Einverständnis von Schulleitung, Schülern und Eltern. Fotos lassen sich im Sitzplan, im Präsentiermodus und im Export ein- und ausblenden und ermöglichen das Namensspiel zum Lernen der Namen deiner Schüler."
       },
-      "focusMode": {
+      "brush": {
         "q": "Wie setze ich ein Merkmal schnell für die ganze Klasse?",
-        "a": "Mit „Merkmale“ in der Werkzeugleiste unter „Ansicht“. Die Ansicht stellt eine Frage an alle – etwa „Wer zeigt aktuell Unruhe?“ – und du tippst die Schüler an, auf die das aktuell zutrifft. Danach geht es zum nächsten Merkmal, bis alle Ja/Nein-Merkmale der Klasse gesetzt sind."
+        "a": "Mit „Markieren“ oben in der Klassenliste. Wähle ein Merkmal – die Liste fragt dann etwa „Wer zeigt aktuell Unruhe?“ –, tippe alle Schüler an, auf die es zutrifft, und wechsle zum nächsten Merkmal. „Fertig“ oder Escape beendet das Markieren."
       },
       "bulk": {
         "q": "Wie bearbeite ich mehrere Schüler auf einmal?",

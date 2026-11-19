@@ -51,8 +51,8 @@ type InspectorContextValue = {
   setStudentOrder: (order: readonly string[] | null) => void;
   /**
    * True while the active view has nothing for the inspector to show and
-   * wants the width instead — the attribute focus mode asks one question of
-   * the whole class at once, so there is no "the selected one" to inspect.
+   * wants the width instead — a class layer without a class, a layer whose
+   * error card stands on the stage.
    */
   suspended: boolean;
   setSuspended: (suspended: boolean) => void;
