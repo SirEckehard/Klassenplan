@@ -1,4 +1,9 @@
 {
+  "v3_4_1": {
+    "0": "Saving as PDF is several times faster, most of all for name cards on slower computers",
+    "1": "Whoever runs Klassenplan for a school sets its address, legal pages and contact when starting the Docker image, which is a fifth of its former size, runs without root on port 8080 (formerly 80) and offers HTTPS with one command; every release also comes as files for a web server without Docker",
+    "2": "A window still running an older version no longer saves over classes a newer version saved, and asks for a reload instead"
+  },
   "v3_4_0": {
     "0": "Name cards for desks or to wear, in fonts for beginning readers, with motifs, coloured paper and writing lines",
     "1": "In the presentation, a tap on a seat marks who is missing today and the bar lists them; \"Who's next?\", \"Build groups\" and \"Hand out duties\" leave them out",

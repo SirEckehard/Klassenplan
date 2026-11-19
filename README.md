@@ -62,7 +62,7 @@ A production-ready [`Dockerfile`](Dockerfile) (multi-stage build with nginx) shi
 docker run -d --name klassenplan -p 8080:8080 --restart unless-stopped ghcr.io/sireckehard/klassenplan:3.4
 ```
 
-Tags follow the release: `3.4.0` and `3.4` pin a version, `latest` always tracks the newest release. To set variables and update with one command, use [`docker-compose.yml`](docker-compose.yml):
+Tags follow the release: `3.4.1` and `3.4` pin a version, `latest` always tracks the newest release. To set variables and update with one command, use [`docker-compose.yml`](docker-compose.yml):
 
 ```bash
 docker compose up -d           # uses the published image, serves on port 8080
@@ -77,7 +77,7 @@ The compose file reads these optional variables from a `.env` file next to it (s
 | `SITE_URL`                   | `https://klassenplan.de` | The address the instance is served under: canonical, hreflang, sitemap  |
 | `IMPRINT_URL`, `PRIVACY_URL` | empty                    | Your own Impressum and Datenschutzerklärung instead of klassenplan.de's |
 | `CONTACT_EMAIL`              | empty                    | Your contact address for the contact page and the error reports         |
-| `KLASSENPLAN_VERSION`        | `latest`                 | Compose only: pins the image tag, e.g. `3.4.0`                          |
+| `KLASSENPLAN_VERSION`        | `latest`                 | Compose only: pins the image tag, e.g. `3.4.1`                          |
 | `KLASSENPLAN_PORT`           | `8080`                   | Compose only: host port the container is published on                   |
 | `DOMAIN`                     | none                     | `docker-compose.https.yml` only: the host name Caddy fetches HTTPS for  |
 
@@ -87,7 +87,7 @@ Serve it over HTTPS: browsers install the app and let it work offline only on a 
 DOMAIN=klassenplan.schule.de docker compose -f docker-compose.https.yml up -d
 ```
 
-Behind a reverse proxy of your own, forward to the container's port 8080. nginx runs there without root and writes nothing outside `/tmp`, so the container also runs with a read-only file system (`read_only: true` and a tmpfs on `/tmp`, as in the compose file) and under Kubernetes' `runAsNonRoot`. Up to 3.4, nginx listened on port 80 inside the container: change `-p …:80` to `-p …:8080`.
+Behind a reverse proxy of your own, forward to the container's port 8080. nginx runs there without root and writes nothing outside `/tmp`, so the container also runs with a read-only file system (`read_only: true` and a tmpfs on `/tmp`, as in the compose file) and under Kubernetes' `runAsNonRoot`. Up to 3.4.0, nginx listened on port 80 inside the container: change `-p …:80` to `-p …:8080`.
 
 **Publishing your own instance?** Set `IMPRINT_URL`, `PRIVACY_URL` and `CONTACT_EMAIL`. Without the first two the instance shows the legal pages of klassenplan.de, including the maintainer's address; without the third your users' bug reports go to that maintainer too — see [PRIVACY.md](docs/PRIVACY.md#running-your-own-instance). Given as build arguments instead (`docker build --build-arg IMPRINT_URL=…`), klassenplan.de's legal texts stay out of the bundle altogether.
 

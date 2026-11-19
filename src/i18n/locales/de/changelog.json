@@ -1,8 +1,13 @@
 {
+  "v3_4_1": {
+    "0": "Speichern als PDF geht um ein Vielfaches schneller, vor allem bei Namensschildern auf langsameren Computern",
+    "1": "Wer Klassenplan für eine Schule betreibt, stellt Adresse, Rechtstexte und Kontakt beim Start des Docker-Images ein, das nur noch ein Fünftel so groß ist, ohne root auf Port 8080 (bisher 80) läuft und HTTPS mit einem Befehl bietet; jeder Release kommt außerdem als Dateien für einen Webserver ohne Docker",
+    "2": "Ein Fenster mit einer älteren Version speichert nicht mehr über Klassen, die eine neuere Version gespeichert hat, und bittet stattdessen ums Neuladen"
+  },
   "v3_4_0": {
     "0": "Namensschilder für den Tisch oder zum Anstecken, in Schriften für Leseanfänger, mit Motiven, farbigem Papier und Schreiblinien",
     "1": "In der Präsentation markiert ein Tipp auf einen Platz, wer heute fehlt, und die Leiste nennt sie; „Wer kommt dran?“, „Gruppen bilden“ und „Dienste verteilen“ lassen sie aus",
-    "2": "Wenn enin Schüler, und Linkshänder sitzen so, dass links neben ihnen niemand rechtshändig schreibt",
+    "2": "Wenn ein Schüler einen freien Platz neben sich benötigt, kann dieser nun als Merkmal gewählt werden. Linkshänder sitzen so, dass links neben ihnen niemand rechtshändig schreibt",
     "3": "Nach zwölf Wochen ohne Änderung fragt der Sitzplan, ob die Merkmale einer Klasse noch stimmen",
     "4": "Raumvorlagen und Voreinstellungen lassen sich als Datei speichern und an Kolleginnen und Kollegen weitergeben",
     "5": "Auf Handy und Tablet kommen Tische und Raumelemente aus „Hinzufügen“ an der Statusleiste, ohne unter den Raum zu scrollen",
