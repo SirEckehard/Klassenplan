@@ -38,22 +38,19 @@ ENV CONTACT_EMAIL=${CONTACT_EMAIL}
 RUN npm run build:static
 
 # Stage 2: Production
-# Use a plain Debian slim base and install nginx + the Brotli modules from the
-# SAME Debian repository, so their package revisions always match. The official
-# `nginx:*` image ships a self-built nginx that Debian's module packages
-# (libnginx-mod-http-brotli-*) do not install against.
-FROM debian:trixie-slim
+# Alpine, with nginx and its Brotli modules from the SAME Alpine repository
+# (main), so their versions always match. Never the official `nginx:*` image:
+# it ships an nginx of its own that the distributions' Brotli module packages
+# do not install against — what broke the build in June 2026. Pinned to one
+# Alpine branch, which gets security fixes for about two years: move to the
+# next branch deliberately, about once a year (docs/SECURITY.md).
+FROM alpine:3.24
 
-# nginx, the Brotli modules (dynamic compression + serving precompressed .br
-# files), and curl (for the health check), all from one repo.
-# Remove Debian's default site so the conf.d server block below is the only
-# one answering on port 80, and forward nginx's access/error logs to the
-# container's stdout/stderr.
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
-       nginx libnginx-mod-http-brotli-filter libnginx-mod-http-brotli-static curl \
-    && rm -rf /var/lib/apt/lists/* \
-    && rm -f /etc/nginx/sites-enabled/default \
+# nginx and the Brotli modules (dynamic compression + serving precompressed
+# .br files); BusyBox's wget does the health check. Forward nginx's
+# access/error logs to the container's stdout/stderr.
+RUN apk add --no-cache nginx nginx-mod-http-brotli \
+    && mkdir -p /run/nginx \
     && ln -sf /dev/stdout /var/log/nginx/access.log \
     && ln -sf /dev/stderr /var/log/nginx/error.log
 
@@ -66,15 +63,17 @@ COPY --from=builder /app/dist /usr/share/klassenplan/site
 COPY scripts/configure-instance.sh /usr/local/bin/configure-instance
 COPY scripts/docker-entrypoint.sh /usr/local/bin/docker-entrypoint
 
-# Copy nginx configuration. Debian's main nginx.conf includes
-# /etc/nginx/conf.d/*.conf (server blocks) and /etc/nginx/modules-enabled/*.conf
-# (the Brotli load_module directives, dropped in by the apt packages above).
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Copy nginx configuration. Alpine's main nginx.conf includes
+# /etc/nginx/http.d/*.conf in its http block (our server block replaces the
+# default one there) and /etc/nginx/modules/*.conf (the Brotli load_module
+# directives, dropped in by the apk package above).
+COPY nginx.conf /etc/nginx/http.d/default.conf
 COPY nginx-security-headers.conf /etc/nginx/snippets/security-headers.conf
 
-# Health check - verify nginx is responding
+# Health check - verify nginx is responding. 127.0.0.1, not localhost:
+# BusyBox's wget tries ::1 first, where nginx does not listen.
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost/ || exit 1
+    CMD wget -q -O /dev/null http://127.0.0.1/ || exit 1
 
 # Expose port 80
 EXPOSE 80

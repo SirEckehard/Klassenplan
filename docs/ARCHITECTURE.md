@@ -1,6 +1,6 @@
 # Architecture
 
-> **Status:** current · **Last reviewed:** 2026-11-14 · **Maintainer:** Eike
+> **Status:** current · **Last reviewed:** 2026-11-19 · **Maintainer:** Eike
 > Schäfer · **Describes:** Klassenplan 3.1.2
 
 This is the entry point for anyone who wants to understand _why_ Klassenplan is
@@ -369,9 +369,10 @@ criterion model took its counting (decision 0031), 234 lines remain.
 - `npm run build:static` builds with Vite, renders every route in both
   languages in Chromium, verifies the output and checks the bundle budgets
   ([SEO.md](SEO.md), [PERFORMANCE.md](PERFORMANCE.md)).
-- The Docker image builds on `node:26-bookworm-slim` and serves the result with
-  nginx on `debian:trixie-slim`. Security headers come from
-  `nginx-security-headers.conf`.
+- The Docker image builds on `node:26-bookworm-slim` (Chromium for the
+  prerender needs glibc) and serves the result with nginx on `alpine:3.24`,
+  about 47 MB, nginx and its Brotli modules from Alpine's own repository.
+  Security headers come from `nginx-security-headers.conf`.
 - A push to `main` runs CI only. A `v*` tag publishes the multi-arch image to
   GHCR and creates the GitHub release.
 - The service worker precaches the app, so it works offline after the first

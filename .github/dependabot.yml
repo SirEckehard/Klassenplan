@@ -36,3 +36,16 @@ updates:
           - major
           - minor
           - patch
+
+  # The base images: the next Alpine branch for the image that serves the
+  # site (each branch gets security fixes for about two years, so it is taken
+  # within the year, docs/SECURITY.md), and Node within its major for the
+  # build. A new Node major goes with the project's own (AGENTS.md).
+  - package-ecosystem: docker
+    directory: /
+    schedule:
+      interval: monthly
+    ignore:
+      - dependency-name: node
+        update-types:
+          - version-update:semver-major

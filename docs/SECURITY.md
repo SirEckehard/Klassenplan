@@ -290,7 +290,8 @@ only reach the browser console — nothing is stored or transmitted.
 ### 3. Dependency Security
 
 - ✅ `npm audit` as part of the quarterly checklist above
-- ✅ Automated Dependabot updates configured in [`.github/dependabot.yml`](../.github/dependabot.yml) (weekly npm with minor/patch bumps grouped, monthly GitHub Actions)
+- ✅ Automated Dependabot updates configured in [`.github/dependabot.yml`](../.github/dependabot.yml) (weekly npm with minor/patch bumps grouped, monthly GitHub Actions and Docker base images)
+- ✅ The image serves from one pinned Alpine branch (`alpine:3.24`), which gets security fixes for about two years. Dependabot offers the next branch when it appears; take it within the year, after `docker build` and a look at `nginx -t` — nginx and its Brotli modules come from that branch's repository together, never from the official `nginx` image
 - ✅ Exact versions are locked in `package-lock.json`, and CI and the Docker build install with `npm ci`, so a build never resolves anything newer than the lockfile. `package.json` itself uses caret ranges — upgrades arrive as reviewable Dependabot PRs
 
 ### 4. Third-Party Licences

@@ -122,8 +122,9 @@ any other class
 - **Set your own contact address.** `CONTACT_EMAIL` decides where the contact
   page and the error reports write to. Without it your users' bug reports —
   about your build, your changes — reach the maintainer of klassenplan.de.
-- **Access logs.** nginx writes access logs in Debian's default format (client IP,
-  time, request, status, referrer, user agent) to the container's stdout.
+- **Access logs.** nginx writes access logs in the `combined` format (client IP,
+  time, request, status, referrer, user agent) to the container's stdout —
+  set in `nginx.conf`, since Alpine's own default also logs `X-Forwarded-For`.
   Retention is up to the operator's log driver. Behind a reverse proxy the
   container sees the proxy's address, because `nginx.conf` configures no real-IP
   handling.
