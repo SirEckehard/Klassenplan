@@ -33,13 +33,18 @@ vi.mock('idb-keyval', () => ({
 }));
 
 import { IndexedDBRepository } from '../IndexedDBRepository';
+import { classRecordKey } from '../classStorage';
 import { RepositoryErrorType, type Result } from '../types';
 import {
   createMockStudent,
   createMockClassroomScene,
   createMockSavedPlan,
 } from '@/__tests__/utils';
-import type { ClassCollectionState, ClassroomTemplate } from '@/types';
+import type {
+  ClassCollectionState,
+  ClassRecord,
+  ClassroomTemplate,
+} from '@/types';
 import { DB_KEYS } from '@/utils/data/storageKeys';
 import { update as idbUpdateMock } from 'idb-keyval';
 
@@ -268,6 +273,10 @@ describe('active class snapshot', () => {
   });
 });
 
+/** A class as it is stored since decision 0049. */
+const storedClassRecord = (classId: string) =>
+  (memory.get(classRecordKey(classId)) as { record: ClassRecord }).record;
+
 describe('rooms of a class', () => {
   const classFromBefore = (): ClassCollectionState => ({
     version: 1,
@@ -303,7 +312,8 @@ describe('rooms of a class', () => {
     expect(record?.rooms).toHaveLength(1);
     expect(record?.activeRoomId).toBe(record?.rooms?.[0]?.id);
     expect(record?.seatingHistory[0]?.roomId).toBe(record?.activeRoomId);
-    expect(vi.mocked(idbUpdateMock)).toHaveBeenCalledTimes(1);
+    // Stored with its room, as the class of its own it is now (0049).
+    expect(storedClassRecord('class-1').rooms).toEqual(record?.rooms);
 
     // Read back by a fresh repository: the room keeps its id, nothing is
     // written again.
@@ -328,7 +338,9 @@ describe('rooms of a class', () => {
     expect(expectData(snapshot).rooms).toEqual(
       expectData(collection).classes[0]?.rooms,
     );
-    expect(vi.mocked(idbUpdateMock)).toHaveBeenCalledTimes(1);
+    expect(storedClassRecord('class-1').rooms).toEqual(
+      expectData(snapshot).rooms,
+    );
   });
 
   it('creates a class with a room of its own', async () => {
@@ -510,7 +522,7 @@ describe('classes that are not open', () => {
   it('says why a change cannot be made and writes nothing', async () => {
     const { other } = await twoClasses();
     const record = expectData(await repository.loadClassRecord(other.id));
-    const stored = structuredClone(memory.get(DB_KEYS.classCollection));
+    const stored = structuredClone(new Map(memory));
 
     const outcome = expectData(
       await repository.editInactiveClass(other.id, {
@@ -520,7 +532,7 @@ describe('classes that are not open', () => {
     );
 
     expect(outcome).toEqual({ ok: false, reason: 'room-open' });
-    expect(memory.get(DB_KEYS.classCollection)).toEqual(stored);
+    expect(memory).toEqual(stored);
   });
 
   it('refuses to change the open class, which lives in the live state', async () => {

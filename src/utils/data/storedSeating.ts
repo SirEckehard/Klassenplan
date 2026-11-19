@@ -199,7 +199,7 @@ const mapRooms = (
 // ===== Classes =====
 
 /** The class as it is stored: every seat an id. */
-function dehydrateClassRecord(record: ClassRecord): ClassRecord {
+export function dehydrateClassRecord(record: ClassRecord): ClassRecord {
   if (!record || typeof record !== 'object') return record;
   const stored: ClassRecord = {
     ...record,
@@ -221,7 +221,7 @@ function dehydrateClassRecord(record: ClassRecord): ClassRecord {
 }
 
 /** The class as the app works with it: its students on every seat. */
-function hydrateClassRecord(record: ClassRecord): ClassRecord {
+export function hydrateClassRecord(record: ClassRecord): ClassRecord {
   if (!record || typeof record !== 'object') return record;
   const students = indexStudents(record.students);
   const hydrated: ClassRecord = {

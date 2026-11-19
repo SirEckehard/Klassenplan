@@ -1,6 +1,6 @@
 # The Interface
 
-> **Status:** current · **Last reviewed:** 2026-11-14 · **Source of truth:**
+> **Status:** current · **Last reviewed:** 2026-11-19 · **Source of truth:**
 > `src/components/shell/`, `src/components/SeatingPlanGenerator/`,
 > `src/contexts/InspectorContext.tsx`
 
@@ -218,7 +218,7 @@ afterwards.
   carries what every layer needs, identical on every layer and on the export
   page: "Bibliothek" (a link to `/bibliothek`, marked as the current page there;
   the gear of the pages beside the app leads there too), "Klassenwerkzeuge" (one
-  menu for the four class-tool routes below), "Backup" (export/import) and
+  menu for the four class-tool routes below), "Backup" (export/import, and for 30 days after the switch to a key per class "Stand vor dem Update …", decision 0049) and
   "Unterstützen". On a narrow phone (below `sm`) the plan layer's foot starts
   with "Präsentieren", which its status bar has no room for beside "Exportieren"
   (`planPresent`); an iPad mini in portrait has room for both in the bar. The

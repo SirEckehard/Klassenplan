@@ -15,6 +15,7 @@ import {
   MagnifyingGlassIcon,
   ToolboxIcon,
   UploadIcon,
+  ClockCounterClockwiseIcon,
   UsersThreeIcon,
 } from '@phosphor-icons/react';
 import FloatingDropdown from '@/components/students/FloatingDropdown';
@@ -26,6 +27,7 @@ import { useLocalizedNavigate } from '@/hooks/useLocalizedNavigate';
 import { useClickOutside } from '@/hooks/ui/useClickOutside';
 import { usePopoverFocus } from '@/hooks/ui/usePopoverFocus';
 import { useBreakpointUp } from '@/hooks/ui/useBreakpoint';
+import { useClassesFromBeforeUpdate } from '@/hooks/persistence/useClassesFromBeforeUpdate';
 import { useGuardedPlanExits } from '@/components/shell/PlanExits';
 import { logError, menuItemClass, menuSurfaceClass } from '@/utils';
 
@@ -177,7 +179,9 @@ function ToolRailFoot({ planPresent }: { planPresent: boolean }) {
   const { t } = useTranslation(['generator', 'pages']);
   const isCompact = React.useContext(DensityContext) === 'compact';
   const navigate = useLocalizedNavigate();
-  const { handleExportAll, triggerImport } = useSeatingPlanActions();
+  const { handleExportAll, triggerImport, restoreClassesFromBeforeUpdate } =
+    useSeatingPlanActions();
+  const keptFromBeforeUpdate = useClassesFromBeforeUpdate();
 
   const classTools = [
     {
@@ -278,6 +282,30 @@ function ToolRailFoot({ planPresent }: { planPresent: boolean }) {
               <UploadIcon className={footMenuIconClass} aria-hidden="true" />
               {t('generator:storage.importBackup')}
             </button>
+            {/* For 30 days after the switch to a key per class, the classes
+                as they were before it (decision 0049). */}
+            {keptFromBeforeUpdate && (
+              <button
+                type="button"
+                onClick={() => {
+                  close();
+                  restoreClassesFromBeforeUpdate().catch((error: unknown) => {
+                    logError(
+                      'Restoring the classes from before the update failed',
+                      { error },
+                      'ToolRail',
+                    );
+                  });
+                }}
+                className={menuItemClass}
+              >
+                <ClockCounterClockwiseIcon
+                  className={footMenuIconClass}
+                  aria-hidden="true"
+                />
+                {t('generator:storage.beforeUpdate')}
+              </button>
+            )}
           </div>
         )}
       />

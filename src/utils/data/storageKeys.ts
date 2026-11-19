@@ -146,7 +146,12 @@ export const STORAGE_KEYS = {
     mixSettings: 'spg.mixSettings',
     circleLayouts: 'spg.circleLayouts',
     currentCircleLayout: 'spg.currentCircleLayout',
+    // Up to version 3 every class in one value; since version 4 the copy
+    // of that value from before the switch, kept 30 days (decision 0049).
     classCollection: 'spg.classCollection',
+    // Since version 4: which classes there are, in order, and the one to
+    // open; each class under `CLASS_RECORD_KEY_PREFIX` + its id.
+    classIndex: 'spg.classIndex',
     nameGameStats: 'spg.nameGameStats',
     planUsage: 'spg.planUsage',
     duties: 'spg.duties',
@@ -172,6 +177,13 @@ export const STUDENT_PHOTO_STORE = {
   dbName: 'spg-student-photos',
   storeName: 'photos',
 } as const;
+
+/**
+ * Each class under a key of its own since version 4 of the class storage
+ * (decision 0049): `spg.class:<id>`. Not in `DB_KEYS`, which lists fixed
+ * keys; whatever wipes them all wipes these too (`listClassRecordKeys`).
+ */
+export const CLASS_RECORD_KEY_PREFIX = 'spg.class:';
 
 // Legacy exports for backward compatibility
 export const LOCAL_STORAGE_KEYS = STORAGE_KEYS.localStorage;

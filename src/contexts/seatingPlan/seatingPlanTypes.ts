@@ -209,6 +209,8 @@ export interface SeatingPlanActions {
   handleExportAll: () => Promise<void>;
   handleImportFile: React.ChangeEventHandler<HTMLInputElement>;
   importBackupFile: (file: File) => void;
+  /** The classes from before the switch to a key per class (0049). */
+  restoreClassesFromBeforeUpdate: () => Promise<void>;
   clearAllData: () => Promise<void>;
   generateCircleSeating: () => Promise<CircleLayout | null>;
   regenerateCircle: () => Promise<CircleLayout | null>;

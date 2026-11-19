@@ -19,9 +19,21 @@ import { DB_KEYS } from '@/utils/data/storageKeys';
 import { CLASS_COLLECTION_VERSION } from '@/utils/data/classCollection';
 import { createMockStudent } from '@/__tests__/utils';
 import { RepositoryErrorType, type Result } from '../types';
+import { CLASS_STORAGE_VERSION, classRecordKey } from '../classStorage';
 
 // The memory stand-in keeps the default store's keys under a prefix.
-const COLLECTION_KEY = `default::${DB_KEYS.classCollection}`;
+const INDEX_KEY = `default::${DB_KEYS.classIndex}`;
+const classKey = (classId: string) => `default::${classRecordKey(classId)}`;
+
+/** Everything stored about the classes, to tell that nothing changed. */
+const storedClasses = () =>
+  structuredClone(
+    Object.fromEntries(
+      [...memory.entries()].filter(([key]) =>
+        key.startsWith('default::spg.class'),
+      ),
+    ),
+  );
 
 // Fresh modules per test: whether newer data was found holds for the page.
 const loadModules = async () => {
@@ -43,8 +55,18 @@ const expectRefused = (result: Result<unknown>) => {
   expect(result.error.type).toBe(RepositoryErrorType.NEWER_DATA);
 };
 
+/** Stamps a stored value as a newer version would. */
+const stampNewer = (key: string, extra: Record<string, unknown> = {}) => {
+  const stored = memory.get(key) as Record<string, unknown>;
+  memory.set(key, {
+    ...stored,
+    version: CLASS_STORAGE_VERSION + 1,
+    ...extra,
+  });
+};
+
 /** A class 7a with Mia, then stamped as a newer version would stamp it. */
-const storeNewerCollection = async () => {
+const storeNewerClasses = async () => {
   const { IndexedDBRepository } = await loadModules();
   const writer = new IndexedDBRepository();
   const sevenA = expectData(
@@ -55,15 +77,10 @@ const storeNewerCollection = async () => {
       students: [createMockStudent({ name: 'Mia' })],
     }),
   );
-  const stored = memory.get(COLLECTION_KEY) as Record<string, unknown>;
-  const newer = {
-    ...stored,
-    version: CLASS_COLLECTION_VERSION + 1,
-    // Something this build has never heard of.
-    seatsByRoom: { kept: true },
-  };
-  memory.set(COLLECTION_KEY, newer);
-  return { sevenA, newer: structuredClone(newer) };
+  // Something this build has never heard of.
+  stampNewer(INDEX_KEY, { seatsByRoom: { kept: true } });
+  stampNewer(classKey(sevenA.id));
+  return { sevenA, stored: storedClasses() };
 };
 
 describe('classes written by a newer version', () => {
@@ -77,7 +94,7 @@ describe('classes written by a newer version', () => {
   });
 
   it('reads them without writing anything back', async () => {
-    const { newer } = await storeNewerCollection();
+    const { stored } = await storeNewerClasses();
     const { IndexedDBRepository, hasNewerStoredData } = await loadModules();
 
     const collection = expectData(
@@ -85,12 +102,12 @@ describe('classes written by a newer version', () => {
     );
 
     expect(collection.classes.map((entry) => entry.name)).toEqual(['7a']);
-    expect(memory.get(COLLECTION_KEY)).toEqual(newer);
+    expect(storedClasses()).toEqual(stored);
     expect(hasNewerStoredData()).toBe(true);
   });
 
   it('refuses every write and leaves them as they are', async () => {
-    const { sevenA, newer } = await storeNewerCollection();
+    const { sevenA, stored } = await storeNewerClasses();
     const { IndexedDBRepository } = await loadModules();
     const repository = new IndexedDBRepository();
     expectData(await repository.loadClassCollection());
@@ -102,6 +119,8 @@ describe('classes written by a newer version', () => {
     );
     expectRefused(await repository.createClass({ name: '8b' }));
     expectRefused(await repository.markOpenClassOpened());
+    expectRefused(await repository.setActiveClass(sevenA.id));
+    expectRefused(await repository.deleteClass(sevenA.id));
     expectRefused(
       await repository.saveClassCollection({
         version: CLASS_COLLECTION_VERSION,
@@ -110,7 +129,7 @@ describe('classes written by a newer version', () => {
       }),
     );
 
-    expect(memory.get(COLLECTION_KEY)).toEqual(newer);
+    expect(storedClasses()).toEqual(stored);
   });
 
   it('leaves alone what a newer window wrote after this one read', async () => {
@@ -121,16 +140,16 @@ describe('classes written by a newer version', () => {
     );
     expect(hasNewerStoredData()).toBe(false);
 
-    const stored = memory.get(COLLECTION_KEY) as Record<string, unknown>;
-    const newer = { ...stored, version: CLASS_COLLECTION_VERSION + 1 };
-    memory.set(COLLECTION_KEY, newer);
+    // Another window took an update and saved the class.
+    stampNewer(classKey(sevenA.id));
+    const stored = storedClasses();
 
     expectRefused(
       await repository.saveClassSnapshot(sevenA.id, {
         students: [createMockStudent({ name: 'Noah' })],
       }),
     );
-    expect(memory.get(COLLECTION_KEY)).toEqual(newer);
+    expect(storedClasses()).toEqual(stored);
     expect(hasNewerStoredData()).toBe(true);
   });
 

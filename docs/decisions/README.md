@@ -61,6 +61,7 @@ it says so instead of reconstructing one.
 | [0046](0046-room-template-and-preset-files.md)       | A room template or a preset as a file of its own                |
 | [0047](0047-name-cards.md)                           | Name cards: a fifth sheet that belongs to the children          |
 | [0048](0048-instance-configured-at-start.md)         | The published image takes its operator when it starts           |
+| [0049](0049-a-key-per-class.md)                      | Every class under a key of its own                              |
 
 ## Reasons still to be recorded
 

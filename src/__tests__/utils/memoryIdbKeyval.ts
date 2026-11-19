@@ -20,6 +20,8 @@
  * ```
  */
 import { vi } from 'vitest';
+import type { ClassCollectionState, ClassRecord } from '@/types';
+import { CLASS_RECORD_KEY_PREFIX, DB_KEYS } from '@/utils/data/storageKeys';
 
 type Store = { name: string } | undefined;
 
@@ -71,4 +73,27 @@ export function createMemoryIdbKeyval(memory: Map<string, unknown>) {
       own(store).forEach(([key]) => memory.delete(key));
     }),
   };
+}
+
+/**
+ * The classes in the default store as one collection, the way the app sees
+ * them: assembled from the index and one key per class (decision 0049), in
+ * their stored form — every seat an id. Undefined before anything is stored.
+ */
+export function storedClassCollection(
+  memory: Map<string, unknown>,
+): ClassCollectionState | undefined {
+  const index = memory.get(`default::${DB_KEYS.classIndex}`) as
+    { activeClassId: string | null; order: string[] } | undefined;
+  if (!index) return undefined;
+  const classes = index.order
+    .map(
+      (classId) =>
+        (
+          memory.get(`default::${CLASS_RECORD_KEY_PREFIX}${classId}`) as
+            { record: ClassRecord } | undefined
+        )?.record,
+    )
+    .filter((record): record is ClassRecord => !!record);
+  return { version: 3, activeClassId: index.activeClassId, classes };
 }

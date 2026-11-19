@@ -36,7 +36,9 @@
     "mergedTemplates_other": "The backup's classes are already here; {{count}} templates were added.",
     "presetsLeftOut_one": "{{count}} preset of your own from the backup was not added: there can be no more than {{max}}.",
     "presetsLeftOut_other": "{{count}} presets of your own from the backup were not added: there can be no more than {{max}}.",
-    "mergedNothing": "The backup's classes and templates are already here."
+    "mergedNothing": "The backup's classes and templates are already here.",
+    "beforeUpdateRestored": "Data from before the update restored.",
+    "beforeUpdateGone": "The data from before the update is no longer kept."
   },
   "backupValidation": {
     "payloadTooLarge": "Import failed. Content is too large.",

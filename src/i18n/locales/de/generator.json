@@ -368,6 +368,7 @@
     "backup": "Backup",
     "exportBackup": "Backup exportieren",
     "importBackup": "Backup importieren",
+    "beforeUpdate": "Stand vor dem Update …",
     "backupExported": "Backup exportiert.",
     "historyTitle": "Bibliothek",
     "mixHistory": "Letzte Mischungen",

@@ -659,6 +659,7 @@ export function useSeatingGenerator() {
     handleExportAll,
     handleImportFile,
     importBackupFile,
+    restoreClassesFromBeforeUpdate,
   } = backupOrchestration;
 
   // Auto-update statistics when seating changes
@@ -862,6 +863,7 @@ export function useSeatingGenerator() {
       handleExportAll,
       handleImportFile,
       importBackupFile,
+      restoreClassesFromBeforeUpdate,
       clearAllData,
       generateCircleSeating,
       regenerateCircle,
@@ -944,6 +946,7 @@ export function useSeatingGenerator() {
       handleExportAll,
       handleImportFile,
       importBackupFile,
+      restoreClassesFromBeforeUpdate,
       clearAllData,
       generateCircleSeating,
       regenerateCircle,

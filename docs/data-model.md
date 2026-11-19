@@ -1,6 +1,6 @@
 # Data Model
 
-> **Status:** current · **Last reviewed:** 2026-11-18 · **Source of truth:**
+> **Status:** current · **Last reviewed:** 2026-11-19 · **Source of truth:**
 > `src/utils/data/storageKeys.ts`, `src/types/`, `src/repositories/`
 
 Everything Klassenplan stores lives in the teacher's browser. This document
@@ -11,38 +11,40 @@ document: [backup-format.md](backup-format.md).
 
 ## Overview
 
-| Store           | Location                                                                  | Holds                                                                                                        |
-| --------------- | ------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
-| Key-value store | IndexedDB, idb-keyval's default database (`keyval-store`, store `keyval`) | Class collection, room templates, circle exports, plan usage record, name game stats, duties, mixing presets |
-| Photo store     | IndexedDB database `spg-student-photos`, object store `photos`            | One image blob per student                                                                                   |
-| localStorage    | The origin's localStorage                                                 | UI preferences, backup reminder state, a migration mirror — no student data                                  |
+| Store           | Location                                                                  | Holds                                                                                               |
+| --------------- | ------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| Key-value store | IndexedDB, idb-keyval's default database (`keyval-store`, store `keyval`) | Classes, room templates, circle exports, plan usage record, name game stats, duties, mixing presets |
+| Photo store     | IndexedDB database `spg-student-photos`, object store `photos`            | One image blob per student                                                                          |
+| localStorage    | The origin's localStorage                                                 | UI preferences, backup reminder state, a migration mirror — no student data                         |
 
 All IndexedDB access goes through `src/repositories/idbClient.ts`, the only
 module that imports `idb-keyval` ([decision 0002](decisions/0002-single-indexeddb-entry-point.md)).
 
 ## Key-value store
 
-| Key                      | Type                   | Content                                                    |
-| ------------------------ | ---------------------- | ---------------------------------------------------------- |
-| `spg.classCollection`    | `ClassCollectionState` | Every class and everything it owns, see below              |
-| `spg.classroomTemplates` | `ClassroomTemplate[]`  | Saved room layouts, shared by all classes                  |
-| `spg.circleLayouts`      | `CircleExportData[]`   | Circle layouts kept for export, shared by all classes      |
-| `spg.planUsage`          | `PlanUsageData`        | Plan usage record, one bucket per class                    |
-| `spg.nameGameStats`      | `NameGameData`         | Name game statistics per student                           |
-| `spg.duties`             | `DutyData`             | Class duties and their rounds, one entry per class         |
-| `spg.mixPresets`         | `MixPresetData`        | Mixing presets of the teacher's own, shared by all classes |
-| `spg.cardFont`           | `CardFile`             | The name cards' own font: name, type, bytes                |
-| `spg.cardImage`          | `CardFile`             | The name cards' own picture, made smaller on loading       |
-| `spg.migrationVersion`   | `number`               | Version of the last completed table migration              |
-| `spg.version`            | `number`               | `APP_DATA_VERSION` (currently 2), stamped on every load    |
+| Key                      | Type                  | Content                                                    |
+| ------------------------ | --------------------- | ---------------------------------------------------------- |
+| `spg.classIndex`         | `StoredClassIndex`    | Which classes there are, in order, and the one to open     |
+| `spg.class:<id>`         | `StoredClass`         | One class and everything it owns, see below                |
+| `spg.classCollection`    | `RetiredCollection`   | The classes as they were before version 4, kept 30 days    |
+| `spg.classroomTemplates` | `ClassroomTemplate[]` | Saved room layouts, shared by all classes                  |
+| `spg.circleLayouts`      | `CircleExportData[]`  | Circle layouts kept for export, shared by all classes      |
+| `spg.planUsage`          | `PlanUsageData`       | Plan usage record, one bucket per class                    |
+| `spg.nameGameStats`      | `NameGameData`        | Name game statistics per student                           |
+| `spg.duties`             | `DutyData`            | Class duties and their rounds, one entry per class         |
+| `spg.mixPresets`         | `MixPresetData`       | Mixing presets of the teacher's own, shared by all classes |
+| `spg.cardFont`           | `CardFile`            | The name cards' own font: name, type, bytes                |
+| `spg.cardImage`          | `CardFile`            | The name cards' own picture, made smaller on loading       |
+| `spg.migrationVersion`   | `number`              | Version of the last completed table migration              |
+| `spg.version`            | `number`              | `APP_DATA_VERSION` (currently 2), stamped on every load    |
 
 The keys `spg.students`, `spg.seatingHistory`, `spg.mixHistory`,
 `spg.currentSeating`, `spg.lockedPositions`, `spg.classroomScene`,
 `spg.mixSettings` and `spg.currentCircleLayout` hold the single-class storage
-from before the class collection existed. When no `spg.classCollection` is
-found, `IndexedDBRepository.migrateLegacyStorage` reads them into a first class
-(named by `generator:common.defaultClassName`), or creates an empty collection
-when they are empty too.
+from before the class collection existed. When neither `spg.classIndex` nor
+`spg.classCollection` is found, `IndexedDBRepository.collectionFromLegacyKeys`
+reads them into a first class (named by `generator:common.defaultClassName`),
+or creates an empty collection when they are empty too.
 
 ### Class collection
 
@@ -110,13 +112,25 @@ until 2026-11-06 it started with the repetition and the gender mix alone.
 
 - **One record per class.** A class's students, plans, room and weights all
   live inside its record; switching classes means reading a different record.
-- **The whole collection is one value.** Every write replaces
-  `spg.classCollection` as a whole, but reads it in the same transaction and
-  changes only what it is about (`changeCollection`, idb-keyval's `update`):
-  two tabs on one device — or the installed app beside a browser tab — each
-  have a repository of their own, and one that wrote back a copy read earlier
-  put every class the other had changed back. So nothing is kept in memory;
-  every operation reads what is stored. `IndexedDBRepository` serialises its
+- **Every class under a key of its own** ([decision 0049](decisions/0049-a-key-per-class.md),
+  `src/repositories/classStorage.ts`). The app still works with the whole
+  `ClassCollectionState` above; stored, each class is `{ version, record }`
+  under `spg.class:<id>` (`CLASS_STORAGE_VERSION`, currently 4), and
+  `spg.classIndex` (`{ version, activeClassId, order }`) names them. The index
+  is the truth: a class is written before it names it and leaves it before its
+  key goes, and a key it does not name is removed at start-up once it is ten
+  minutes old. Up to version 3 the collection was one value under
+  `spg.classCollection`; the first start of a version that knows version 4
+  splits it, and the value stays as the copy described under "Changing a
+  stored shape".
+- **A class is changed in one transaction.** A write reads the class it is
+  about and writes it back in the same transaction (`changeClass`,
+  idb-keyval's `update`): two tabs on one device — or the installed app beside
+  a browser tab — each have a repository of their own, and one that wrote back
+  a copy read earlier put what the other had changed back. So nothing is kept
+  in memory; every operation reads what is stored. The index is changed the
+  same way (`changeIndex`); a class name is checked against the others just
+  before the write, not inside it. `IndexedDBRepository` serialises its
   operations through a promise chain — extended before anything awaits, so two
   calls in the same tick queue up. This is also why photos have a store of
   their own.
@@ -440,6 +454,13 @@ list is `PROJECT_LOCAL_STORAGE_KEYS` in `storageKeys.ts`. Groups:
    [backup-format.md](backup-format.md): backups carry the same shapes and are
    imported years after they were written.
 3. Add a test that loads the old shape.
+4. Keep the old value for 30 days before the first write in the new shape
+   overwrites it, restorable the way a backup is (B2 of the review of
+   November 2026). The switch to a key per class does so: `spg.classCollection`
+   keeps its classes with `retiredAt`, and the backup menu offers "Stand vor
+   dem Update …" while they are there (`loadRetiredClasses`,
+   `restoreClassesFromBeforeUpdate`). Give the copy a `version` above the old
+   one, so a window still on the old version writes nothing over it.
 
 ## Retention and deletion
 

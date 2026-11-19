@@ -326,15 +326,15 @@ open.
 
 ### Where data lives
 
-| Data                                                                                              | Where                                                 | Notes                                                                          |
-| ------------------------------------------------------------------------------------------------- | ----------------------------------------------------- | ------------------------------------------------------------------------------ |
-| Classes: students, saved plans, mix history, current seating, locks, weights, room, circle layout | IndexedDB `spg.classCollection`, one record per class | Older single-class keys are migrated on first load                             |
-| Room templates                                                                                    | IndexedDB `spg.classroomTemplates`                    |                                                                                |
-| Plan usage record                                                                                 | IndexedDB `spg.planUsage`, one bucket per class       | Pair keys and timestamps only ([ALGORITHM.md](ALGORITHM.md#plan-usage-record)) |
-| Student photos                                                                                    | Separate IndexedDB database `spg-student-photos`      | Blobs keyed by student id                                                      |
-| Name game statistics                                                                              | IndexedDB `spg.nameGameStats`                         |                                                                                |
-| UI preferences                                                                                    | localStorage                                          | No personal data                                                               |
-| Backups                                                                                           | A file wherever the teacher saves it                  | AES-GCM encrypted ([backup-format.md](backup-format.md))                       |
+| Data                                                                                              | Where                                                                                | Notes                                                                          |
+| ------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------ |
+| Classes: students, saved plans, mix history, current seating, locks, weights, room, circle layout | IndexedDB, one key per class (`spg.class:<id>`) and `spg.classIndex` (decision 0049) | Older single-class keys are migrated on first load                             |
+| Room templates                                                                                    | IndexedDB `spg.classroomTemplates`                                                   |                                                                                |
+| Plan usage record                                                                                 | IndexedDB `spg.planUsage`, one bucket per class                                      | Pair keys and timestamps only ([ALGORITHM.md](ALGORITHM.md#plan-usage-record)) |
+| Student photos                                                                                    | Separate IndexedDB database `spg-student-photos`                                     | Blobs keyed by student id                                                      |
+| Name game statistics                                                                              | IndexedDB `spg.nameGameStats`                                                        |                                                                                |
+| UI preferences                                                                                    | localStorage                                                                         | No personal data                                                               |
+| Backups                                                                                           | A file wherever the teacher saves it                                                 | AES-GCM encrypted ([backup-format.md](backup-format.md))                       |
 
 All IndexedDB access goes through `src/repositories/idbClient.ts`. Live data is
 not encrypted ([SECURITY.md](SECURITY.md)). Record shapes, versions, retention

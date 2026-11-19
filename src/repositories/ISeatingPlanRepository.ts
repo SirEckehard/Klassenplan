@@ -44,6 +44,18 @@ export type ActiveClassSnapshot = {
 };
 
 /**
+ * The classes as they were stored before version 4 of the class storage,
+ * kept for 30 days after the switch (decision 0049).
+ */
+export type RetiredClasses = {
+  collection: ClassCollectionState;
+  /** When the switch happened, ISO 8601. */
+  retiredAt: string;
+  /** When the copy goes, ISO 8601. */
+  keptUntil: string;
+};
+
+/**
  * Repository interface for seating plan persistence
  * Provides abstraction over storage implementation
  */
@@ -62,6 +74,11 @@ export interface ISeatingPlanRepository {
   setActiveClass(classId: string): Promise<Result<ClassRecord>>;
   deleteClass(classId: string): Promise<Result<void>>;
   saveClassCollection(collection: ClassCollectionState): Promise<Result<void>>;
+  /**
+   * The classes from before the switch to version 4 while they are kept,
+   * null otherwise; restored through `saveClassCollection`, as a backup is.
+   */
+  loadRetiredClasses(): Promise<Result<RetiredClasses | null>>;
   /**
    * Notes the class this window opens as opened now (`lastUsedAt`), without
    * touching `updatedAt`; nothing is written while no class exists.

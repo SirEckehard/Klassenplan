@@ -40,6 +40,8 @@ const { clearAllPhotosMock, hasIndexedDBMock, setStudentPhotoMock } =
 vi.mock('idb-keyval', () => ({
   del: delMock,
   set: setMock,
+  // A class of its own besides the fixed keys (decision 0049).
+  keys: vi.fn(async () => ['spg.class:7a', 'spg.classIndex']),
   __esModule: true,
 }));
 vi.mock('@/stores/resetApplicationState', () => ({
@@ -182,7 +184,8 @@ describe('clearAllData', () => {
     });
     expect(localStorage.getItem('external-app')).toBe('keep');
 
-    const dbValues = Object.values(DB_KEYS);
+    // Every fixed key and every class's own.
+    const dbValues = [...Object.values(DB_KEYS), 'spg.class:7a'];
     expect(delMock).toHaveBeenCalledTimes(dbValues.length);
     dbValues.forEach((key) => {
       expect(delMock).toHaveBeenCalledWith(key);

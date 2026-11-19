@@ -107,6 +107,12 @@
       "cancel": "Cancel",
       "meta": "Everything in this browser"
     },
+    "beforeUpdate": {
+      "title": "Restore the data from before the update?",
+      "meta": "From {{date}}, kept until {{until}}",
+      "message": "The classes from then replace every class there is now. Whatever you changed in them since the update is lost.",
+      "confirm": "Restore"
+    },
     "cannotUndo": "This cannot be undone.",
     "backupFirst": "Save a backup",
     "savePlanFailed": {

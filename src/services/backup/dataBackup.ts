@@ -4,6 +4,7 @@ import {
   writeValue as idbSet,
   deleteValues as idbDeleteAll,
 } from '@/repositories/idbClient';
+import { listClassRecordKeys } from '@/repositories/classStorage';
 import type {
   Student,
   SavedPlan,
@@ -560,7 +561,11 @@ export async function clearAllData(
 ): Promise<void> {
   try {
     if (!options?.skipIndexedDBClear) {
-      await idbDeleteAll(Object.values(DB_KEYS));
+      // Each class has a key of its own besides the fixed ones (0049).
+      await idbDeleteAll([
+        ...Object.values(DB_KEYS),
+        ...(await listClassRecordKeys()),
+      ]);
     }
     if (hasIndexedDB()) {
       const photosCleared = await clearAllPhotos();

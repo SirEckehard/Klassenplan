@@ -24,6 +24,8 @@ export interface BackupOrchestrationReturn {
   handleExportAll: () => Promise<void>;
   handleImportFile: React.ChangeEventHandler<HTMLInputElement>;
   importBackupFile: (file: File) => void;
+  /** The classes from before the switch to a key per class (0049). */
+  restoreClassesFromBeforeUpdate: () => Promise<void>;
 }
 
 /**
@@ -46,6 +48,7 @@ export function useGeneratorBackupOrchestration(
     handleExportAll,
     handleImportFile,
     importBackupFile,
+    restoreClassesFromBeforeUpdate,
   } = useDataBackup({ exportAllAsJson, importAllFromJson, openSharedFile });
 
   return {
@@ -54,5 +57,6 @@ export function useGeneratorBackupOrchestration(
     handleExportAll,
     handleImportFile,
     importBackupFile,
+    restoreClassesFromBeforeUpdate,
   };
 }

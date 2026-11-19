@@ -16,15 +16,10 @@ vi.mock('idb-keyval', async () =>
 
 import { IndexedDBRepository } from '../IndexedDBRepository';
 import type { Result } from '../types';
-import type {
-  ClassCollectionState,
-  ClassRecord,
-  SeatingArrangement,
-  Student,
-} from '@/types';
+import type { ClassRecord, SeatingArrangement, Student } from '@/types';
 import type { CircleLayout } from '@/types/Circle';
 import { createMockClassroomScene, createMockStudent } from '@/__tests__/utils';
-import { DB_KEYS } from '@/utils/data/storageKeys';
+import { CLASS_RECORD_KEY_PREFIX, DB_KEYS } from '@/utils/data/storageKeys';
 
 const expectData = <T>(result: Result<T>): T => {
   expect(result.success).toBe(true);
@@ -32,9 +27,17 @@ const expectData = <T>(result: Result<T>): T => {
   return result.data;
 };
 
-const stored = () =>
-  memory.get(`default::${DB_KEYS.classCollection}`) as ClassCollectionState;
-const storedClass = () => stored().classes[0] as unknown as ClassRecord;
+/** The first class as it is stored (decision 0049): the object itself. */
+const storedClass = () => {
+  const index = memory.get(`default::${DB_KEYS.classIndex}`) as {
+    order: string[];
+  };
+  return (
+    memory.get(`default::${CLASS_RECORD_KEY_PREFIX}${index.order[0]}`) as {
+      record: ClassRecord;
+    }
+  ).record;
+};
 
 const circleOf = (students: Student[]): CircleLayout => ({
   students: students.map((student, index) => ({

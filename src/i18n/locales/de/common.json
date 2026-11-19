@@ -107,6 +107,12 @@
       "cancel": "Abbrechen",
       "meta": "Alles in diesem Browser"
     },
+    "beforeUpdate": {
+      "title": "Stand vor dem Update wiederherstellen?",
+      "meta": "Vom {{date}}, aufbewahrt bis {{until}}",
+      "message": "Die Klassen von damals ersetzen alle Klassen von jetzt. Was du seit dem Update an ihnen geändert hast, geht verloren.",
+      "confirm": "Wiederherstellen"
+    },
     "cannotUndo": "Das lässt sich nicht rückgängig machen.",
     "backupFirst": "Backup sichern",
     "savePlanFailed": {

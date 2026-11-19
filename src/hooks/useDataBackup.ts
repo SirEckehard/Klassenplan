@@ -25,8 +25,12 @@ import {
   isWebCryptoAvailable,
   WebCryptoUnavailableError,
   downloadBlob,
+  formatLongDate,
   MAX_MIX_PRESETS,
 } from '@/utils';
+import { ClockCounterClockwiseIcon } from '@phosphor-icons/react';
+import { useSeatingRepository } from '@/hooks/useSeatingRepository';
+import { dehydrateCollection } from '@/utils/data/storedSeating';
 
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
@@ -41,6 +45,8 @@ const loadBackupDialogs = () => import('@/services/ui/backupDialogs');
 const loadBackupValidation = () =>
   import('@/utils/validation/backupValidation');
 const loadShareFiles = () => import('@/utils/data/shareFiles');
+const loadConfirmDialog = () => import('@/services/ui/dialogs');
+const loadConfirmFacts = () => import('@/components/ui/modals/confirmFacts');
 
 const KDF_HASH = 'SHA-256';
 const KDF_ITERATIONS = 600000;
@@ -225,6 +231,7 @@ export default function useDataBackup({
   openSharedFile,
 }: Options) {
   const importInputRef = useRef<HTMLInputElement | null>(null);
+  const repository = useSeatingRepository();
 
   // Trigger file selection dialog
   const triggerImport = () => {
@@ -399,6 +406,68 @@ export default function useDataBackup({
     reader.readAsText(file);
   };
 
+  /**
+   * Brings back the classes as they were before the switch to a key per
+   * class, kept 30 days (decision 0049). The way a backup comes back with
+   * "Alles ersetzen": everything else stays as it is now — templates,
+   * presets, photos — and the classes are the copy's.
+   */
+  const restoreClassesFromBeforeUpdate = async () => {
+    try {
+      const [retiredResult, currentResult] = await Promise.all([
+        repository.loadRetiredClasses(),
+        repository.loadClassCollection(),
+      ]);
+      const retired = retiredResult.success ? retiredResult.data : null;
+      if (!retired) {
+        showToast('info', 'toast:backup.beforeUpdateGone');
+        return;
+      }
+      const [{ confirmDialog }, { allDataFacts }] = await Promise.all([
+        loadConfirmDialog(),
+        loadConfirmFacts(),
+      ]);
+      const now = currentResult.success ? currentResult.data.classes : [];
+      const confirmed = await confirmDialog({
+        icon: ClockCounterClockwiseIcon,
+        title: i18n.t('common:dialogs.beforeUpdate.title'),
+        meta: i18n.t('common:dialogs.beforeUpdate.meta', {
+          date: formatLongDate(retired.retiredAt),
+          until: formatLongDate(retired.keptUntil),
+        }),
+        facts: allDataFacts(now, {
+          templates: 0,
+          presets: 0,
+          duties: 0,
+          photos: 0,
+          cardFiles: 0,
+        }),
+        message: i18n.t('common:dialogs.beforeUpdate.message'),
+        confirmLabel: i18n.t('common:dialogs.beforeUpdate.confirm'),
+      });
+      if (!confirmed) return;
+
+      const bundle = JSON.parse(await exportAllAsJson()) as Record<
+        string,
+        unknown
+      >;
+      bundle.classCollection = dehydrateCollection(retired.collection);
+      await importAllFromJson(JSON.stringify(bundle), { merge: false });
+      showToast('success', 'toast:backup.beforeUpdateRestored');
+    } catch (error) {
+      if (error instanceof BackupExportError) {
+        showBackupExportRefusal(error);
+        return;
+      }
+      logError(
+        'Restoring the classes from before the update failed',
+        { error },
+        'useDataBackup',
+      );
+      showToast('error', BACKUP_ERROR_MESSAGES.processingFailed);
+    }
+  };
+
   const handleImportFile: React.ChangeEventHandler<HTMLInputElement> = (e) => {
     const file = e.target.files?.[0];
     e.currentTarget.value = '';
@@ -411,5 +480,6 @@ export default function useDataBackup({
     handleExportAll,
     handleImportFile,
     importBackupFile,
+    restoreClassesFromBeforeUpdate,
   };
 }

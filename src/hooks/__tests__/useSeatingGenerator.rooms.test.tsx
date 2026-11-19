@@ -19,7 +19,8 @@ import {
   resetSeatingRepository,
   unmountAndSettle,
 } from '@/__tests__/utils/resetSeatingRepository';
-import type { ClassCollectionState, ClassroomTemplate } from '@/types';
+import type { ClassroomTemplate } from '@/types';
+import { storedClassCollection } from '@/__tests__/utils/memoryIdbKeyval';
 import { subscribeToToasts, type ToastInstance } from '@/utils/ui/toast';
 import {
   SeatingPlanGeneratorProvider,
@@ -42,10 +43,7 @@ function Probe({ onRender }: { onRender: (snapshot: Snapshot) => void }) {
  * A class keeps the rooms its plans were made in (decision 0024). From the
  * first moment a class has one, and what is saved or mixed notes it.
  */
-const storedCollection = () =>
-  [...memory.entries()].find(([key]) =>
-    key.endsWith('::spg.classCollection'),
-  )?.[1] as ClassCollectionState | undefined;
+const storedCollection = () => storedClassCollection(memory);
 
 describe('useSeatingGenerator rooms', () => {
   beforeEach(async () => {
