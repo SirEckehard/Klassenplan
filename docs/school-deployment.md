@@ -1,6 +1,6 @@
 # Klassenplan in a school
 
-> **Status:** current · **Last reviewed:** 2026-11-18 · **For:** a school's IT,
+> **Status:** current · **Last reviewed:** 2026-11-19 · **For:** a school's IT,
 > school authorities, self-hosting operators
 
 This page is for whoever looks after a school's computers. It explains what
@@ -86,7 +86,11 @@ are in [PRIVACY.md](PRIVACY.md#running-your-own-instance), the response headers
 in [SECURITY.md](SECURITY.md).
 
 **Serve it over HTTPS.** Browsers allow installation and a service worker only
-on a secure origin. Over plain HTTP — an intranet host without a certificate —
+on a secure origin. With Docker, `docker-compose.https.yml` does it in one
+command: Caddy in front fetches and renews the certificate for the host name in
+`DOMAIN` (README, [Deployment](../README.md#deployment)); that needs the name
+in public DNS and ports 80 and 443 open — an intranet name takes the school's
+own certificate in a reverse proxy of its own. Over plain HTTP — an intranet host without a certificate —
 Klassenplan still works, including offline (it then loads all its files into
 the browser cache instead, see `src/utils/performance/offlineWarmup.ts`), but it
 cannot be installed as an app, and the policy above has nothing to install.

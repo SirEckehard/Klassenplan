@@ -10,7 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ### Improved
 
 - Saving as PDF is several times faster, most of all for name cards on slower computers
-- Whoever runs Klassenplan for a school sets its address, legal pages and contact when starting the Docker image, which is a quarter of its former size, and every release also comes as files for a web server without Docker
+- Whoever runs Klassenplan for a school sets its address, legal pages and contact when starting the Docker image, which is a quarter of its former size, runs without root and comes with HTTPS in one command; every release also comes as files for a web server without Docker
+- The Docker image now listens on port 8080 inside the container: change `-p …:80` to `-p …:8080`
 
 ### Fixed
 

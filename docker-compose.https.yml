@@ -1,0 +1,50 @@
+# Klassenplan over HTTPS with one command — Caddy in front fetches and renews
+# the certificate itself:
+#
+#   DOMAIN=klassenplan.schule.de docker compose -f docker-compose.https.yml up -d
+#
+# The host name must point at this server, and ports 80 and 443 must be
+# reachable from the internet for the certificate (Let's Encrypt or ZeroSSL).
+# Installing the app and working offline need HTTPS (docs/school-deployment.md).
+# Everything else — the image, the variables of the .env file — comes from
+# docker-compose.yml, which has to lie next to this file.
+services:
+  klassenplan:
+    extends:
+      file: docker-compose.yml
+      service: klassenplan
+    environment:
+      # The address follows the domain unless .env sets another.
+      SITE_URL: ${SITE_URL:-https://${DOMAIN:?set DOMAIN to the instance's host name}}
+    # Reached through Caddy alone, not on a port of the host.
+    ports: !reset []
+
+  caddy:
+    # One minor line, which takes its security fixes on every pull.
+    image: caddy:2.11-alpine
+    # Proxies HTTPS on DOMAIN to nginx in the other container, which keeps
+    # the headers, the caching and the compression of nginx.conf. Writes no
+    # access log: the teachers' addresses stay out of it (docs/PRIVACY.md).
+    command:
+      - caddy
+      - reverse-proxy
+      - --from
+      - ${DOMAIN:?set DOMAIN to the instance's host name}
+      - --to
+      - klassenplan:8080
+    ports:
+      - '80:80'
+      - '443:443'
+      - '443:443/udp'
+    volumes:
+      # Certificates and the ACME account; losing them means new ones, and
+      # the issuers limit how often.
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - klassenplan
+    restart: unless-stopped
+
+volumes:
+  caddy_data:
+  caddy_config:

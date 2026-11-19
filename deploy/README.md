@@ -54,9 +54,9 @@ address.
 - **Apache 2.4:** copy `apache.htaccess` as `.htaccess` into the site's
   directory. It needs `AllowOverride All` there and the modules `rewrite`,
   `headers` and `mime`.
-- **nginx:** take the `server` block of `nginx.conf`, set `root` to the site's
-  directory and the `include` lines to where `nginx-security-headers.conf`
-  lies. Without the Brotli module, remove the four `brotli` lines.
+- **nginx:** take the `server` block of `nginx.conf`, set `listen` (the image
+  uses 8080), `root` to the site's directory and the `include` lines to where
+  `nginx-security-headers.conf` lies. Without the Brotli module, remove the four `brotli` lines.
 
 Each answers `/faq` from `faq/index.html` without a detour through `/faq/`,
 answers an unknown address with the page "Seite nicht gefunden" and status 404,

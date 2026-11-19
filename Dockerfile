@@ -48,11 +48,15 @@ FROM alpine:3.24
 
 # nginx and the Brotli modules (dynamic compression + serving precompressed
 # .br files); BusyBox's wget does the health check. Forward nginx's
-# access/error logs to the container's stdout/stderr.
+# access/error logs to the container's stdout/stderr. /var/lib/nginx, the
+# prefix the modules and the log are reached through, opens to every user, so
+# the image runs under any unprivileged one (OpenShift assigns its own). The
+# package's user `nginx` is checked against the numbers `USER` names below.
 RUN apk add --no-cache nginx nginx-mod-http-brotli \
-    && mkdir -p /run/nginx \
     && ln -sf /dev/stdout /var/log/nginx/access.log \
-    && ln -sf /dev/stderr /var/log/nginx/error.log
+    && ln -sf /dev/stderr /var/log/nginx/error.log \
+    && chmod 755 /var/lib/nginx \
+    && [ "$(id -u nginx):$(id -g nginx)" = "100:101" ]
 
 # The build, unchanged. On every start the entrypoint copies it to nginx's
 # root and gives the copy the operator's SITE_URL, IMPRINT_URL, PRIVACY_URL
@@ -63,20 +67,27 @@ COPY --from=builder /app/dist /usr/share/klassenplan/site
 COPY scripts/configure-instance.sh /usr/local/bin/configure-instance
 COPY scripts/docker-entrypoint.sh /usr/local/bin/docker-entrypoint
 
-# Copy nginx configuration. Alpine's main nginx.conf includes
-# /etc/nginx/http.d/*.conf in its http block (our server block replaces the
-# default one there) and /etc/nginx/modules/*.conf (the Brotli load_module
-# directives, dropped in by the apk package above).
+# Copy nginx configuration. Our main configuration replaces Alpine's: no
+# `user`, pid and temporary files below /tmp. It includes
+# /etc/nginx/modules/*.conf (the Brotli load_module directives, dropped in by
+# the apk package above) and /etc/nginx/http.d/*.conf in its http block, where
+# our server block replaces the default one.
+COPY nginx-main.conf /etc/nginx/nginx.conf
 COPY nginx.conf /etc/nginx/http.d/default.conf
 COPY nginx-security-headers.conf /etc/nginx/snippets/security-headers.conf
+
+# Without root: nginx's own user, by number so that Kubernetes'
+# `runAsNonRoot` can verify it. It owns nothing — the entrypoint and nginx
+# write below /tmp alone — so any other unprivileged user runs the image too.
+USER 100:101
 
 # Health check - verify nginx is responding. 127.0.0.1, not localhost:
 # BusyBox's wget tries ::1 first, where nginx does not listen.
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD wget -q -O /dev/null http://127.0.0.1/ || exit 1
+    CMD wget -q -O /dev/null http://127.0.0.1:8080/ || exit 1
 
-# Expose port 80
-EXPOSE 80
+# An unprivileged port: a user without root may not bind 80 everywhere.
+EXPOSE 8080
 
 # Configure the copy, then start nginx
 ENTRYPOINT ["docker-entrypoint"]

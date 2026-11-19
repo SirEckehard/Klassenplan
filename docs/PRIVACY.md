@@ -1,6 +1,6 @@
 # Privacy
 
-> **Status:** current · **Last reviewed:** 2026-11-18 · **For:** developers,
+> **Status:** current · **Last reviewed:** 2026-11-19 · **For:** developers,
 > self-hosting operators and schools evaluating Klassenplan
 
 This document describes what personal data Klassenplan handles, where it goes and
@@ -127,7 +127,8 @@ any other class
   set in `nginx.conf`, since Alpine's own default also logs `X-Forwarded-For`.
   Retention is up to the operator's log driver. Behind a reverse proxy the
   container sees the proxy's address, because `nginx.conf` configures no real-IP
-  handling.
+  handling. The Caddy of `docker-compose.https.yml` writes no access log of
+  its own.
 - **Keep the headers.** CSP and security headers come with the image. Another
   proxy in front must not drop or loosen them ([SECURITY.md](SECURITY.md)).
 - **Modified versions.** Klassenplan is licensed under AGPL-3.0-or-later. Whoever
