@@ -115,6 +115,17 @@ describe('the card of a badge', () => {
     );
   });
 
+  it('names the partners in their badge where the list is wide', () => {
+    renderList();
+    const wish = badge('a', 'wishPartner');
+    expect(wish).toHaveTextContent(/(Wunschpartner|Preferred partner): Cem/i);
+    // Hidden below `@4xl`, where the card names them instead.
+    expect(within(wish).getByText('Cem').parentElement).toHaveClass(
+      'hidden',
+      '@4xl:inline',
+    );
+  });
+
   it('lights the rows of the partners a partner badge names', () => {
     renderList();
     fireEvent.pointerOver(badge('a', 'wishPartner'), { pointerType: 'mouse' });

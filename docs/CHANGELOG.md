@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 - Saving stays quick however many classes there are, and for 30 days after the update "Backup" can bring back the classes as they were before it
 - On a phone and an upright tablet the class list shows attributes as icons and unfolds them with an arrow
+- On a wide screen the class list names the wish and distance partners in their attribute
 - "Relationships" shows contradictions and who has not been named yet at the top, and a line per student with their wishes in order and how often they were named
 
 ### Fixed

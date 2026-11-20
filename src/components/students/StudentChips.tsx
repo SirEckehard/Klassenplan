@@ -184,7 +184,21 @@ function StudentChips({
             }`}
           >
             <Icon size={13} aria-hidden="true" />
-            {badge.label}
+            {/* One element with the names, so the chip's gap stays between
+                the icon and the words and not before the colon. */}
+            <span>
+              {badge.label}
+              {/* Where the list is wide, a partner badge names whom it
+                  means, which a narrower list leaves to its card. */}
+              {'names' in badge && (
+                <span className="hidden @4xl:inline">
+                  {': '}
+                  <span className="font-semibold">
+                    {badge.names.join(', ')}
+                  </span>
+                </span>
+              )}
+            </span>
           </span>
         );
       })}

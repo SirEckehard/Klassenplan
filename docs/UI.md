@@ -568,7 +568,10 @@ afterwards.
   means and whether it counts in the mix, the partners as names that bring
   their rows into view and light them a moment, the day they changed, and
   "Bearbeiten", which opens the student. Several rows can stand unfolded; the
-  row itself still opens the student. From `lg` up the badges are words.
+  row itself still opens the student. From `lg` up the badges are words,
+  and where the list is wide (`@4xl`) a partner badge names the classmates it
+  means ("Wunschpartner: Emma Becker"), which a narrower list leaves to its
+  card.
 
 ## Seats and the plan
 
