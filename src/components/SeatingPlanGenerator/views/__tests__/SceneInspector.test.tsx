@@ -185,9 +185,9 @@ const turned = (
 const templateMenu = () =>
   screen.getByRole('button', { name: /Vorlage öffnen|Open a template/ });
 
-/** The button that opens the four kinds of table, once tables stand. */
+/** The button that opens the kinds of table and the arrangements, once tables stand. */
 const setupButton = () =>
-  screen.getByRole('button', { name: /Tischart wählen|Choose a table type/ });
+  screen.getByRole('button', { name: /Aufstellung wählen|Choose a layout/ });
 
 const angleField = () =>
   screen.getByRole('textbox', { name: /Drehung in Grad|Rotation in/i });
@@ -278,7 +278,7 @@ describe('SceneInspector', () => {
     ).toBeInTheDocument();
   });
 
-  // A room that has its tables keeps the four kinds in a menu.
+  // A room that has its tables keeps the kinds and arrangements in a menu.
   it('sets the room up with as many tables as the class needs', () => {
     const { onSetUpRoom } = renderInspector({ studentsCount: 25 });
 
@@ -288,7 +288,7 @@ describe('SceneInspector', () => {
       name: /^(Neu einrichten|Set up from scratch)$/,
     });
     const rows = within(menu).getAllByRole('button');
-    expect(rows.map((row) => row.textContent)).toEqual([
+    expect(rows.slice(0, 4).map((row) => row.textContent)).toEqual([
       expect.stringMatching(/^(Einzelplätze|Single seats)25 (Tische|tables)$/),
       expect.stringMatching(/^(Doppelplätze|Double seats)13 (Tische|tables)$/),
       expect.stringMatching(/^(4er-Gruppen|Groups of 4)7 (Tische|tables)$/),
@@ -297,6 +297,43 @@ describe('SceneInspector', () => {
 
     fireEvent.click(rows[1]);
     expect(onSetUpRoom).toHaveBeenCalledWith('double');
+  });
+
+  // Below the kinds: the arrangements, and one of them at random.
+  it('offers the arrangements, greying those too small for the class', () => {
+    const { onSetUpRoom } = renderInspector({ studentsCount: 25 });
+
+    fireEvent.click(setupButton());
+    const menu = screen.getByRole('dialog', {
+      name: /^(Neu einrichten|Set up from scratch)$/,
+    });
+    const horseshoe = within(menu).getByRole('button', {
+      name: /^(Hufeisen|Horseshoe)/,
+    });
+    expect(horseshoe).toBeEnabled();
+    fireEvent.click(horseshoe);
+    expect(onSetUpRoom).toHaveBeenCalledWith('horseshoe');
+
+    fireEvent.click(setupButton());
+    // A herringbone seats 24 in this room, not 25.
+    const herringbone = within(
+      screen.getByRole('dialog', {
+        name: /^(Neu einrichten|Set up from scratch)$/,
+      }),
+    ).getByRole('button', { name: /^(Fischgräte|Herringbone)/ });
+    expect(herringbone).toBeDisabled();
+    expect(herringbone).toHaveTextContent(/(bis|up to) 24$/);
+  });
+
+  it('sets the room up at random', () => {
+    const { onSetUpRoom } = renderInspector({ tables: [] });
+
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: /^(Zufällige Anordnung|Random arrangement)/,
+      }),
+    );
+    expect(onSetUpRoom).toHaveBeenCalledWith('random');
   });
 
   // In an empty room the kinds are the first step and stand as rows.
@@ -309,7 +346,7 @@ describe('SceneInspector', () => {
     expect(onSetUpRoom).toHaveBeenCalledWith('double');
     expect(
       screen.queryByRole('button', {
-        name: /Tischart wählen|Choose a table type/,
+        name: /Aufstellung wählen|Choose a layout/,
       }),
     ).not.toBeInTheDocument();
   });

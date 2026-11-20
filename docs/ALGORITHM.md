@@ -54,7 +54,9 @@ settled on — the one on screen, the plan the teacher actually got.
   aisle; the next row counts while the gap is at most `ROW_GAP` (70 px, the
   room a chair takes). Diagonal seats and a seat beyond a seat are no
   neighbours. "Neu einrichten" leaves 60 px between desks along the board, so
-  there the desks of a row are apart and the row behind is close.
+  there the desks of a row are apart and the row behind is close; group
+  tables it sets further apart than a row, so two islands are no neighbours
+  (decision 0053).
   **Tables pushed together** — seat cells meeting edge to edge, at most
   `JOIN_GAP` (10 px, a grid step) apart — relate as at one table, by where
   the two chairs point (`joinedKind`): at right angles, as in an L of two
@@ -65,8 +67,10 @@ settled on — the one on screen, the plan the teacher actually got.
   Desks pushed together in a row, all facing the same way, stay desks of their
   own, but the two seats at each join are as close as seat partners
   (`partner`), so everybody but the ends of the row has two neighbours. A
-  room without a gap that narrow mixes as before; "Neu einrichten" leaves at
-  least 15 px.
+  room without a gap that narrow mixes as before. "Neu einrichten" leaves at
+  least 15 px between the tables of one kind; its arrangements push desks
+  together on purpose — a horseshoe's legs, a conference table, desks along a
+  wall — and leave corners open.
 - **`criteria.ts`** writes every criterion down once, as a `pair` term (two
   students in a relation), a `seat` term (a student on a seat), a `table`
   term (who shares a table group), the language term (who sits around a student

@@ -21,6 +21,7 @@ import type {
   ClassroomTable,
   ClassroomTemplate,
   TableTemplateType,
+  RoomSetupChoice,
 } from '@/types';
 import {
   InspectorBody,
@@ -88,7 +89,7 @@ type Props = {
   featurePalette: FeaturePaletteItem[];
   studentsCount: number;
   /** Rebuilds the room's tables from one kind, as many as the class needs. */
-  onSetUpRoom: (type: TableTemplateType) => void;
+  onSetUpRoom: (choice: RoomSetupChoice) => void;
   /** Counts up whenever the setup is asked for, to take the focus. */
   setupFocusRequest?: number;
   templates: ClassroomTemplate[];
@@ -526,6 +527,7 @@ export default function SceneInspector({
           <RoomSetupSection
             studentsCount={studentsCount}
             hasTables={tables.length > 0}
+            features={features}
             onSetUp={onSetUpRoom}
             focusRequest={setupFocusRequest}
           />

@@ -33,6 +33,7 @@ import type {
   ClassroomTable,
   ClassroomTemplate,
   TableTemplateType,
+  RoomSetupChoice,
   Student,
   ClassroomFeature,
   ClassroomFeatureType,
@@ -151,9 +152,9 @@ type Props = {
       React.SetStateAction<FeatureContextMenuState | null>
     > | null,
   ) => void;
-  // Setting the room up from one kind of table, or loading a template as a
-  // room of its own
-  onTableTypeChange: (type: TableTemplateType, force?: boolean) => void;
+  // Setting the room up from one kind of table or an arrangement, or loading
+  // a template as a room of its own
+  onRoomSetUp: (choice: RoomSetupChoice, force?: boolean) => void;
   onTemplateChange: (templateId: number | null) => void;
   onLoadTemplateAsRoom: (templateId: number) => void;
   /** The room was set up anew; lets go of the open plan. */
@@ -211,7 +212,7 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
   onCanvasContextMenuSetterChange,
   onCloseFeatureContextMenu,
   onFeatureContextMenuSetterChange,
-  onTableTypeChange,
+  onRoomSetUp,
   onTemplateChange,
   onLoadTemplateAsRoom,
   onRoomReplaced,
@@ -418,7 +419,7 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
       snapshot,
       onTemplateChange,
       onLoadTemplateAsRoom,
-      onTableTypeChange,
+      onRoomSetUp,
       clearSelection: clearCanvasSelection,
       setDrawerOpen,
       unfoldInspector,

@@ -4,6 +4,8 @@ import type {
   ClassroomScene,
   ClassroomTable,
   TableTemplateType,
+  RoomArrangementId,
+  RoomSetupChoice,
   ClassroomFeature,
   ClassroomFeatureType,
   ClassroomFeatureAnchor,
@@ -60,7 +62,13 @@ export type ExportBundleV1 = ExportBundleV1T;
 export type ExportBundle = ExportBundleT;
 export type BackupCardFile = BackupCardFileT;
 export type BackupCardFiles = BackupCardFilesT;
-export type { ClassroomScene, ClassroomTable, TableTemplateType };
+export type {
+  ClassroomScene,
+  ClassroomTable,
+  TableTemplateType,
+  RoomArrangementId,
+  RoomSetupChoice,
+};
 export type { ClassroomFeature, ClassroomFeatureType, ClassroomFeatureAnchor };
 export type ScalarMixSettingKey = ScalarMixSettingKeyT;
 export type PhotoDisplayMode = PhotoDisplayModeT;

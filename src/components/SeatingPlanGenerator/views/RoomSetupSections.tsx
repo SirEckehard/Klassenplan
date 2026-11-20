@@ -5,17 +5,26 @@ import { useTranslation } from 'react-i18next';
 import {
   ArrowsClockwiseIcon,
   CheckIcon,
+  DiceFiveIcon,
   DownloadIcon,
   FloppyDiskIcon,
   PlusIcon,
   UploadIcon,
 } from '@phosphor-icons/react';
-import type { ClassroomTemplate, TableTemplateType } from '@/types';
+import type {
+  ClassroomFeature,
+  ClassroomTemplate,
+  RoomSetupChoice,
+  TableTemplateType,
+} from '@/types';
 import {
   InspectorActionRow,
   InspectorMenuButton,
   InspectorSection,
+  type InspectorMenuRow,
 } from '@/components/shell/InspectorPanel';
+import { useRoomArrangementOptions } from '@/hooks/classroom/useRoomArrangementOptions';
+import ArrangementPreview from './ArrangementPreview';
 import {
   useOptionalSeatingPlanActions,
   useOptionalSeatingPlanState,
@@ -43,21 +52,36 @@ const SETUP_TYPES: TableTemplateType[] = [
   'group6',
 ];
 
+/** One width for every row's picture, so the names line up. */
+function SetupIcon({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="flex w-7.5 shrink-0 justify-center text-(--text-muted)">
+      {children}
+    </span>
+  );
+}
+
 /**
- * Sets the whole room up from one kind of table: as many of them as the class
- * needs, arranged in rows. It replaces the tables that stand there — windows,
+ * Sets the whole room up: as many tables of one kind as the class needs,
+ * arranged in rows and lanes towards the board, or one of the arrangements —
+ * a horseshoe, an arena, desks facing the walls … — or one of those at
+ * random (decision 0053). It replaces the tables that stand there — windows,
  * doors and the board stay — so the hint says so, and the undo history holds
- * the room it replaced.
+ * the room it replaced. An arrangement the room has no space for the class
+ * in stays in the list, greyed, with the class size it does seat.
  */
 export function RoomSetupSection({
   studentsCount,
   hasTables,
+  features,
   onSetUp,
   focusRequest = 0,
 }: {
   studentsCount: number;
   hasTables: boolean;
-  onSetUp: (type: TableTemplateType) => void;
+  /** The room's elements: where the board hangs turns every arrangement. */
+  features: readonly ClassroomFeature[];
+  onSetUp: (choice: RoomSetupChoice) => void;
   /** Counts up whenever the setup is asked for (Ctrl/⌘+E), to take the focus. */
   focusRequest?: number;
 }) {
@@ -65,20 +89,67 @@ export function RoomSetupSection({
   const hintId = React.useId();
   const firstRowRef = React.useRef<HTMLButtonElement | null>(null);
   const presets = getTablePresets();
+  const arrangements = useRoomArrangementOptions(studentsCount, features);
   const labels: Record<TableTemplateType, string> = {
     single: t('sceneInspector.setupSingle'),
     double: t('sceneInspector.setupDouble'),
     group4: t('sceneInspector.setupGroup4'),
     group6: t('sceneInspector.setupGroup6'),
   };
-  const tableCount = (type: TableTemplateType) =>
-    t('sceneInspector.tables', {
-      count: Math.ceil(studentsCount / presets[type].seatCount),
-    });
-  // A room that has its tables is seldom set up again, so the four kinds
-  // fold into a menu there; in an empty room they are the first step and
-  // stand as rows.
-  const asMenu = hasTables && studentsCount > 0;
+  const hasStudents = studentsCount > 0;
+  // A room that has its tables is seldom set up again, so the choices fold
+  // into a menu there; in an empty room they are the first step and stand as
+  // rows.
+  const asMenu = hasTables && hasStudents;
+
+  const rows: InspectorMenuRow[] = [
+    ...SETUP_TYPES.map((type) => ({
+      key: type,
+      label: labels[type],
+      icon: (
+        <SetupIcon>
+          <TablePreview type={type} iconSize={20} />
+        </SetupIcon>
+      ),
+      meta: hasStudents
+        ? t('sceneInspector.tables', {
+            count: Math.ceil(studentsCount / presets[type].seatCount),
+          })
+        : undefined,
+      onSelect: () => onSetUp(type),
+    })),
+    ...arrangements.map((option, index) => {
+      const fits = studentsCount <= option.capacity;
+      return {
+        key: option.id,
+        label: t(`sceneInspector.arrangement.${option.id}`),
+        icon: (
+          <SetupIcon>
+            <ArrangementPreview tables={option.tables} />
+          </SetupIcon>
+        ),
+        meta: !hasStudents
+          ? undefined
+          : fits
+            ? t('sceneInspector.tables', { count: option.tables.length })
+            : t('sceneInspector.setupUpTo', { count: option.capacity }),
+        disabled: !fits,
+        separatorBefore: index === 0,
+        onSelect: () => onSetUp(option.id),
+      };
+    }),
+    {
+      key: 'random',
+      label: t('sceneInspector.setupRandom'),
+      icon: (
+        <SetupIcon>
+          <DiceFiveIcon size={20} aria-hidden="true" />
+        </SetupIcon>
+      ),
+      separatorBefore: true,
+      onSelect: () => onSetUp('random'),
+    },
+  ];
 
   React.useEffect(() => {
     if (focusRequest === 0) return undefined;
@@ -88,12 +159,11 @@ export function RoomSetupSection({
     return () => cancelAnimationFrame(frame);
   }, [focusRequest]);
 
-  const hint =
-    studentsCount === 0
-      ? t('sceneInspector.setupNoStudents')
-      : hasTables
-        ? t('sceneInspector.setupReplaceHint')
-        : t('sceneInspector.setupHint');
+  const hint = !hasStudents
+    ? t('sceneInspector.setupNoStudents')
+    : hasTables
+      ? t('sceneInspector.setupReplaceHint')
+      : t('sceneInspector.setupHint');
 
   return (
     <InspectorSection
@@ -107,13 +177,7 @@ export function RoomSetupSection({
             menuLabel={t('sceneInspector.setup')}
             focusRequest={focusRequest}
             describedBy={hintId}
-            rows={SETUP_TYPES.map((type) => ({
-              key: type,
-              label: labels[type],
-              icon: <TablePreview type={type} iconSize={20} />,
-              meta: tableCount(type),
-              onSelect: () => onSetUp(type),
-            }))}
+            rows={rows}
           />
           <p id={hintId} className="text-xs text-(--text-muted)">
             {hint}
@@ -127,26 +191,33 @@ export function RoomSetupSection({
           {/* The rows carry their own padding, as in a menu; the section's
               edge stays in line with the heading. */}
           <div className="-mx-3 flex flex-col">
-            {SETUP_TYPES.map((type, index) => (
-              <button
-                key={type}
-                ref={index === 0 ? firstRowRef : undefined}
-                type="button"
-                onClick={() => onSetUp(type)}
-                disabled={studentsCount === 0}
-                aria-describedby={hintId}
-                className={menuItemClass}
-              >
-                <span aria-hidden="true" className="flex shrink-0">
-                  <TablePreview type={type} iconSize={20} />
-                </span>
-                <span className="min-w-0 flex-1 truncate">{labels[type]}</span>
-                {studentsCount > 0 && (
-                  <span className="shrink-0 text-xs tabular-nums text-(--text-muted)">
-                    {tableCount(type)}
-                  </span>
+            {rows.map((row, index) => (
+              <React.Fragment key={row.key}>
+                {row.separatorBefore && (
+                  <div
+                    className="mx-3 my-1 h-px bg-(--border-card)"
+                    role="separator"
+                  />
                 )}
-              </button>
+                <button
+                  ref={index === 0 ? firstRowRef : undefined}
+                  type="button"
+                  onClick={row.onSelect}
+                  disabled={!hasStudents || row.disabled}
+                  aria-describedby={hintId}
+                  className={menuItemClass}
+                >
+                  <span aria-hidden="true" className="flex shrink-0">
+                    {row.icon}
+                  </span>
+                  <span className="min-w-0 flex-1 truncate">{row.label}</span>
+                  {row.meta && (
+                    <span className="shrink-0 text-xs tabular-nums text-(--text-muted)">
+                      {row.meta}
+                    </span>
+                  )}
+                </button>
+              </React.Fragment>
             ))}
           </div>
         </>

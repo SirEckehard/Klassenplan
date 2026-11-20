@@ -282,14 +282,17 @@ export const RELATION_WEIGHTS = {
 /**
  * Widest gap, in pixels of the 900×600 room, between seats of two tables that
  * still counts as "directly beside": about 45 cm, as a double desk is 55 px
- * deep. A wider gap is an aisle. "Neu einrichten" leaves 15 to 60 px.
+ * deep. A wider gap is an aisle. "Neu einrichten" leaves 15 to 60 px between
+ * desks and sets group tables further apart.
  */
 export const ADJACENT_GAP = 40;
 
 /**
  * Widest gap between two tables that still counts as pushed together: a grid
  * step, about 11 cm. Tables pushed together round a corner or face to face
- * are one group (decision 0031); "Neu einrichten" leaves no gap this narrow.
+ * are one group (decision 0031). "Neu einrichten" leaves no gap this narrow
+ * between tables of one kind; its arrangements push desks together on purpose
+ * (decision 0053).
  */
 export const JOIN_GAP = 10;
 

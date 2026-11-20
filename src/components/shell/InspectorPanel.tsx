@@ -646,6 +646,8 @@ export type InspectorMenuRow = {
    * then announce no pressed state at all.
    */
   checked?: boolean;
+  /** The row cannot be chosen now; its meta says why — an arrangement too small for the class. */
+  disabled?: boolean;
   onSelect: () => void;
   /**
    * Renaming the entry, as a pencil beside it — as the header's class menu
@@ -789,6 +791,7 @@ export function InspectorMenuButton({
                   }
                   onClick={() => choose(row.onSelect)}
                   aria-pressed={row.checked}
+                  disabled={row.disabled}
                 >
                   {row.icon && (
                     <span aria-hidden="true" className="flex shrink-0">

@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - The class list explains an attribute when you point at it or press and hold it, as the seating plan does
 - "Mark" at the top of the class list sets an attribute on many students and replaces the "Attributes" view
 - "Save room as a file …" in the room's inspector passes a room to a colleague without saving it as a template first
+- "Set up from scratch" offers seven seating arrangements, from a horseshoe to desks facing the walls, and puts a new room together at random
 
 ### Improved
 
@@ -20,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - On a phone and an upright tablet the class list shows attributes as icons and unfolds them with an arrow
 - On a wide screen the class list names the wish and distance partners in their attribute
 - "Relationships" shows contradictions and who has not been named yet at the top, and a line per student with their wishes in order and how often they were named
+- "Set up from scratch" spreads group tables evenly through the room and turns every layout towards the board, wherever it hangs
 
 ### Fixed
 

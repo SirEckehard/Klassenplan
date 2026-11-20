@@ -12,7 +12,7 @@ const setup = ({
     snapshot: vi.fn(),
     onTemplateChange: vi.fn(),
     onLoadTemplateAsRoom: vi.fn(),
-    onTableTypeChange: vi.fn(),
+    onRoomSetUp: vi.fn(),
     clearSelection: vi.fn(),
     setDrawerOpen: vi.fn(),
     unfoldInspector: vi.fn(),
@@ -30,18 +30,18 @@ describe('useRoomSetup', () => {
   // The undo history has to hold the room before it is replaced, or Ctrl+Z
   // after a stray click would bring back nothing.
   it('keeps the room in the undo history before setting it up anew', () => {
-    const { result, snapshot, onTemplateChange, onTableTypeChange } = setup();
+    const { result, snapshot, onTemplateChange, onRoomSetUp } = setup();
 
     act(() => result.current.setUpRoom('double'));
 
     expect(snapshot).toHaveBeenCalledTimes(1);
     expect(onTemplateChange).toHaveBeenCalledWith(null);
-    expect(onTableTypeChange).toHaveBeenCalledWith('double', true);
+    expect(onRoomSetUp).toHaveBeenCalledWith('double', true);
     expect(snapshot.mock.invocationCallOrder[0]).toBeLessThan(
       onTemplateChange.mock.invocationCallOrder[0],
     );
     expect(snapshot.mock.invocationCallOrder[0]).toBeLessThan(
-      onTableTypeChange.mock.invocationCallOrder[0],
+      onRoomSetUp.mock.invocationCallOrder[0],
     );
   });
 

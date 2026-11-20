@@ -758,9 +758,14 @@ afterwards.
   room, the open one checked, a pencil and a bin beside each — the removal asks
   first, takes the room's plans and mixes along and spares the open room and the
   last one — then "Neuer Raum", a row that names the room before it is made.
-  Then "Neu einrichten" places as many tables of one kind as the class needs and
-  replaces the tables after an undo snapshot (`useRoomSetup`) — four rows in an
-  empty room, a menu ("Tischart wählen …") once tables stand; "Vorlagen" keeps
+  Then "Neu einrichten" replaces the tables after an undo snapshot
+  (`useRoomSetup`), towards the wall the board hangs on: as many tables of one
+  kind as the class needs, one of seven arrangements — each row with a small
+  picture of the room it builds, greyed with the class size it seats where the
+  room has no space for the class — or "Zufällige Anordnung", which puts a room
+  together from zones under the room's rules and names them to a screen reader
+  (decision 0053); rows in an empty room, a menu
+  ("Aufstellung wählen …") once tables stand; "Vorlagen" keeps
   this room for other classes — named in a row of the panel, after the room,
   where a name a template already carries is not saved over by Enter but offers
   "Vorlage „…“ ersetzen" as a row of its own — and opens a kept one as a room of

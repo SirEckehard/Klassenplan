@@ -287,8 +287,9 @@ test(
       // release that long-lifted finger: the browser threw, and the room gave
       // way to the error boundary on every touch screen.
       // An iPad in portrait draws the room turned a quarter (600 × 900,
-      // `data-turn`); the floor at (200, 300) of the stored room is found
-      // where the turn draws it.
+      // `data-turn`); the floor at (100, 300) of the stored room — behind the
+      // back row's desk, which stands in the middle (decision 0053) — is
+      // found where the turn draws it.
       const roomSvg = canvas.locator(
         'svg[viewBox="0 0 900 600"], svg[viewBox="0 0 600 900"]',
       );
@@ -296,10 +297,10 @@ test(
       const turn = await roomSvg.getAttribute('data-turn');
       const drawn =
         turn === '90'
-          ? { x: (600 - 300) / 600, y: 200 / 900 }
+          ? { x: (600 - 300) / 600, y: 100 / 900 }
           : turn === '270'
-            ? { x: 300 / 600, y: (900 - 200) / 900 }
-            : { x: 200 / 900, y: 300 / 600 };
+            ? { x: 300 / 600, y: (900 - 100) / 900 }
+            : { x: 100 / 900, y: 300 / 600 };
       const floor = {
         x: room.x + room.width * drawn.x,
         y: room.y + room.height * drawn.y,

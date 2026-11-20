@@ -16,17 +16,18 @@ describe('arrangeTables', () => {
     const tables = arrangeTables('group4', 7);
     expect(tables).toHaveLength(7);
 
-    // With new layout: 4 per row, so 7 tables = 4 in first row, 3 in second row
-    const yPositions = [...new Set(tables.map((t) => t.y))].sort(
+    // Two lanes, four rows deep: three full rows and one at the back, in the
+    // middle (decision 0053).
+    const depths = [...new Set(tables.map((t) => Math.round(t.x)))].sort(
       (a, b) => a - b,
     );
-    expect(yPositions).toHaveLength(2); // Should have exactly 2 rows
-
-    const topRowTables = tables.filter((t) => t.y === yPositions[0]);
-    const bottomRowTables = tables.filter((t) => t.y === yPositions[1]);
-
-    expect(topRowTables).toHaveLength(4); // 4 tables in first row
-    expect(bottomRowTables).toHaveLength(3); // 3 tables in second row
+    expect(depths).toHaveLength(4);
+    const back = tables.filter((t) => Math.round(t.x) === depths[0]);
+    expect(back).toHaveLength(1);
+    expect(back[0].y + back[0].height / 2).toBeCloseTo(
+      CLASSROOM_HEIGHT / 2,
+      -1,
+    );
 
     // All tables should be within canvas bounds
     tables.forEach((table) => {
@@ -68,17 +69,18 @@ describe('arrangeTables', () => {
     const tables = arrangeTables('double', 8);
     expect(tables).toHaveLength(8);
 
-    // With new layout: 3 tables per column, so 8 tables = 3 columns (3+3+2)
-    const yPositions = Array.from(new Set(tables.map((t) => t.y))).sort(
-      (a, b) => a - b,
-    );
-    expect(yPositions).toHaveLength(3); // Should have 3 unique Y positions (3 tables per column max)
-
-    // Should have 3 unique X positions (3 columns for 8 tables: 3+3+2)
+    // Three desks to a row along the board, so 8 desks = 3 rows (3+3+2)
     const xPositions = Array.from(new Set(tables.map((t) => t.x))).sort(
-      (a, b) => b - a, // descending (right to left)
+      (a, b) => a - b, // the back row first
     );
     expect(xPositions).toHaveLength(3);
+
+    // The row that does not fill stands at the back, in the middle
+    const back = tables.filter((t) => t.x === xPositions[0]);
+    expect(back).toHaveLength(2);
+    const middle =
+      back.reduce((sum, t) => sum + t.y + t.height / 2, 0) / back.length;
+    expect(middle).toBeCloseTo(CLASSROOM_HEIGHT / 2, -1);
 
     // All tables should be within canvas bounds
     tables.forEach((table) => {
@@ -249,13 +251,15 @@ describe('arrangeTables', () => {
       expect(group4XPositions[0]).toBeGreaterThan(group4XPositions[1]);
       expect(group4XPositions[1]).toBeGreaterThan(group4XPositions[2]);
 
-      // Test group6 tables: should arrange from right to left
+      // Test group6 tables: two side by side at the front, one behind
       const group6Tables = arrangeTables('group6', 3);
-      const group6XPositions = group6Tables
-        .map((t) => t.x)
-        .sort((a, b) => b - a);
-      expect(group6XPositions[0]).toBeGreaterThan(group6XPositions[1]);
-      expect(group6XPositions[1]).toBeGreaterThan(group6XPositions[2]);
+      const group6XPositions = [
+        ...new Set(group6Tables.map((t) => Math.round(t.x))),
+      ].sort((a, b) => b - a);
+      expect(group6XPositions).toHaveLength(2);
+      expect(
+        group6Tables.filter((t) => Math.round(t.x) === group6XPositions[0]),
+      ).toHaveLength(2);
 
       // Test double tables: should arrange from right to left
       const doubleTables = arrangeTables('double', 4);
@@ -268,7 +272,7 @@ describe('arrangeTables', () => {
       }
     });
 
-    it('centers tables horizontally in available space', () => {
+    it('centers desks in the available space, group tables towards the board', () => {
       const singleTables = arrangeTables('single', 1);
       const doubleTables = arrangeTables('double', 1);
       const group4Tables = arrangeTables('group4', 1);
@@ -287,7 +291,8 @@ describe('arrangeTables', () => {
       // Expected center = CANVAS_MARGIN + availableWidth / 2
       const expectedCenter = CANVAS_MARGIN + availableWidth / 2;
 
-      // All tables should be approximately centered (within grid snap tolerance)
+      // Desks are centred (within grid snap tolerance); group tables stand
+      // nearer the board than the back wall, the teacher's room left free.
       const tolerance = 10; // Allow for grid snapping
       expect(Math.abs(singleCenter - expectedCenter)).toBeLessThanOrEqual(
         tolerance,
@@ -295,12 +300,10 @@ describe('arrangeTables', () => {
       expect(Math.abs(doubleCenter - expectedCenter)).toBeLessThanOrEqual(
         tolerance,
       );
-      expect(Math.abs(group4Center - expectedCenter)).toBeLessThanOrEqual(
-        tolerance,
-      );
-      expect(Math.abs(group6Center - expectedCenter)).toBeLessThanOrEqual(
-        tolerance,
-      );
+      for (const center of [group4Center, group6Center]) {
+        expect(center).toBeGreaterThan(expectedCenter);
+        expect(center).toBeLessThan(CLASSROOM_WIDTH - BOARD_WIDTH - 105);
+      }
     });
 
     it('fits a sensible number of tables into the room', () => {

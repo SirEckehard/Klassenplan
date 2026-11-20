@@ -129,6 +129,12 @@ double desks for the 26 students of the second room, two of them needing the
 seat beside free and every fifth left-handed; the six rooms before it gave the
 same plans, seed for seed, after the two criteria came.
 
+On 2026-11-20 "Neu einrichten" changed the three rooms it builds here
+([decision 0053](decisions/0053-room-arrangements.md)): the fourteenth double
+desk stands at the back in the middle, the group tables in even lanes further
+apart. Double desks came to 89.5 %, groups of four to 90.1 %, groups of six
+to 87.5 %, at the same times; the other four rooms gave the same figures.
+
 What a run of plans comes to — wishes taking turns, friends staying together, pairs repeating — is measured by `src/utils/algorithm/__tests__/mixRuns.test.ts` (`MIX_RUNS=1 npx vitest run mixRuns --silent=false`): six plans one after the other in three rooms, 30 seeds each, about 20 s; its figures are in [decision 0033](decisions/0033-wishes-take-turns.md).
 
 The cooling schedule was checked on the score itself, 20 seeds of 26 students at double desks: the default reached −173.5 (90.1 % fulfilment, 18 ms), cooling at 0.99 −176.1 (90.1 %, 48 ms), at 0.995 with 200 swaps per step −179.8 (91.0 %, 384 ms). One annealing comes close to its best, so the schedule stays and "Mischen" takes three starts instead, which settle what one leaves to chance for little time. A second refinement after a mix is a coin toss ([decision 0027](decisions/0027-one-mix-session.md#appendix-the-measurement-of-2026-09-14)).

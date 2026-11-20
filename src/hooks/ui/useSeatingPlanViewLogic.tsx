@@ -273,7 +273,7 @@ export function useSeatingPlanViewLogic({
   } = useTemplateManager(classroomScene);
 
   // Builds the room from one kind of table or from a template
-  const { handleTemplateChange, handleTypeChange } = useClassroomSetup({
+  const { handleTemplateChange, handleSetUp } = useClassroomSetup({
     students,
     templates,
     classroomScene,
@@ -557,7 +557,7 @@ export function useSeatingPlanViewLogic({
         onCanvasContextMenuSetterChange={registerCanvasContextMenuSetter}
         onCloseFeatureContextMenu={closeFeatureContextMenu}
         onFeatureContextMenuSetterChange={registerFeatureContextMenuSetter}
-        onTableTypeChange={handleTypeChange}
+        onRoomSetUp={handleSetUp}
         onTemplateChange={handleTemplateChangeWrapper}
         onLoadTemplateAsRoom={handleLoadTemplateAsRoom}
         onRoomReplaced={handleRoomReplaced}

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
-import type { TableTemplateType } from '@/types';
+import type { RoomSetupChoice } from '@/types';
 
 interface UseRoomSetupParams {
   /** No tables stand in the room. */
@@ -17,8 +17,11 @@ interface UseRoomSetupParams {
    * room that was open keeps its plan.
    */
   onLoadTemplateAsRoom: (templateId: number) => void;
-  /** Rebuilds the tables from one kind; `force` ignores a loaded template. */
-  onTableTypeChange: (type: TableTemplateType, force?: boolean) => void;
+  /**
+   * Rebuilds the tables from one kind or an arrangement; `force` ignores a
+   * loaded template.
+   */
+  onRoomSetUp: (choice: RoomSetupChoice, force?: boolean) => void;
   /** Lets the canvas selection go, tables and room elements alike. */
   clearSelection: () => void;
   setDrawerOpen: (open: boolean) => void;
@@ -57,7 +60,7 @@ export function useRoomSetup({
   snapshot,
   onTemplateChange,
   onLoadTemplateAsRoom,
-  onTableTypeChange,
+  onRoomSetUp,
   clearSelection,
   setDrawerOpen,
   unfoldInspector,
@@ -86,12 +89,12 @@ export function useRoomSetup({
   }, [isRoomEmpty, showPanel]);
 
   const setUpRoom = React.useCallback(
-    (type: TableTemplateType) => {
+    (choice: RoomSetupChoice) => {
       snapshot();
       onRoomReplaced?.();
       onTemplateChange(null);
       // Forced: the template just let go of is still selected in this render.
-      onTableTypeChange(type, true);
+      onRoomSetUp(choice, true);
       if (!isDesktop) {
         setDrawerOpen(false);
       }
@@ -99,7 +102,7 @@ export function useRoomSetup({
     [
       isDesktop,
       onRoomReplaced,
-      onTableTypeChange,
+      onRoomSetUp,
       onTemplateChange,
       setDrawerOpen,
       snapshot,

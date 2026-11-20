@@ -1,14 +1,19 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import type {
   Student,
   ClassroomScene,
   TableTemplateType,
   ClassroomTemplate,
+  RoomArrangementId,
+  RoomSetupChoice,
 } from '@/types';
 import { getTablePresets } from '@/utils';
+import { announce } from '@/utils/ui/toast';
 import arrangeTables from '@/utils/algorithm/autoArrange';
+import { arrangeRoom } from '@/utils/algorithm/arrangements';
 
 export interface UseClassroomSetupOptions {
   /**
@@ -73,11 +78,13 @@ export interface UseClassroomSetupReturn {
    */
   handleTemplateChange: (templateId: number | null) => void;
   /**
-   * Change the table type (auto-generates new layout)
-   * @param type - The table template type to use
-   * @param force - If true, generates tables even when a template is selected
+   * Sets the room up anew ("Neu einrichten"): as many tables of one kind as
+   * the class needs, an arrangement, or an arrangement at random (decision
+   * 0053). The board stays where it hangs and the tables face it.
+   * @param choice - What to set the room up with
+   * @param force - If true, sets up even when a template is selected
    */
-  handleTypeChange: (type: TableTemplateType, force?: boolean) => void;
+  handleSetUp: (choice: RoomSetupChoice, force?: boolean) => void;
   /**
    * Manually trigger classroom setup with specified table type
    * Generates tables based on student count
@@ -147,7 +154,7 @@ export function useClassroomSetup(
       const preset = getTablePresets()[type];
       setClassroomScene((prev) => {
         const needed = Math.ceil(students.length / preset.seatCount);
-        const tables = arrangeTables(type, needed);
+        const tables = arrangeTables(type, needed, prev);
         return { ...prev, totalStudents: students.length, tables };
       });
     },
@@ -190,15 +197,45 @@ export function useClassroomSetup(
     [templates, setClassroomScene],
   );
 
-  // Handle table type change
-  const handleTypeChange = useCallback(
-    (type: TableTemplateType, force = false) => {
-      // Generate tables if no template is selected OR force is true
-      if (force || selectedTemplate === null) {
-        ensureTables(type);
+  // The arrangement a random setup last fell back on, so the next one differs.
+  const lastRandomRef = useRef<RoomArrangementId | undefined>(undefined);
+  const { t } = useTranslation('generator');
+
+  const handleSetUp = useCallback(
+    (choice: RoomSetupChoice, force = false) => {
+      // Set up if no template is selected OR force is true
+      if (!force && selectedTemplate !== null) return;
+      // Chosen here rather than in the updater, which may run twice.
+      const { tables, arrangement, zones } = arrangeRoom(
+        choice,
+        students.length,
+        classroomScene,
+        { previous: lastRandomRef.current },
+      );
+      // The room on screen shows the result; what chance put together is said.
+      if (zones) {
+        announce(
+          t('sceneInspector.setupComposed', {
+            zones: zones
+              .map((zone) => t(`sceneInspector.zone.${zone}`))
+              .join(', '),
+          }),
+        );
+      } else if (choice === 'random' && arrangement) {
+        lastRandomRef.current = arrangement;
+        announce(
+          t('sceneInspector.setupRandomDone', {
+            name: t(`sceneInspector.arrangement.${arrangement}`),
+          }),
+        );
       }
+      setClassroomScene((prev) => ({
+        ...prev,
+        totalStudents: students.length,
+        tables,
+      }));
     },
-    [ensureTables, selectedTemplate],
+    [classroomScene, selectedTemplate, setClassroomScene, students.length, t],
   );
 
   // Manually trigger classroom setup (for Quick Setup)
@@ -221,7 +258,7 @@ export function useClassroomSetup(
     templates,
     selectedTemplate,
     handleTemplateChange,
-    handleTypeChange,
+    handleSetUp,
     triggerQuickSetup,
   };
 }

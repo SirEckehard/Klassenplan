@@ -9,6 +9,26 @@
  */
 export type TableTemplateType = 'double' | 'single' | 'group4' | 'group6';
 
+/**
+ * A sitting order "Neu einrichten" builds from the four kinds of table
+ * (decision 0053): what it places is tables like any other, nothing marks
+ * the room as one afterwards.
+ */
+export type RoomArrangementId =
+  | 'horseshoe'
+  | 'herringbone'
+  | 'arena'
+  | 'islands'
+  | 'conference'
+  | 'marketplace'
+  | 'walls';
+
+/**
+ * What "Neu einrichten" sets a room up with: as many tables of one kind as the
+ * class needs, an arrangement, or an arrangement chosen at random.
+ */
+export type RoomSetupChoice = TableTemplateType | RoomArrangementId | 'random';
+
 export type ClassroomFeatureType =
   'window' | 'door' | 'board' | 'podium' | 'whiteboard' | 'cabinet' | 'divider';
 
