@@ -351,14 +351,13 @@
     }
   },
   "card": {
-    "mix": "In the mix: {{criteria}}",
-    "mixOff": "Off in the mix right now: {{criteria}}",
-    "criterion": "{{criterion}} · {{importance}}",
     "offShort": "does not count in the mix right now",
     "count_one": "{{count}} attribute",
     "count_other": "{{count}} attributes",
     "none": "No attributes yet",
-    "changed": "Attributes changed on {{date}}"
+    "changed": "Attributes changed on {{date}}",
+    "mixHeading": "In the mix",
+    "offNote": "Does not count in the mix right now."
   },
   "expand": {
     "expand": "Show the attributes of {{name}}",

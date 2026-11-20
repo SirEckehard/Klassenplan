@@ -38,6 +38,7 @@ import {
   type SuspendedWeights,
 } from '@/hooks/ui/useMixCriteria';
 import { useMixRecipes } from '@/hooks/ui/useMixRecipes';
+import { LEVEL_BAR_CLASS } from './ImportanceMeter';
 import {
   InspectorIcon,
   InspectorRow,
@@ -87,18 +88,6 @@ type CriterionFulfillmentProps = Omit<
   fulfillment?: CriterionFulfillment;
   /** Its marking is the pinned one. */
   pinned: boolean;
-};
-
-/**
- * How tall each level's bar stands. "Off" is the step before the first: a
- * dash on the baseline, so the scale reads as one run from nothing to much —
- * and "Beachten" stands taller than wide, or it reads as a dot.
- */
-const LEVEL_BAR_CLASS: Record<MixImportance, string> = {
-  off: 'h-1',
-  consider: 'h-2.5',
-  important: 'h-3.5',
-  essential: 'h-4.5',
 };
 
 /**

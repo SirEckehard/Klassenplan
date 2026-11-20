@@ -98,7 +98,10 @@ describe('the card of a badge', () => {
     const card = screen.getByRole('tooltip');
     expect(card).toHaveTextContent(/Unruhig|Restless/);
     expect(card).toHaveTextContent(/Beim Mischen|In the mix/);
-    expect(card).toHaveTextContent(/Unruhe · Wichtig|Restlessness · Important/);
+    // A line per criterion the badge feeds: restlessness and distraction.
+    expect(card).toHaveTextContent(
+      /(Beim Mischen|In the mix)(Unruhe|Restlessness)(Wichtig|Important)(Ablenkbarkeit|Distractibility)/,
+    );
 
     fireEvent.pointerOver(rowOf('b'), { pointerType: 'mouse' });
     expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
@@ -110,8 +113,12 @@ describe('the card of a badge', () => {
     expect(badge('a', 'restless')).not.toHaveClass('data-chip-off');
 
     fireEvent.pointerOver(badge('a', 'leftHanded'), { pointerType: 'mouse' });
-    expect(screen.getByRole('tooltip')).toHaveTextContent(
-      /gerade aus: Linkshänder|Off in the mix right now: Left-handers/i,
+    const card = screen.getByRole('tooltip');
+    expect(card).toHaveTextContent(
+      /(Beim Mischen|In the mix)(Linkshänder|Left-handers)(Aus|Off)/i,
+    );
+    expect(card).toHaveTextContent(
+      /Zählt beim Mischen gerade nicht|Does not count in the mix right now/,
     );
   });
 

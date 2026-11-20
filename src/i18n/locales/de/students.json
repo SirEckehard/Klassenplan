@@ -351,14 +351,13 @@
     }
   },
   "card": {
-    "mix": "Beim Mischen: {{criteria}}",
-    "mixOff": "Beim Mischen gerade aus: {{criteria}}",
-    "criterion": "{{criterion}} · {{importance}}",
     "offShort": "zählt beim Mischen gerade nicht",
     "count_one": "{{count}} Merkmal",
     "count_other": "{{count}} Merkmale",
     "none": "Noch keine Merkmale",
-    "changed": "Merkmale geändert am {{date}}"
+    "changed": "Merkmale geändert am {{date}}",
+    "mixHeading": "Beim Mischen",
+    "offNote": "Zählt beim Mischen gerade nicht."
   },
   "expand": {
     "expand": "Merkmale von {{name}} aufklappen",

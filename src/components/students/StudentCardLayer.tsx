@@ -3,10 +3,7 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
-import {
-  CalendarBlankIcon,
-  SlidersHorizontalIcon,
-} from '@phosphor-icons/react';
+import { CalendarBlankIcon } from '@phosphor-icons/react';
 import type { MixSettings, Student } from '@/types';
 import {
   criterionImportance,
@@ -30,6 +27,11 @@ import {
   badgeFamilyLabelKey,
   shownBadges,
 } from '@/components/scene/BadgeTooltip';
+import {
+  CRITERIA_FAMILY_MAP,
+  CRITERIA_ICON_MAP,
+} from '@/utils/ui/criteriaIcons';
+import ImportanceMeter from '@/components/ui/controls/ImportanceMeter';
 import StudentAvatar from './StudentAvatar';
 
 type Props = {
@@ -57,7 +59,7 @@ export default function StudentCardLayer({
 
   if (card.kind === 'profile') {
     return createPortal(
-      <FloatingCard rect={card.rect}>
+      <FloatingCard rect={card.rect} wide>
         <ProfileCard student={student} badges={badges} />
       </FloatingCard>,
       document.body,
@@ -68,7 +70,7 @@ export default function StudentCardLayer({
   if (shown.length === 0) return null;
   const isMore = card.badgeKey === BADGE_MORE_KEY;
   return createPortal(
-    <FloatingCard rect={card.rect}>
+    <FloatingCard rect={card.rect} wide>
       <BadgeLines badges={shown} isMore={isMore} />
       {!isMore && mixSettings && (
         <MixNote badgeKey={card.badgeKey} mixSettings={mixSettings} />
@@ -79,9 +81,11 @@ export default function StudentCardLayer({
 }
 
 /**
- * What the mix makes of a badge: the criteria it feeds and how important
- * each is, or that none of them counts right now — which is why its chip is
- * drawn dashed in the list.
+ * What the mix makes of a badge, built as the card's head is: a heading,
+ * then a line per criterion it feeds — the criterion's icon and name, and
+ * its importance as the criteria panel draws it, the scale with the word
+ * beside it. Where every criterion is off, a line says the badge does not
+ * count now, which is why its chip is drawn dashed in the list.
  */
 function MixNote({
   badgeKey,
@@ -94,33 +98,46 @@ function MixNote({
   const criteria = getShownBadgeCriteria(badgeKey);
   if (criteria.length === 0) return null;
   const levels = criteria.map((key) => ({
-    label: t(`generator:mix.criteria.${key}.label`),
+    key,
     level: criterionImportance(mixSettings, key),
   }));
   const allOff = levels.every(({ level }) => level === 'off');
-  const text = allOff
-    ? t('students:card.mixOff', {
-        criteria: levels.map(({ label }) => label).join(', '),
-      })
-    : t('students:card.mix', {
-        criteria: levels
-          .map(({ label, level }) =>
-            t('students:card.criterion', {
-              criterion: label,
-              importance: t(`generator:mix.importance.${level}`),
-            }),
-          )
-          .join(', '),
-      });
   return (
-    <p className="flex items-start gap-1.5 border-t border-(--border-card) pt-2 text-xs text-(--text-muted)">
-      <SlidersHorizontalIcon
-        size={14}
-        aria-hidden="true"
-        className="mt-px shrink-0"
-      />
-      {text}
-    </p>
+    <div className="flex flex-col gap-1 border-t border-(--border-card) pt-2">
+      <span className={`${dataHeadingClass} text-(--text-muted)`}>
+        {t('students:card.mixHeading')}
+      </span>
+      {/* Three columns — the criterion, its scale, its word — so the
+          scales stand one under another: the word's column is as wide as
+          the longest word in this card, and a long name wraps in its own. */}
+      <div className="grid grid-cols-[minmax(0,1fr)_auto_auto] items-center gap-x-2 gap-y-1">
+        {levels.map(({ key, level }) => {
+          const Icon = CRITERIA_ICON_MAP[key];
+          const family = CRITERIA_FAMILY_MAP[key];
+          return (
+            <React.Fragment key={key}>
+              <span className="flex min-w-0 items-center gap-1.5 text-sm text-(--text-page)">
+                <Icon
+                  size={14}
+                  aria-hidden="true"
+                  className={`${dataFamilyClass[family]} shrink-0 text-(--data-chip-text)`}
+                />
+                {t(`generator:mix.criteria.${key}.label`)}
+              </span>
+              <ImportanceMeter value={level} family={family} />
+              <span className="text-xs whitespace-nowrap text-(--text-muted)">
+                {t(`generator:mix.importance.${level}`)}
+              </span>
+            </React.Fragment>
+          );
+        })}
+      </div>
+      {allOff && (
+        <span className="text-xs text-(--text-muted)">
+          {t('students:card.offNote')}
+        </span>
+      )}
+    </div>
   );
 }
 

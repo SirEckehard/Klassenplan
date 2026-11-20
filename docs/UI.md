@@ -549,9 +549,14 @@ afterwards.
   `BRUSH_MARKERS` as well as in the inspector.
 - **A marker explains itself where it stands** (decision 0051). Under a mouse
   or a pen a badge in the list opens the card a badge on a seat opens
-  (`BadgeLines` in `FloatingCard`), with a line on what the mix makes of it —
-  the criteria it feeds and their importance, or that they are off
-  (`getShownBadgeCriteria`); a partner badge lights the rows of the classmates
+  (`BadgeLines` in `FloatingCard`), and under "Beim Mischen" a line per
+  criterion it feeds (`getShownBadgeCriteria`) — its icon and name, and its
+  importance as the criteria panel draws it — its three bars, without the
+  panel's dash for "Aus", which is a step to press only there
+  (`ImportanceMeter`) — with the word beside it, in three columns so the scales stand one under
+  another; the card
+  is a little wider than a seat's (`FloatingCard wide`) — and where all are off, that it
+  does not count now; a partner badge lights the rows of the classmates
   it names in the social family's colour, as a badge on a seat lights seats.
   The pointer resting on a name or a face opens the student at a glance: the
   markers by family and the day they last changed (`markersUpdatedAt`). A

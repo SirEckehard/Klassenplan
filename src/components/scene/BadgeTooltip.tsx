@@ -24,6 +24,8 @@ export const badgeFamilyLabelKey = (family: DataFamily) =>
 
 /** Half the tooltip's widest, plus a margin to the window edge. */
 const EDGE_CLEARANCE = 136;
+/** The same for a wide card (`wide`). */
+const WIDE_EDGE_CLEARANCE = 152;
 /** Below this distance to the top of the window the tooltip opens downwards. */
 const ROOM_ABOVE = 140;
 
@@ -123,23 +125,28 @@ export function shownBadges(
 export function FloatingCard({
   rect,
   children,
-  className = '',
+  wide = false,
 }: {
   rect: HoveredBadge['rect'];
   children: React.ReactNode;
-  className?: string;
+  /**
+   * 288px instead of 256px: the class list's card, whose lines on the mix
+   * hold a criterion, its scale and a word side by side.
+   */
+  wide?: boolean;
 }) {
   const viewportWidth = window.innerWidth;
+  const clearance = wide ? WIDE_EDGE_CLEARANCE : EDGE_CLEARANCE;
   const centerX = Math.min(
-    Math.max(rect.left + rect.width / 2, EDGE_CLEARANCE),
-    Math.max(EDGE_CLEARANCE, viewportWidth - EDGE_CLEARANCE),
+    Math.max(rect.left + rect.width / 2, clearance),
+    Math.max(clearance, viewportWidth - clearance),
   );
   const above = rect.top > ROOM_ABOVE;
 
   return (
     <div
       role="tooltip"
-      className={`${menuSurfaceClass} pointer-events-none fixed z-50 flex max-w-64 flex-col gap-2 px-3 py-2 ${className}`}
+      className={`${menuSurfaceClass} pointer-events-none fixed z-50 flex flex-col gap-2 px-3 py-2 ${wide ? 'max-w-72' : 'max-w-64'}`}
       style={{
         left: centerX,
         top: above ? rect.top - 6 : rect.top + rect.height + 6,
