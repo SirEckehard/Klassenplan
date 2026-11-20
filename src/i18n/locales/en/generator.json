@@ -186,7 +186,7 @@
       },
       "share": {
         "title": "Sharing",
-        "body": "“Save as file” in a room template’s or a preset’s inspector writes a file without student data – for colleagues or another device."
+        "body": "“Save room as a file …” and “Save preset as a file …” under “Sharing” in the inspector write a file without student data – for colleagues or another device."
       }
     }
   },
@@ -1233,6 +1233,8 @@
     "setupChoose": "Choose a table type …",
     "openTemplate": "Open a template …",
     "openTemplateFile": "Open a room from file …",
+    "saveRoomFile": "Save room as a file …",
+    "share": "Sharing",
     "renameTemplateNamed": "Rename “{{name}}”",
     "deleteTemplateNamed": "Delete “{{name}}”",
     "renameRoomNamed": "Rename “{{name}}”",
@@ -1524,7 +1526,7 @@
       "standardHint": "“Default” stays as it is – the way back to the basic settings. You can change the other presets and your own."
     },
     "share": {
-      "save": "Save as file",
+      "savePreset": "Save preset as a file …",
       "openTemplate": "Room template from file …",
       "openPreset": "Preset from file …",
       "templateFile": "Room template",

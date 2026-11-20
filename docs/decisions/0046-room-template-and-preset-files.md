@@ -81,3 +81,14 @@ Both open the same file dialog, and the file's content still decides: a preset
 picked through the first entry is added as a preset. The room layer's
 "Vorlagen" offers "Raum aus Datei öffnen …" below its menu of templates, the
 teacher's word for what the file brings there; the template joins that menu.
+
+## Addendum of 2026-11-20: "Weitergeben", apart from the templates
+
+A file leaves the browser, a template stays in it, so the two no longer share a
+section (the maintainer's choice of 2026-11-20). The room's inspector ends with
+"Weitergeben": "Raum als Datei speichern …", once tables stand, writes the open
+room as the same template file without a template kept first, and "Raum aus
+Datei öffnen …" moved there from "Vorlagen". In "Bibliothek" the inspector of a
+template and of a preset ends with the same section and the same words: "Raum
+als Datei speichern …" (once it has tables, as before) and "Voreinstellung als
+Datei speichern …", where both said "Als Datei speichern".

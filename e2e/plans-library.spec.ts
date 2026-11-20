@@ -363,7 +363,7 @@ test('"Bibliothek" adds a preset and a room template', async ({ page }) => {
     });
     await page
       .getByRole('complementary', { name: 'Bibliothek' })
-      .getByRole('button', { name: 'Als Datei speichern' })
+      .getByRole('button', { name: 'Raum als Datei speichern …' })
       .click();
     const downloading = page.waitForEvent('download');
     await page

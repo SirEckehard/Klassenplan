@@ -80,13 +80,6 @@ export default function TemplatePanel({
               t('sceneInspector.seats', { count: seats }),
             ].join(' · ')}
           </ValueRow>
-          <InspectorActionRow
-            icon={DownloadIcon}
-            label={t('library.share.save')}
-            // A room without tables is nothing to hand on.
-            disabled={template.scene.tables.length === 0}
-            onClick={onSaveFile}
-          />
           {/* In the section it speaks of, not loose under the panel. */}
           <p className="text-xs text-(--text-muted)">
             {template.scene.tables.length > 0
@@ -94,6 +87,17 @@ export default function TemplatePanel({
               : t('library.template.emptyHint')}
           </p>
         </InspectorSection>
+        {/* A file leaves the browser, as in the room's inspector; a room
+            without tables is nothing to hand on. */}
+        {template.scene.tables.length > 0 && (
+          <InspectorSection title={t('sceneInspector.share')}>
+            <InspectorActionRow
+              icon={DownloadIcon}
+              label={t('sceneInspector.saveRoomFile')}
+              onClick={onSaveFile}
+            />
+          </InspectorSection>
+        )}
       </InspectorBody>
       <InspectorDeleteFooter
         label={t('library.template.delete')}

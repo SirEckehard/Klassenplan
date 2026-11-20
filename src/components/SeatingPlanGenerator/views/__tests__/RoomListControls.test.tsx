@@ -7,7 +7,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import '@/i18n';
 import type { RoomRecord, SavedPlan } from '@/types';
 import { confirmInlineQuestion, createMockSavedPlan } from '@/__tests__/utils';
-import { RoomListControls, RoomTemplatesSection } from '../RoomSetupSections';
+import { RoomListControls, RoomShareSection } from '../RoomSetupSections';
 
 const mocks = vi.hoisted(() => ({
   rooms: [] as RoomRecord[],
@@ -257,18 +257,10 @@ describe('RoomListControls', () => {
   });
 });
 
-describe('RoomTemplatesSection', () => {
+describe('RoomShareSection', () => {
   it("opens a colleague's template from a file through the file dialog", async () => {
     const user = userEvent.setup();
-    render(
-      <RoomTemplatesSection
-        templates={[]}
-        onSave={vi.fn().mockResolvedValue(true)}
-        onLoad={vi.fn()}
-        onRename={vi.fn()}
-        onDelete={vi.fn()}
-      />,
-    );
+    render(<RoomShareSection hasTables={false} onSaveFile={vi.fn()} />);
 
     await user.click(
       screen.getByRole('button', {
@@ -276,5 +268,19 @@ describe('RoomTemplatesSection', () => {
       }),
     );
     expect(mocks.triggerImport).toHaveBeenCalledTimes(1);
+  });
+
+  it('saves the room as a file once it has tables', async () => {
+    const user = userEvent.setup();
+    const onSaveFile = vi.fn();
+    const { rerender } = render(
+      <RoomShareSection hasTables={false} onSaveFile={onSaveFile} />,
+    );
+    const saveName = /Raum als Datei speichern|Save room as a file/i;
+    expect(screen.queryByRole('button', { name: saveName })).toBeNull();
+
+    rerender(<RoomShareSection hasTables onSaveFile={onSaveFile} />);
+    await user.click(screen.getByRole('button', { name: saveName }));
+    expect(onSaveFile).toHaveBeenCalledTimes(1);
   });
 });

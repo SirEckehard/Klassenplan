@@ -143,13 +143,6 @@ export default function PresetPanel({
               onClick={onRestore}
             />
           )}
-          {(!preset.builtin || preset.changed) && (
-            <InspectorActionRow
-              icon={DownloadIcon}
-              label={t('library.share.save')}
-              onClick={onSaveFile}
-            />
-          )}
           {/* In the section it speaks of, not loose under the panel. */}
           <p className="text-xs text-(--text-muted)">
             {readOnly
@@ -164,6 +157,17 @@ export default function PresetPanel({
           allCriteria
           readOnly={readOnly}
         />
+        {/* Last, as in every inspector that hands something on; a shipped
+            preset unchanged is in every copy of the app already. */}
+        {(!preset.builtin || preset.changed) && (
+          <InspectorSection title={t('sceneInspector.share')}>
+            <InspectorActionRow
+              icon={DownloadIcon}
+              label={t('library.share.savePreset')}
+              onClick={onSaveFile}
+            />
+          </InspectorSection>
+        )}
       </InspectorBody>
       {!preset.builtin && (
         <InspectorDeleteFooter

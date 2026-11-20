@@ -1,6 +1,6 @@
 # The Interface
 
-> **Status:** current · **Last reviewed:** 2026-11-19 · **Source of truth:**
+> **Status:** current · **Last reviewed:** 2026-11-20 · **Source of truth:**
 > `src/components/shell/`, `src/components/SeatingPlanGenerator/`,
 > `src/contexts/InspectorContext.tsx`
 
@@ -365,7 +365,8 @@ afterwards.
   names what it brings, chosen in the columns and taken back by undo, and a
   backup is restored as from the toolbar's foot. A template with tables, an own
   preset and a changed shipped one are saved as such a file from their panel
-  ("Als Datei speichern"), which the status bar's line confirms. The page reads
+  ("Raum als Datei speichern …", "Voreinstellung als Datei speichern …" under
+  "Weitergeben"), which the status bar's line confirms. The page reads
   the inspector and `ClassDialogsProvider` itself, so it renders inside
   `ShellProviders` (`shell/AppShell.tsx`), whose `AppShell` then nests no second
   set — above them its hooks got the inert fallbacks.
@@ -763,9 +764,12 @@ afterwards.
   this room for other classes — named in a row of the panel, after the room,
   where a name a template already carries is not saved over by Enter but offers
   "Vorlage „…“ ersetzen" as a row of its own — and opens a kept one as a room of
-  its own from a menu of the same shape, renamed and removed there too, and
-  "Raum aus Datei öffnen …" adds a colleague's template to that menu (decision 0046)
-  (`RoomSetupSections`). That is where a room is rebuilt, not a dialog over the
+  its own from a menu of the same shape, renamed and removed there too;
+  "Weitergeben", a section of its own since a template stays in this browser
+  and a file leaves it, writes the room as a file ("Raum als Datei speichern …",
+  once tables stand) and adds a colleague's to the templates ("Raum aus Datei
+  öffnen …", decision 0046) (`RoomSetupSections`); the inspectors of a template
+  and a preset in "Bibliothek" end with the same section. That is where a room is rebuilt, not a dialog over the
   canvas; Ctrl/⌘+E lets the selection go and leads there, below `lg` the
   inspector's switch in the status bar is the way there — no second button above
   the canvas repeats it — and an empty room opens the drawer by itself.

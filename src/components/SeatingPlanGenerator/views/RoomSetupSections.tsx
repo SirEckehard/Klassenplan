@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import {
   ArrowsClockwiseIcon,
   CheckIcon,
+  DownloadIcon,
   FloppyDiskIcon,
   PlusIcon,
   UploadIcon,
@@ -342,8 +343,7 @@ const SAVED_NOTE_MS = 3000;
  * Rooms kept for other classes: this one saved as a template — named in the
  * panel, after the room — and the kept ones in a menu shaped as the header's
  * class menu — a click opens one as a room of its own, the pencil renames it
- * here in the panel, the bin removes it after asking — and one from a
- * colleague's file, which then joins that menu (decision 0046).
+ * here in the panel, the bin removes it after asking (decision 0046).
  */
 export function RoomTemplatesSection({
   templates,
@@ -367,7 +367,6 @@ export function RoomTemplatesSection({
 }) {
   const { t } = useTranslation('generator');
   const state = useOptionalSeatingPlanState();
-  const actions = useOptionalSeatingPlanActions();
   const [renamingId, setRenamingId] = React.useState<number | null>(null);
   const [saving, setSaving] = React.useState(false);
   // The row that saved says so for a few seconds, as the gear's update check
@@ -473,6 +472,34 @@ export function RoomTemplatesSection({
             onDone={() => setRenamingId(null)}
           />
         </div>
+      )}
+    </InspectorSection>
+  );
+}
+
+/**
+ * The room as a file, apart from the templates: a template stays in this
+ * browser, a file goes to a colleague or another device. One from a
+ * colleague's file joins the templates (decision 0046).
+ */
+export function RoomShareSection({
+  hasTables,
+  onSaveFile,
+}: {
+  hasTables: boolean;
+  onSaveFile: () => void;
+}) {
+  const { t } = useTranslation('generator');
+  const actions = useOptionalSeatingPlanActions();
+  if (!hasTables && !actions) return null;
+  return (
+    <InspectorSection title={t('sceneInspector.share')}>
+      {hasTables && (
+        <InspectorActionRow
+          icon={DownloadIcon}
+          label={t('sceneInspector.saveRoomFile')}
+          onClick={onSaveFile}
+        />
       )}
       {actions && (
         <InspectorActionRow

@@ -267,6 +267,7 @@ export function useSeatingPlanViewLogic({
     selectedTemplateId,
     setSelectedTemplateId,
     handleSaveTemplate,
+    handleSaveRoomFile,
     handleDeleteTemplate,
     handleRenameTemplate,
   } = useTemplateManager(classroomScene);
@@ -526,6 +527,7 @@ export function useSeatingPlanViewLogic({
         students={students}
         templates={templates}
         handleSaveTemplate={handleSaveTemplate}
+        handleSaveRoomFile={handleSaveRoomFile}
         handleDeleteTemplate={handleDeleteTemplate}
         handleRenameTemplate={handleRenameTemplate}
         canvasWidth={canvasWidth}

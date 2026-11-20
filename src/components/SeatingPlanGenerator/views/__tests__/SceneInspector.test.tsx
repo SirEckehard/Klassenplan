@@ -120,6 +120,7 @@ const renderInspector = (
   const onRenameTemplate = vi.fn(() => Promise.resolve({ success: true }));
   const onDeleteTemplate = vi.fn();
   const onSaveTemplate = vi.fn(() => Promise.resolve(true));
+  const onSaveRoomFile = vi.fn(() => Promise.resolve());
   const element = (
     overrides: Partial<React.ComponentProps<typeof SceneInspector>>,
   ) => (
@@ -139,6 +140,7 @@ const renderInspector = (
       onRenameTemplate={onRenameTemplate}
       onDeleteTemplate={onDeleteTemplate}
       onSaveTemplate={onSaveTemplate}
+      onSaveRoomFile={onSaveRoomFile}
       snapshot={snapshot}
       onRotateSelection={onRotateSelection}
       runSceneTransaction={runSceneTransaction}
@@ -169,6 +171,7 @@ const renderInspector = (
     onRenameTemplate,
     onDeleteTemplate,
     onSaveTemplate,
+    onSaveRoomFile,
   };
 };
 
@@ -363,6 +366,19 @@ describe('SceneInspector', () => {
     expect(saved).toHaveTextContent(/2 (Tische|tables) · 6 (Plätze|seats)/);
     fireEvent.click(saved);
     expect(onLoadTemplate).toHaveBeenCalledWith(7);
+  });
+
+  // A file leaves the browser, a template stays: a section of its own.
+  it('saves the room as a file under "Weitergeben"', () => {
+    const { onSaveRoomFile } = renderInspector({});
+    const share = screen.getByRole('heading', { name: /Weitergeben|Sharing/ });
+    expect(share).toBeInTheDocument();
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: /^(Raum als Datei speichern|Save room as a file) …$/,
+      }),
+    );
+    expect(onSaveRoomFile).toHaveBeenCalledWith('Raum');
   });
 
   // Named in the panel, not in a dialog over the canvas.

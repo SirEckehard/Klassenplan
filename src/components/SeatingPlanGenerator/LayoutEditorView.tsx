@@ -98,6 +98,8 @@ type Props = {
   students: Student[];
   templates: ClassroomTemplate[];
   handleSaveTemplate: (name: string, overwriteId?: number) => Promise<boolean>;
+  /** Writes the room as a file under the name given. */
+  handleSaveRoomFile: (name: string) => Promise<void>;
   handleDeleteTemplate: (id?: number) => void;
   handleRenameTemplate: (
     id: number,
@@ -178,6 +180,7 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
   students,
   templates,
   handleSaveTemplate,
+  handleSaveRoomFile,
   handleDeleteTemplate,
   handleRenameTemplate,
   canvasWidth,
@@ -1078,6 +1081,7 @@ const LayoutEditorView = React.memo(function LayoutEditorView({
           onRenameTemplate={handleRenameTemplate}
           onDeleteTemplate={handleDeleteTemplate}
           onSaveTemplate={handleSaveTemplate}
+          onSaveRoomFile={handleSaveRoomFile}
           snapshot={snapshot}
           onRotateSelection={commitRotations}
           runSceneTransaction={runSceneTransaction}

@@ -5,7 +5,10 @@ import type { ClassroomTemplate, ClassroomScene } from '@/types';
 import { announce, showToast, TOAST_MESSAGES } from '@/utils/ui/toast';
 import { logError } from '@/utils';
 import { useTemplateService } from './useTemplateService';
-import { subscribeToSharedImports } from '@/hooks/library/useShareFiles';
+import {
+  subscribeToSharedImports,
+  useShareFiles,
+} from '@/hooks/library/useShareFiles';
 import type { TemplateServiceError } from './useTemplateService';
 
 /**
@@ -126,6 +129,16 @@ export default function useTemplateManager(classroomScene: ClassroomScene) {
   );
 
   /**
+   * Writes the room as a file for a colleague, as "Bibliothek" writes a
+   * template — the same room a template would keep, and no template needed.
+   */
+  const { saveTemplateFile } = useShareFiles();
+  const handleSaveRoomFile = React.useCallback(
+    (name: string) => saveTemplateFile({ name, scene: classroomScene }),
+    [classroomScene, saveTemplateFile],
+  );
+
+  /**
    * Delete a template
    */
   const handleDeleteTemplate = React.useCallback(
@@ -178,6 +191,7 @@ export default function useTemplateManager(classroomScene: ClassroomScene) {
     selectedTemplateId,
     setSelectedTemplateId,
     handleSaveTemplate,
+    handleSaveRoomFile,
     handleDeleteTemplate,
     handleRenameTemplate,
   };

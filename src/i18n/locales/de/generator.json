@@ -186,7 +186,7 @@
       },
       "share": {
         "title": "Weitergeben",
-        "body": "„Als Datei speichern“ im Inspektor einer Raumvorlage oder Voreinstellung schreibt eine Datei ohne Schülerdaten – für Kolleginnen und Kollegen oder ein anderes Gerät."
+        "body": "„Raum als Datei speichern …“ und „Voreinstellung als Datei speichern …“ unter „Weitergeben“ im Inspektor schreiben eine Datei ohne Schülerdaten – für Kolleginnen und Kollegen oder ein anderes Gerät."
       }
     }
   },
@@ -1233,6 +1233,8 @@
     "setupChoose": "Tischart wählen …",
     "openTemplate": "Vorlage öffnen …",
     "openTemplateFile": "Raum aus Datei öffnen …",
+    "saveRoomFile": "Raum als Datei speichern …",
+    "share": "Weitergeben",
     "renameTemplateNamed": "„{{name}}“ umbenennen",
     "deleteTemplateNamed": "„{{name}}“ löschen",
     "renameRoomNamed": "„{{name}}“ umbenennen",
@@ -1524,7 +1526,7 @@
       "standardHint": "„Standard“ bleibt, wie er ist – der Weg zurück zu den Grundeinstellungen. Ändern kannst du die anderen Voreinstellungen und deine eigenen."
     },
     "share": {
-      "save": "Als Datei speichern",
+      "savePreset": "Voreinstellung als Datei speichern …",
       "openTemplate": "Raumvorlage aus Datei …",
       "openPreset": "Voreinstellung aus Datei …",
       "templateFile": "Raumvorlage",

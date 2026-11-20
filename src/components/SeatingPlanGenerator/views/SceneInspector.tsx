@@ -41,6 +41,7 @@ import { TOUR_ANCHORS } from '@/components/onboarding/tours';
 import {
   RoomListControls,
   RoomSetupSection,
+  RoomShareSection,
   RoomTemplatesSection,
 } from '@/components/SeatingPlanGenerator/views/RoomSetupSections';
 import {
@@ -103,6 +104,8 @@ type Props = {
    * resolves with whether it was kept.
    */
   onSaveTemplate: (name: string, overwriteId?: number) => Promise<boolean>;
+  /** Writes this room as a file for a colleague, under the name given. */
+  onSaveRoomFile: (name: string) => Promise<void>;
   /** Takes an undo snapshot before a change lands. */
   snapshot: () => void;
   /** Sets rotations of tables and room elements and commits the scene. */
@@ -214,6 +217,7 @@ export default function SceneInspector({
   onRenameTemplate,
   onDeleteTemplate,
   onSaveTemplate,
+  onSaveRoomFile,
   snapshot,
   onRotateSelection,
   runSceneTransaction,
@@ -549,6 +553,12 @@ export default function SceneInspector({
             onLoad={onLoadTemplate}
             onRename={onRenameTemplate}
             onDelete={onDeleteTemplate}
+          />
+          <RoomShareSection
+            hasTables={tables.length > 0}
+            onSaveFile={() =>
+              void onSaveRoomFile(openRoomName ?? t('sceneInspector.room'))
+            }
           />
         </InspectorBody>
       </>
