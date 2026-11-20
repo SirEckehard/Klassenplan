@@ -899,6 +899,10 @@ afterwards.
   `ConfirmDialog`, which counts what goes (`confirmFacts`); for a class and for
   all data its row "Backup sichern" ends the question and starts the backup; a
   room with plans comes back afterwards as well, so its dialog only counts.
+  "Stand vor dem Update …" counts two states instead, now and from before,
+  side by side (`comparison`, `compareClassFacts`): a row that differs stands
+  in full ink with its difference, and a class only one of them holds is named
+  below.
 - **A message stands where it belongs, and is rarely a card** (decision 0037).
   What the screen shows is not said again — a plan that opened, a class made, a
   room deleted after its question — but heard by a screen reader (`announce`). A

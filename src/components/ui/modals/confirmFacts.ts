@@ -2,7 +2,7 @@
 // Copyright (C) 2026 Eike Schäfer
 import type { ClassRecord } from '@/types';
 import i18n from '@/i18n';
-import type { ConfirmFact } from './ConfirmDialog';
+import type { ConfirmComparison, ConfirmFact } from './ConfirmDialog';
 
 /** What a question counts, in the words of the language on screen. */
 type FactKind =
@@ -92,4 +92,35 @@ export function allDataFacts(
     fact('photos', beside.photos),
     fact('cardFiles', beside.cardFiles),
   ];
+}
+
+/**
+ * The classes of two states counted side by side: how many classes, students,
+ * rooms, plans and mixes each holds. The label takes the larger count's form.
+ */
+export function compareClassFacts(
+  first: readonly ClassContents[],
+  second: readonly ClassContents[],
+): ConfirmComparison['rows'] {
+  const counts: [FactKind, (entry: ClassContents) => number][] = [
+    ['classes', () => 1],
+    ['students', (entry) => entry.students.length],
+    ['rooms', (entry) => entry.rooms?.length ?? 0],
+    ['plans', (entry) => entry.seatingHistory.length],
+    ['mixes', (entry) => entry.mixHistory.length],
+  ];
+  const sum = (
+    classes: readonly ClassContents[],
+    count: (entry: ClassContents) => number,
+  ) => classes.reduce((total, entry) => total + count(entry), 0);
+  return counts.map(([kind, count]) => {
+    const pair = [sum(first, count), sum(second, count)] as const;
+    return {
+      label: i18n.t(`dialogs.facts.${kind}`, {
+        ns: 'common',
+        count: Math.max(...pair),
+      }),
+      counts: pair,
+    };
+  });
 }

@@ -110,7 +110,11 @@
     "beforeUpdate": {
       "title": "Stand vor dem Update wiederherstellen?",
       "meta": "Vom {{date}}, aufbewahrt bis {{until}}",
-      "message": "Die Klassen von damals ersetzen alle Klassen von jetzt. Was du seit dem Update an ihnen geändert hast, geht verloren.",
+      "now": "Jetzt",
+      "before": "Vor dem Update",
+      "onlyNow": "Nur jetzt: {{names}}",
+      "onlyBefore": "Nur vor dem Update: {{names}}",
+      "message": "Seit dem Update speichert Klassenplan deine Klassen auf eine neue, schnellere Art. Den Stand von vorher hebt es zur Sicherheit 30 Tage lang auf, falls bei der Umstellung etwas verloren gegangen ist. Fehlt dir nichts, brauchst du ihn nicht. Stellst du ihn wieder her, ersetzt er alle Klassen von jetzt – was du seit dem Update geändert hast, geht verloren.",
       "confirm": "Wiederherstellen"
     },
     "cannotUndo": "Das lässt sich nicht rückgängig machen.",

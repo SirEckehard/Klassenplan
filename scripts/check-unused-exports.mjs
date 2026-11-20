@@ -33,6 +33,11 @@ const rootDir = path.resolve(
  * Lower it whenever a cleanup drops the real count — that is what makes the
  * ratchet tighten. Raising it needs a reason in the same commit.
  *
+ * 24 (2026-11-20): `compareClassFacts` in `components/ui/modals/confirmFacts.ts`
+ * is reached only through `useDataBackup`'s `import()` of that module, which
+ * the tool does not follow; it compares the classes of now with those from
+ * before the update in the restore's question.
+ *
  * 25 (2026-10-29): the cleanup removed what nothing called (the dead modules
  * `useIndexedDBState` and `responsiveViewBox`, functions only their tests
  * called, unused re-exports and defaults, the shared test helpers no test
@@ -60,7 +65,7 @@ const rootDir = path.resolve(
  * import to leave the initial bundle, and the tool does not follow `import()`;
  * `exportAllAsJson` is the one export of it no test imports statically.
  */
-const BASELINE = 23;
+const BASELINE = 24;
 
 const IGNORE_FILES = 'vite-env.d.ts|index.tsx|App.tsx';
 

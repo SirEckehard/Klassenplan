@@ -39,8 +39,12 @@ const collectionOf = (...names: string[]): ClassCollectionState => {
 };
 
 describe('restoring the classes from before the update', () => {
-  const now = collectionOf('7a');
-  const before = collectionOf('7a', '8b');
+  const now = collectionOf('7a', '9c');
+  const older = collectionOf('8b');
+  const before: ClassCollectionState = {
+    ...now,
+    classes: [now.classes[0]!, ...older.classes],
+  };
   const exportAllAsJson = vi.fn();
   const importAllFromJson = vi.fn();
 
@@ -92,15 +96,21 @@ describe('restoring the classes from before the update', () => {
     );
   });
 
-  it('counts what goes, the classes there are now', async () => {
+  it('compares the classes there are now with those from before', async () => {
     confirmDialog.mockResolvedValue(false);
 
     await restore();
 
     const [question] = confirmDialog.mock.calls[0]!;
-    expect(question.facts.map((fact: { count: number }) => fact.count)).toEqual(
-      expect.arrayContaining([1]),
-    );
+    expect(question.comparison.columns).toEqual(['Jetzt', 'Vor dem Update']);
+    expect(question.comparison.rows[0]).toEqual({
+      label: 'Klassen',
+      counts: [2, 2],
+    });
+    expect(question.comparison.notes).toEqual([
+      'Nur jetzt: 9c',
+      'Nur vor dem Update: 8b',
+    ]);
     expect(importAllFromJson).not.toHaveBeenCalled();
   });
 

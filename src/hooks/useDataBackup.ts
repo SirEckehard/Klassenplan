@@ -14,6 +14,7 @@ import { decryptJson, encryptJson } from '@/utils/data/backupCrypto';
 import type { BackupImportOutcome } from '@/services/backup/dataBackup';
 import type { SharedFile } from '@/utils/data/shareFiles';
 import i18n from '@/i18n';
+import type { ClassRecord } from '@/types';
 import {
   BACKUP_FILE_EXTENSION,
   BACKUP_FILE_MEDIA_TYPE,
@@ -320,11 +321,24 @@ export default function useDataBackup({
         showToast('info', 'toast:backup.beforeUpdateGone');
         return;
       }
-      const [{ confirmDialog }, { allDataFacts }] = await Promise.all([
+      const [{ confirmDialog }, { compareClassFacts }] = await Promise.all([
         loadConfirmDialog(),
         loadConfirmFacts(),
       ]);
       const now = currentResult.success ? currentResult.data.classes : [];
+      const before = retired.collection.classes;
+      const namesOnlyIn = (
+        classes: readonly ClassRecord[],
+        other: readonly ClassRecord[],
+      ) => {
+        const ids = new Set(other.map((entry) => entry.id));
+        return classes
+          .filter((entry) => !ids.has(entry.id))
+          .map((entry) => entry.name)
+          .join(', ');
+      };
+      const onlyNow = namesOnlyIn(now, before);
+      const onlyBefore = namesOnlyIn(before, now);
       const confirmed = await confirmDialog({
         icon: ClockCounterClockwiseIcon,
         title: i18n.t('common:dialogs.beforeUpdate.title'),
@@ -332,13 +346,21 @@ export default function useDataBackup({
           date: formatLongDate(retired.retiredAt),
           until: formatLongDate(retired.keptUntil),
         }),
-        facts: allDataFacts(now, {
-          templates: 0,
-          presets: 0,
-          duties: 0,
-          photos: 0,
-          cardFiles: 0,
-        }),
+        comparison: {
+          columns: [
+            i18n.t('common:dialogs.beforeUpdate.now'),
+            i18n.t('common:dialogs.beforeUpdate.before'),
+          ],
+          rows: compareClassFacts(now, before),
+          notes: [
+            onlyNow &&
+              i18n.t('common:dialogs.beforeUpdate.onlyNow', { names: onlyNow }),
+            onlyBefore &&
+              i18n.t('common:dialogs.beforeUpdate.onlyBefore', {
+                names: onlyBefore,
+              }),
+          ].filter((note): note is string => !!note),
+        },
         message: i18n.t('common:dialogs.beforeUpdate.message'),
         confirmLabel: i18n.t('common:dialogs.beforeUpdate.confirm'),
       });

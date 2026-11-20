@@ -13,6 +13,17 @@ import {
 /** One line of what goes with a deletion: "Sitzpläne 7". */
 export type ConfirmFact = { label: string; count: number };
 
+/**
+ * Two states side by side instead of one count: "Schüler 24 · 26". A row
+ * counts each state; the second column says how far it differs from the
+ * first, and `notes` name what the figures cannot (a class only one has).
+ */
+export type ConfirmComparison = {
+  columns: readonly [string, string];
+  rows: readonly { label: string; counts: readonly [number, number] }[];
+  notes?: readonly string[];
+};
+
 type Props = {
   open: boolean;
   /** The question, naming the thing: „8b“ löschen? */
@@ -23,6 +34,8 @@ type Props = {
   meta?: string;
   /** What goes with it, in figures; a line that counts nothing is left out. */
   facts?: readonly ConfirmFact[];
+  /** Two states compared, in place of `facts`. */
+  comparison?: ConfirmComparison;
   /** What the figures do not say. */
   message?: string;
   /** A way out first: the backup before a class goes. Ends the question. */
@@ -59,6 +72,7 @@ export default function ConfirmDialog({
   icon: IconComponent,
   meta,
   facts = [],
+  comparison,
   message,
   way,
   confirmLabel,
@@ -123,6 +137,8 @@ export default function ConfirmDialog({
         </ul>
       )}
 
+      {comparison && <ComparisonTable comparison={comparison} />}
+
       {message && (
         <p
           id={messageId}
@@ -168,5 +184,77 @@ export default function ConfirmDialog({
         </button>
       </div>
     </Modal>
+  );
+}
+
+const signed = (difference: number): string =>
+  difference > 0 ? `+${difference}` : `\u2212${-difference}`;
+
+/**
+ * The two states as a table: a row that differs stands in full ink with its
+ * difference beside the second figure, a row both share recedes.
+ */
+function ComparisonTable({ comparison }: { comparison: ConfirmComparison }) {
+  const rows = comparison.rows.filter(
+    (row) => row.counts[0] > 0 || row.counts[1] > 0,
+  );
+  return (
+    <div className="px-5 pt-2 text-sm">
+      <table className="w-full border-collapse">
+        <thead>
+          <tr className="border-b border-(--border-card) text-xs text-(--text-muted)">
+            <td className="py-2" />
+            {comparison.columns.map((column) => (
+              <th
+                key={column}
+                scope="col"
+                className="py-2 pl-4 text-right font-normal"
+              >
+                {column}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-(--border-card)">
+          {rows.map(({ label, counts: [first, second] }) => {
+            const difference = second - first;
+            const differs = difference !== 0;
+            const tone = differs
+              ? 'font-semibold text-(--text-page)'
+              : 'text-(--text-muted)';
+            return (
+              <tr key={label}>
+                <th
+                  scope="row"
+                  className={`py-2 text-left font-normal ${differs ? 'text-(--text-page)' : 'text-(--text-muted)'}`}
+                >
+                  {label}
+                </th>
+                <td className={`py-2 pl-4 text-right tabular-nums ${tone}`}>
+                  {first}
+                </td>
+                <td className={`py-2 pl-4 text-right tabular-nums ${tone}`}>
+                  {differs && (
+                    <span className="mr-2 text-xs font-normal text-(--text-muted)">
+                      {signed(difference)}
+                    </span>
+                  )}
+                  {second}
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+      {comparison.notes && comparison.notes.length > 0 && (
+        <ul className="pt-2 text-(--text-page)">
+          {comparison.notes.map((note) => (
+            <li key={note} className="py-0.5">
+              {note}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
   );
 }

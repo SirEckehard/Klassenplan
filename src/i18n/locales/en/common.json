@@ -110,7 +110,11 @@
     "beforeUpdate": {
       "title": "Restore the data from before the update?",
       "meta": "From {{date}}, kept until {{until}}",
-      "message": "The classes from then replace every class there is now. Whatever you changed in them since the update is lost.",
+      "now": "Now",
+      "before": "Before the update",
+      "onlyNow": "Only now: {{names}}",
+      "onlyBefore": "Only before the update: {{names}}",
+      "message": "Since the update, Klassenplan stores your classes in a new, faster way. To be safe, it keeps them as they were before for 30 days, in case anything went missing in the switch. If nothing is missing, you don't need this. Restoring it replaces every class there is now – whatever you changed since the update is lost.",
       "confirm": "Restore"
     },
     "cannotUndo": "This cannot be undone.",
