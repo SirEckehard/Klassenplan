@@ -207,6 +207,11 @@ export {
   hasAvoidPartners,
   isWishPair,
 } from './student/partnerUtils';
+export { describeClassRelations } from './student/classRelations';
+export type {
+  ClassRelations,
+  StudentRelations,
+} from './student/classRelations';
 
 // ===== Name Formatting =====
 export {

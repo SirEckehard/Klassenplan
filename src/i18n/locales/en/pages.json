@@ -293,7 +293,7 @@
       "description": "How preferred partners, distance wishes, and special needs influence the calculation.",
       "relations": {
         "q": "Where can I see all the wishes of the class at a glance?",
-        "a": "On the class layer under “View › Relationships”. It shows who would like to sit next to whom and who wants some distance, and marks the pairs who chose each other. Clicking a name opens that student in the inspector."
+        "a": "On the class layer under “View › Relationships”. At the top stand contradictions – a wish whose partner wants to sit apart –, who has not been named by anybody yet, who has no wish of their own yet, and the mutual pairs. Below, every student has a line with their wishes in order, how often they were named and whom they want to sit apart from; it can be sorted by how often someone was named. A click opens the student in the inspector."
       },
       "multi": {
         "q": "How do multiple preferred and distant partners work?",

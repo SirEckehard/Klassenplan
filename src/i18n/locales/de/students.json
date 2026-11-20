@@ -366,23 +366,45 @@
     "edit": "Bearbeiten"
   },
   "relations": {
-    "avoidHeading": "Distanzpartner",
-    "countAvoids_one": "{{count}} Distanzwunsch",
-    "countAvoids_other": "{{count}} Distanzwünsche",
-    "countMutual_one": "davon {{count}} gegenseitig",
-    "countMutual_other": "davon {{count}} gegenseitig",
-    "countWishes_one": "{{count}} Wunsch",
-    "countWishes_other": "{{count}} Wünsche",
-    "description": "Wer möchte neben wem sitzen – und wer lieber nicht. Wähle einen Schüler aus und passe die Wünsche an.",
-    "mutual": "gegenseitig",
+    "columns": {
+      "student": "Schüler",
+      "wishes": "Möchte neben",
+      "namedBy": "Wunsch von",
+      "avoids": "Distanz zu"
+    },
+    "contradiction": "– {{to}} wünscht aber Distanz",
+    "contradictionTag": "Widerspruch",
+    "description": "Wer möchte neben wem sitzen – und wer lieber nicht. Ein Klick auf einen Schüler öffnet ihn im Inspektor.",
+    "findings": {
+      "title": "Auffälligkeiten",
+      "contradictions_one": "Widerspruch",
+      "contradictions_other": "Widersprüche",
+      "namedByNobody_one": "noch von niemandem genannt",
+      "namedByNobody_other": "noch von niemandem genannt",
+      "withoutWish_one": "noch ohne eigenen Wunsch",
+      "withoutWish_other": "noch ohne eigenen Wunsch",
+      "mutual_one": "gegenseitiges Paar",
+      "mutual_other": "gegenseitige Paare"
+    },
+    "mutualPair": "{{a}} und {{b}} wünschen sich gegenseitig",
+    "mutualWish": "{{name}} (gegenseitig)",
+    "namedByList": "Wunsch von {{names}}",
+    "namedByNobodyHint": "Niemand hat sie als Wunschpartner genannt. Vielleicht lohnt eine Nachfrage.",
+    "namedCount_one": "{{count}}× genannt",
+    "namedCount_other": "{{count}}× genannt",
     "noRelations": "Für diese Klasse ist noch kein Wunsch und kein Distanzpartner eingetragen.",
     "noRelationsHint": "Wünsche kannst du für jeden Schüler im Inspektor unter „Soziales“ hinzufügen.",
-    "noneInGroup": "Nichts eingetragen.",
-    "oneSided": "einseitig",
+    "nobody": "niemand",
+    "rankedWish": "{{name}} ({{rank}}. Wunsch)",
+    "sort": {
+      "label": "Sortieren",
+      "class": "Wie die Klassenliste",
+      "rarely": "Selten genannt",
+      "often": "Oft genannt"
+    },
+    "summary": "Möchte neben: {{wishes}}. {{named}}. Distanz zu: {{avoids}}.",
     "title": "Beziehungen",
     "unknownStudent": "Unbekannt",
-    "wishHeading": "Wunschpartner",
-    "withoutWishHeading": "Noch ohne Wunsch",
     "withoutWishHint": "Frage bei Bedarf deine Schüler nach einem Wunsch."
   },
   "listStatus": {

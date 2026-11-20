@@ -64,6 +64,7 @@ it says so instead of reconstructing one.
 | [0049](0049-a-key-per-class.md)                      | Every class under a key of its own                                       |
 | [0050](0050-automatic-backup.md)                     | A backup that writes itself, under a password set once                   |
 | [0051](0051-markers-in-the-class-list.md)            | The class list explains its markers, and a brush replaces the focus mode |
+| [0052](0052-relations-findings-first.md)             | The relations view: what deserves a look first, then a line per student  |
 
 ## Reasons still to be recorded
 

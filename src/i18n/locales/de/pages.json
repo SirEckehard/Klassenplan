@@ -293,7 +293,7 @@
       "description": "Wie Wunschpartner, Distanzwünsche und Förderbedarfe in die Berechnung einfließen.",
       "relations": {
         "q": "Wo sehe ich alle Wünsche der Klasse auf einen Blick?",
-        "a": "In der Ebene Klasse unter „Ansicht › Beziehungen“. Die Ansicht zeigt, wer neben wem sitzen möchte und wer Abstand wünscht, und markiert Paare, die sich gegenseitig gewählt haben. Ein Klick auf einen Namen öffnet den Schüler im Inspektor."
+        "a": "In der Ebene Klasse unter „Ansicht › Beziehungen“. Oben stehen Widersprüche – ein Wunsch, von dem der andere Abstand wünscht –, wer noch von niemandem genannt wurde, wer selbst noch keinen Wunsch hat und die gegenseitigen Paare. Darunter hat jeder Schüler eine Zeile mit seinen Wünschen in ihrer Reihenfolge, wie oft er genannt wurde und zu wem er Abstand wünscht; sortieren lässt sie sich danach, wie oft jemand genannt wurde. Ein Klick öffnet den Schüler im Inspektor."
       },
       "multi": {
         "q": "Wie funktionieren mehrere Wunsch- und Distanzpartner?",

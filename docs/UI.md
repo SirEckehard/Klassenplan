@@ -515,10 +515,24 @@ afterwards.
   aside.
 - **Two ways into the same student data.** The roster answers "who is in this
   class" and, with the brush in its head, "who is restless"; `RelationsView`
-  answers who wants to sit next to whom across the class — a card per pair
-  with both faces, the pairs both sides named marked and first — and shows who
-  has named nobody yet. A view that wants the full width sets `suspended` on
-  `InspectorContext`.
+  answers what only the class as a whole can (decision 0052). On top four
+  figures (`describeClassRelations`): contradictions — a wish whose partner
+  wishes to sit apart, with a warning in `--status-alert` —, who nobody has
+  named yet, who has named nobody yet, the mutual pairs; pressing one opens
+  who it is about below the figures, faces that open the student. Below them
+  a line per student, one button that opens the student as a row of the
+  class list does: the wishes as small faces with their rank — a returned
+  wish carries both arrows instead —, how often the student was named, the
+  faces kept apart from, and "Widerspruch" beside the name. Where the list is
+  wide (`@2xl`, an iPad upright) the line is four columns under captions — the student,
+  "Möchte neben", "Wunsch von", "Distanz zu" — and the faces carry names in a
+  pill, so a wide screen shows who named whom; below it the line folds under
+  the name, the faces stand alone and "2× genannt" counts. The faces open
+  their profile card on hover or a long press, as names in the list do. The
+  lines follow the class list's order, or sort by how rarely or how often a
+  student was named. Its words never judge ("noch von niemandem genannt"),
+  and nothing of it reaches a projection or an export. A view that wants the
+  full width sets `suspended` on `InspectorContext`.
 - **The brush sets one marker on many** (decision 0051) — the one place the
   list edits, since the inspector edits a student or a selection. "Markieren" at
   the end of the list's head takes it up (`StudentListHeader`): the head

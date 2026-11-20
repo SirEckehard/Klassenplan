@@ -366,23 +366,45 @@
     "edit": "Edit"
   },
   "relations": {
-    "avoidHeading": "Keep apart",
-    "countAvoids_one": "{{count}} keep-apart wish",
-    "countAvoids_other": "{{count}} keep-apart wishes",
-    "countMutual_one": "{{count}} of them mutual",
-    "countMutual_other": "{{count}} of them mutual",
-    "countWishes_one": "{{count}} wish",
-    "countWishes_other": "{{count}} wishes",
-    "description": "Who wants to sit next to whom – and who would rather not. Select a student and adjust their wishes.",
-    "mutual": "mutual",
+    "columns": {
+      "student": "Student",
+      "wishes": "Wants to sit next to",
+      "namedBy": "Wished for by",
+      "avoids": "Distance from"
+    },
+    "contradiction": "– but {{to}} wants distance",
+    "contradictionTag": "Contradiction",
+    "description": "Who wants to sit next to whom – and who would rather not. A click on a student opens them in the inspector.",
+    "findings": {
+      "title": "Worth a look",
+      "contradictions_one": "contradiction",
+      "contradictions_other": "contradictions",
+      "namedByNobody_one": "not named by anybody yet",
+      "namedByNobody_other": "not named by anybody yet",
+      "withoutWish_one": "without a wish of their own yet",
+      "withoutWish_other": "without a wish of their own yet",
+      "mutual_one": "mutual pair",
+      "mutual_other": "mutual pairs"
+    },
+    "mutualPair": "{{a}} and {{b}} chose each other",
+    "mutualWish": "{{name}} (mutual)",
+    "namedByList": "Wished for by {{names}}",
+    "namedByNobodyHint": "Nobody named them as a preferred partner. It may be worth asking.",
+    "namedCount_one": "named once",
+    "namedCount_other": "named {{count}}×",
     "noRelations": "No preferred and no keep-apart partners have been set for this class yet.",
     "noRelationsHint": "You can add wishes for each student in the inspector under “Social”.",
-    "noneInGroup": "Nothing set.",
-    "oneSided": "one-sided",
+    "nobody": "nobody",
+    "rankedWish": "{{name}} (wish {{rank}})",
+    "sort": {
+      "label": "Sort",
+      "class": "As in the class list",
+      "rarely": "Rarely named",
+      "often": "Often named"
+    },
+    "summary": "Wants to sit next to: {{wishes}}. {{named}}. Distance from: {{avoids}}.",
     "title": "Relationships",
     "unknownStudent": "Unknown",
-    "wishHeading": "Preferred partners",
-    "withoutWishHeading": "No wish yet",
     "withoutWishHint": "Ask your students for a wish if needed."
   },
   "listStatus": {
