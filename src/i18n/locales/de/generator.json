@@ -185,8 +185,8 @@
         "body": "Klassen, Räume, Raumvorlagen und Voreinstellungen legst du in der Werkzeugleiste an; „Raumvorlage aus Datei …“ und „Voreinstellung aus Datei …“ holen sie aus der Datei einer Kollegin oder eines Kollegen."
       },
       "share": {
-        "title": "Weitergeben",
-        "body": "„Raum als Datei speichern …“ und „Voreinstellung als Datei speichern …“ unter „Weitergeben“ im Inspektor schreiben eine Datei ohne Schülerdaten – für Kolleginnen und Kollegen oder ein anderes Gerät."
+        "title": "Teilen",
+        "body": "„Raum als Datei speichern …“ und „Voreinstellung als Datei speichern …“ unter „Teilen“ im Inspektor schreiben eine Datei ohne Schülerdaten – für Kolleginnen und Kollegen oder ein anderes Gerät."
       }
     }
   },
@@ -1257,7 +1257,7 @@
     "openTemplate": "Vorlage öffnen …",
     "openTemplateFile": "Raum aus Datei öffnen …",
     "saveRoomFile": "Raum als Datei speichern …",
-    "share": "Weitergeben",
+    "share": "Teilen",
     "renameTemplateNamed": "„{{name}}“ umbenennen",
     "deleteTemplateNamed": "„{{name}}“ löschen",
     "renameRoomNamed": "„{{name}}“ umbenennen",

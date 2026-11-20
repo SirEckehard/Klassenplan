@@ -406,9 +406,9 @@ describe('SceneInspector', () => {
   });
 
   // A file leaves the browser, a template stays: a section of its own.
-  it('saves the room as a file under "Weitergeben"', () => {
+  it('saves the room as a file under "Teilen"', () => {
     const { onSaveRoomFile } = renderInspector({});
-    const share = screen.getByRole('heading', { name: /Weitergeben|Sharing/ });
+    const share = screen.getByRole('heading', { name: /Teilen|Sharing/ });
     expect(share).toBeInTheDocument();
     fireEvent.click(
       screen.getByRole('button', {

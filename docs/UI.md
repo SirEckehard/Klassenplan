@@ -366,7 +366,7 @@ afterwards.
   backup is restored as from the toolbar's foot. A template with tables, an own
   preset and a changed shipped one are saved as such a file from their panel
   ("Raum als Datei speichern …", "Voreinstellung als Datei speichern …" under
-  "Weitergeben"), which the status bar's line confirms. The page reads
+  "Teilen"), which the status bar's line confirms. The page reads
   the inspector and `ClassDialogsProvider` itself, so it renders inside
   `ShellProviders` (`shell/AppShell.tsx`), whose `AppShell` then nests no second
   set — above them its hooks got the inert fallbacks.
@@ -770,7 +770,7 @@ afterwards.
   where a name a template already carries is not saved over by Enter but offers
   "Vorlage „…“ ersetzen" as a row of its own — and opens a kept one as a room of
   its own from a menu of the same shape, renamed and removed there too;
-  "Weitergeben", a section of its own since a template stays in this browser
+  "Teilen", a section of its own since a template stays in this browser
   and a file leaves it, writes the room as a file ("Raum als Datei speichern …",
   once tables stand) and adds a colleague's to the templates ("Raum aus Datei
   öffnen …", decision 0046) (`RoomSetupSections`); the inspectors of a template
