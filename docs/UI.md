@@ -826,7 +826,9 @@ afterwards.
   keeps the row and opens its values as a menu from a button
   (`InspectorSelect`), whose first row takes the value back — a plan's room in
   "Bibliothek" is the same menu without a family's colour and with "In einen
-  neuen Raum verschieben" as its last row (`action`); the export's name rule and
+  neuen Raum verschieben" as its last row (`action`), which names the room in a
+  field below as a new room is named (`NameField`'s `onCancel`: Enter takes the
+  suggested name too, Escape or leaving the field drops it); the export's name rule and
   the note list's order, whose choice is the content, stand under the name as a
   list (`stacked`, `layout="list"`). The header's media, an action row and the
   destructive footer are `InspectorMediaTile`, `InspectorActionRow` and

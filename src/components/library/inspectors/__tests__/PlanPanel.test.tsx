@@ -102,6 +102,21 @@ const detectSwitch = () =>
     name: /Automatisch erkennen|Detect automatically/i,
   });
 
+const NEW_ROOM_NAME = /Name des neuen Raums|Name of the new room/i;
+const newRoomField = () => screen.getByRole('textbox', { name: NEW_ROOM_NAME });
+const queryNewRoomField = () =>
+  screen.queryByRole('textbox', { name: NEW_ROOM_NAME });
+const openNewRoomField = async (user: ReturnType<typeof userEvent.setup>) => {
+  await user.click(
+    screen.getByRole('button', { name: /^(Raum|Room): Klassenraum$/ }),
+  );
+  await user.click(
+    screen.getByRole('button', {
+      name: /In einen neuen Raum verschieben|Move to a new room/i,
+    }),
+  );
+};
+
 describe('PlanPanel', () => {
   beforeEach(() => {
     usageRecords.current = records();
@@ -184,19 +199,45 @@ describe('PlanPanel', () => {
     const user = userEvent.setup();
     renderPanel();
 
-    await user.click(
-      screen.getByRole('button', { name: /^(Raum|Room): Klassenraum$/ }),
-    );
-    await user.click(
-      screen.getByRole('button', {
-        name: /In einen neuen Raum verschieben|Move to a new room/i,
-      }),
-    );
+    await openNewRoomField(user);
 
-    expect(
-      screen.getByRole('textbox', {
-        name: /Name des neuen Raums|Name of the new room/i,
-      }),
-    ).toBeInTheDocument();
+    expect(newRoomField()).toBeInTheDocument();
+  });
+
+  // The suggested name is a name like any other: Enter takes it.
+  it('moves the plan into a new room under the suggested name', async () => {
+    const user = userEvent.setup();
+    const onMove = vi.fn().mockReturnValue(null);
+    renderPanel({ onMove });
+
+    await openNewRoomField(user);
+    await user.type(newRoomField(), '{Enter}');
+
+    expect(onMove).toHaveBeenCalledWith({ newRoomName: 'Neuer Raum' });
+    expect(queryNewRoomField()).not.toBeInTheDocument();
+  });
+
+  // A new room is made only on purpose: Escape or leaving the field drops it.
+  it.each([
+    [
+      'Escape',
+      (user: ReturnType<typeof userEvent.setup>) => user.keyboard('{Escape}'),
+    ],
+    [
+      'leaving the field',
+      (user: ReturnType<typeof userEvent.setup>) => user.tab(),
+    ],
+  ])('drops the new room on %s', async (_label, leave) => {
+    const user = userEvent.setup();
+    const onMove = vi.fn().mockReturnValue(null);
+    renderPanel({ onMove });
+
+    await openNewRoomField(user);
+    await user.click(newRoomField());
+    await user.type(newRoomField(), ' 2');
+    await leave(user);
+
+    expect(onMove).not.toHaveBeenCalled();
+    expect(queryNewRoomField()).not.toBeInTheDocument();
   });
 });

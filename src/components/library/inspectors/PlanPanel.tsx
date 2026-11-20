@@ -200,6 +200,7 @@ export default function PlanPanel({
               }}
               takenMessage={t('sceneInspector.roomNameTaken')}
               focusRequest={1}
+              onCancel={() => setNamingRoom(false)}
             />
           )}
           <ValueRow label={t('library.plan.seated')}>

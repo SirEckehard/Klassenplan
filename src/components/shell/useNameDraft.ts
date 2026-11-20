@@ -11,6 +11,11 @@ export type NameDraftOptions = {
   onCommit: (name: string) => Promise<NameProblem | null> | NameProblem | null;
   /** An emptied field is kept empty instead of going back. */
   optional?: boolean;
+  /**
+   * The name of something not made yet: the suggested name is given too, so
+   * it is checked and committed like any other.
+   */
+  fresh?: boolean;
 };
 
 /**
@@ -25,6 +30,7 @@ export function useNameDraft({
   problemFor,
   onCommit,
   optional = false,
+  fresh = false,
 }: NameDraftOptions) {
   const [draft, setDraftState] = React.useState(value);
   const [refused, setRefused] = React.useState<NameProblem | null>(null);
@@ -39,7 +45,7 @@ export function useNameDraft({
   }
 
   const problem =
-    draft.trim() === value || (optional && draft.trim() === '')
+    (draft.trim() === value && !fresh) || (optional && draft.trim() === '')
       ? null
       : (problemFor?.(draft) ?? null);
   // Only a taken name needs words: an empty field goes back, and the field
@@ -63,7 +69,7 @@ export function useNameDraft({
   const commit = async (): Promise<boolean> => {
     const trimmed = draft.trim();
     if (committingRef.current) return false;
-    if (trimmed === value) return true;
+    if (trimmed === value && !fresh) return true;
     if (trimmed === '' && !optional) {
       setDraftState(value);
       return true;

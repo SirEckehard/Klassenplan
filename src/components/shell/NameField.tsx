@@ -11,6 +11,10 @@ import { useNameDraft } from './useNameDraft';
  * is said under the field — a taken one in `takenMessage`'s words — and an
  * emptied field goes back to the name it had.
  *
+ * With `onCancel` it names something not made yet (a plan's new room): Enter
+ * gives the suggested name too, while Escape and leaving the field drop it —
+ * what is new is made only on purpose.
+ *
  * The same field holds a value that may stay empty (`optional`: a class's
  * school year), and a longer text (`multiline`: its notes), where Enter
  * starts a new line and leaving the field keeps it.
@@ -26,6 +30,7 @@ export default function NameField({
   multiline = false,
   placeholder,
   maxLength = MAX_NAME_LENGTH,
+  onCancel,
 }: {
   label: string;
   value: string;
@@ -42,12 +47,15 @@ export default function NameField({
   multiline?: boolean;
   placeholder?: string;
   maxLength?: number;
+  /** Names something new: Escape and leaving the field call this instead. */
+  onCancel?: () => void;
 }) {
   const { draft, setDraft, reset, taken, commit } = useNameDraft({
     value,
     problemFor,
     onCommit,
     optional,
+    fresh: onCancel !== undefined,
   });
   const fieldRef = React.useRef<HTMLInputElement & HTMLTextAreaElement>(null);
   const fieldId = React.useId();
@@ -72,7 +80,8 @@ export default function NameField({
     } else if (event.key === 'Escape') {
       event.preventDefault();
       event.stopPropagation();
-      reset();
+      if (onCancel) onCancel();
+      else reset();
     }
   };
 
@@ -85,7 +94,8 @@ export default function NameField({
       event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
     ) => setDraft(event.target.value),
     onBlur: () => {
-      void commit();
+      if (onCancel) onCancel();
+      else void commit();
     },
     onKeyDown: handleKeyDown,
     'aria-invalid': taken || undefined,
