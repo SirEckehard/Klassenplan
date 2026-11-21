@@ -2,7 +2,7 @@
   "startPage": {
     "heroEyebrow": "For teachers",
     "heroTitle": "Seating plans made easy",
-    "heroDescription": "Built from everyday school life & developed together with feedback from teachers.",
+    "heroDescription": "Built from everyday school life & with feedback from teachers.",
     "heroBadge": "Free, no ads & open source.",
     "heroBadgeTooltip": "Go to Support",
     "ctaButton": "Plan your class now!",
@@ -13,9 +13,9 @@
       "title": "Everything at a glance",
       "intro": "Class list, classroom and seating plan.",
       "classText": "Type in your students or import an existing CSV file of your class. You set attributes quickly by answering questions such as {{question}}",
-      "roomText": "Arrange the classroom the way you want it. Add tables, board, windows, door and more by drag and drop, and save the classroom as a template.",
+      "roomText": "With {{setup}} you furnish the classroom in one click, or you arrange it freely the way you want. Add a teacher's desk, windows, doors and more.",
       "planText": "Mix, adjust by hand, lock seats – and create the matching seating circle automatically.",
-      "exits": "Present the plan right on the interactive whiteboard or export it as a PDF."
+      "exits": "Present the plan on the interactive whiteboard or export it as a PDF. When you need one, you get a list with room for notes or a reduced seating plan with information for a substitute."
     },
     "criteria": {
       "eyebrow": "What the plan considers",
@@ -23,13 +23,24 @@
       "intro": "Choose the right attributes for each student – and the seating plan takes your preferences into account. Presets such as {{recipes}} help you find the right seating plan for every situation.",
       "historyGroup": "History"
     },
+    "tools": {
+      "eyebrow": "For the school day",
+      "title": "More than a seating plan",
+      "intro": "What you enter about your class once helps you beyond the seating plan too – from the first day of school to a substitute lesson.",
+      "cards": "Print cards to stand on the desk or to wear, with pictures, colours and writing lines for first graders – also for colouring in.",
+      "nameGame": "Learn your students' names playfully with a photo quiz and memory.",
+      "whoIsNext": "Call on students at random – everyone has a turn before anyone comes up again.",
+      "groups": "Split the class into groups of the size you choose and keep distance partners apart where possible.",
+      "duties": "Hand out class duties such as board or sweeping duty fairly in turn.",
+      "seatFinder": "For better orientation: type in a student's name and see where they sit and next to whom."
+    },
     "why": {
       "eyebrow": "Why Klassenplan",
       "title": "For the classroom, not for the cloud",
       "privacy": "Focus on data protection",
-      "privacyDescription": "Your data stays on your device. Hosted in Germany, no account, no cloud, works offline, installable as a web app.",
+      "privacyDescription": "Your data stays on your device: no account, no cloud, hosted in Germany. Works offline and as an app too. Create encrypted backups – in Chrome and Edge even automatically.",
       "projector": "For the interactive whiteboard",
-      "projectorDescription": "Present your seating plan on the board. With a contrast mode for bright rooms and easy-to-read names. That way everyone finds their seat quickly.",
+      "projectorDescription": "Present your plan on the board, with easy-to-read names and a contrast mode for bright rooms. That way everyone finds their seat quickly.",
       "sample": "Start right away with a demo",
       "sampleDescription": "A sample class of 24 students and a short tour show you Klassenplan before you create your own class."
     },
@@ -39,7 +50,8 @@
       "sitzplan": "Seating plan",
       "sitzkreis": "Seating circle",
       "praesentation": "Presentation",
-      "export": "Export"
+      "export": "Export",
+      "namensschilder": "Name cards"
     },
     "carousel": {
       "label": "App preview",

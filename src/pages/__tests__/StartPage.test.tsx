@@ -47,6 +47,28 @@ describe('StartPage', () => {
         expect.stringMatching(/^(Sitzplan|Plan)$/),
       ]),
     );
+    // The room's text quotes the inspector's own button.
+    expect(layers).toHaveTextContent(/„Neu einrichten“|“Set up from scratch”/);
+  });
+
+  it('names the tools beyond the plan the way the app does', () => {
+    renderStartPage();
+
+    const tools = screen.getByRole('region', {
+      name: /Mehr als ein Sitzplan|More than a seating plan/i,
+    });
+    expect(
+      within(tools)
+        .getAllByRole('heading', { level: 3 })
+        .map((heading) => heading.textContent),
+    ).toEqual([
+      expect.stringMatching(/^(Namensschilder|Name cards)$/),
+      expect.stringMatching(/^(Namensspiel|Name Game)$/),
+      expect.stringMatching(/^(Wer kommt dran\?|Who's next\?)$/i),
+      expect.stringMatching(/^(Gruppen bilden|Build groups)$/i),
+      expect.stringMatching(/^(Dienste verteilen|Hand out duties)$/i),
+      expect.stringMatching(/^(Wo sitzt wer\?|Where does who sit\?)$/i),
+    ]);
   });
 
   it('lists every criterion the plan weighs, each with a real label', () => {

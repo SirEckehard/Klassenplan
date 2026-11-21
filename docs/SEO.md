@@ -211,7 +211,9 @@ Set `"noindex": true` on a route in `seoRoutes.json`. The route is then:
 `/wo-sitzt-wer`, `/gruppen`, `/dienste`) are marked this way: without a class in this
 browser they render only an empty state ("Noch kein Sitzplan zum
 Präsentieren"), which has no business in the index
-([decision 0019](decisions/0019-classroom-tools-as-routes.md)). So is
+([decision 0019](decisions/0019-classroom-tools-as-routes.md)); the start
+page's section "Mehr als ein Sitzplan" describes them instead, so a search
+still finds what they do. So is
 `/bibliothek`, "Bibliothek", which lists what this browser keeps and nothing
 else ([decision 0024](decisions/0024-rooms-of-a-class.md)). And so is `/export`:
 the sheet shows the plan this browser keeps, and a crawler meets only "Noch

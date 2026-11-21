@@ -60,6 +60,12 @@ const SLIDES = [
     width: 2880,
     height: 1920,
   },
+  {
+    slug: '07_namensschilder',
+    labelKey: 'startPage.previewSlides.namensschilder',
+    width: 2880,
+    height: 1920,
+  },
 ];
 
 /** The slide area is `aspect-3/2`. */

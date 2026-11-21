@@ -169,8 +169,10 @@ async function readTranslations(lang) {
 }
 
 /**
- * Reads the active class record from `spg.classCollection` and, given
- * `changes`, overwrites those fields of it. Returns the record as it was read.
+ * Reads the active class record and, given `changes`, overwrites those fields
+ * of it. Returns the record as it was read. Every class lies under a key of
+ * its own and `spg.classIndex` names the open one (decision 0049,
+ * src/repositories/classStorage.ts); its seats are student ids (decision 0035).
  */
 async function accessActiveClass(page, baseUrl, changes = null) {
   // A static file of the same origin: the app must not be running while its
@@ -183,17 +185,19 @@ async function accessActiveClass(page, baseUrl, changes = null) {
         target.onerror = () => reject(target.error);
       });
     const db = await request(indexedDB.open('keyval-store'));
-    const collection = await request(
-      db.transaction('keyval').objectStore('keyval').get('spg.classCollection'),
-    );
-    const activeClass = collection.classes.find(
-      (entry) => entry.id === collection.activeClassId,
-    );
-    const snapshot = structuredClone(activeClass);
+    const read = (key) =>
+      request(db.transaction('keyval').objectStore('keyval').get(key));
+    const index = await read('spg.classIndex');
+    if (!index?.activeClassId) {
+      throw new Error('no open class in spg.classIndex');
+    }
+    const key = `spg.class:${index.activeClassId}`;
+    const stored = await read(key);
+    const snapshot = structuredClone(stored.record);
     if (fields) {
-      Object.assign(activeClass, fields);
+      Object.assign(stored.record, fields);
       const transaction = db.transaction('keyval', 'readwrite');
-      transaction.objectStore('keyval').put(collection, 'spg.classCollection');
+      transaction.objectStore('keyval').put(stored, key);
       await new Promise((resolve, reject) => {
         transaction.oncomplete = resolve;
         transaction.onerror = () => reject(transaction.error);
@@ -284,24 +288,6 @@ async function saveSlide(page, output, slug, lang, theme, target, clip) {
   run('cwebp', ['-quiet', '-lossless', rgbaPng, '-o', losslessWebp]);
   run('dwebp', ['-quiet', losslessWebp, '-o', file]);
   logInfo('Captured', { file: path.relative(projectRoot, file) }, SOURCE);
-}
-
-/** The scene SVG's room coordinates as a point on the page. */
-async function roomPointOnPage(container, x, y) {
-  return container.evaluate(
-    (element, point) => {
-      const svg = [...element.querySelectorAll('svg')].sort(
-        (a, b) =>
-          b.getBoundingClientRect().width - a.getBoundingClientRect().width,
-      )[0];
-      const matrix = svg.getScreenCTM();
-      return {
-        x: matrix.a * point.x + matrix.c * point.y + matrix.e,
-        y: matrix.b * point.x + matrix.d * point.y + matrix.f,
-      };
-    },
-    { x, y },
-  );
 }
 
 /** Resolves once the class layer lists every student with a drawn picture. */
@@ -497,13 +483,21 @@ async function captureTheme(page, output, baseUrl, prefix, lang, theme, t) {
     fullWindow,
   );
 
-  // 02 — the room layer with the group table selected.
+  // 02 — the room layer with "Neu einrichten" open: the table types and the
+  // arrangements, each with its small picture.
   await goToLayer(page, t, 'room');
-  const layoutCanvas = page.locator('[data-tour="layout-canvas"]').first();
-  await layoutCanvas.waitFor();
+  await page.locator('[data-tour="layout-canvas"]').first().waitFor();
   await settle(page);
-  const groupTable = await roomPointOnPage(layoutCanvas, 420, 300);
-  await page.mouse.click(groupTable.x, groupTable.y);
+  await page
+    .getByRole('button', {
+      name: t('generator:sceneInspector.setupChoose'),
+      exact: true,
+    })
+    .click();
+  await page
+    .getByRole('dialog', { name: t('generator:sceneInspector.setup') })
+    .waitFor();
+  await restPointer(page);
   await settle(page);
   await saveSlide(
     page,
@@ -544,9 +538,22 @@ async function captureTheme(page, output, baseUrl, prefix, lang, theme, t) {
   );
   await page.evaluate(() => localStorage.removeItem('spg.seatingMode'));
 
-  // 05 — presentation, student view, as on a portrait tablet.
+  // 05 — presentation, student view, as on a portrait tablet, with one
+  // student marked as missing today. That mark lives in memory alone
+  // (decision 0045), so it is made the way a teacher makes it: a tap on the
+  // seat, here on the first table's name.
   await page.setViewportSize(PRESENT_VIEWPORT);
   await page.goto(`${baseUrl}${prefix}/present`);
+  await settle(page);
+  const missingName = await page
+    .locator('svg g[data-table-index] text')
+    .first()
+    .boundingBox();
+  await page.mouse.click(
+    missingName.x + missingName.width / 2,
+    missingName.y + missingName.height / 2,
+  );
+  await page.locator('svg [data-absent]').first().waitFor();
   await settle(page);
   await saveSlide(
     page,
@@ -573,6 +580,37 @@ async function captureTheme(page, output, baseUrl, prefix, lang, theme, t) {
     page,
     output,
     '06_export',
+    lang,
+    theme,
+    WIDE_MASTER,
+    fullWindow,
+  );
+
+  // 07 — the name cards, as they first come: animals, coloured paper,
+  // writing lines, Andika. The sheet is the same frame; it shows the cards
+  // once their font is part of its document.
+  await page
+    .getByRole('complementary', { name: t('generator:sidebar.ariaLabel') })
+    .getByRole('button', {
+      name: t('generator:export.cards.view'),
+      exact: true,
+    })
+    .click();
+  await page.waitForFunction(() =>
+    /andika/i.test(document.querySelector('iframe')?.srcdoc ?? ''),
+  );
+  const sheetFrame = await (
+    await page.locator('iframe').first().elementHandle()
+  ).contentFrame();
+  await sheetFrame.waitForLoadState('load');
+  await sheetFrame.locator('svg').first().waitFor();
+  await sheetFrame.evaluate(() => document.fonts.ready);
+  await restPointer(page);
+  await settle(page);
+  await saveSlide(
+    page,
+    output,
+    '07_namensschilder',
     lang,
     theme,
     WIDE_MASTER,

@@ -10,6 +10,11 @@ import {
   HandHeartIcon,
   ChalkboardTeacherIcon,
   UsersThreeIcon,
+  IdentificationCardIcon,
+  GameControllerIcon,
+  HandPointingIcon,
+  BroomIcon,
+  MagnifyingGlassIcon,
 } from '@phosphor-icons/react';
 import { useTranslation } from 'react-i18next';
 import Seo from '@/components/Seo';
@@ -112,6 +117,46 @@ const criteriaGroups: readonly {
     criteria: ['avoidPreviousPairs'],
   },
 ];
+
+/**
+ * What the class is good for beyond the plan, in the order a school year
+ * meets it: the first day, the lessons, the week, a substitute. Icon and name
+ * are the ones the export's toolbar (the name cards) and the toolbar's
+ * "Klassenwerkzeuge" give them. The tool pages are `noindex` — they show an
+ * empty state without a class — so this is where a search finds them.
+ */
+const tools = [
+  {
+    icon: IdentificationCardIcon,
+    titleKey: 'generator:export.cards.view',
+    textKey: 'startPage.tools.cards',
+  },
+  {
+    icon: GameControllerIcon,
+    titleKey: 'pages:nameGame.title',
+    textKey: 'startPage.tools.nameGame',
+  },
+  {
+    icon: HandPointingIcon,
+    titleKey: 'generator:tools.whoIsNext.title',
+    textKey: 'startPage.tools.whoIsNext',
+  },
+  {
+    icon: UsersThreeIcon,
+    titleKey: 'generator:tools.groups.title',
+    textKey: 'startPage.tools.groups',
+  },
+  {
+    icon: BroomIcon,
+    titleKey: 'generator:tools.duties.title',
+    textKey: 'startPage.tools.duties',
+  },
+  {
+    icon: MagnifyingGlassIcon,
+    titleKey: 'generator:tools.seatFinder.title',
+    textKey: 'startPage.tools.seatFinder',
+  },
+] as const;
 
 const recipeKeys = [
   'generator:mix.recipes.quietWork.label',
@@ -272,6 +317,7 @@ export default function StartPage() {
                     <p className="mt-1 text-pretty text-(--text-muted)">
                       {t(layer.textKey, {
                         question: quote('students:brush.questions.restless'),
+                        setup: quote('generator:sceneInspector.setup'),
                       })}
                     </p>
                   </div>
@@ -324,6 +370,41 @@ export default function StartPage() {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      <section aria-labelledby="tools-title" className={sectionClass}>
+        <div className="grid gap-8 lg:grid-cols-12 lg:gap-12">
+          <div className="lg:col-span-5">
+            <p className={pageEyebrowClass}>{t('startPage.tools.eyebrow')}</p>
+            <h2 id="tools-title" className={sectionTitleClass}>
+              {t('startPage.tools.title')}
+            </h2>
+            <p className="mt-4 max-w-md text-pretty text-(--text-muted)">
+              {t('startPage.tools.intro')}
+            </p>
+          </div>
+
+          <ul className="grid content-start gap-x-8 gap-y-6 sm:grid-cols-2 lg:col-span-7">
+            {tools.map((tool) => (
+              <li
+                key={tool.titleKey}
+                className="border-t border-(--border-card) pt-3"
+              >
+                <h3 className="flex items-center gap-2 text-lg font-semibold text-(--text-page)">
+                  <tool.icon
+                    size={20}
+                    className="text-(--text-muted)"
+                    aria-hidden="true"
+                  />
+                  {t(tool.titleKey)}
+                </h3>
+                <p className="mt-1 text-pretty text-(--text-muted)">
+                  {t(tool.textKey)}
+                </p>
+              </li>
+            ))}
+          </ul>
         </div>
       </section>
 

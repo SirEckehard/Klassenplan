@@ -2,7 +2,7 @@
   "startPage": {
     "heroEyebrow": "Für Lehrkräfte",
     "heroTitle": "Sitzplan erstellen leicht gemacht",
-    "heroDescription": "Aus dem Schulalltag & gemeinsam mit dem Feedback von Lehrkräften entwickelt.",
+    "heroDescription": "Aus dem Schulalltag & mit dem Feedback von Lehrkräften entwickelt.",
     "heroBadge": "Kostenlos, keine Werbung & Open Source.",
     "heroBadgeTooltip": "Gehe zu Unterstützen",
     "ctaButton": "Plane jetzt deine Klasse!",
@@ -13,9 +13,9 @@
       "title": "Alles im Blick",
       "intro": "Klassenliste, Klassenraum und Sitzplan.",
       "classText": "Trage Schüler ein oder importiere eine vorhandene CSV-Tabelle mit deiner Klasse. Merkmale kannst du schnell mit Fragen beantworten, wie z. B. {{question}}",
-      "roomText": "Passe den Klassenraum deinen Wünschen entsprechend an. Füge Tische, Tafel, Fenster, Tür und mehr per Drag & Drop hinzu und speichere den Klassenraum als Vorlage.",
+      "roomText": "Mit {{setup}} richtest du den Klassenraum mit einem Klick ein oder du gestaltest ihn frei nach deinen Wünschen. Füge Pult, Fenster, Türen und Weiteres hinzu.",
       "planText": "Mischen, von Hand nachjustieren, Plätze sperren – und automatisch den passenden Sitzkreis erstellen.",
-      "exits": "Präsentiere den Plan direkt an der digitalen Tafel oder exportiere ihn als PDF."
+      "exits": "Präsentiere den Plan an der digitalen Tafel oder exportiere ihn als PDF. Bei Bedarf bekommst du eine Liste mit Platz für Notizen oder einen reduzierten Sitzplan mit Informationen für die Vertretung."
     },
     "criteria": {
       "eyebrow": "Was der Plan beachtet",
@@ -23,13 +23,24 @@
       "intro": "Wähle für jeden Schüler die passenden Merkmale aus – und der Sitzplan berücksichtigt deine Präferenzen. Voreinstellungen wie {{recipes}} helfen dir, für jede Situation den richtigen Sitzplan zu finden.",
       "historyGroup": "Verlauf"
     },
+    "tools": {
+      "eyebrow": "Für den Schulalltag",
+      "title": "Mehr als ein Sitzplan",
+      "intro": "Was du einmal über deine Klasse eingetragen hast, hilft dir auch über den Sitzplan hinaus – vom ersten Schultag bis zur Vertretungsstunde.",
+      "cards": "Drucke Schilder zum Aufstellen oder Anstecken, mit Bildern, Farben und Schreiblinien für Erstklässler – auch zum Ausmalen.",
+      "nameGame": "Lerne die Namen deiner Schüler spielerisch mit Foto-Quiz und Memory.",
+      "whoIsNext": "Rufe Schüler zufällig auf – jeder kommt einmal dran, bevor sich jemand wiederholt.",
+      "groups": "Teile die Klasse in Gruppen der gewählten Größe und halte Distanzpartner nach Möglichkeit auseinander.",
+      "duties": "Verteile Klassendienste wie Tafel- oder Fegedienst fair reihum.",
+      "seatFinder": "Für eine bessere Orientierung: Tippe den Namen eines Schülers ein und sieh, wo er sitzt und neben wem."
+    },
     "why": {
       "eyebrow": "Warum Klassenplan",
       "title": "Für den Unterricht, nicht für die Cloud",
       "privacy": "Fokus auf Datenschutz",
-      "privacyDescription": "Daten bleiben auf deinem Gerät. In Deutschland gehostet, kein Konto, keine Cloud, funktioniert offline, installierbar als Webapp.",
+      "privacyDescription": "Daten bleiben auf deinem Gerät: kein Konto, keine Cloud, in Deutschland gehostet. Funktioniert offline und auch als App. Erstelle verschlüsselte Backups, in Chrome und Edge sogar automatisch.",
       "projector": "Für die digitale Tafel",
-      "projectorDescription": "Präsentiere deinen Sitzplan auf der Tafel. Mit einem Kontrastmodus für helle Räume und gut lesbaren Namen. So findet jeder schnell seinen Platz.",
+      "projectorDescription": "Präsentiere deinen Plan an der Tafel, mit gut lesbaren Namen und einem Kontrastmodus für helle Räume. So findet jeder schnell seinen Platz.",
       "sample": "Starte direkt mit einer Demo",
       "sampleDescription": "Eine Beispielklasse mit 24 Schülern und eine kurze Tour zeigen dir Klassenplan, bevor du deine eigene Klasse anlegst."
     },
@@ -39,7 +50,8 @@
       "sitzplan": "Sitzplan",
       "sitzkreis": "Sitzkreis",
       "praesentation": "Präsentation",
-      "export": "Export"
+      "export": "Export",
+      "namensschilder": "Namensschilder"
     },
     "carousel": {
       "label": "App-Vorschau",

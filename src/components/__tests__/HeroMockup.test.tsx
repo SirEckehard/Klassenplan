@@ -14,13 +14,13 @@ const carousel = () =>
 
 /** The strip under the picture names the slide and where it stands. */
 const caption = () =>
-  within(carousel()).getByText(/^(Bild \d von|Slide \d of) 6$/);
+  within(carousel()).getByText(/^(Bild \d von|Slide \d of) 7$/);
 
 describe('HeroMockup', () => {
   it('names the slide on screen below the picture', () => {
     render(<HeroMockup />);
 
-    expect(caption()).toHaveTextContent(/^(Bild 1 von|Slide 1 of) 6$/);
+    expect(caption()).toHaveTextContent(/^(Bild 1 von|Slide 1 of) 7$/);
     expect(caption().parentElement).toHaveTextContent(
       /^(Klassenliste|Class list)/,
     );
@@ -38,7 +38,9 @@ describe('HeroMockup', () => {
     // Back past the first slide wraps round to the last.
     await user.click(getButton(/Vorheriges Bild|Previous slide/i));
     await user.click(getButton(/Vorheriges Bild|Previous slide/i));
-    expect(caption().parentElement).toHaveTextContent(/^Export/);
+    expect(caption().parentElement).toHaveTextContent(
+      /^(Namensschilder|Name cards)/,
+    );
   });
 
   it('announces a slide change only once the rotation is paused', async () => {

@@ -493,7 +493,12 @@ have it because every colour there describes pedagogy: each family is a
 with the names the inspector uses (`criteriaIcons.ts`,
 `generator:mix.criteria.*`). The layers, presets, importance levels and tools
 the page mentions are quoted from the app's own keys, so the page cannot call
-a thing differently from the screen it describes.
+a thing differently from the screen it describes. "Mehr als ein Sitzplan"
+lists what the class does beyond the plan — the name cards and the class
+tools, with the icon and the name the toolbar gives each — in the shape of the
+layers' section: the claim on the left, the items on the right, divided by
+hairlines. The tool pages are `noindex`, so this section is where a search
+meets them.
 
 The preview (`HeroMockup`) is a `panelSurfaceClass` frame around whole-window
 screenshots (`npm run capture:preview-screenshots`), with no browser chrome
