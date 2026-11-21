@@ -46,7 +46,10 @@ import type { ClassDuties, Duty, DutyRound, Student } from '@/types';
 
 const LOG_SOURCE = 'Duties';
 
-/** Duties nearly every class hands out, offered while the list is empty. */
+/**
+ * Duties nearly every class hands out, each offered while the list lacks it
+ * and has room for one more.
+ */
 const SUGGESTIONS = ['board', 'sweeping', 'bins', 'tidying'] as const;
 
 /**
@@ -267,6 +270,18 @@ export default function Duties() {
   const studentsById = new Map(
     students.map((student) => [student.id, student]),
   );
+  // A suggestion stays on offer until a duty of its name is in the list, so
+  // adding one leaves the others within reach.
+  const listedNames = new Set(
+    (state?.duties ?? []).map((duty) => duty.name.trim().toLocaleLowerCase()),
+  );
+  const suggestions =
+    state && state.duties.length < MAX_DUTIES
+      ? SUGGESTIONS.map((key) => ({
+          key,
+          name: t(`tools.duties.suggestion.${key}`),
+        })).filter(({ name }) => !listedNames.has(name.toLocaleLowerCase()))
+      : [];
   const wanted = state?.duties.reduce((sum, duty) => sum + duty.count, 0) ?? 0;
   const short = round
     ? (state?.duties ?? []).reduce(
@@ -341,17 +356,17 @@ export default function Duties() {
                 ))}
               </ul>
             )}
-            {state.duties.length === 0 && (
+            {suggestions.length > 0 && (
               <div className="mb-2 flex flex-wrap gap-1.5">
-                {SUGGESTIONS.map((key) => (
+                {suggestions.map(({ key, name }) => (
                   <button
                     key={key}
                     type="button"
-                    onClick={() => addDuty(t(`tools.duties.suggestion.${key}`))}
+                    onClick={() => addDuty(name)}
                     className={`${secondaryButtonClass} h-9 gap-1.5 px-3 text-sm`}
                   >
                     <PlusIcon size={14} aria-hidden />
-                    {t(`tools.duties.suggestion.${key}`)}
+                    {name}
                   </button>
                 ))}
               </div>

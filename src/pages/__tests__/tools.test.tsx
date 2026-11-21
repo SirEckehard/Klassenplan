@@ -345,6 +345,38 @@ describe('Dienste verteilen', () => {
     );
   });
 
+  it('keeps the other suggestions on offer once one is added', async () => {
+    seatingState.current = { ...seatingState.current, students: [ada, ben] };
+    dutyMemory.set('class-1', {
+      duties: [{ id: 'board', name: 'tafeldienst ', count: 1 }],
+      current: null,
+      rounds: [],
+    });
+
+    renderPage(<Duties />);
+    fireEvent.click(
+      await screen.findByRole('button', { name: /^(Fegedienst|Sweeping)$/ }),
+    );
+
+    await vi.waitFor(() =>
+      expect(dutyMemory.get('class-1')).toMatchObject({
+        duties: [{ id: 'board' }, { name: expect.any(String) }],
+      }),
+    );
+    // A duty already listed, in any case, is no longer offered.
+    for (const listed of [
+      /^(Tafeldienst|Board duty)$/,
+      /^(Fegedienst|Sweeping)$/,
+    ]) {
+      expect(
+        screen.queryByRole('button', { name: listed }),
+      ).not.toBeInTheDocument();
+    }
+    expect(
+      screen.getByRole('button', { name: /^(Mülldienst|Bin duty)$/ }),
+    ).toBeInTheDocument();
+  });
+
   it('stands someone else in for a student who cannot do it', async () => {
     seatingState.current = {
       ...seatingState.current,
