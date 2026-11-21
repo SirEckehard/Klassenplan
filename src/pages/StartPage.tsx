@@ -16,6 +16,7 @@ import {
   BroomIcon,
   MagnifyingGlassIcon,
 } from '@phosphor-icons/react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Seo from '@/components/Seo';
 import { LocalizedLink } from '@/components/LocalizedLink';
@@ -39,30 +40,47 @@ import PublicPage from '@/components/publicPage/PublicPage';
 import { APP_RETURN_STATE } from '@/hooks/useReturnToApp';
 import { usePageSeo } from '@/hooks/usePageSeo';
 import HeroMockup from '@/components/HeroMockup';
+import PreviewDetail from '@/components/publicPage/PreviewDetail';
 import type { ScalarMixSettingKey } from '@/types';
 
 const sectionTitleClass = `mt-3 ${pageSectionTitleClass}`;
 const sectionClass = 'border-t border-(--border-card) py-14 lg:py-20';
+/**
+ * A section's claim on the left. From `lg` up its column is as tall as the
+ * list beside it, and the close-up under the claim takes what is left.
+ */
+const sectionClaimClass = 'lg:col-span-5 lg:flex lg:flex-col';
+/**
+ * The title of a step or a tool whose close-up is not the one shown: grey
+ * from `lg` up, where the close-up stands beside the list, and ink again
+ * under a pointer. The one shown keeps its ink, its number or icon too.
+ */
+const unchosenTitleClass =
+  'lg:text-(--text-muted) lg:group-hover:text-(--text-page)';
 
 /**
  * The three layers of the workspace, named with the layer switcher's own words
- * so the start page and the app cannot call them differently.
+ * so the start page and the app cannot call them differently, each with the
+ * close-up that shows what its text says.
  */
 const layers = [
   {
     icon: AddressBookTabsIcon,
     titleKey: 'generator:shell.layers.class',
     textKey: 'startPage.layers.classText',
+    detail: 'detail_klasse',
   },
   {
     icon: HouseIcon,
     titleKey: 'generator:shell.layers.room',
     textKey: 'startPage.layers.roomText',
+    detail: 'detail_raum',
   },
   {
     icon: GridNineIcon,
     titleKey: 'generator:shell.layers.plan',
     textKey: 'startPage.layers.planText',
+    detail: 'detail_sitzplan',
   },
 ] as const;
 
@@ -119,64 +137,78 @@ const criteriaGroups: readonly {
 ];
 
 /**
+ * The families in the cells of a two-column grid. The last two, Person and
+ * Verlauf, a criterion each, share a cell: they stand under one another
+ * beside the tall "Platz & Raum" rather than one of them in a row of its own.
+ * In one column the order is the same.
+ */
+const criteriaCells = [
+  ...criteriaGroups.slice(0, -2).map((group) => [group]),
+  criteriaGroups.slice(-2),
+];
+
+/**
  * What the class is good for beyond the plan, in the order a school year
  * meets it: the first day, the lessons, the week, a substitute. Icon and name
  * are the ones the export's toolbar (the name cards) and the toolbar's
- * "Klassenwerkzeuge" give them. The tool pages are `noindex` — they show an
- * empty state without a class — so this is where a search finds them.
+ * "Klassenwerkzeuge" give them, the close-up the page at work. The tool pages
+ * are `noindex` — they show an empty state without a class — so this is
+ * where a search finds them.
  */
 const tools = [
   {
     icon: IdentificationCardIcon,
     titleKey: 'generator:export.cards.view',
     textKey: 'startPage.tools.cards',
+    detail: 'detail_namensschilder',
   },
   {
     icon: GameControllerIcon,
     titleKey: 'pages:nameGame.title',
     textKey: 'startPage.tools.nameGame',
+    detail: 'detail_namensspiel',
   },
   {
     icon: HandPointingIcon,
     titleKey: 'generator:tools.whoIsNext.title',
     textKey: 'startPage.tools.whoIsNext',
+    detail: 'detail_werkommtdran',
   },
   {
     icon: UsersThreeIcon,
     titleKey: 'generator:tools.groups.title',
     textKey: 'startPage.tools.groups',
+    detail: 'detail_gruppen',
   },
   {
     icon: BroomIcon,
     titleKey: 'generator:tools.duties.title',
     textKey: 'startPage.tools.duties',
+    detail: 'detail_dienste',
   },
   {
     icon: MagnifyingGlassIcon,
     titleKey: 'generator:tools.seatFinder.title',
     textKey: 'startPage.tools.seatFinder',
+    detail: 'detail_wositztwer',
   },
 ] as const;
 
-const recipeKeys = [
-  'generator:mix.recipes.quietWork.label',
-  'generator:mix.recipes.groupWork.label',
-  'generator:mix.recipes.exam.label',
-] as const;
+const layerDetails = layers.map((layer) => layer.detail);
+/** "Vordere Plätze" marking its seats beside the criteria's values. */
+const criteriaDetails = ['detail_kriterien'] as const;
+const toolDetails = tools.map((tool) => tool.detail);
 
 export default function StartPage() {
-  const { t, i18n } = useTranslation('pages');
+  const { t } = useTranslation('pages');
   const metadata = usePageSeo('/');
+  // The layer and the tool whose close-ups stand beside their lists: the one
+  // last clicked or tapped, the first to begin with.
+  const [shownLayer, setShownLayer] = useState(0);
+  const [shownTool, setShownTool] = useState(0);
 
-  // Names quoted from the app, joined the way the language joins a list.
+  // Names quoted from the app.
   const quote = (key: string) => t('common:quoted', { text: t(key) });
-  const joinWith = (
-    keys: readonly string[],
-    type: 'conjunction' | 'disjunction',
-  ) =>
-    new Intl.ListFormat(i18n.language, { style: 'long', type }).format(
-      keys.map(quote),
-    );
 
   const benefits = [
     {
@@ -282,7 +314,7 @@ export default function StartPage() {
       {/* Klasse · Raum · Plan */}
       <section aria-labelledby="layers-title" className={sectionClass}>
         <div className="grid gap-8 lg:grid-cols-12 lg:gap-12">
-          <div className="lg:col-span-5">
+          <div className={sectionClaimClass}>
             <p className={pageEyebrowClass}>{t('startPage.layers.eyebrow')}</p>
             <h2 id="layers-title" className={sectionTitleClass}>
               {t('startPage.layers.title')}
@@ -290,23 +322,35 @@ export default function StartPage() {
             <p className="mt-4 max-w-md text-pretty text-(--text-muted)">
               {t('startPage.layers.intro')}
             </p>
+            <PreviewDetail slugs={layerDetails} current={shownLayer} />
           </div>
 
           <div className="lg:col-span-7">
-            <ol className="border-b border-(--border-card)">
+            <ol>
               {layers.map((layer, index) => (
+                // A click or a tap on a step puts its close-up beside the
+                // list — never pointing alone, which the page scrolling under
+                // a resting pointer does too. The picture adds nothing the
+                // words do not say, so the keyboard loses nothing.
                 <li
                   key={layer.titleKey}
-                  className="flex gap-5 border-t border-(--border-card) py-5"
+                  onClick={() => setShownLayer(index)}
+                  className="group flex gap-5 border-t border-(--border-card) py-5 lg:cursor-pointer"
                 >
                   <span
-                    className="w-6 shrink-0 font-serif text-3xl leading-none tabular-nums text-(--text-muted)"
+                    className={`w-6 shrink-0 font-serif text-3xl leading-none tabular-nums text-(--text-muted) transition-colors lg:group-hover:text-(--text-page) ${
+                      index === shownLayer ? 'lg:text-(--text-page)' : ''
+                    }`}
                     aria-hidden="true"
                   >
                     {index + 1}
                   </span>
                   <div className="min-w-0">
-                    <h3 className="flex items-center gap-2 text-lg font-semibold text-(--text-page)">
+                    <h3
+                      className={`flex items-center gap-2 text-lg font-semibold text-(--text-page) transition-colors ${
+                        index === shownLayer ? '' : unchosenTitleClass
+                      }`}
+                    >
                       <layer.icon
                         size={20}
                         className="text-(--text-muted)"
@@ -324,9 +368,6 @@ export default function StartPage() {
                 </li>
               ))}
             </ol>
-            <p className="mt-5 text-sm text-pretty text-(--text-muted)">
-              {t('startPage.layers.exits')}
-            </p>
           </div>
         </div>
       </section>
@@ -335,7 +376,7 @@ export default function StartPage() {
             because each colour describes pedagogy, with icon and word. */}
       <section aria-labelledby="criteria-title" className={sectionClass}>
         <div className="grid gap-8 lg:grid-cols-12 lg:gap-12">
-          <div className="lg:col-span-5">
+          <div className={sectionClaimClass}>
             <p className={pageEyebrowClass}>
               {t('startPage.criteria.eyebrow')}
             </p>
@@ -343,30 +384,33 @@ export default function StartPage() {
               {t('startPage.criteria.title')}
             </h2>
             <p className="mt-4 max-w-md text-pretty text-(--text-muted)">
-              {t('startPage.criteria.intro', {
-                recipes: joinWith(recipeKeys, 'disjunction'),
-              })}
+              {t('startPage.criteria.intro')}
             </p>
+            <PreviewDetail slugs={criteriaDetails} />
           </div>
 
           <div className="grid content-start gap-x-8 gap-y-6 sm:grid-cols-2 lg:col-span-7">
-            {criteriaGroups.map((group) => (
-              <div
-                key={group.labelKey}
-                className={`${dataFamilyClass[CRITERIA_FAMILY_MAP[group.criteria[0]]]} border-t border-(--border-card) pt-3`}
-              >
-                <h3 className={dataHeadingClass}>{t(group.labelKey)}</h3>
-                <ul className="mt-2.5 flex flex-wrap gap-1.5">
-                  {group.criteria.map((key) => {
-                    const Icon = CRITERIA_ICON_MAP[key];
-                    return (
-                      <li key={key} className={dataChipClass}>
-                        <Icon size={14} aria-hidden="true" />
-                        {t(`generator:mix.criteria.${key}.label`)}
-                      </li>
-                    );
-                  })}
-                </ul>
+            {criteriaCells.map((cell) => (
+              <div key={cell[0].labelKey} className="flex flex-col gap-y-6">
+                {cell.map((group) => (
+                  <div
+                    key={group.labelKey}
+                    className={`${dataFamilyClass[CRITERIA_FAMILY_MAP[group.criteria[0]]]} border-t border-(--border-card) pt-3`}
+                  >
+                    <h3 className={dataHeadingClass}>{t(group.labelKey)}</h3>
+                    <ul className="mt-2.5 flex flex-wrap gap-1.5">
+                      {group.criteria.map((key) => {
+                        const Icon = CRITERIA_ICON_MAP[key];
+                        return (
+                          <li key={key} className={dataChipClass}>
+                            <Icon size={14} aria-hidden="true" />
+                            {t(`generator:mix.criteria.${key}.label`)}
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
+                ))}
               </div>
             ))}
           </div>
@@ -375,7 +419,7 @@ export default function StartPage() {
 
       <section aria-labelledby="tools-title" className={sectionClass}>
         <div className="grid gap-8 lg:grid-cols-12 lg:gap-12">
-          <div className="lg:col-span-5">
+          <div className={sectionClaimClass}>
             <p className={pageEyebrowClass}>{t('startPage.tools.eyebrow')}</p>
             <h2 id="tools-title" className={sectionTitleClass}>
               {t('startPage.tools.title')}
@@ -383,18 +427,28 @@ export default function StartPage() {
             <p className="mt-4 max-w-md text-pretty text-(--text-muted)">
               {t('startPage.tools.intro')}
             </p>
+            <PreviewDetail slugs={toolDetails} current={shownTool} />
           </div>
 
           <ul className="grid content-start gap-x-8 gap-y-6 sm:grid-cols-2 lg:col-span-7">
-            {tools.map((tool) => (
+            {tools.map((tool, index) => (
+              // As the layers' steps: a click or a tap on a tool puts its
+              // close-up beside the list.
               <li
                 key={tool.titleKey}
-                className="border-t border-(--border-card) pt-3"
+                onClick={() => setShownTool(index)}
+                className="group border-t border-(--border-card) pt-3 lg:cursor-pointer"
               >
-                <h3 className="flex items-center gap-2 text-lg font-semibold text-(--text-page)">
+                <h3
+                  className={`flex items-center gap-2 text-lg font-semibold text-(--text-page) transition-colors ${
+                    index === shownTool ? '' : unchosenTitleClass
+                  }`}
+                >
                   <tool.icon
                     size={20}
-                    className="text-(--text-muted)"
+                    className={`text-(--text-muted) transition-colors lg:group-hover:text-(--text-page) ${
+                      index === shownTool ? 'lg:text-(--text-page)' : ''
+                    }`}
                     aria-hidden="true"
                   />
                   {t(tool.titleKey)}

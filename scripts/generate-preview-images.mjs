@@ -2,14 +2,18 @@
 // Copyright (C) 2026 Eike Schäfer
 //
 // Encodes the start page screenshots that HeroMockup serves through `srcset`
-// and shows in its lightbox.
+// and shows in its lightbox, and the close-ups beside the sections
+// (`PreviewDetail`).
 //
 // The PNGs in assets/preview/ are the lossless masters, usually written by
 // capture-preview-screenshots.mjs; they stay out of public/, so no build ships
 // them. For each master this writes into public/preview/ the full-size
 // `<name>.avif`, which the lightbox and the web app manifest use, and
 // `<name>-<width>.avif` for every width in src/data/previewImages.json that is
-// smaller than the master itself.
+// smaller than the master itself. A close-up (`detail_*`) is shown at half
+// its master's size or smaller, as a picture of twice the density: it gets
+// the full-size AVIF and WebP alone, at the qualities of the copies, since
+// what it shows is small text.
 //
 // WebP is only the fallback for a browser without AVIF — among the supported
 // ones Safari 16.4 to 17 on macOS 11 and 12, where AVIF depends on the system.
@@ -122,11 +126,16 @@ async function main() {
       const base = master.slice(0, -'.png'.length);
       const { width } = await readPngSize(masterPath);
       const { mtimeMs } = await fs.stat(masterPath);
+      const isDetail = base.startsWith('detail_');
 
       // The full-size file first (no suffix, no resize), then one per width.
       const outputs = [
-        { suffix: '', resize: [], quality: FULL_SIZE_QUALITY },
-        ...variantWidths
+        {
+          suffix: '',
+          resize: [],
+          quality: isDetail ? VARIANT_QUALITY : FULL_SIZE_QUALITY,
+        },
+        ...(isDetail ? [] : variantWidths)
           .filter((w) => w < width)
           .map((w) => ({
             suffix: `-${w}`,
@@ -136,8 +145,9 @@ async function main() {
           })),
       ];
 
-      // The one WebP: at `webpWidth`, or full-size for a narrower master.
-      const webpSuffix = webpWidth < width ? `-${webpWidth}` : '';
+      // The one WebP: at `webpWidth`, or full-size for a narrower master
+      // and for a close-up.
+      const webpSuffix = !isDetail && webpWidth < width ? `-${webpWidth}` : '';
       webpFiles.add(`${base}${webpSuffix}.webp`);
 
       for (const { suffix, resize, quality } of outputs) {

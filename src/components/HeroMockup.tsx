@@ -6,8 +6,13 @@ import { useTranslation } from 'react-i18next';
 import { useDialogA11y } from '@/hooks/ui/useDialogA11y';
 import { useDialogLayer } from '@/hooks/ui/useDialogLayer';
 import { usePrefersReducedMotion } from '@/hooks/ui/usePrefersReducedMotion';
-import previewImages from '@/data/previewImages.json';
 import { panelSurfaceClass, quietIconButtonClass } from '@/utils';
+import {
+  previewBase,
+  previewSrcSet,
+  previewUrl,
+  previewWebpUrl,
+} from '@/components/publicPage/previewImages';
 import {
   CaretLeftIcon,
   CaretRightIcon,
@@ -17,10 +22,7 @@ import {
   XIcon,
 } from '@phosphor-icons/react';
 
-// Slide slugs map to the preview assets in `public/preview/`, which are
-// provided per language (de/en) and theme (light/dark), e.g.
-// `03_sitzplan_de_dark.avif`, plus downscaled copies such as
-// `03_sitzplan_de_dark-960.avif` (`npm run generate:preview-images`).
+// Slide slugs name the screenshots in `public/preview/` (`previewImages.ts`).
 // `labelKey` resolves the localized caption; `width` and `height` are the
 // nominal size of the full-size files (a few masters differ by some pixels).
 const SLIDES = [
@@ -97,40 +99,6 @@ function useIsDark() {
     return () => observer.disconnect();
   }, []);
   return dark;
-}
-
-function slideBase(slug: string, lang: 'de' | 'en', dark: boolean) {
-  return `/preview/${slug}_${lang}_${dark ? 'dark' : 'light'}`;
-}
-
-/**
- * One file of a slide. The screenshots keep their names when they are re-shot
- * while nginx and the service worker cache them as if they never changed, so
- * the URL carries the set's version (`npm run generate:preview-images`): new
- * screenshots are new URLs, and no cache can answer with the old picture.
- */
-function slideUrl(base: string, ext: 'avif' | 'webp', width?: number) {
-  const suffix = width === undefined ? '' : `-${width}`;
-  return `${base}${suffix}.${ext}?v=${previewImages.version}`;
-}
-
-/** Downscaled copies plus the full-size file as the largest candidate. */
-function slideSrcSet(base: string, width: number) {
-  return [
-    ...previewImages.variantWidths
-      .filter((w) => w < width)
-      .map((w) => `${slideUrl(base, 'avif', w)} ${w}w`),
-    `${slideUrl(base, 'avif')} ${width}w`,
-  ].join(', ');
-}
-
-/**
- * The WebP fallback for a browser without AVIF (Safari 16.4 to 17 on macOS 11
- * and 12) comes in one width only, the full size for a narrower screenshot.
- */
-function slideWebpUrl(base: string, width: number) {
-  const { webpWidth } = previewImages;
-  return slideUrl(base, 'webp', webpWidth < width ? webpWidth : undefined);
 }
 
 /**
@@ -225,18 +193,18 @@ export default function HeroMockup() {
         <div className="relative aspect-3/2 bg-(--surface-sunken)">
           {SLIDES.map((entry, i) => {
             if (!mounted.has(i)) return null;
-            const b = slideBase(entry.slug, lang, isDark);
+            const b = previewBase(entry.slug, lang, isDark);
             const isActive = i === current;
             const sizes = slideSizes(entry.width, entry.height);
             return (
               <picture key={entry.slug}>
                 <source
-                  srcSet={slideSrcSet(b, entry.width)}
+                  srcSet={previewSrcSet(b, entry.width)}
                   sizes={sizes}
                   type="image/avif"
                 />
                 <img
-                  src={slideWebpUrl(b, entry.width)}
+                  src={previewWebpUrl(b, entry.width)}
                   alt={t(entry.labelKey)}
                   aria-hidden={!isActive}
                   loading={isActive ? 'eager' : 'lazy'}
@@ -336,15 +304,15 @@ export default function HeroMockup() {
               {/* Lightbox image */}
               <picture>
                 <source
-                  srcSet={slideUrl(
-                    slideBase(SLIDES[current].slug, lang, isDark),
+                  srcSet={previewUrl(
+                    previewBase(SLIDES[current].slug, lang, isDark),
                     'avif',
                   )}
                   type="image/avif"
                 />
                 <img
-                  src={slideWebpUrl(
-                    slideBase(SLIDES[current].slug, lang, isDark),
+                  src={previewWebpUrl(
+                    previewBase(SLIDES[current].slug, lang, isDark),
                     SLIDES[current].width,
                   )}
                   alt={t(SLIDES[current].labelKey)}

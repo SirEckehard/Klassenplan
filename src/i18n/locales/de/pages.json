@@ -14,20 +14,19 @@
       "intro": "Klassenliste, Klassenraum und Sitzplan.",
       "classText": "Trage Schüler ein oder importiere eine vorhandene CSV-Tabelle mit deiner Klasse. Merkmale kannst du schnell mit Fragen beantworten, wie z. B. {{question}}",
       "roomText": "Mit {{setup}} richtest du den Klassenraum mit einem Klick ein oder du gestaltest ihn frei nach deinen Wünschen. Füge Pult, Fenster, Türen und Weiteres hinzu.",
-      "planText": "Mischen, von Hand nachjustieren, Plätze sperren – und automatisch den passenden Sitzkreis erstellen.",
-      "exits": "Präsentiere den Plan an der digitalen Tafel oder exportiere ihn als PDF. Bei Bedarf bekommst du eine Liste mit Platz für Notizen oder einen reduzierten Sitzplan mit Informationen für die Vertretung."
+      "planText": "Mischen, von Hand nachjustieren, Plätze sperren – und automatisch den passenden Sitzkreis erstellen."
     },
     "criteria": {
       "eyebrow": "Was der Plan beachtet",
       "title": "Eine Vielzahl an Kriterien für jede Klasse",
-      "intro": "Wähle für jeden Schüler die passenden Merkmale aus – und der Sitzplan berücksichtigt deine Präferenzen. Voreinstellungen wie {{recipes}} helfen dir, für jede Situation den richtigen Sitzplan zu finden.",
+      "intro": "Wähle für jeden Schüler die passenden Merkmale aus – und der Sitzplan berücksichtigt deine Präferenzen.",
       "historyGroup": "Verlauf"
     },
     "tools": {
       "eyebrow": "Für den Schulalltag",
       "title": "Mehr als ein Sitzplan",
       "intro": "Was du einmal über deine Klasse eingetragen hast, hilft dir auch über den Sitzplan hinaus – vom ersten Schultag bis zur Vertretungsstunde.",
-      "cards": "Drucke Schilder zum Aufstellen oder Anstecken, mit Bildern, Farben und Schreiblinien für Erstklässler – auch zum Ausmalen.",
+      "cards": "Drucke Schilder zum Aufstellen oder Anstecken, mit Bildern, Farben und Schreiblinien für Erstklässler.",
       "nameGame": "Lerne die Namen deiner Schüler spielerisch mit Foto-Quiz und Memory.",
       "whoIsNext": "Rufe Schüler zufällig auf – jeder kommt einmal dran, bevor sich jemand wiederholt.",
       "groups": "Teile die Klasse in Gruppen der gewählten Größe und halte Distanzpartner nach Möglichkeit auseinander.",

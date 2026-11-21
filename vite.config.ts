@@ -202,9 +202,11 @@ export default defineConfig({
         'brand/android/android-chrome-maskable-512-dark.png',
         'brand/app-store/app-store-1024-dark.png',
         // German start page screenshots for offline use, in the two sizes the
-        // carousel picks on phones and desktops. Everything else under
-        // /preview/ is cached at runtime once it has been shown.
-        'preview/*_de_*-{480,960}.avif',
+        // carousel picks on phones and desktops — its slides alone, whose
+        // names begin with their number. Everything else under /preview/,
+        // the close-ups beside the sections included, which only a large
+        // screen shows, is cached at runtime once it has been shown.
+        'preview/0*_de_*-{480,960}.avif',
       ],
       manifest: {
         id: '/',

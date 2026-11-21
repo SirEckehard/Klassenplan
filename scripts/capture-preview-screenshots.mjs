@@ -16,10 +16,16 @@
 // The workspace fills the window from `lg` up — header, toolbar, stage,
 // inspector, status bar — so a slide is the whole window rather than a cut-out:
 // 1440 × 960, the 3:2 shape of the start page's slot. The projection is the
-// exception, shot on a portrait tablet. Screenshots are taken at a device scale
+// exception, shot on a portrait tablet. Beside the slides the script cuts the
+// close-ups the start page shows next to its sections from `lg` up
+// (`PreviewDetail`): whole pieces of the window, never a part of one, each in
+// a state of its own — the brush, the room, a locked seat, a criterion's
+// seats marked, and each class tool at work, its page in a window as narrow
+// as its column — written at twice their size on screen.
+// Screenshots are taken at a device scale
 // factor of 3, then scaled down to the master's size in the browser. The sizes
-// are the ones HeroMockup and the web app manifest (vite.config.ts) declare;
-// changing one means changing those too. A canvas only writes RGBA
+// are the ones HeroMockup, PreviewDetail and the web app manifest
+// (vite.config.ts) declare; changing one means changing those too. A canvas only writes RGBA
 // PNGs, so each master takes a lossless round trip through cwebp and dwebp and
 // is stored as RGB, a third smaller.
 //
@@ -54,6 +60,18 @@ const WIDE_MASTER = { width: 2880, height: 1920 };
 /** A portrait tablet, half the master's size. */
 const PRESENT_VIEWPORT = { width: 712, height: 1118 };
 const PORTRAIT_MASTER = { width: 1424, height: 2236 };
+/**
+ * A close-up is written at twice its size on screen, and the start page
+ * shows it as a picture of that density: at the size the app draws it, or
+ * smaller where the space beside a section is.
+ */
+const DETAIL_SCALE = 2;
+/**
+ * The class tools' pages are a column of their own, at most 672 px wide. In
+ * a window this narrow — `sm` still, so answers and groups stand in two
+ * columns — what a close-up shows of them keeps its shape.
+ */
+const TOOL_VIEWPORT = { width: 664, height: 960 };
 const STUDENT_COUNT = 24;
 /**
  * The student the class slide opens in the inspector: restless, tall, a wish
@@ -152,9 +170,10 @@ async function readTranslations(lang) {
     );
   const generator = await read('generator');
   const students = await read('students');
+  const pages = await read('pages');
   return (key, values = {}) => {
     const [namespace, keyPath] = key.split(':');
-    const source = { generator, students }[namespace];
+    const source = { generator, students, pages }[namespace];
     const text = keyPath
       .split('.')
       .reduce((node, part) => node?.[part], source);
@@ -288,6 +307,116 @@ async function saveSlide(page, output, slug, lang, theme, target, clip) {
   run('cwebp', ['-quiet', '-lossless', rgbaPng, '-o', losslessWebp]);
   run('dwebp', ['-quiet', losslessWebp, '-o', file]);
   logInfo('Captured', { file: path.relative(projectRoot, file) }, SOURCE);
+}
+
+/**
+ * A close-up's cut: whole pieces of the window, never a part of one — the box
+ * around every box given, `margin` wider on each side (one number, or one per
+ * side).
+ */
+function pieceClip(boxes, margin = 16) {
+  const { top, right, bottom, left } =
+    typeof margin === 'number'
+      ? { top: margin, right: margin, bottom: margin, left: margin }
+      : margin;
+  const x = Math.min(...boxes.map((box) => box.x)) - left;
+  const y = Math.min(...boxes.map((box) => box.y)) - top;
+  const end = Math.max(...boxes.map((box) => box.x + box.width)) + right;
+  const foot = Math.max(...boxes.map((box) => box.y + box.height)) + bottom;
+  return {
+    x: Math.round(x),
+    y: Math.round(y),
+    width: Math.round(end - x),
+    height: Math.round(foot - y),
+  };
+}
+
+/**
+ * Writes a close-up: the cut at twice its size, or at up to the capture's
+ * own scale for a piece the window draws small, which the start page then
+ * shows larger than the app does.
+ */
+async function saveDetail(
+  page,
+  output,
+  slug,
+  lang,
+  theme,
+  clip,
+  scale = DETAIL_SCALE,
+) {
+  const target = {
+    width: clip.width * scale,
+    height: clip.height * scale,
+  };
+  await saveSlide(page, output, slug, lang, theme, target, clip);
+}
+
+/**
+ * The room on screen: the 900 × 600 units of the scene its tables stand in,
+ * mapped through the drawing's own transform.
+ */
+async function roomBox(page) {
+  return page
+    .locator('g[data-table-index="0"]')
+    .first()
+    .evaluate((table) => {
+      const matrix = table.parentElement.getScreenCTM();
+      const [a, b] = [
+        [0, 0],
+        [900, 600],
+      ].map(([x, y]) => new DOMPoint(x, y).matrixTransform(matrix));
+      return {
+        x: Math.min(a.x, b.x),
+        y: Math.min(a.y, b.y),
+        width: Math.abs(b.x - a.x),
+        height: Math.abs(b.y - a.y),
+      };
+    });
+}
+
+/** Opens one of the class tools' pages and waits for it to settle. */
+async function openTool(page, baseUrl, prefix, route) {
+  await page.goto(`${baseUrl}${prefix}${route}`);
+  await page.getByRole('main').waitFor();
+  await settle(page);
+}
+
+/** The box a table of the plan or the room takes on screen. */
+async function tableBox(page, index) {
+  return page.locator(`g[data-table-index="${index}"]`).first().boundingBox();
+}
+
+/**
+ * The middle of the aisle between two columns of tables of the screenshot
+ * room, given by their indices: the left edge of a cut that ends at the
+ * window's right edge and cuts through no table.
+ */
+async function aisleBetween(page, before, after) {
+  const boxes = (indices) =>
+    Promise.all(indices.map((index) => tableBox(page, index)));
+  const [left, right] = await Promise.all([boxes(before), boxes(after)]);
+  const leftEnd = Math.max(...left.map((box) => box.x + box.width));
+  const rightStart = Math.min(...right.map((box) => box.x));
+  return (leftEnd + rightStart) / 2;
+}
+
+/**
+ * Scrolls the column around `locator` so the element's top stands at `top`
+ * in the window.
+ */
+async function scrollColumnTo(locator, top) {
+  await locator.evaluate((element, target) => {
+    const scrolls = (node) =>
+      /auto|scroll/.test(getComputedStyle(node).overflowY) &&
+      node.scrollHeight > node.clientHeight + 1;
+    let column = element.parentElement;
+    while (column && !scrolls(column)) {
+      column = column.parentElement;
+    }
+    if (!column) return;
+    column.scrollTop += element.getBoundingClientRect().top - target;
+  }, top);
 }
 
 /** Resolves once the class layer lists every student with a drawn picture. */
@@ -483,6 +612,46 @@ async function captureTheme(page, output, baseUrl, prefix, lang, theme, t) {
     fullWindow,
   );
 
+  // Close-up "Klasse" — the brush: the markers, the question the first one
+  // asks of the class and the rows that answer it.
+  await page
+    .getByRole('button', { name: t('students:brush.start'), exact: true })
+    .click();
+  const brushHead = page.getByRole('group', {
+    name: t('students:brush.title'),
+    exact: true,
+  });
+  await brushHead.waitFor();
+  // The window narrows until the list is 576 px wide, where a row puts its
+  // markers under the name: the head and the first three rows, whole, with
+  // the ring at their end that answers the question. The cut ends on the
+  // line under the third.
+  const wideBrushBox = await brushHead.boundingBox();
+  await page.setViewportSize({
+    width: DESKTOP_VIEWPORT.width - Math.round(wideBrushBox.width - 576),
+    height: DESKTOP_VIEWPORT.height,
+  });
+  await restPointer(page);
+  await settle(page);
+  await saveDetail(
+    page,
+    output,
+    'detail_klasse',
+    lang,
+    theme,
+    pieceClip(
+      [
+        await brushHead.boundingBox(),
+        await page.locator('[data-tour="student-row"]').nth(2).boundingBox(),
+      ],
+      { top: 12, right: 12, bottom: 0, left: 12 },
+    ),
+  );
+  await page.setViewportSize(DESKTOP_VIEWPORT);
+  await page
+    .getByRole('button', { name: t('students:brush.done'), exact: true })
+    .click();
+
   // 02 — the room layer with "Neu einrichten" open: the table types and the
   // arrangements, each with its small picture.
   await goToLayer(page, t, 'room');
@@ -509,6 +678,17 @@ async function captureTheme(page, output, baseUrl, prefix, lang, theme, t) {
     fullWindow,
   );
 
+  // Close-up "Raum" — the room as a whole: every table type, the windows,
+  // the door, the board, the teacher's desk.
+  await saveDetail(
+    page,
+    output,
+    'detail_raum',
+    lang,
+    theme,
+    pieceClip([await roomBox(page)], 12),
+  );
+
   // 03 — the plan layer: the plan, and the criteria beside it.
   await goToLayer(page, t, 'plan');
   await waitForPlan(page, t);
@@ -523,6 +703,125 @@ async function captureTheme(page, output, baseUrl, prefix, lang, theme, t) {
     WIDE_MASTER,
     fullWindow,
   );
+
+  // Close-up "Sitzplan" — the six-seat table with its students around it,
+  // one of its seats locked the way a teacher locks it: the lock that shows
+  // on a seat pointed at, tapped. The slides keep no lock, so it is taken off
+  // again. The table is small in this window, so its close-up is written at
+  // the capture's scale and shown half as large again as the app draws it.
+  const groupTable = page.locator('g[data-table-index="3"]').first();
+  const seatBox = await groupTable
+    .locator('rect[data-seat-index="0"]')
+    .first()
+    .boundingBox();
+  await page.mouse.move(
+    seatBox.x + seatBox.width / 2,
+    seatBox.y + seatBox.height / 2,
+  );
+  await groupTable
+    .getByRole('button', { name: t('generator:seat.lockSeat'), exact: true })
+    .first()
+    .click();
+  const unlockSeat = groupTable.getByRole('button', {
+    name: t('generator:seat.unlockSeat'),
+    exact: true,
+  });
+  await unlockSeat.waitFor();
+  await restPointer(page);
+  await settle(page);
+  await saveDetail(
+    page,
+    output,
+    'detail_sitzplan',
+    lang,
+    theme,
+    pieceClip([await groupTable.boundingBox()], 16),
+    CAPTURE_SCALE,
+  );
+  await unlockSeat.click();
+  await unlockSeat.waitFor({ state: 'detached' });
+
+  // Close-up "Was der Plan beachtet" — the values per criterion switched on
+  // and "Vordere Plätze" marking its seats beside the inspector: the singles
+  // by the board, or the doubles before them too where the shuffle put a
+  // student needing a front seat there. The cut runs down an aisle, above
+  // and below the tables it shows, and across the inspector between its
+  // criteria, so it parts nothing.
+  await page.locator('[data-tour="plan-fulfillment"]').first().click();
+  const frontRow = page.locator(
+    '[data-criterion="preferFrontForNeedsFrontSeat"]',
+  );
+  await frontRow
+    .getByRole('button', {
+      name: translationPattern(t('generator:mix.fulfillment.pinLabel')),
+    })
+    .click();
+  const markedSeats = page.locator('[data-seat-highlight]');
+  await markedSeats.first().waitFor();
+  const markedLeft = Math.min(
+    ...(await markedSeats.evaluateAll((marks) =>
+      marks.map((mark) => mark.getBoundingClientRect().left),
+    )),
+  );
+  const singlesAisle = await aisleBetween(page, [5, 6], [7, 8]);
+  const planAisle =
+    markedLeft > singlesAisle
+      ? singlesAisle
+      : await aisleBetween(page, [2, 3, 4], [5, 6]);
+  const shownTables = pieceClip(
+    await Promise.all(
+      (planAisle === singlesAisle ? [7, 8] : [5, 6, 7, 8]).map((index) =>
+        tableBox(page, index),
+      ),
+    ),
+  );
+  const tablesTop = shownTables.y;
+  const tablesFoot = shownTables.y + shownTables.height;
+  // The inspector's part starts on the hairline above the heading
+  // "Platz & Raum", some 36 px above its first criterion, and ends 6 px
+  // below a whole criterion: the first one whose foot makes the part as tall
+  // as the tables need.
+  const rowFeet = await page
+    .locator('[data-criterion]')
+    .evaluateAll((rows, key) => {
+      const first = rows.findIndex((row) => row.dataset.criterion === key);
+      const top = rows[first].getBoundingClientRect().top;
+      return rows
+        .slice(first)
+        .map((row) => row.getBoundingClientRect().bottom - top);
+    }, 'preferFrontForNeedsFrontSeat');
+  const partHeight = (foot) => 36 + foot + 6;
+  const cutHeight = partHeight(
+    rowFeet.find((foot) => partHeight(foot) >= tablesFoot - tablesTop) ??
+      rowFeet.at(-1),
+  );
+  // Where the column cannot scroll that far, the cut follows its criteria;
+  // the tables' margin takes up the difference.
+  await scrollColumnTo(frontRow, (tablesTop + tablesFoot - cutHeight) / 2 + 36);
+  await restPointer(page);
+  await settle(page);
+  const cutTop = (await frontRow.boundingBox()).y - 36;
+  await saveDetail(
+    page,
+    output,
+    'detail_kriterien',
+    lang,
+    theme,
+    pieceClip(
+      [
+        { x: planAisle, y: cutTop, width: 1, height: cutHeight },
+        { x: DESKTOP_VIEWPORT.width - 1, y: cutTop, width: 1, height: 1 },
+      ],
+      0,
+    ),
+  );
+  await frontRow
+    .getByRole('button', {
+      name: translationPattern(t('generator:mix.fulfillment.unpinLabel')),
+    })
+    .click();
+  await page.locator('[data-tour="plan-fulfillment"]').first().click();
+  await markedSeats.first().waitFor({ state: 'detached' });
 
   // 04 — the same plan as a seating circle.
   await showArrangement(page, t, 'circle');
@@ -616,6 +915,154 @@ async function captureTheme(page, output, baseUrl, prefix, lang, theme, t) {
     WIDE_MASTER,
     fullWindow,
   );
+
+  // Close-up "Namensschilder" — the first card's face as it stands on a
+  // desk: the quarter of the sheet between the fold above it and the cut
+  // below.
+  const firstSheet = await sheetFrame.locator('svg').first().boundingBox();
+  await saveDetail(
+    page,
+    output,
+    'detail_namensschilder',
+    lang,
+    theme,
+    pieceClip(
+      [
+        {
+          x: firstSheet.x,
+          y: firstSheet.y + firstSheet.height / 4,
+          width: firstSheet.width,
+          height: firstSheet.height / 4,
+        },
+      ],
+      0,
+    ),
+  );
+
+  await captureTools(page, output, baseUrl, prefix, lang, theme, t);
+}
+
+/**
+ * The close-ups of the class tools beside "Mehr als ein Sitzplan", each page
+ * in the state that shows what it is for, in a window as narrow as the
+ * column. A tool keeps what it was given in the class (the duties) or in
+ * memory alone (the rest), so each is set up only where it is not yet.
+ */
+async function captureTools(page, output, baseUrl, prefix, lang, theme, t) {
+  const save = async (slug, boxes, margin = 12) => {
+    await restPointer(page);
+    await settle(page);
+    await saveDetail(
+      page,
+      output,
+      slug,
+      lang,
+      theme,
+      pieceClip(
+        await Promise.all(boxes.map((box) => box.boundingBox())),
+        margin,
+      ),
+    );
+  };
+  const button = (key, values) =>
+    page.getByRole('button', { name: t(key, values), exact: true });
+  const main = page.getByRole('main');
+  await page.setViewportSize(TOOL_VIEWPORT);
+
+  // Namensspiel — a question of the photo quiz that shows a face and asks
+  // its name; one that shows a name and asks for its face is drawn again.
+  const photoToName = page.getByText(t('pages:nameGame.quiz.photoToName'), {
+    exact: true,
+  });
+  for (let attempt = 0; ; attempt += 1) {
+    await openTool(page, baseUrl, prefix, '/namensspiel');
+    await page
+      .getByRole('button', {
+        name: new RegExp(
+          `^${translationPattern(t('pages:nameGame.menu.quizTitle')).source}`,
+        ),
+      })
+      .click();
+    await main.locator('img').first().waitFor();
+    if (await photoToName.isVisible()) break;
+    if (attempt === 20) throw new Error('the quiz asked no name for a face');
+  }
+  await save('detail_namensspiel', [photoToName.locator('..')], 16);
+
+  // Wer kommt dran? — the card of a student called up: face, name, seat.
+  await openTool(page, baseUrl, prefix, '/wer-kommt-dran');
+  const start = button('generator:tools.whoIsNext.start');
+  await (
+    (await start.count()) ? start : button('generator:tools.whoIsNext.next')
+  ).click();
+  await page.locator('[data-spotlight]').first().waitFor();
+  await save('detail_werkommtdran', [main.getByRole('status').first()]);
+
+  // Gruppen bilden — the group size and the first two groups of four.
+  await openTool(page, baseUrl, prefix, '/gruppen');
+  await button('generator:tools.groups.draw').click();
+  const groupCard = (number) =>
+    main
+      .getByRole('listitem')
+      .filter({
+        has: page.getByText(t('generator:tools.groups.groupName', { number }), {
+          exact: true,
+        }),
+      })
+      .first();
+  await groupCard(1).waitFor();
+  await save('detail_gruppen', [
+    page.locator('#group-size-label'),
+    groupCard(1),
+    groupCard(2),
+  ]);
+
+  // Dienste verteilen — board duty for one and sweeping for two, handed out.
+  await openTool(page, baseUrl, prefix, '/dienste');
+  const boardDuty = button('generator:tools.duties.suggestion.board');
+  if (await boardDuty.count()) {
+    await boardDuty.click();
+    await button('generator:tools.duties.add').click();
+    const sweeping = t('generator:tools.duties.suggestion.sweeping');
+    await page
+      .getByRole('textbox', {
+        name: t('generator:tools.duties.nameLabel', { number: 2 }),
+      })
+      .fill(sweeping);
+    await button('generator:tools.duties.more', { name: sweeping }).click();
+    await button('generator:tools.duties.draw').click();
+  }
+  await button('generator:tools.duties.redraw').waitFor();
+  await save('detail_dienste', [
+    page.locator('section[aria-labelledby="round-heading"]'),
+  ]);
+
+  // Wo sitzt wer? — the first letters of a name typed in and the two or
+  // three students they find. The answer below, with the plan, is taller
+  // than the space beside the section allows.
+  const { students } = await accessActiveClass(page, baseUrl);
+  await openTool(page, baseUrl, prefix, '/wo-sitzt-wer');
+  const search = page.getByRole('searchbox', {
+    name: t('generator:tools.seatFinder.placeholder'),
+  });
+  const matches = main.getByRole('list');
+  let found = false;
+  for (const student of students) {
+    // A single match opens at once and takes the list away.
+    await search.fill(student.name.slice(0, 2));
+    await settle(page);
+    const count = (await matches.count())
+      ? await matches.getByRole('button').count()
+      : 0;
+    if (count >= 2 && count <= 3) {
+      found = true;
+      break;
+    }
+  }
+  if (!found) throw new Error('no two letters found two or three students');
+  await save('detail_wositztwer', [search, matches]);
+
+  await page.setViewportSize(DESKTOP_VIEWPORT);
 }
 
 async function main() {

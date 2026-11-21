@@ -14,20 +14,19 @@
       "intro": "Class list, classroom and seating plan.",
       "classText": "Type in your students or import an existing CSV file of your class. You set attributes quickly by answering questions such as {{question}}",
       "roomText": "With {{setup}} you furnish the classroom in one click, or you arrange it freely the way you want. Add a teacher's desk, windows, doors and more.",
-      "planText": "Mix, adjust by hand, lock seats – and create the matching seating circle automatically.",
-      "exits": "Present the plan on the interactive whiteboard or export it as a PDF. When you need one, you get a list with room for notes or a reduced seating plan with information for a substitute."
+      "planText": "Mix, adjust by hand, lock seats – and create the matching seating circle automatically."
     },
     "criteria": {
       "eyebrow": "What the plan considers",
       "title": "A wide range of criteria for every class",
-      "intro": "Choose the right attributes for each student – and the seating plan takes your preferences into account. Presets such as {{recipes}} help you find the right seating plan for every situation.",
+      "intro": "Choose the right attributes for each student – and the seating plan takes your preferences into account.",
       "historyGroup": "History"
     },
     "tools": {
       "eyebrow": "For the school day",
       "title": "More than a seating plan",
       "intro": "What you enter about your class once helps you beyond the seating plan too – from the first day of school to a substitute lesson.",
-      "cards": "Print cards to stand on the desk or to wear, with pictures, colours and writing lines for first graders – also for colouring in.",
+      "cards": "Print cards to stand on the desk or to wear, with pictures, colours and writing lines for first graders.",
       "nameGame": "Learn your students' names playfully with a photo quiz and memory.",
       "whoIsNext": "Call on students at random – everyone has a turn before anyone comes up again.",
       "groups": "Split the class into groups of the size you choose and keep distance partners apart where possible.",

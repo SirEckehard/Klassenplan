@@ -22,7 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - On a wide screen the class list names the wish and distance partners in their attribute
 - "Relationships" shows contradictions and who has not been named yet at the top, and a line per student with their wishes in order and how often they were named
 - "Set up from scratch" spreads group tables evenly through the room and turns every layout towards the board, wherever it hangs
-- The start page also presents the name cards and the class tools, with new screenshots
+- The start page also presents the name cards and the class tools, with new screenshots and, on a large screen, close-ups beside its sections
 
 ### Fixed
 

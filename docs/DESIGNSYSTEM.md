@@ -1,6 +1,6 @@
 # Design System – Klassenplan
 
-> **Status:** current · **Last reviewed:** 2026-11-14 · **Maintainer:** Eike
+> **Status:** current · **Last reviewed:** 2026-11-21 · **Maintainer:** Eike
 > Schäfer · **Describes:** Klassenplan 3.1.2
 
 This document describes the binding design tokens for Klassenplan. All values live in `src/index.css` and are reachable from TypeScript through `src/utils/ui/designTokens.ts`.
@@ -491,9 +491,10 @@ The criteria section is the only place on the page with colour, and it may
 have it because every colour there describes pedagogy: each family is a
 `dataHeadingClass` over `dataChipClass` chips, icon and word, in the order and
 with the names the inspector uses (`criteriaIcons.ts`,
-`generator:mix.criteria.*`). The layers, presets, importance levels and tools
-the page mentions are quoted from the app's own keys, so the page cannot call
-a thing differently from the screen it describes. "Mehr als ein Sitzplan"
+`generator:mix.criteria.*`); Person and Verlauf, a criterion each, share the
+last cell, under one another beside "Platz & Raum". The layers, the button and the question and the
+tools the page mentions are quoted from the app's own keys, so the page cannot
+call a thing differently from the screen it describes. "Mehr als ein Sitzplan"
 lists what the class does beyond the plan — the name cards and the class
 tools, with the icon and the name the toolbar gives each — in the shape of the
 layers' section: the claim on the left, the items on the right, divided by
@@ -505,6 +506,25 @@ screenshots (`npm run capture:preview-screenshots`), with no browser chrome
 drawn around them. Nothing floats over the picture: the slide's name, its
 position and the controls sit in a strip below it, the way the app keeps its
 own out of the stage.
+
+From `lg` up the claim's column of "So funktioniert's", of the criteria and
+of "Mehr als ein Sitzplan" carries a close-up under the claim, where it stood
+empty (`PreviewDetail`). It is a whole piece of the window, never a part of one
+— the head of the class list with the brush asking "Wer zeigt aktuell
+Unruhe?", the room, the six-seat table with a seat locked, "Vordere Plätze"
+marking its seats beside the criteria's values, and each class tool at work: a
+name card's face, a question of the quiz, the student called up, the first
+groups, the duties handed out, a name being found. A cut runs only where
+nothing is parted: down an aisle, along a hairline, between two rows. The
+close-up takes what the claim leaves of the column, down to the end of the list
+beside it, so the section grows no taller for it, and stands in the middle of
+that space at the size the app draws it or smaller, framed by a hairline.
+Beside the layers and the tools it is the close-up of the item last clicked or
+tapped: that item keeps its ink, the others' number or icon and title are grey,
+and a pointer darkens an item without changing anything — the page scrolling
+under a resting pointer would. The pictures cross-fade. They say nothing the words beside them do not, so they
+are hidden from assistive technology and the keyboard loses nothing. Below
+`lg` neither is shown nor loaded: a phone scrolls no further than before.
 
 The pages beside it — FAQ, support, contact, changelog, Impressum,
 Datenschutzerklärung and the 404 page — share its type
