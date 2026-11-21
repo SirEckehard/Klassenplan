@@ -264,6 +264,70 @@ describe('backupValidation: neighbourhood resets', () => {
   });
 });
 
+describe('backupValidation: how a plan in use went', () => {
+  const record = {
+    id: 'u1',
+    fingerprint: 'f1',
+    pairs: ['a::b', 'c::d'],
+    firstSeenAt: '2026-09-01T00:00:00.000Z',
+    lastSeenAt: '2026-09-01T00:00:00.000Z',
+    sources: ['presented'],
+    confidence: 1,
+    confirmed: true,
+  };
+  const withFeedback = (feedback: unknown) =>
+    JSON.stringify({
+      ...baseBundle,
+      version: 2,
+      planUsage: { 'class-1': [{ ...record, feedback }] },
+    });
+
+  it('accepts a rating and the tables that did not work', () => {
+    const feedback = {
+      rating: 'poor',
+      poorTables: [['c', 'd']],
+      at: '2026-10-20T09:00:00.000Z',
+    };
+
+    expect(
+      parseExportBundle(withFeedback(feedback)).planUsage?.['class-1']?.[0]
+        ?.feedback,
+    ).toEqual(feedback);
+  });
+
+  it('rejects a rating it does not know', () => {
+    expect(() =>
+      parseExportBundle(
+        withFeedback({ rating: 'meh', at: '2026-10-20T09:00:00.000Z' }),
+      ),
+    ).toThrow(BackupValidationError);
+  });
+
+  it('rejects a table that holds something else than ids', () => {
+    expect(() =>
+      parseExportBundle(
+        withFeedback({
+          rating: 'poor',
+          poorTables: [[{ name: 'Anna' }]],
+          at: '2026-10-20T09:00:00.000Z',
+        }),
+      ),
+    ).toThrow(BackupValidationError);
+  });
+
+  it('rejects more tables than a class has students', () => {
+    expect(() =>
+      parseExportBundle(
+        withFeedback({
+          rating: 'poor',
+          poorTables: Array.from({ length: 37 }, () => ['a', 'b']),
+          at: '2026-10-20T09:00:00.000Z',
+        }),
+      ),
+    ).toThrow(BackupValidationError);
+  });
+});
+
 describe('backupValidation: class duties', () => {
   const classDuties = {
     duties: [{ id: 'board', name: 'Tafeldienst', count: 2 }],

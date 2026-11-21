@@ -1024,6 +1024,35 @@ const PLAN_USAGE_SOURCES = new Set<string>([
   'marked',
 ]);
 
+const PLAN_FEEDBACK_RATINGS = new Set<string>(['good', 'poor']);
+
+/** How a plan in use went (decision 0054): a rating and student ids only. */
+function validatePlanFeedback(value: unknown): void {
+  if (
+    !isObject(value) ||
+    typeof value.rating !== 'string' ||
+    !PLAN_FEEDBACK_RATINGS.has(value.rating) ||
+    !assertString(value.at, { maxLength: BACKUP_LIMITS.maxTimestampLength })
+  ) {
+    throw new BackupValidationError(BACKUP_ERROR_MESSAGES.invalidData);
+  }
+  if (value.poorTables === undefined) return;
+  if (
+    !Array.isArray(value.poorTables) ||
+    value.poorTables.length > BACKUP_LIMITS.maxStudents ||
+    !value.poorTables.every(
+      (table) =>
+        Array.isArray(table) &&
+        table.length <= BACKUP_LIMITS.maxStudents &&
+        table.every((id) =>
+          assertString(id, { maxLength: BACKUP_LIMITS.maxIdLength }),
+        ),
+    )
+  ) {
+    throw new BackupValidationError(BACKUP_ERROR_MESSAGES.invalidData);
+  }
+}
+
 function validatePlanUsageRecord(value: unknown): void {
   if (!isObject(value)) {
     throw new BackupValidationError(BACKUP_ERROR_MESSAGES.invalidData);
@@ -1068,6 +1097,7 @@ function validatePlanUsageRecord(value: unknown): void {
   ) {
     throw new BackupValidationError(BACKUP_ERROR_MESSAGES.invalidData);
   }
+  if (value.feedback !== undefined) validatePlanFeedback(value.feedback);
 }
 
 function validatePlanUsage(value: unknown): void {

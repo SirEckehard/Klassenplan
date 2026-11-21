@@ -9,6 +9,7 @@
  */
 import type {
   MixResult,
+  PlanFeedback,
   PlanUsage,
   PlanUsageSource,
   SavedPlan,
@@ -203,6 +204,100 @@ export function markPlanUsage(
       sources: ['marked'],
       confidence: confidenceForSources(['marked']),
       confirmed: true,
+    },
+  ]);
+}
+
+/**
+ * Feedback as it is kept (decision 0054). A good plan names no table. A table
+ * that did not work is the sorted ids of who sat there, kept only when at
+ * least two of them sat together in this arrangement — every pair of it a
+ * pair of the record — and each table once, in a fixed order. Normalising
+ * twice changes nothing.
+ *
+ * @param feedback What the teacher said
+ * @param pairs The record's pair keys
+ */
+export function normalizePlanFeedback(
+  feedback: PlanFeedback,
+  pairs: readonly string[],
+): PlanFeedback {
+  if (feedback.rating === 'good') return { rating: 'good', at: feedback.at };
+
+  const known = new Set(pairs);
+  const tables = new Map<string, string[]>();
+  for (const table of feedback.poorTables ?? []) {
+    const ids = [...new Set(table)].sort();
+    if (ids.length < 2) continue;
+    const allSatTogether = ids.every((id, i) =>
+      ids.slice(i + 1).every((other) => known.has(seatPairKey(id, other))),
+    );
+    if (!allSatTogether) continue;
+    tables.set(JSON.stringify(ids), ids);
+  }
+
+  // Code-unit order, as the ids themselves: the same on every device.
+  const poorTables = [...tables.keys()].sort().map((key) => tables.get(key)!);
+  return poorTables.length > 0
+    ? { rating: 'poor', poorTables, at: feedback.at }
+    : { rating: 'poor', at: feedback.at };
+}
+
+/**
+ * Say how the plan with these pairs went, or take that back (`null`).
+ *
+ * Feedback is given for a plan in use, so it confirms the record, and a plan
+ * without one gets a record of its own with the source `marked`, dated `at` —
+ * the day the plan was made, as {@link markPlanUsage} does. Taking it back
+ * leaves the record as used. Feedback outlasts every later signal for the
+ * same arrangement, since a signal only extends the record.
+ *
+ * @param entries Records of one class
+ * @param signal The plan's pairs, fingerprint, date and an id for a new record
+ * @param feedback What the teacher said, or null to take it back
+ */
+export function withPlanFeedback(
+  entries: readonly PlanUsage[],
+  {
+    pairs,
+    fingerprint,
+    at,
+    id,
+  }: Pick<PlanUsageSignal, 'pairs' | 'fingerprint' | 'at' | 'id'>,
+  feedback: PlanFeedback | null,
+): PlanUsage[] {
+  const index = entries.findIndex((entry) => entry.fingerprint === fingerprint);
+
+  if (index !== -1) {
+    const existing = entries[index];
+    const next = [...entries];
+    if (feedback === null) {
+      const rest = { ...existing };
+      delete rest.feedback;
+      next[index] = rest;
+    } else {
+      next[index] = {
+        ...existing,
+        confirmed: true,
+        feedback: normalizePlanFeedback(feedback, existing.pairs),
+      };
+    }
+    return next;
+  }
+  if (feedback === null) return [...entries];
+
+  return trimPlanUsage([
+    ...entries,
+    {
+      id,
+      fingerprint,
+      pairs: [...pairs],
+      firstSeenAt: at,
+      lastSeenAt: at,
+      sources: ['marked'],
+      confidence: confidenceForSources(['marked']),
+      confirmed: true,
+      feedback: normalizePlanFeedback(feedback, pairs),
     },
   ]);
 }

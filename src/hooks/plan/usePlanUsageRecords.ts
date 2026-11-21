@@ -11,7 +11,7 @@
  * teacher marked as used counts.
  */
 import { useCallback, useEffect, useState } from 'react';
-import type { PlanUsage, SeatingArrangement } from '@/types';
+import type { PlanFeedback, PlanUsage, SeatingArrangement } from '@/types';
 import { logError } from '@/utils';
 import { resolvePlanUsageMode } from '@/utils/data/planUsage';
 import {
@@ -20,6 +20,7 @@ import {
   loadPlanUsageResetAt,
   markPlanUsed,
   resetPlanUsage,
+  setPlanFeedback,
   setPlanUsageConfirmed,
   setPlanUsageManual,
   subscribeToPlanUsage,
@@ -44,6 +45,15 @@ export interface PlanUsageRecordsReturn {
    * Mark a plan as used or not; `at` dates a record it creates (ISO 8601).
    */
   markUsed: (seating: SeatingArrangement, used: boolean, at: string) => void;
+  /**
+   * Say how a plan went, or take it back with `null`; marks the plan as used,
+   * and `at` dates a record it creates (ISO 8601).
+   */
+  setFeedback: (
+    seating: SeatingArrangement,
+    feedback: PlanFeedback | null,
+    at: string,
+  ) => void;
   /** Start the class's neighbourhoods afresh; resolves to what it took away. */
   resetUsage: () => Promise<PlanUsageResetSnapshot | null>;
   /** Take a reset back. */
@@ -121,6 +131,23 @@ export function usePlanUsageRecords(
     [classId],
   );
 
+  const setFeedback = useCallback(
+    (
+      seating: SeatingArrangement,
+      feedback: PlanFeedback | null,
+      at: string,
+    ) => {
+      setPlanFeedback(classId, seating, feedback, at).catch((error) => {
+        logError(
+          'Failed to keep how a plan went',
+          { error, rating: feedback?.rating ?? null },
+          LOG_SOURCE,
+        );
+      });
+    },
+    [classId],
+  );
+
   const resetUsage = useCallback(
     () =>
       resetPlanUsage(classId).catch((error: unknown) => {
@@ -145,6 +172,7 @@ export function usePlanUsageRecords(
     setUsageConfirmed,
     setUsageManual,
     markUsed,
+    setFeedback,
     resetUsage,
     undoReset,
   };

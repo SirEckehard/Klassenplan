@@ -1,6 +1,6 @@
 # Data Model
 
-> **Status:** current · **Last reviewed:** 2026-11-19 · **Source of truth:**
+> **Status:** current · **Last reviewed:** 2026-11-22 · **Source of truth:**
 > `src/utils/data/storageKeys.ts`, `src/types/`, `src/repositories/`
 
 Everything Klassenplan stores lives in the teacher's browser. This document
@@ -278,7 +278,7 @@ interface PlanUsageData {
 Each `PlanUsage` holds a `fingerprint`, the sorted pair keys (`"idA::idB"`),
 `firstSeenAt` / `lastSeenAt`, the `sources` that raised it, the resulting
 `confidence` and `confirmed` — the teacher's answer to the confirmation prompt,
-undefined until they give one. It never holds a full arrangement. Semantics are described in
+undefined until they give one — and perhaps `feedback`, how the plan went. It never holds a full arrangement. Semantics are described in
 [ALGORITHM.md](ALGORITHM.md#plan-usage-record).
 
 - At most `PLAN_USAGE_LIMIT` (40) records per class — roughly two school years —
@@ -300,6 +300,16 @@ undefined until they give one. It never holds a full arrangement. Semantics are 
   record with the source `marked`, dated the day the plan was made. The field
   is additive; data written before it reads as detecting
   ([decision 0025](decisions/0025-plan-usage-marked-by-hand.md)).
+- A record may carry `feedback`, how the plan went: a `rating` (`good` or
+  `poor`), with `poor` the `poorTables` at which it did not work — each the
+  sorted ids of who sat there, only tables every pair of which is a pair of
+  the record (`normalizePlanFeedback`) — and when it was given (`at`). No
+  names, no reason. `setPlanFeedback` keeps or takes it back; giving it
+  confirms the record or, for a plan without one, writes a record with the
+  source `marked`, as `markPlanUsed` does. A later signal for the same
+  arrangement keeps it, and it goes with the record — trimmed, reset, swept.
+  The field is additive
+  ([decision 0054](decisions/0054-experience-of-a-plan-in-use.md)).
 - A stored value with a version other than 1 is read as empty.
 
 ### Name game statistics

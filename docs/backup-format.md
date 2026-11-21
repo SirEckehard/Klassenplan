@@ -97,6 +97,10 @@ Optional fields (version ≥ 2):
   plans were actually in use (pair keys and timestamps only, never a full
   arrangement). Absent when nothing has been recorded yet. A full import
   replaces the stored record; a merge only adds classes that have none yet.
+  A record may carry `feedback`, how the plan went: a rating and the tables
+  at which it did not work, as student ids
+  ([decision 0054](decisions/0054-experience-of-a-plan-in-use.md)); versions
+  before it restore the record without using it.
   See [ALGORITHM.md](ALGORITHM.md#plan-usage-record).
 - `planUsageResetAt` – map of class id → ISO 8601 timestamp of the class's last
   neighbourhood reset. Absent when no class was reset; older backups without
@@ -180,7 +184,9 @@ too large, with its size, or not restorable, which is a bug to report).
   state it stands for.
 - At most **2,000** entries in `studentPhotos`, each Data URL at most **96 KB**.
 - At most **200** classes in `planUsage`, **200** records each, with at most
-  **1,000** pair keys per record; at most **200** classes in `planUsageResetAt`,
+  **1,000** pair keys per record, its `feedback` rated `good` or `poor` with at
+  most **36** tables of at most **36** ids; at most **200** classes in
+  `planUsageResetAt`,
   each a parseable timestamp; at most **200** class ids in
   `planUsageManualClassIds`.
 - At most **60** presets of the teacher's own in `mixPresets`, twice the 30

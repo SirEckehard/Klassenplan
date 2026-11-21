@@ -19,6 +19,9 @@ import type {
   LockedPositions,
   MixResult,
   MixSettings,
+  PlanFeedback,
+  PlanUsage,
+  PlanUsageSource,
   RoomRecord,
   SavedPlan,
   SeatingArrangement,
@@ -30,6 +33,12 @@ import {
   MIX_CRITERIA_VERSION,
   TABLE_PRESETS,
 } from '@/utils';
+import {
+  collectSeatingPairKeys,
+  computePlanFingerprint,
+  confidenceForSources,
+  normalizePlanFeedback,
+} from '@/utils/data/planUsage';
 
 const TEMPLATES: readonly TableTemplateType[] = [
   'single',
@@ -250,6 +259,110 @@ const mixSettingsArb: fc.Arbitrary<MixSettings | null> = fc.option(
   }),
   { nil: null },
 );
+
+const USAGE_SOURCES: readonly PlanUsageSource[] = [
+  'presented',
+  'exported',
+  'saved',
+  'edited',
+  'marked',
+];
+
+/**
+ * Some of the students at tables of two to six, the last one smaller where
+ * they run out — an arrangement with at least one pair, which every usage
+ * record has. Needs two students or more.
+ */
+const groupedSeatingArb = (
+  students: readonly Student[],
+): fc.Arbitrary<SeatingArrangement> =>
+  fc
+    .record({
+      seated: fc.shuffledSubarray([...students], { minLength: 2 }),
+      sizes: fc.array(fc.integer({ min: 2, max: 6 }), {
+        minLength: 1,
+        maxLength: 4,
+      }),
+    })
+    .map(({ seated, sizes }) => {
+      const tables: Student[][] = [];
+      let offset = 0;
+      while (offset < seated.length) {
+        const size = sizes[tables.length % sizes.length]!;
+        tables.push(seated.slice(offset, offset + size));
+        offset += size;
+      }
+      return tables;
+    });
+
+/**
+ * Feedback as a teacher could hand it over, before the app keeps it: a rating
+ * and, for any rating, tables named by ids of the class in any order — at
+ * times a table twice, one of a single student, or students who never sat
+ * together. `normalizePlanFeedback` makes what is kept of it.
+ */
+export const rawPlanFeedbackArb = (
+  students: readonly Student[],
+): fc.Arbitrary<PlanFeedback> =>
+  fc
+    .record({
+      rating: fc.constantFrom('good' as const, 'poor' as const),
+      poorTables: fc.array(
+        fc.shuffledSubarray(students.map((student) => student.id)),
+        { maxLength: 4 },
+      ),
+      at: isoDate,
+    })
+    .map(({ poorTables, ...feedback }) =>
+      poorTables.length > 0 ? { ...feedback, poorTables } : feedback,
+    );
+
+/**
+ * A usage record of an arrangement of these students, in the shape the app
+ * writes it: its pairs and fingerprint, some sources, perhaps an answer, and
+ * perhaps feedback — which confirms it, its tables picked from who sat
+ * together. Needs two students or more.
+ */
+export const planUsageArb = (
+  students: readonly Student[],
+): fc.Arbitrary<PlanUsage> =>
+  groupedSeatingArb(students).chain((seating) => {
+    const pairs = collectSeatingPairKeys(seating);
+    const tables = seating.map((seats) =>
+      seats.flatMap((student) => (student ? [student.id] : [])),
+    );
+    return fc
+      .record({
+        id: fc.uuid(),
+        firstSeenAt: isoDate,
+        sources: fc.subarray([...USAGE_SOURCES], { minLength: 1 }),
+        confirmed: fc.option(fc.boolean(), { nil: undefined }),
+        feedback: fc.option(
+          fc.record({
+            rating: fc.constantFrom('good' as const, 'poor' as const),
+            poorTables: fc.subarray(tables),
+            at: isoDate,
+          }),
+          { nil: undefined },
+        ),
+      })
+      .map(({ firstSeenAt, sources, confirmed, feedback, ...rest }) => ({
+        ...rest,
+        fingerprint: computePlanFingerprint(pairs),
+        pairs,
+        firstSeenAt,
+        lastSeenAt: firstSeenAt,
+        sources,
+        confidence: confidenceForSources(sources),
+        ...(confirmed === undefined ? {} : { confirmed }),
+        ...(feedback
+          ? {
+              confirmed: true,
+              feedback: normalizePlanFeedback(feedback, pairs),
+            }
+          : {}),
+      }));
+  });
 
 /**
  * A class as the app keeps it: students, the open room's scene and seating,

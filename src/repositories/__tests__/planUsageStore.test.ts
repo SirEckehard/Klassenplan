@@ -28,6 +28,7 @@ import {
   recordPlanUsage,
   resetPlanUsage,
   restorePlanUsage,
+  setPlanFeedback,
   setPlanUsageManual,
   sweepOrphanPlanUsage,
   undoPlanUsageReset,
@@ -527,6 +528,89 @@ describe('markPlanUsed', () => {
     );
 
     expect(await loadPlanUsage('c1')).toHaveLength(1);
+  });
+});
+
+describe('setPlanFeedback', () => {
+  const poor = {
+    rating: 'poor' as const,
+    poorTables: [['c', 'd']],
+    at: '2026-10-20T09:00:00.000Z',
+  };
+
+  it('keeps how a detected plan went on its record and confirms it', async () => {
+    await recordPlanUsage(
+      'c1',
+      seatingOf([
+        ['a', 'b'],
+        ['c', 'd'],
+      ]),
+      'presented',
+    );
+    await setPlanFeedback(
+      'c1',
+      seatingOf([
+        ['d', 'c'],
+        ['b', 'a'],
+      ]),
+      poor,
+      '2026-09-01T00:00:00.000Z',
+    );
+
+    const entries = await loadPlanUsage('c1');
+    expect(entries).toHaveLength(1);
+    expect(entries[0]).toMatchObject({
+      sources: ['presented'],
+      confirmed: true,
+      feedback: poor,
+    });
+  });
+
+  it('marks a plan without a record as used, while the class marks by hand', async () => {
+    await setPlanUsageManual('c1', true);
+    await setPlanFeedback(
+      'c1',
+      seatingOf([['a', 'b']]),
+      { rating: 'good', at: poor.at },
+      '2026-09-01T00:00:00.000Z',
+    );
+
+    const [entry] = await loadPlanUsage('c1');
+    expect(entry).toMatchObject({
+      sources: ['marked'],
+      confirmed: true,
+      lastSeenAt: '2026-09-01T00:00:00.000Z',
+      feedback: { rating: 'good', at: poor.at },
+    });
+  });
+
+  it('goes with a reset and comes back with its undo', async () => {
+    const seating = seatingOf([['c', 'd']]);
+    await setPlanFeedback('c1', seating, poor, '2026-09-01T00:00:00.000Z');
+
+    const snapshot = await resetPlanUsage(
+      'c1',
+      new Date('2026-10-21T08:00:00.000Z'),
+    );
+    expect(await loadPlanUsage('c1')).toEqual([]);
+
+    await undoPlanUsageReset('c1', snapshot!);
+    expect((await loadPlanUsage('c1'))[0]?.feedback).toEqual(poor);
+  });
+
+  it('travels with a backup', async () => {
+    await setPlanFeedback(
+      'c1',
+      seatingOf([['c', 'd']]),
+      poor,
+      '2026-09-01T00:00:00.000Z',
+    );
+    const backup = await getAllPlanUsage();
+    memory.clear();
+
+    await restorePlanUsage(backup);
+
+    expect((await loadPlanUsage('c1'))[0]?.feedback).toEqual(poor);
   });
 });
 

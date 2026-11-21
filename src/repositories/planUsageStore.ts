@@ -25,8 +25,10 @@ import {
   mergePlanUsageSignal,
   trimPlanUsage,
   usageBelongsToClass,
+  withPlanFeedback,
 } from '@/utils/data/planUsage';
 import type {
+  PlanFeedback,
   PlanUsage,
   PlanUsageData,
   PlanUsageSource,
@@ -266,6 +268,46 @@ export async function markPlanUsed(
     byClass: {
       ...data.byClass,
       [classId]: markPlanUsage(data.byClass[classId] ?? [], signal, used),
+    },
+  }));
+}
+
+/**
+ * Say how a seating plan in use went, or take that back — in "Bibliothek" and
+ * in the plan layer's inspector, whether the class detects its plans or not
+ * (decision 0054). Feedback marks the plan as used.
+ *
+ * @param classId Class the plan belongs to
+ * @param seating The plan's arrangement
+ * @param feedback What the teacher said, or null to take it back
+ * @param at When the plan was made (ISO 8601); dates a record it creates
+ */
+export async function setPlanFeedback(
+  classId: string | null | undefined,
+  seating: SeatingArrangement | null | undefined,
+  feedback: PlanFeedback | null,
+  at: string,
+): Promise<void> {
+  if (!classId || !hasIndexedDB()) return;
+
+  const pairs = collectSeatingPairKeys(seating);
+  if (pairs.length === 0) return;
+  const signal = {
+    pairs,
+    fingerprint: computePlanFingerprint(pairs),
+    at,
+    id: generateId(),
+  };
+
+  await mutate((data) => ({
+    ...data,
+    byClass: {
+      ...data.byClass,
+      [classId]: withPlanFeedback(
+        data.byClass[classId] ?? [],
+        signal,
+        feedback,
+      ),
     },
   }));
 }

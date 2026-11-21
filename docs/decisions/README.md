@@ -66,6 +66,7 @@ it says so instead of reconstructing one.
 | [0051](0051-markers-in-the-class-list.md)            | The class list explains its markers, and a brush replaces the focus mode |
 | [0052](0052-relations-findings-first.md)             | The relations view: what deserves a look first, then a line per student  |
 | [0053](0053-room-arrangements.md)                    | "Neu einrichten" sets tables towards the board, and offers arrangements  |
+| [0054](0054-experience-of-a-plan-in-use.md)          | A plan in use keeps how it went, and "Erfahrung" reads it (proposed)     |
 
 ## Reasons still to be recorded
 

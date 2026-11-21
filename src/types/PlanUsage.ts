@@ -23,6 +23,26 @@ export type PlanUsageSource =
   /** Marked as used by the teacher in "Bibliothek". */
   | 'marked';
 
+/** How a plan in use went, as the teacher said (decision 0054). */
+export type PlanFeedbackRating = 'good' | 'poor';
+
+/**
+ * What the teacher said about a plan in use. It is experience with an
+ * arrangement, not a statement about a child: no names and no reason are
+ * kept, only who sat together at a table that did not work.
+ */
+export interface PlanFeedback {
+  rating: PlanFeedbackRating;
+  /**
+   * The tables at which it did not work, each as the sorted ids of the
+   * students who sat there — only with `poor`, and left out when none was
+   * chosen. Every pair of such a table is a pair of the record.
+   */
+  poorTables?: string[][];
+  /** ISO 8601 timestamp of when it was given. */
+  at: string;
+}
+
 /** One seating plan that was in use, with the evidence backing that claim. */
 export interface PlanUsage {
   id: string;
@@ -51,6 +71,12 @@ export interface PlanUsage {
    * then; a record is counted on its {@link confidence} alone in that case.
    */
   confirmed?: boolean;
+  /**
+   * How the plan went, once the teacher said so. Giving it confirms the
+   * record; it stays when the record is later taken out of the count, and
+   * counts again with it.
+   */
+  feedback?: PlanFeedback;
 }
 
 /** Stored shape of the plan usage record, one bucket per class. */

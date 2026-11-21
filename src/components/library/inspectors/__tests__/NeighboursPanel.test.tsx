@@ -42,6 +42,7 @@ const records = (
   setUsageConfirmed: vi.fn(),
   setUsageManual: vi.fn(),
   markUsed: vi.fn(),
+  setFeedback: vi.fn(),
   resetUsage: vi.fn().mockResolvedValue(null),
   undoReset: vi.fn().mockResolvedValue(undefined),
   ...overrides,

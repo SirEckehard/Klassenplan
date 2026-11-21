@@ -96,7 +96,13 @@ export type {
   MemoryBestScore,
   NameGameData,
 } from './NameGame';
-export type { PlanUsage, PlanUsageSource, PlanUsageData } from './PlanUsage';
+export type {
+  PlanFeedback,
+  PlanFeedbackRating,
+  PlanUsage,
+  PlanUsageSource,
+  PlanUsageData,
+} from './PlanUsage';
 export type { ClassDuties, Duty, DutyData, DutyRound } from './Duties';
 export type {
   BuiltinMixRecipeId,

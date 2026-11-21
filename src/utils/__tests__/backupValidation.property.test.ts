@@ -8,17 +8,20 @@
  */
 import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
-import type { ClassRecord, ExportBundle } from '@/types';
+import type { ClassRecord, ExportBundle, PlanUsage } from '@/types';
 import { neutralSettings, normalizeMixSettings } from '@/utils';
 import { createClassCollection } from '@/utils/data/classCollection';
 import { dehydrateExportBundle } from '@/utils/data/storedSeating';
 import { parseExportBundle } from '@/utils/validation/backupValidation';
-import { classRecordArb } from '@/__tests__/utils/arbitraries';
+import { classRecordArb, planUsageArb } from '@/__tests__/utils/arbitraries';
 
 const RUNS = { numRuns: 200 };
 
 /** The backup the export writes for these classes, the first one open. */
-function backupOf(classes: ClassRecord[]): string {
+function backupOf(
+  classes: ClassRecord[],
+  planUsage?: Record<string, PlanUsage[]>,
+): string {
   const open = classes[0]!;
   const collection = createClassCollection(open);
   collection.classes = classes;
@@ -37,6 +40,7 @@ function backupOf(classes: ClassRecord[]): string {
     circleLayouts: [],
     currentCircleLayout: null,
     classCollection: collection,
+    ...(planUsage ? { planUsage } : {}),
   };
   return JSON.stringify(dehydrateExportBundle(bundle));
 }
@@ -67,6 +71,41 @@ describe('a backup of the classes the app holds', () => {
             );
             expect(seatIds(record)).toEqual(seatIds(classes[index]!));
           });
+        },
+      ),
+      RUNS,
+    );
+  });
+
+  it('carries the plans in use and how they went', () => {
+    fc.assert(
+      fc.property(
+        fc
+          .uniqueArray(classRecordArb(), {
+            minLength: 1,
+            maxLength: 3,
+            selector: (record) => record.id,
+          })
+          .chain((classes) =>
+            fc
+              .tuple(
+                ...classes.map((record) =>
+                  record.students.length >= 2
+                    ? fc.array(planUsageArb(record.students), { maxLength: 4 })
+                    : fc.constant<PlanUsage[]>([]),
+                ),
+              )
+              .map((usage) => ({
+                classes,
+                planUsage: Object.fromEntries(
+                  classes.map((record, index) => [record.id, usage[index]!]),
+                ),
+              })),
+          ),
+        ({ classes, planUsage }) => {
+          const restored = parseExportBundle(backupOf(classes, planUsage));
+
+          expect(restored.planUsage).toEqual(planUsage);
         },
       ),
       RUNS,

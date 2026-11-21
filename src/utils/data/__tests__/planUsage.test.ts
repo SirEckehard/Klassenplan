@@ -20,9 +20,11 @@ import {
   computePlanFingerprint,
   confidenceForSources,
   mergePlanUsageSignal,
+  normalizePlanFeedback,
   PLAN_USAGE_LIMIT,
   storedPlanDateToTimestamp,
   trimPlanUsage,
+  withPlanFeedback,
 } from '../planUsage';
 
 const student = (id: string): Student => ({ id, name: id }) as Student;
@@ -437,6 +439,203 @@ describe('markPlanUsage', () => {
 
   it('adds nothing when a plan without a record is marked as not used', () => {
     expect(markPlanUsage([record], mark, false)).toEqual([record]);
+  });
+
+  it('keeps the feedback of the record it answers', () => {
+    const rated: PlanUsage = {
+      ...record,
+      confirmed: true,
+      feedback: { rating: 'good', at: '2026-08-02T00:00:00.000Z' },
+    };
+
+    const next = markPlanUsage([rated], { ...mark, fingerprint: 'f1' }, false);
+
+    expect(next).toEqual([{ ...rated, confirmed: false }]);
+  });
+});
+
+describe('normalizePlanFeedback', () => {
+  const at = '2026-10-01T00:00:00.000Z';
+  const pairs = collectSeatingPairKeys(
+    seatingOf([
+      ['a', 'b', 'c'],
+      ['d', 'e'],
+    ]),
+  );
+
+  it('names no table for a plan that went well', () => {
+    expect(
+      normalizePlanFeedback(
+        { rating: 'good', poorTables: [['a', 'b']], at },
+        pairs,
+      ),
+    ).toEqual({ rating: 'good', at });
+  });
+
+  it('keeps each table once, its ids sorted, the tables in a fixed order', () => {
+    expect(
+      normalizePlanFeedback(
+        {
+          rating: 'poor',
+          poorTables: [
+            ['e', 'd'],
+            ['c', 'a', 'b'],
+            ['d', 'e', 'd'],
+          ],
+          at,
+        },
+        pairs,
+      ),
+    ).toEqual({
+      rating: 'poor',
+      poorTables: [
+        ['a', 'b', 'c'],
+        ['d', 'e'],
+      ],
+      at,
+    });
+  });
+
+  it('drops a table whose students did not all sit together, or only one', () => {
+    expect(
+      normalizePlanFeedback(
+        { rating: 'poor', poorTables: [['a', 'd'], ['b'], []], at },
+        pairs,
+      ),
+    ).toEqual({ rating: 'poor', at });
+  });
+});
+
+describe('withPlanFeedback', () => {
+  const record: PlanUsage = {
+    id: 'u1',
+    fingerprint: 'f1',
+    pairs: ['a::b'],
+    firstSeenAt: '2026-08-01T00:00:00.000Z',
+    lastSeenAt: '2026-08-01T00:00:00.000Z',
+    sources: ['presented'],
+    confidence: 1,
+  };
+  const signal = {
+    pairs: ['c::d'],
+    fingerprint: 'f2',
+    at: '2026-07-01T00:00:00.000Z',
+    id: 'u2',
+  };
+  const poor = {
+    rating: 'poor' as const,
+    poorTables: [['a', 'b']],
+    at: '2026-10-01T00:00:00.000Z',
+  };
+
+  it('confirms the record it lands on and keeps what was detected', () => {
+    const next = withPlanFeedback(
+      [record],
+      { ...signal, fingerprint: 'f1' },
+      poor,
+    );
+
+    expect(next).toEqual([{ ...record, confirmed: true, feedback: poor }]);
+  });
+
+  it('marks a plan without a record as used, dated by the plan', () => {
+    const next = withPlanFeedback([record], signal, {
+      rating: 'good',
+      at: poor.at,
+    });
+
+    expect(next).toHaveLength(2);
+    expect(next[1]).toEqual({
+      id: 'u2',
+      fingerprint: 'f2',
+      pairs: ['c::d'],
+      firstSeenAt: '2026-07-01T00:00:00.000Z',
+      lastSeenAt: '2026-07-01T00:00:00.000Z',
+      sources: ['marked'],
+      confidence: 1,
+      confirmed: true,
+      feedback: { rating: 'good', at: poor.at },
+    });
+  });
+
+  it('checks the tables against the pairs of the record it lands on', () => {
+    const next = withPlanFeedback([record], signal, {
+      ...poor,
+      poorTables: [['c', 'd']],
+    });
+
+    expect(next[1]!.feedback).toEqual({
+      ...poor,
+      poorTables: [['c', 'd']],
+    });
+    expect(
+      withPlanFeedback(
+        [record],
+        { ...signal, fingerprint: 'f1' },
+        {
+          ...poor,
+          poorTables: [['c', 'd']],
+        },
+      )[0]!.feedback,
+    ).toEqual({ rating: 'poor', at: poor.at });
+  });
+
+  it('takes the feedback back and leaves the plan used', () => {
+    const rated = withPlanFeedback(
+      [record],
+      { ...signal, fingerprint: 'f1' },
+      poor,
+    );
+
+    expect(
+      withPlanFeedback(rated, { ...signal, fingerprint: 'f1' }, null),
+    ).toEqual([{ ...record, confirmed: true }]);
+  });
+
+  it('adds nothing when feedback is taken back from a plan without a record', () => {
+    expect(withPlanFeedback([record], signal, null)).toEqual([record]);
+  });
+
+  it('outlasts a later signal for the same arrangement', () => {
+    const rated = withPlanFeedback(
+      [record],
+      { ...signal, fingerprint: 'f1' },
+      poor,
+    );
+
+    const next = mergePlanUsageSignal(rated, {
+      pairs: ['a::b'],
+      fingerprint: 'f1',
+      source: 'exported',
+      at: '2026-10-05T00:00:00.000Z',
+      id: 'u3',
+    });
+
+    expect(next[0]!.feedback).toEqual(poor);
+    expect(next[0]!.sources).toEqual(['presented', 'exported']);
+  });
+
+  it('keeps a rated record when a new arrangement drops provisional ones', () => {
+    const edited: PlanUsage = {
+      ...record,
+      sources: ['edited'],
+      confidence: 0.3,
+    };
+    const rated = withPlanFeedback(
+      [edited],
+      { ...signal, fingerprint: 'f1' },
+      poor,
+    );
+
+    const next = mergePlanUsageSignal(rated, {
+      pairs: ['c::d'],
+      fingerprint: 'f2',
+      source: 'presented',
+      at: '2026-10-05T00:00:00.000Z',
+      id: 'u3',
+    });
+
+    expect(next.map((entry) => entry.id)).toEqual(['u1', 'u3']);
   });
 });
 
