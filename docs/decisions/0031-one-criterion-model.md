@@ -345,3 +345,52 @@ the hand term, on the seat directly to the left (`SeatLayout.leftOf`), which
 `swapDelta` and `placementCost` measure before and after on the seats it can
 move, as they do the language term. The fulfilment counts both; rooms without
 either marker give the same plans as before, seed for seed.
+
+## Addendum of 2026-11-21: a join in a row counts as a double desk
+
+A teacher pushed single desks together in pairs and found two girls at most
+of the joins, while "Geschlechter" read 100 %. The row stayed desks (addendum
+of 2026-11-02), so the gender mix of a join was only the pair term's 0.5 —
+a fifth of what two of one gender cost at a double desk, where the table
+term adds 2 — and the fulfilment, counting groups alone, saw no case at a
+single desk at all. Tutoring was mixed at the join (a pair term) but had no
+pair room there.
+
+- **Every join of a row counts** (maintainer): the seat pairs at a join of
+  tables pushed together in a row, facing the same way, of two groups
+  (`SeatLayout.joins`) — between single desks and between double desks end
+  to end alike. A join between two tables that are one group anyway is the
+  group's make-up.
+- **Gender**: the join term (`criteria.ts`) costs what the table term costs
+  a double desk, so two of one gender at a join weigh 2.5 as at a desk. The
+  fulfilment counts every join as a case beside the groups, against the most
+  tables and joins the class can balance at once (`mostBalancedUnits` in
+  `model/bounds.ts`): a student at a desk's end or in the middle of a row
+  counts for each of them, which the old greedy count of disjoint tables
+  could not see.
+- **Tutoring and same-level pairs** (maintainer): a join seats a pair. The
+  mixing needs nothing new; the fulfilment counts the pairs formed and the
+  pairs the room can seat as the largest matchings over the table groups and
+  the joins (`maxMatching`, Edmonds' blossom algorithm), and a student with a
+  complement or a peer at the join is met.
+- The roles stay with the groups: a row is no working group.
+
+Measured with the mixQuality class (24 students, recommended weights,
+"Geschlechter" at its default of 2, "Vordere Plätze" at 8), 30 seeds, plans
+of the old and the new mixing both read with the new fulfilment:
+
+| Room, 24 students                       | Overall old → new | Same gender at a join | Gender  | Tutoring | Wishes  |
+| --------------------------------------- | ----------------: | --------------------: | ------- | -------- | ------- |
+| Four rows of three desks, no aisles     |     84.8 → 84.9 % |        2.8 → 0.4 of 8 | 82 → 93 | 55 → 52  | 59 → 58 |
+| Twelve pairs of single desks            |     81.6 → 82.7 % |       3.9 → 0.5 of 12 | 65 → 95 | 41 → 32  | 57 → 49 |
+| Four rows of six single desks, no gaps  |     85.7 → 84.6 % |       6.5 → 1.6 of 20 | 65 → 91 | 63 → 49  | 66 → 57 |
+| Twelve double desks where the pairs are |            81.5 % |                     — | 94      | 29       | 51      |
+
+The pairs of single desks now mix as the double desks in their place do;
+gender gains, tutoring and wishes give a little to it, as they do at double
+desks. In a room like the teacher's — six pairs of single desks beside two
+tables of four, the sample class, "Geschlechter" at "Sehr wichtig" — the
+joins of two of one gender fell from 2–4 of 6 to none in eight seeds of
+eight. Rooms without such a join — all rooms of mixQuality —
+give the same plans for every seed and read the same, so the figures in
+[PERFORMANCE.md](../PERFORMANCE.md) stand; a mix takes no longer.

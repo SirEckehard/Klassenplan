@@ -76,6 +76,15 @@ export interface SeatLayout {
   /** The group of every seat */
   groupOf: Int32Array;
   /**
+   * The seat pairs at a join of tables pushed together in a row, facing the
+   * same way, each pair once (lower seat first): seat partners across two
+   * groups. What a double desk's make-up decides — gender, tutoring — the
+   * join decides as well.
+   */
+  joins: Array<[number, number]>;
+  /** The seats joined to each seat in a row (`joins`) */
+  joinsOf: number[][];
+  /**
    * The seat directly to the left of whoever sits on each seat, as they face
    * their table, or -1: at the same table or the next one with no aisle
    * between, the chairs facing the same way (decision 0043).
@@ -399,8 +408,10 @@ const buildSeatLayout = (scene: ClassroomScene): SeatLayout => {
   // Tables pushed together (`joinedKind`): round a corner or face to face
   // they are one group, as a group table is. Desks pushed together in a row,
   // facing the same way, stay desks of their own, but the seats at the join
-  // are neighbours as close as seat partners.
+  // are neighbours as close as seat partners, and their make-up counts as a
+  // double desk's does.
   const chosen = new Set<string>();
+  const rowJoins: Array<[number, number]> = [];
   const parent = scene.tables.map((_, index) => index);
   const root = (table: number): number => {
     let current = table;
@@ -415,7 +426,8 @@ const buildSeatLayout = (scene: ClassroomScene): SeatLayout => {
       if (kind < 0) continue;
       chosen.add(`${a}-${b}`);
       relate(a, b, kind, kind);
-      if (kind !== PARTNER) parent[root(tableOf[a]!)] = root(tableOf[b]!);
+      if (kind === PARTNER) rowJoins.push([a, b]);
+      else parent[root(tableOf[a]!)] = root(tableOf[b]!);
     }
   }
   nearest.forEach((directions, a) => {
@@ -477,6 +489,15 @@ const buildSeatLayout = (scene: ClassroomScene): SeatLayout => {
     groupOf[seat] = group;
   }
 
+  // Two tables in a row that are one group anyway, joined elsewhere round a
+  // corner or face to face: the group's make-up covers their join.
+  const joins = rowJoins.filter(([a, b]) => groupOf[a] !== groupOf[b]);
+  const joinsOf: number[][] = footprints.map(() => []);
+  for (const [a, b] of joins) {
+    joinsOf[a]!.push(b);
+    joinsOf[b]!.push(a);
+  }
+
   const leftOf = leftNeighbours(footprints);
   const rightOf: number[][] = footprints.map(() => []);
   leftOf.forEach((left, seat) => {
@@ -494,6 +515,8 @@ const buildSeatLayout = (scene: ClassroomScene): SeatLayout => {
     keys,
     groups,
     groupOf,
+    joins,
+    joinsOf,
     leftOf,
     rightOf,
   };

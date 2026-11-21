@@ -27,6 +27,7 @@ import {
   GENDER_COUNT,
   type SeatPlace,
 } from './criteria';
+import { maxMatching, mostBalancedUnits } from './bounds';
 import { frontRowsOf, toleratesRowBehind } from './frontPool';
 import {
   strongSpeakerCloseness,
@@ -371,25 +372,21 @@ export function evaluateCriteria(
     }
   }
 
-  // Per table group (`SeatLayout.groups`): gender, performance and social
-  // roles.
+  // Per table group (`SeatLayout.groups`) and per join of desks pushed
+  // together in a row (`SeatLayout.joins`), which counts as a double desk:
+  // gender and performance; the social roles per group alone.
   const genderTotals = new Array<number>(GENDER_COUNT).fill(0);
-  const genderTables: Array<{ seats: number[]; known: number; ok: boolean }> =
+  const genderUnits: Array<{ seats: number[]; known: number[]; ok: boolean }> =
     [];
   let strongSeated = 0;
   let weakSeated = 0;
-  // Pairs the occupied tables can hold at all: none at single desks.
-  let pairRoom = 0;
-  let tutoringPairs = 0;
-  let sameLevelPairs = 0;
-  const tutoringSeats: Array<[number, number]> = [];
-  const sameLevelSeats: Array<[number, number]> = [];
+  // Who can sit as a pair: two students at one table group, or at a join.
+  const pairs: Array<[number, number]> = [];
   const roles = new CaseCollector();
 
   for (let group = 0; group < layout.groups.length; group++) {
     const seats = layout.groups[group]!.filter((seat) => occupants[seat]! >= 0);
     if (seats.length === 0) continue;
-    pairRoom += Math.floor(seats.length / 2);
     const members = groupMembers(context, occupants, group);
 
     const counts = new Array<number>(GENDER_COUNT).fill(0);
@@ -399,25 +396,16 @@ export function evaluateCriteria(
         genderTotals[member.gender]!++;
       }
     }
-    const known = counts.reduce((sum, count) => sum + count, 0);
-    if (known >= 2) {
-      genderTables.push({ seats, known, ok: genderExcess(counts) === 0 });
+    const known = seats.filter((seat) => facts[occupants[seat]!]!.gender >= 0);
+    if (known.length >= 2) {
+      genderUnits.push({ seats, known, ok: genderExcess(counts) === 0 });
     }
 
-    const strong = members.filter((member) => member.strong).length;
-    const weak = members.filter((member) => member.weak).length;
-    strongSeated += strong;
-    weakSeated += weak;
-    tutoringPairs += Math.min(strong, weak);
-    sameLevelPairs += Math.floor(strong / 2) + Math.floor(weak / 2);
-    for (const seat of seats) {
-      const fact = facts[occupants[seat]!]!;
-      if (!fact.strong && !fact.weak) continue;
-      const complement = fact.strong ? weak : strong;
-      const peers = (fact.strong ? strong : weak) - 1;
-      tutoringSeats.push([seat, complement > 0 ? 1 : 0]);
-      sameLevelSeats.push([seat, peers > 0 ? 1 : 0]);
-    }
+    strongSeated += members.filter((member) => member.strong).length;
+    weakSeated += members.filter((member) => member.weak).length;
+    seats.forEach((a, index) => {
+      for (const b of seats.slice(index + 1)) pairs.push([a, b]);
+    });
 
     const roleSeats = seats.filter(
       (seat) => facts[occupants[seat]!]!.role !== null,
@@ -432,30 +420,83 @@ export function evaluateCriteria(
       roles.add(balanced ? 1 : 0, roleSeats);
     }
   }
-
-  // Gender, against what the class allows: a balanced table holds at least
-  // half of its seats' worth of students outside the largest gender of the
-  // class, so the smallest tables can be balanced first.
-  const gender = new CaseCollector();
-  if (genderTables.length > 0) {
-    const knownTotal = genderTotals.reduce((sum, count) => sum + count, 0);
-    let others = knownTotal - Math.max(...genderTotals);
-    let reachable = 0;
-    for (const need of genderTables
-      .map(({ known }) => Math.floor(known / 2))
-      .sort((x, y) => x - y)) {
-      if (need > others) break;
-      others -= need;
-      reachable += 1;
+  for (const [a, b] of layout.joins) {
+    const i = occupants[a]!;
+    const j = occupants[b]!;
+    if (i < 0 || j < 0) continue;
+    pairs.push([a, b]);
+    const genderA = facts[i]!.gender;
+    const genderB = facts[j]!.gender;
+    if (genderA >= 0 && genderB >= 0) {
+      genderUnits.push({
+        seats: [a, b],
+        known: [a, b],
+        ok: genderA !== genderB,
+      });
     }
-    const balanced = genderTables.filter(({ ok }) => ok).length;
+  }
+
+  // Gender, against what the class allows: a balanced table or join holds at
+  // least half of its seats' worth of students outside the largest gender of
+  // the class, and a student at a desk's end or in the middle of a row counts
+  // for every one of them it sits at.
+  const gender = new CaseCollector();
+  if (genderUnits.length > 0) {
+    const knownTotal = genderTotals.reduce((sum, count) => sum + count, 0);
+    const reachable = mostBalancedUnits(
+      genderUnits.map(({ known }) => known),
+      knownTotal - Math.max(...genderTotals),
+    );
+    const balanced = genderUnits.filter(({ ok }) => ok).length;
     for (let k = 0; k < reachable; k++) {
       gender.add(k < balanced ? 1 : 0, []);
     }
-    for (const { seats, ok } of genderTables) gender.mark(ok ? 1 : 0, seats);
+    for (const { seats, ok } of genderUnits) gender.mark(ok ? 1 : 0, seats);
   }
 
-  // Performance, as pairs formed against the pairs the class has in it.
+  // Performance, as pairs formed against the pairs the class has in it: the
+  // most pairs the occupied tables and joins can seat at once — none at
+  // single desks standing apart — and the most of them that are a strong and
+  // a weak student, or two of one level.
+  const isStrong = (seat: number) => facts[occupants[seat]!]!.strong;
+  const isWeak = (seat: number) => facts[occupants[seat]!]!.weak;
+  const pairRoom = maxMatching(size, pairs);
+  const tutoringPairs = maxMatching(
+    size,
+    pairs.filter(
+      ([a, b]) => (isStrong(a) && isWeak(b)) || (isWeak(a) && isStrong(b)),
+    ),
+  );
+  const sameLevelPairs = maxMatching(
+    size,
+    pairs.filter(
+      ([a, b]) => (isStrong(a) && isStrong(b)) || (isWeak(a) && isWeak(b)),
+    ),
+  );
+  // Every strong or weak student, with whether a complement and a peer sit
+  // at the same table group or the join.
+  const partnersOf = new Map<number, number[]>();
+  for (const [a, b] of pairs) {
+    for (const [seat, other] of [
+      [a, b],
+      [b, a],
+    ] as const) {
+      const list = partnersOf.get(seat);
+      if (list) list.push(other);
+      else partnersOf.set(seat, [other]);
+    }
+  }
+  const tutoringSeats: Array<[number, number]> = [];
+  const sameLevelSeats: Array<[number, number]> = [];
+  for (let seat = 0; seat < size; seat++) {
+    if (occupants[seat]! < 0 || !(isStrong(seat) || isWeak(seat))) continue;
+    const partners = partnersOf.get(seat) ?? [];
+    const peer = isStrong(seat) ? isStrong : isWeak;
+    const complement = isStrong(seat) ? isWeak : isStrong;
+    tutoringSeats.push([seat, partners.some(complement) ? 1 : 0]);
+    sameLevelSeats.push([seat, partners.some(peer) ? 1 : 0]);
+  }
+
   const peerTutoring = new CaseCollector();
   const tutoringPossible = Math.min(strongSeated, weakSeated, pairRoom);
   for (let k = 0; k < tutoringPossible; k++) {

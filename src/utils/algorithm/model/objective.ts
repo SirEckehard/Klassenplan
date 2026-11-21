@@ -5,8 +5,8 @@
  *
  * A context is built once per mix — or once per plan the teacher reads — and
  * holds every term of `criteria.ts` for the students and seats at hand: the
- * pair terms as a matrix per relation kind, the seat terms per student and
- * seat. An arrangement is then a flat list of student indices per seat
+ * pair terms as a matrix per relation kind, the join terms as one more, the
+ * seat terms per student and seat. An arrangement is then a flat list of student indices per seat
  * (`occupantsOf`), and three questions are cheap to answer about it: its total
  * (`scoreArrangement`), what swapping two seats would change
  * (`swapDelta`, exact — it re-reads every relation the two seats take part
@@ -27,6 +27,7 @@ import { getFeatureDistanceMaps } from '../featureDistances';
 import {
   handTerm,
   isCloseKind,
+  joinTerm,
   languageTerm,
   pairTerm,
   relationWeight,
@@ -85,7 +86,13 @@ export interface ModelContext {
   pair: Float64Array;
   /** Seat terms: `student * size + seat` */
   seat: Float64Array;
+  /**
+   * Join terms (`SeatLayout.joins`): `i * n + j`, empty while no join costs
+   * anything
+   */
+  join: Float64Array;
   hasTableTerms: boolean;
+  hasJoinTerms: boolean;
   hasLanguage: boolean;
   /** Whether a left-hander is in the class while the criterion counts */
   hasHands: boolean;
@@ -182,6 +189,18 @@ export const buildModelContext = (input: ModelInput): ModelContext => {
     }
   }
 
+  const hasJoinTerms = weights.gender > 0 && layout.joins.length > 0;
+  const join = new Float64Array(hasJoinTerms ? n * n : 0);
+  if (hasJoinTerms) {
+    for (let i = 0; i < n; i++) {
+      for (let j = i + 1; j < n; j++) {
+        const value = joinTerm(weights, facts[i]!, facts[j]!);
+        join[i * n + j] = value;
+        join[j * n + i] = value;
+      }
+    }
+  }
+
   const seatValues = new Float64Array(n * size);
   for (let i = 0; i < n; i++) {
     for (let seat = 0; seat < size; seat++) {
@@ -204,7 +223,9 @@ export const buildModelContext = (input: ModelInput): ModelContext => {
     },
     pair,
     seat: seatValues,
+    join,
     hasTableTerms: weights.gender > 0 || weights.roles > 0,
+    hasJoinTerms,
     hasLanguage: weights.language > 0,
     hasHands: weights.leftHanded > 0 && facts.some((fact) => fact.leftHanded),
     stamps: new Int32Array(size),
@@ -410,6 +431,13 @@ export const scoreArrangement = (
       total += groupTermAt(context, occupants, group);
     }
   }
+  if (context.hasJoinTerms) {
+    for (const [a, b] of layout.joins) {
+      const i = occupants[a]!;
+      const j = occupants[b]!;
+      if (i >= 0 && j >= 0) total += context.join[i * n + j]!;
+    }
+  }
   if (context.hasLanguage) {
     for (let a = 0; a < size; a++) {
       total += languageTermAt(context, occupants, a);
@@ -425,8 +453,8 @@ export const scoreArrangement = (
 
 /**
  * What swapping the occupants of seats `a` and `b` changes in the score —
- * exactly: every relation of either seat, the tables of both and the language
- * terms around them are read before and after. An empty seat swaps too: the
+ * exactly: every relation and join of either seat, the tables of both and the
+ * language terms around them are read before and after. An empty seat swaps too: the
  * student moves onto it.
  */
 export const swapDelta = (
@@ -466,6 +494,22 @@ export const swapDelta = (
     const base = relation.kind * nn + other * n;
     if (B >= 0) delta -= context.pair[base + B]!;
     if (A >= 0) delta += context.pair[base + A]!;
+  }
+
+  if (context.hasJoinTerms) {
+    // As with the relations, a join between `a` and `b` stays as it is.
+    for (const seat of layout.joinsOf[a]!) {
+      const other = occupants[seat]!;
+      if (seat === b || other < 0) continue;
+      if (A >= 0) delta -= context.join[other * n + A]!;
+      if (B >= 0) delta += context.join[other * n + B]!;
+    }
+    for (const seat of layout.joinsOf[b]!) {
+      const other = occupants[seat]!;
+      if (seat === a || other < 0) continue;
+      if (B >= 0) delta -= context.join[other * n + B]!;
+      if (A >= 0) delta += context.join[other * n + A]!;
+    }
   }
 
   if (context.hasTableTerms || context.hasLanguage || context.hasHands) {
@@ -512,6 +556,12 @@ export const placementCost = (
     const other = occupants[relation.seat]!;
     if (other < 0) continue;
     cost += context.pair[relation.kind * nn + other * n + student]!;
+  }
+  if (context.hasJoinTerms) {
+    for (const joined of layout.joinsOf[seat]!) {
+      const other = occupants[joined]!;
+      if (other >= 0) cost += context.join[other * n + student]!;
+    }
   }
   if (context.hasTableTerms || context.hasLanguage || context.hasHands) {
     const group = layout.groupOf[seat]!;

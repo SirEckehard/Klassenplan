@@ -321,6 +321,29 @@ describe('getSeatLayout', () => {
       expect(layout.groups).toHaveLength(3);
     });
 
+    it('lists the joins of a row, whose make-up counts as a double desk', () => {
+      const layout = getSeatLayout(
+        scene([double(600, 100), double(600, 230), double(600, 360)]),
+      );
+      const seat = ([table, index]: [number, number]) =>
+        layout.offsets[table]! + index;
+
+      expect(layout.joins).toEqual([
+        [seat([0, 1]), seat([1, 0])],
+        [seat([1, 1]), seat([2, 0])],
+      ]);
+      expect(layout.joinsOf[seat([1, 0])]).toEqual([seat([0, 1])]);
+      expect(layout.joinsOf[seat([0, 0])]).toEqual([]);
+    });
+
+    it('lists no join round a corner or face to face, where tables are one group', () => {
+      const island = getSeatLayout(
+        scene([double(300, 100), double(355, 100, 180)]),
+      );
+
+      expect(island.joins).toEqual([]);
+    });
+
     it('keeps desks a little apart desks of their own', () => {
       const layout = getSeatLayout(
         scene([double(300, 100), double(407.5, 62.5, 90)]),

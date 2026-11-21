@@ -3,9 +3,10 @@
 /**
  * What every criterion costs, in one place (decision 0031).
  *
- * A criterion is written down once here, in up to five shapes: a `pair` term
+ * A criterion is written down once here, in up to six shapes: a `pair` term
  * for two students in a given seat relation, a `seat` term for a student on a
- * seat, a `table` term for who shares a table, the language term, which asks
+ * seat, a `table` term for who shares a table, the `join` term for who sits
+ * at a join of desks pushed together in a row, the language term, which asks
  * who sits around a student, and the hand term, which asks who sits to a
  * left-hander's left. The construction, the refinement and the
  * fulfilment the teacher reads (`fulfilment.ts`) all go through these
@@ -449,6 +450,21 @@ const roleTerm = (weights: CriterionWeights, roles: RoleCounts): number => {
   return score;
 };
 
+/** What it costs that one gender holds more than half of the students. */
+const genderMixTerm = (
+  weights: CriterionWeights,
+  members: readonly StudentFacts[],
+): number => {
+  if (weights.gender <= 0) return 0;
+  const counts = [0, 0, 0];
+  for (const member of members) {
+    if (member.gender >= 0) counts[member.gender]!++;
+  }
+  return (
+    weights.gender * CRITERION_WEIGHTS.gender.tableExcess * genderExcess(counts)
+  );
+};
+
 /**
  * The table term: what the composition of one table group costs — a table, or
  * tables pushed together round a corner or face to face — no gender holds
@@ -459,17 +475,7 @@ export const tableTerm = (
   members: readonly StudentFacts[],
 ): number => {
   if (members.length < 2) return 0;
-  let score = 0;
-  if (weights.gender > 0) {
-    const counts = [0, 0, 0];
-    for (const member of members) {
-      if (member.gender >= 0) counts[member.gender]!++;
-    }
-    score +=
-      weights.gender *
-      CRITERION_WEIGHTS.gender.tableExcess *
-      genderExcess(counts);
-  }
+  let score = genderMixTerm(weights, members);
   if (weights.roles > 0) {
     const roles: RoleCounts = {
       mediator: 0,
@@ -484,6 +490,18 @@ export const tableTerm = (
   }
   return score;
 };
+
+/**
+ * The join term: what the make-up of the two seats at a join of tables pushed
+ * together in a row costs (`SeatLayout.joins`) — as much as at a double desk,
+ * where the two would be seat partners too. Gender alone: tutoring is a pair
+ * term already, and the roles spread over groups, which a row is not.
+ */
+export const joinTerm = (
+  weights: CriterionWeights,
+  a: StudentFacts,
+  b: StudentFacts,
+): number => genderMixTerm(weights, [a, b]);
 
 /**
  * The language term of a student needing support: a reward by how closely the

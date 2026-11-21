@@ -1,6 +1,6 @@
 # Algorithm Documentation
 
-> **Status:** current · **Last reviewed:** 2026-11-14
+> **Status:** current · **Last reviewed:** 2026-11-21
 
 This document describes the algorithms used in the Klassenplan seating generator.
 
@@ -66,14 +66,18 @@ settled on — the one on screen, the plan the teacher actually got.
   tutoring, and the hint on students avoiding each other — reads the group.
   Desks pushed together in a row, all facing the same way, stay desks of their
   own, but the two seats at each join are as close as seat partners
-  (`partner`), so everybody but the ends of the row has two neighbours. A
-  room without a gap that narrow mixes as before. "Neu einrichten" leaves at
+  (`partner`), so everybody but the ends of the row has two neighbours, and
+  their make-up counts as a double desk's (`SeatLayout.joins`): two of one
+  gender there cost what they cost at a double desk (the join term), and a
+  join seats a tutoring or same-level pair. A room without a gap that narrow
+  mixes as before. "Neu einrichten" leaves at
   least 15 px between the tables of one kind; its arrangements push desks
   together on purpose — a horseshoe's legs, a conference table, desks along a
   wall — and leave corners open.
 - **`criteria.ts`** writes every criterion down once, as a `pair` term (two
   students in a relation), a `seat` term (a student on a seat), a `table`
-  term (who shares a table group), the language term (who sits around a student
+  term (who shares a table group), the `join` term (who sits at a join of
+  desks in a row), the language term (who sits around a student
   needing support) or the hand term (who sits to a left-hander's left, by
   `SeatLayout.leftOf`: the seat directly to the left as the student faces the
   table, the chair's direction turned with it, at the same table or the next
@@ -239,9 +243,14 @@ plan the mixing could not improve on that criterion:
   cannot meet two wishes — and a wish met as well as the room allows is met:
   at single desks the seat beside.
 - Tutoring and same-level pairs count against the pairs the class and the
-  tables can hold; at single desks there is none.
-- Gender counts against the tables the class's make-up can balance: with 20
-  boys and 8 girls at 14 double desks, 8 mixed desks are all there can be.
+  tables can hold — the most pairs the table groups and the joins of a row
+  can seat at once (`model/bounds.ts`, a largest matching); at single desks
+  standing apart there is none.
+- Gender counts against the tables and joins the class's make-up can
+  balance: with 20 boys and 8 girls at 14 double desks, 8 mixed desks are all
+  there can be. A student at a desk's end or in the middle of a row counts
+  for every table and join they sit at, so in a row of single desks one girl
+  between two boys balances two joins (`mostBalancedUnits`).
 - A free seat beside counts against the seats that can have one: seats of the
   tables in the mix with no seat beside them, and the empty seats in the mix.
   A full room has none, and the criterion no case

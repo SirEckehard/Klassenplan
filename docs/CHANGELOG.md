@@ -26,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 
+- Desks pushed together in a row now mix genders and performance levels across the join as a double desk does, and the fulfilment counts it
 - Other small fixes
 
 ## [3.4.1] - 2026-11-19

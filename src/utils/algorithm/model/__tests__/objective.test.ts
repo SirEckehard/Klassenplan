@@ -319,6 +319,46 @@ describe('the terms', () => {
     expect(genderExcess([2, 0, 0])).toBe(1);
   });
 
+  it('weighs two of one gender at the join of a row as at a double desk', () => {
+    const g1 = student('g1', { gender: 'girl' });
+    const g2 = student('g2', { gender: 'girl' });
+    const boy = student('b', { gender: 'boy' });
+    const students = [g1, g2, boy];
+    const desk = (y: number, seatCount: 1 | 2): ClassroomTable => ({
+      x: 600,
+      y,
+      width: 55,
+      height: seatCount * 65,
+      rotation: 0,
+      seatCount,
+      locked: false,
+      zIndex: 0,
+      templateType: seatCount === 1 ? 'single' : 'double',
+    });
+    const scoreIn = (scene: ClassroomScene, arrangement: Student[][]) => {
+      const context = buildModelContext({
+        scene,
+        students,
+        settings: settings({ preferGenderMix: 5 }),
+        previousPairs: new Map(),
+      });
+      return scoreArrangement(context, occupantsOf(context, arrangement));
+    };
+    // A third seat far along the wall, related to neither.
+    const doubleDesk = roomOf([desk(100, 2), desk(400, 1)]);
+    const singlesInARow = roomOf([desk(100, 1), desk(165, 1), desk(400, 1)]);
+
+    const atTheDesk =
+      scoreIn(doubleDesk, [[g1, g2], [boy]]) -
+      scoreIn(doubleDesk, [[g1, boy], [g2]]);
+    const atTheJoin =
+      scoreIn(singlesInARow, [[g1], [g2], [boy]]) -
+      scoreIn(singlesInARow, [[g1], [boy], [g2]]);
+
+    expect(atTheDesk).toBeGreaterThan(0);
+    expect(atTheJoin).toBeCloseTo(atTheDesk, 9);
+  });
+
   it('leaves a student without a stated gender out of the balance', () => {
     const boy = student('b', { gender: 'boy' });
     const unknown = student('u');

@@ -79,6 +79,14 @@ const SINGLES_SIDE_BY_SIDE = room([
   table(600, 195, 'single'),
   table(600, 290, 'single'),
 ]);
+/** Three single desks along the wall, pushed together into a row. */
+const SINGLES_PUSHED_TOGETHER = room([
+  table(600, 100, 'single'),
+  table(600, 165, 'single'),
+  table(600, 230, 'single'),
+]);
+/** Two double desks along the wall, pushed together end to end. */
+const DESKS_PUSHED_TOGETHER = room([table(600, 100), table(600, 230)]);
 
 /** Three desks, one behind the other, ever farther from the window. */
 const DESKS_FROM_THE_WINDOW = room([
@@ -445,6 +453,49 @@ describe('seatingStatistics', () => {
       );
       expect(percentage('preferGenderMix')).toBe(100);
     });
+
+    it('counts single desks pushed together in a row as double desks', () => {
+      const weights = { preferGenderMix: 2 };
+      // Two girls and a boy: the boy between them balances both joins.
+      const between = fulfilment(
+        SINGLES_PUSHED_TOGETHER,
+        [[girl('g1')], [boy('b')], [girl('g2')]],
+        weights,
+      );
+      const atTheEnd = fulfilment(
+        SINGLES_PUSHED_TOGETHER,
+        [[girl('g1')], [girl('g2')], [boy('b')]],
+        weights,
+      );
+
+      expect(between.percentage('preferGenderMix')).toBe(100);
+      expect(atTheEnd.percentage('preferGenderMix')).toBe(50);
+      expect(atTheEnd.stats.criteria.preferGenderMix?.seats.get(0)).toBe(0);
+    });
+
+    it('counts the join of double desks pushed together end to end', () => {
+      const weights = { preferGenderMix: 2 };
+      const alternating = fulfilment(
+        DESKS_PUSHED_TOGETHER,
+        [
+          [boy('b1'), girl('g1')],
+          [boy('b2'), girl('g2')],
+        ],
+        weights,
+      );
+      const mirrored = fulfilment(
+        DESKS_PUSHED_TOGETHER,
+        [
+          [boy('b1'), girl('g1')],
+          [girl('g2'), boy('b2')],
+        ],
+        weights,
+      );
+
+      expect(alternating.percentage('preferGenderMix')).toBe(100);
+      // Both desks mixed, the join two girls: two of three.
+      expect(mirrored.percentage('preferGenderMix')).toBeCloseTo(66.67, 1);
+    });
   });
 
   describe('performance', () => {
@@ -468,6 +519,45 @@ describe('seatingStatistics', () => {
         { peerTutoring: 3 },
       );
       expect(criteria).toEqual([]);
+    });
+
+    it('counts single desks pushed together in a row as pairs', () => {
+      const tutoring = (arrangement: SeatingArrangement) =>
+        fulfilment(SINGLES_PUSHED_TOGETHER, arrangement, {
+          peerTutoring: 3,
+        }).percentage('peerTutoring');
+
+      expect(tutoring([[strong('s')], [weak('w')], [student('n')]])).toBe(100);
+      expect(tutoring([[strong('s')], [student('n')], [weak('w')]])).toBe(0);
+    });
+
+    it('counts two of one level at a join as a pair of their own', () => {
+      const homogeneous = (arrangement: SeatingArrangement) =>
+        fulfilment(SINGLES_PUSHED_TOGETHER, arrangement, {
+          homogeneousPerformanceGroups: 3,
+        }).percentage('homogeneousPerformanceGroups');
+
+      expect(homogeneous([[weak('w1')], [weak('w2')], [student('n')]])).toBe(
+        100,
+      );
+      expect(homogeneous([[weak('w1')], [student('n')], [weak('w2')]])).toBe(0);
+    });
+
+    it('lets a desk seat a pair at each of its joins', () => {
+      // Single, desk, single in a row: the desk's two students each pair
+      // with the single beside them, which beats pairing the desk itself.
+      const scene = room([
+        table(600, 100, 'single'),
+        table(600, 165),
+        table(600, 295, 'single'),
+      ]);
+      const { percentage } = fulfilment(
+        scene,
+        [[strong('s1')], [weak('w1'), weak('w2')], [strong('s2')]],
+        { peerTutoring: 3 },
+      );
+
+      expect(percentage('peerTutoring')).toBe(100);
     });
   });
 
