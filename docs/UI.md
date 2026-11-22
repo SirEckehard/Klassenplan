@@ -205,8 +205,8 @@ afterwards.
   always in this order: Ansicht (which view is on the stage — list,
   relations; table plan, circle), Hinzufügen (the class layer's students and
   placeholders, the room's tables and elements, "Bibliothek"'s classes, rooms,
-  room templates and presets), Ansichtseinstellungen (what the view shows),
-  Verwalten (on the class layer the class list's import and export side by side,
+  room templates and presets), Ansichtseinstellungen (what the view shows; on
+  the class layer what pointing at a badge or a name opens), Verwalten (on the class layer the class list's import and export side by side,
   "Liste drucken" and "Namensschilder drucken"). The toolbar holds what goes onto the stage and how it
   looks; naming, saving, opening and removing the thing a layer shows is its
   inspector's — the plan layer has no Verwalten. A layer leaves out a group it
@@ -572,7 +572,13 @@ afterwards.
   The pointer resting on a name or a face opens the student at a glance: the
   markers by family and the day they last changed (`markersUpdatedAt`). A
   finger holds instead: a long press opens the same card until the next touch
-  and does not open the row (`useStudentCard`, `touch-callout-none`). A badge
+  and does not open the row (`useStudentCard`, `touch-callout-none`). Each of
+  the two cards can be switched off, under the mouse and the finger alike, in
+  the toolbar's "Merkmale" under Ansichtseinstellungen ("Erklärung beim
+  Überfahren", "Überblick beim Überfahren des Namens"; `spg.studentCards`,
+  `useStudentCardSettings`), as the seats' tooltip is in the plan's — a badge
+  switched off lights no partner either, and the name's switch reaches the
+  faces in the relations too. A badge
   the mix weighs nothing of right now is drawn dashed, in the list only
   (`data-chip-off`).
 - **Below `lg` a row shows the seats' icons** (decision 0051) — a phone and a

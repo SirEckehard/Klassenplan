@@ -357,7 +357,8 @@
     "none": "Noch keine Merkmale",
     "changed": "Merkmale geändert am {{date}}",
     "mixHeading": "Beim Mischen",
-    "offNote": "Zählt beim Mischen gerade nicht."
+    "offNote": "Zählt beim Mischen gerade nicht.",
+    "hoverProfile": "Überblick beim Überfahren des Namens"
   },
   "expand": {
     "expand": "Merkmale von {{name}} aufklappen",

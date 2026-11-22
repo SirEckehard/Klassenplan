@@ -357,7 +357,8 @@
     "none": "No attributes yet",
     "changed": "Attributes changed on {{date}}",
     "mixHeading": "In the mix",
-    "offNote": "Does not count in the mix right now."
+    "offNote": "Does not count in the mix right now.",
+    "hoverProfile": "Overview on hovering a name"
   },
   "expand": {
     "expand": "Show the attributes of {{name}}",

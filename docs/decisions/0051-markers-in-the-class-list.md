@@ -11,7 +11,8 @@
   `src/components/students/StudentCardLayer.tsx`,
   `src/components/students/StudentListHeader.tsx`,
   `src/components/students/markerBrush.ts`,
-  `src/hooks/student/useStudentCard.ts`
+  `src/hooks/student/useStudentCard.ts`,
+  `src/hooks/student/useStudentCardSettings.ts`
 
 ## Context
 
@@ -38,7 +39,10 @@ own with a card per student that left the rest of the list behind.
   what the mix makes of it. A partner badge lights the rows it names. A name
   rested on opens the student's markers at a glance with the day they
   changed. A badge whose criteria the mix weighs at nothing is drawn dashed
-  in the list (`data-chip-off`).
+  in the list (`data-chip-off`). Both cards can be switched off under
+  "Ansichtseinstellungen" → "Merkmale" in the class toolbar
+  (`spg.studentCards`), as the seats' tooltip can in the plan's — asked for
+  by the maintainer on 2026-11-22.
 - **Below `lg` a row unfolds in place** (`StudentMarkerDetails`): the markers
   in words, what they mean, the partners as names to jump to, and
   "Bearbeiten" into the inspector. It only reads.

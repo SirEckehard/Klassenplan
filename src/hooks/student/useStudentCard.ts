@@ -34,16 +34,29 @@ const PRESS_SLOP = 8;
 const BADGE_SELECTOR = '[data-card-badge]';
 const PROFILE_SELECTOR = '[data-card-profile]';
 
+/** Which kinds of card may open; both unless switched off. */
+type CardKinds = { badge: boolean; profile: boolean };
+const ALL_KINDS: CardKinds = { badge: true, profile: true };
+
 const boxOf = (element: Element) => {
   const { left, top, width, height } = element.getBoundingClientRect();
   return { left, top, width, height };
 };
 
-/** The card an element of a row stands for, if it stands for one. */
-function cardFor(target: EventTarget | null, pinned: boolean) {
+/**
+ * The card an element of a row stands for, if it stands for one and that
+ * kind may open. A badge switched off opens nothing, not the profile around
+ * it either.
+ */
+function cardFor(
+  target: EventTarget | null,
+  pinned: boolean,
+  kinds: CardKinds,
+) {
   if (!(target instanceof Element)) return null;
   const badge = target.closest(BADGE_SELECTOR);
   if (badge) {
+    if (!kinds.badge) return null;
     const hidden = badge.getAttribute('data-card-hidden');
     return {
       kind: 'badge',
@@ -55,7 +68,7 @@ function cardFor(target: EventTarget | null, pinned: boolean) {
     } satisfies StudentCard;
   }
   const profile = target.closest(PROFILE_SELECTOR);
-  if (profile) {
+  if (profile && kinds.profile) {
     return {
       kind: 'profile',
       studentId: profile.getAttribute('data-card-profile') ?? '',
@@ -86,11 +99,15 @@ const sameCard = (a: StudentCard | null, b: StudentCard | null) =>
  * scroll or Escape, and the press does not also open the row. The rows
  * mark what explains itself with `data-card-badge` (with
  * `data-card-student`, and `data-card-hidden` behind a "+N") and
- * `data-card-profile`.
+ * `data-card-profile`. `kinds` leaves either kind closed, by a mouse and a
+ * finger alike, as the seats' tooltip is (`useStudentCardSettings`).
  */
 export function useStudentCard(
   rootRef: React.RefObject<HTMLElement | null>,
-  { enabled = true }: { enabled?: boolean } = {},
+  {
+    enabled = true,
+    kinds = ALL_KINDS,
+  }: { enabled?: boolean; kinds?: CardKinds } = {},
 ): { card: StudentCard | null; dismiss: () => void } {
   const [card, setCard] = React.useState<StudentCard | null>(null);
   const cardRef = React.useRef<StudentCard | null>(null);
@@ -100,10 +117,14 @@ export function useStudentCard(
     setCard(next);
   }, []);
   const dismiss = React.useCallback(() => update(null), [update]);
+  const { badge: badgeCards, profile: profileCards } = kinds;
 
   React.useEffect(() => {
+    const allowed: CardKinds = { badge: badgeCards, profile: profileCards };
+    // A card of a kind just switched off goes with it.
+    if (cardRef.current && !allowed[cardRef.current.kind]) update(null);
     const root = rootRef.current;
-    if (!root || !enabled) return undefined;
+    if (!root || !enabled || (!badgeCards && !profileCards)) return undefined;
 
     let profileTimer = 0;
     let pressTimer = 0;
@@ -119,7 +140,7 @@ export function useStudentCard(
 
     const handleOver = (event: PointerEvent) => {
       if (event.pointerType === 'touch') return;
-      const found = cardFor(event.target, false);
+      const found = cardFor(event.target, false, allowed);
       clearProfileTimer();
       if (!found) {
         if (!cardRef.current?.pinned) update(null);
@@ -153,10 +174,10 @@ export function useStudentCard(
       swallowClick = false;
       if (event.pointerType !== 'touch') return;
       const target = event.target;
-      if (!cardFor(target, true)) return;
+      if (!cardFor(target, true, allowed)) return;
       press = { x: event.clientX, y: event.clientY };
       pressTimer = window.setTimeout(() => {
-        const found = cardFor(target, true);
+        const found = cardFor(target, true, allowed);
         press = null;
         if (!found) return;
         swallowClick = true;
@@ -221,7 +242,11 @@ export function useStudentCard(
       window.removeEventListener('resize', dismiss);
       window.removeEventListener('keydown', handleKey);
     };
-  }, [dismiss, enabled, rootRef, update]);
+  }, [badgeCards, dismiss, enabled, profileCards, rootRef, update]);
 
-  return { card: enabled ? card : null, dismiss };
+  const shown =
+    enabled && card && (card.kind === 'badge' ? badgeCards : profileCards)
+      ? card
+      : null;
+  return { card: shown, dismiss };
 }

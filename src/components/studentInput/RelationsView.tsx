@@ -12,6 +12,7 @@ import {
 import type { Student } from '@/types';
 import { useInspector } from '@/contexts/InspectorContext';
 import { useStudentCard } from '@/hooks/student/useStudentCard';
+import type { StudentCardSettings } from '@/hooks/student/useStudentCardSettings';
 import StudentAvatar from '@/components/students/StudentAvatar';
 import StudentCardLayer from '@/components/students/StudentCardLayer';
 import {
@@ -46,7 +47,14 @@ const SORT_MODES: readonly SortMode[] = ['class', 'rarely', 'often'];
  * layer, which only the teacher sees; nothing of it reaches a projection or
  * an export.
  */
-export default function RelationsView({ students }: { students: Student[] }) {
+export default function RelationsView({
+  students,
+  cards,
+}: {
+  students: Student[];
+  /** Whether a face opens its profile card; omitted, it does. */
+  cards?: StudentCardSettings;
+}) {
   const { t } = useTranslation('students');
   const { selectStudent, selection } = useInspector();
   const openedId = selection?.kind === 'student' ? selection.id : null;
@@ -54,7 +62,7 @@ export default function RelationsView({ students }: { students: Student[] }) {
   const [sortMode, setSortMode] = React.useState<SortMode>('class');
   const rootRef = React.useRef<HTMLDivElement>(null);
   // A small face explains whom it shows, as a name in the class list does.
-  const { card } = useStudentCard(rootRef);
+  const { card } = useStudentCard(rootRef, { kinds: cards });
 
   const relations = React.useMemo(
     () => describeClassRelations(students),

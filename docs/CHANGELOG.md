@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ### Added
 
 - In Chrome and Edge, "Backup" can save an encrypted backup into a folder of your choice by itself, once a day after a change
-- The class list explains an attribute when you point at it or press and hold it, as the seating plan does
+- The class list explains an attribute when you point at it or press and hold it, as the seating plan does, and "View settings" switches it off
 - "Mark" at the top of the class list sets an attribute on many students and replaces the "Attributes" view
 - "Save room as a file …" in the room's inspector passes a room to a colleague without saving it as a template first
 - "Set up from scratch" offers seven seating arrangements, from a horseshoe to desks facing the walls, and puts a new room together at random

@@ -69,6 +69,9 @@ export const STORAGE_KEYS = {
     // so it survives leaving and re-entering the step (search and filter do
     // not — they hide students and must not do so silently on return).
     studentSortMode: 'spg.studentSortMode',
+    // Which cards the class layer opens on its own: over a badge, over a name
+    // or a face — `{ badge, profile }` (`useStudentCardSettings`).
+    studentCards: 'spg.studentCards',
     sidebarExpanded: 'spg.sidebarExpanded',
     // Whether the inspector's column is folded away from `lg` up on the
     // layers that allow it (`InspectorContext`).
@@ -269,6 +272,7 @@ export const PROJECT_LOCAL_STORAGE_KEYS = [
   STORAGE_KEYS.localStorage.markerReviewSnoozedUntil,
   STORAGE_KEYS.localStorage.mixSettings,
   STORAGE_KEYS.localStorage.studentSortMode,
+  STORAGE_KEYS.localStorage.studentCards,
   STORAGE_KEYS.localStorage.sidebarExpanded,
   STORAGE_KEYS.localStorage.inspectorFolded,
   STORAGE_KEYS.localStorage.characterKeyShortcuts,

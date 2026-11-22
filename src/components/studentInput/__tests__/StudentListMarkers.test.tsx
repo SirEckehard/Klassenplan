@@ -191,6 +191,68 @@ describe('the card of a badge', () => {
       /14\. Oktober 2026|14\.10\.2026|10\/14\/2026/,
     );
   });
+
+  // Switched off under "Ansichtseinstellungen" → "Merkmale", as the seats'
+  // tooltip is in the plan; mouse and finger alike.
+  it('opens no card of a badge while that card is switched off', () => {
+    vi.useFakeTimers();
+    renderList({ cards: { badge: false, profile: true } });
+
+    fireEvent.pointerOver(badge('a', 'wishPartner'), { pointerType: 'mouse' });
+    expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+    expect(rowOf('c')).not.toHaveClass('bg-(--data-social-surface)');
+
+    const target = badge('a', 'restless');
+    fireEvent.pointerDown(target, { pointerType: 'touch', clientX: 5 });
+    act(() => vi.advanceTimersByTime(LONG_PRESS_MS));
+    fireEvent.pointerUp(target, { pointerType: 'touch', clientX: 5 });
+    fireEvent.click(target);
+    expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+    // The press is the row's again.
+    expect(screen.getByTestId('inspected')).toHaveTextContent('a');
+
+    // The name's card is a switch of its own.
+    fireEvent.pointerOver(within(rowOf('b')).getByText('Ben'), {
+      pointerType: 'mouse',
+    });
+    act(() => vi.advanceTimersByTime(PROFILE_HOVER_MS));
+    expect(screen.getByRole('tooltip')).toHaveTextContent(
+      /Noch keine Merkmale|No attributes yet/,
+    );
+  });
+
+  it('opens no card of a name while that card is switched off', () => {
+    vi.useFakeTimers();
+    renderList({ cards: { badge: true, profile: false } });
+
+    fireEvent.pointerOver(within(rowOf('a')).getByText('Aylin'), {
+      pointerType: 'mouse',
+    });
+    act(() => vi.advanceTimersByTime(PROFILE_HOVER_MS));
+    expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+
+    fireEvent.pointerOver(badge('a', 'restless'), { pointerType: 'mouse' });
+    expect(screen.getByRole('tooltip')).toHaveTextContent(/Unruhig|Restless/);
+  });
+
+  it('puts an open card away when its kind is switched off', () => {
+    const view = renderList();
+    fireEvent.pointerOver(badge('a', 'restless'), { pointerType: 'mouse' });
+    expect(screen.getByRole('tooltip')).toBeInTheDocument();
+
+    view.rerender(
+      <InspectorProvider>
+        <Probe />
+        <StudentList
+          students={students}
+          lastAddedId={null}
+          mixSettings={mixSettings}
+          cards={{ badge: false, profile: true }}
+        />
+      </InspectorProvider>,
+    );
+    expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+  });
 });
 
 describe('the brush', () => {

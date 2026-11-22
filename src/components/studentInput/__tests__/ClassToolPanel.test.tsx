@@ -38,6 +38,7 @@ const renderPanel = (
     onExportCsv: vi.fn(),
     onPrintList: vi.fn(),
     onPrintCards: vi.fn(),
+    onCardSettingsChange: vi.fn(),
   };
   render(
     <ClassToolPanel
@@ -48,6 +49,7 @@ const renderPanel = (
       newStudentName=""
       isAddStudentDisabled={false}
       placeholderCount="10"
+      cardSettings={{ badge: true, profile: true }}
       {...handlers}
       {...overrides}
     />,
@@ -94,8 +96,44 @@ describe('ClassToolPanel', () => {
     expect(handlers.onViewChange).toHaveBeenCalledWith('relations');
     // The brush in the list's head took the focus mode's place.
     expect(
-      screen.queryByRole('button', { name: /^(Merkmale|Attributes)$/i }),
-    ).not.toBeInTheDocument();
+      within(
+        screen.getByRole('heading', { name: /^(Ansicht|View)$/ })
+          .parentElement as HTMLElement,
+      ).getAllByRole('button'),
+    ).toHaveLength(2);
+  });
+
+  // As the plan's "Merkmale" switches the seats' tooltip off.
+  it('switches the cards over a badge and a name under the view settings', () => {
+    const handlers = renderPanel({
+      cardSettings: { badge: true, profile: false },
+    });
+
+    fireEvent.click(getButton(/^(Merkmale|Markers)$/));
+    const panel = screen.getByRole('dialog', { name: /Merkmale|Markers/ });
+    const badgeCard = within(panel).getByRole('button', {
+      name: /Erklärung beim Überfahren|Explain on hover/,
+    });
+    const profileCard = within(panel).getByRole('button', {
+      name: /Überblick beim Überfahren des Namens|Overview on hovering a name/,
+    });
+    expect(badgeCard).toHaveAttribute('aria-pressed', 'true');
+    expect(profileCard).toHaveAttribute('aria-pressed', 'false');
+
+    fireEvent.click(badgeCard);
+    expect(handlers.onCardSettingsChange).toHaveBeenCalledWith({
+      badge: false,
+      profile: false,
+    });
+    fireEvent.click(profileCard);
+    expect(handlers.onCardSettingsChange).toHaveBeenLastCalledWith({
+      badge: true,
+      profile: true,
+    });
+
+    cleanup();
+    renderPanel({ studentCount: 0 });
+    expect(getButton(/^(Merkmale|Markers)$/)).toBeDisabled();
   });
 
   it('marks the view that is on screen', () => {
@@ -127,9 +165,9 @@ describe('ClassToolPanel', () => {
   });
 
   // The view comes first on every layer; who joins the class is added, as
-  // the room adds tables, and the class list's import and export side by side
-  // are managing it.
-  it('puts the view on top, then adding students, then managing the list', () => {
+  // the room adds tables, the view settings follow as on every layer, and the
+  // class list's import and export side by side are managing it.
+  it('puts the view on top, then adding students, the view settings, then managing the list', () => {
     renderPanel();
 
     const headings = screen
@@ -138,6 +176,7 @@ describe('ClassToolPanel', () => {
     expect(headings).toEqual([
       expect.stringMatching(/^(Ansicht|View)$/),
       expect.stringMatching(/^(Hinzufügen|Add)$/),
+      expect.stringMatching(/^(Ansichtseinstellungen|View settings)$/),
       expect.stringMatching(/^(Verwalten|Manage)$/),
     ]);
 

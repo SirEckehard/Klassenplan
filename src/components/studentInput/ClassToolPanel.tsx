@@ -4,6 +4,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   ArrowRightIcon,
+  ChatCircleTextIcon,
   FileArrowDownIcon,
   FileArrowUpIcon,
   GraphIcon,
@@ -11,6 +12,7 @@ import {
   IdentificationCardIcon,
   PrinterIcon,
   TableIcon,
+  UserIcon,
   UserPlusIcon,
   UsersThreeIcon,
 } from '@phosphor-icons/react';
@@ -31,6 +33,9 @@ import {
 import { downloadCsvTemplate } from '@/utils/csv/csvTemplateDownload';
 import { openCsvFormatHelp } from '@/utils/ui/csvFormatHelp';
 import { TOUR_ANCHORS } from '@/components/onboarding/tours';
+import { CanvasSettingsGroups } from '@/components/SeatingPlanGenerator/canvas/CanvasSettingsGroups';
+import { VIEW_SETTING_ICONS } from '@/components/SeatingPlanGenerator/canvas/viewSettingIcons';
+import type { StudentCardSettings } from '@/hooks/student/useStudentCardSettings';
 
 /** Which of the two ways into the class data is on screen. */
 export type ClassViewMode = 'list' | 'relations';
@@ -42,6 +47,9 @@ type Props = {
   studentCount: number;
   view: ClassViewMode;
   onViewChange: (view: ClassViewMode) => void;
+  /** Which cards open over a badge or a name (`useStudentCardSettings`). */
+  cardSettings: StudentCardSettings;
+  onCardSettingsChange: (next: StudentCardSettings) => void;
   newStudentName: string;
   onNewStudentNameChange: (value: string) => void;
   onAddStudent: () => void;
@@ -74,12 +82,13 @@ const panelLabelClass = 'text-xs font-medium text-(--text-muted)';
 /** A panel that offers a choice of actions: a dropdown menu, icon and word. */
 const menuClass = `${menuSurfaceClass} p-1`;
 const menuIconClass = 'h-4 w-4 shrink-0 text-(--text-muted)';
+const BadgesIcon = VIEW_SETTING_ICONS.badges;
 
 /**
  * The class layer's toolbar: how to look at the students, who joins the class
- * — added one by one or as placeholders — and, under "Verwalten", the class
- * list as a file and the class on paper with room to write (the export page's
- * note list).
+ * — added one by one or as placeholders —, what pointing at a badge or a name
+ * opens, and, under "Verwalten", the class list as a file and the class on
+ * paper with room to write (the export page's note list).
  * The backup and the class tools are in the foot every rail shares
  * (`ToolRail`).
  *
@@ -94,6 +103,8 @@ export default function ClassToolPanel({
   studentCount,
   view,
   onViewChange,
+  cardSettings,
+  onCardSettingsChange,
   newStudentName,
   onNewStudentNameChange,
   onAddStudent,
@@ -270,6 +281,59 @@ export default function ClassToolPanel({
                   </span>
                 )}
               </label>
+            </div>
+          )}
+        />
+      </ToolRailGroup>
+
+      {/* What pointing at a badge or a name opens — the plan's "Merkmale"
+          has the same switch for the seats' badges. */}
+      <ToolRailGroup title={t('generator:toolRail.viewSettings')}>
+        <ToolRailButton
+          icon={<BadgesIcon size={18} />}
+          label={t('generator:editor.badges.title')}
+          disabled={!hasStudents}
+          panel={() => (
+            <div className={menuClass}>
+              <CanvasSettingsGroups
+                groups={[
+                  {
+                    id: 'class-badges',
+                    title: t('generator:editor.badges.title'),
+                    options: [
+                      {
+                        kind: 'checkList',
+                        id: 'class-badges-hover',
+                        label: t('generator:editor.badges.hoverLabel'),
+                        items: [
+                          {
+                            id: 'class-badges-hover-badge',
+                            icon: <ChatCircleTextIcon size={18} />,
+                            label: t('generator:editor.badges.hoverTooltip'),
+                            checked: cardSettings.badge,
+                            onChange: (next) =>
+                              onCardSettingsChange({
+                                ...cardSettings,
+                                badge: next,
+                              }),
+                          },
+                          {
+                            id: 'class-badges-hover-profile',
+                            icon: <UserIcon size={18} />,
+                            label: t('students:card.hoverProfile'),
+                            checked: cardSettings.profile,
+                            onChange: (next) =>
+                              onCardSettingsChange({
+                                ...cardSettings,
+                                profile: next,
+                              }),
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                ]}
+              />
             </div>
           )}
         />

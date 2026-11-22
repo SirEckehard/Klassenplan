@@ -56,6 +56,7 @@ import {
   withdrawStudentUndoOffer,
 } from '@/hooks/student/studentUndoOffer';
 import { useDemoClass } from '@/hooks/onboarding/useDemoClass';
+import { useStudentCardSettings } from '@/hooks/student/useStudentCardSettings';
 import {
   brushMarker,
   brushPatch,
@@ -225,6 +226,8 @@ function StudentInput({
   // — with the brush in its head also "who is restless" — and the relations
   // who wants to sit with whom.
   const [listMode, setListMode] = useState<ClassViewMode>('list');
+  // What pointing at a badge or a name opens, switched in the toolbar.
+  const [cardSettings, setCardSettings] = useStudentCardSettings();
   // The brush (decision 0051): one marker, and every row pressed sets it or
   // takes it off. Null while it is put away.
   const [brushKey, setBrushKey] = useState<BrushKey | null>(null);
@@ -434,6 +437,8 @@ function StudentInput({
           studentCount={students.length}
           view={listMode}
           onViewChange={changeListMode}
+          cardSettings={cardSettings}
+          onCardSettingsChange={setCardSettings}
           newStudentName={newStudentName}
           onNewStudentNameChange={setNewStudentName}
           onAddStudent={handleAddStudent}
@@ -633,7 +638,7 @@ function StudentInput({
           )}
 
           {listMode === 'relations' ? (
-            <RelationsView students={students} />
+            <RelationsView students={students} cards={cardSettings} />
           ) : showListTools && listView.visibleStudents.length === 0 ? (
             <div className="flex flex-col items-center gap-3 px-1 py-6 text-center text-sm text-(--text-muted)">
               <p>{t('listToolbar.noMatches')}</p>
@@ -666,6 +671,7 @@ function StudentInput({
                   : undefined
               }
               mixSettings={mixSettings}
+              cards={cardSettings}
               brush={listBrush}
             />
           )}

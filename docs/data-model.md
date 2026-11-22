@@ -380,6 +380,8 @@ list is `PROJECT_LOCAL_STORAGE_KEYS` in `storageKeys.ts`. Groups:
   `spg.featureVisibility`, `spg.nameDisplay`, `spg.photos`,
   `spg.badgeDisplay` (which badges the seats show: `all`, `active`, `off`),
   `spg.badgeHover` (`{ tooltip, highlight }`: what pointing at one does),
+  `spg.studentCards` (`{ badge, profile }`: whether the class layer opens a
+  card over a badge and over a name or a face),
   `circle-connection-mode` (whether the circle draws the arcs between table
   neighbours, `subtle` or `off`; it predates the prefix), …
   The table plan and the circle share photos, names and badges through

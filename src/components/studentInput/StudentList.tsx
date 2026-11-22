@@ -5,6 +5,7 @@ import { useInspector } from '@/contexts/InspectorContext';
 import { useIsPhone } from '@/hooks/ui/useLayoutMode';
 import { useIsLgUp } from '@/hooks/ui/useIsLgUp';
 import { useStudentCard } from '@/hooks/student/useStudentCard';
+import type { StudentCardSettings } from '@/hooks/student/useStudentCardSettings';
 import StudentRow from '@/components/students/StudentRow';
 import StudentListHeader from '@/components/students/StudentListHeader';
 import StudentCardLayer from '@/components/students/StudentCardLayer';
@@ -51,6 +52,8 @@ type StudentListProps = {
   narrowing?: { totalCount: number; onClear: () => void };
   /** The mix's weights: a badge that counts for nothing is drawn dashed. */
   mixSettings?: MixSettings;
+  /** Which cards open over a badge or a name; omitted, both do. */
+  cards?: StudentCardSettings;
   /** The brush in the list's head; omitted, the head offers none. */
   brush?: {
     active: BrushKey | null;
@@ -78,6 +81,7 @@ const StudentList = ({
   selectionActive = false,
   narrowing,
   mixSettings,
+  cards,
   brush,
 }: StudentListProps) => {
   const classRoster = allStudents ?? students;
@@ -89,7 +93,10 @@ const StudentList = ({
   const brushKey = brush?.active ?? null;
 
   const listRef = React.useRef<HTMLDivElement>(null);
-  const { card } = useStudentCard(listRef, { enabled: brushKey === null });
+  const { card } = useStudentCard(listRef, {
+    enabled: brushKey === null,
+    kinds: cards,
+  });
 
   const [expandedIds, setExpandedIds] = React.useState<ReadonlySet<string>>(
     () => new Set(),
