@@ -14,13 +14,20 @@ import { neutralSettings, normalizeMixSettings } from '@/utils';
 import type { SeatingState } from '../useSeatingState';
 import { useSeatingAlgorithm } from '../useSeatingAlgorithm';
 
-const { callOperation } = vi.hoisted(() => ({ callOperation: vi.fn() }));
+const { callOperation, statistics } = vi.hoisted(() => ({
+  callOperation: vi.fn(),
+  statistics: {
+    get: vi.fn<() => object | null>(() => ({})),
+    load: vi.fn(() => Promise.resolve({})),
+  },
+}));
 
 vi.mock('@/workers/algorithmWorkerClient', () => ({
   algorithmWorkerClient: { callOperation },
 }));
 vi.mock('../useSeatingStatisticsUpdater', () => ({
   calculateCurrentStatistics: () => [],
+  seatingStatistics: statistics,
 }));
 
 const ada = createMockStudent({ id: 'ada', name: 'Ada' });
@@ -36,6 +43,7 @@ const scene = createMockClassroomScene(2);
 const setup = () => {
   let mixHistory: MixResult[] = [];
   const setCurrentSeating = vi.fn();
+  const setLastStatistics = vi.fn();
   const stateFor = (classId: string, roomId = 'room-1') =>
     ({
       studentState: { students: [ada, ben] },
@@ -46,7 +54,7 @@ const setup = () => {
           mixHistory = [...mixHistory, result];
         },
       },
-      algorithmState: { lockedPositions: {}, setLastStatistics: vi.fn() },
+      algorithmState: { lockedPositions: {}, setLastStatistics },
       planState: { currentSeating: [], setCurrentSeating },
       roomState: { activeRoomId: roomId },
       classState: { activeClass: { id: classId, name: classId } },
@@ -61,11 +69,13 @@ const setup = () => {
     openClass: (classId: string) => rerender({ classId, roomId: 'room-1' }),
     openRoom: (roomId: string) => rerender({ classId: 'class-a', roomId }),
     setCurrentSeating,
+    setLastStatistics,
     getMixHistory: () => mixHistory,
   };
 };
 
 beforeEach(() => {
+  statistics.load.mockClear();
   callOperation.mockReset();
   callOperation.mockResolvedValueOnce({ seating: mixed });
 });
@@ -101,6 +111,33 @@ describe('useSeatingAlgorithm mix history', () => {
       refine: true,
     });
     expect(second?.[1]).toMatchObject({ refine: false });
+  });
+});
+
+describe('useSeatingAlgorithm and the fulfilment', () => {
+  it('gives a mix its fulfilment at once when the statistics are loaded', async () => {
+    const { result, setLastStatistics } = setup();
+
+    await act(async () => {
+      await result.current.generateSeatingPlan(settings, scene);
+    });
+
+    expect(statistics.load).not.toHaveBeenCalled();
+    expect(setLastStatistics).toHaveBeenCalledWith([]);
+  });
+
+  it('gives a mix before the statistics arrived its fulfilment once they have', async () => {
+    statistics.get.mockReturnValueOnce(null);
+    const { result, setLastStatistics } = setup();
+
+    let arrangement: SeatingArrangement | undefined;
+    await act(async () => {
+      arrangement = await result.current.generateSeatingPlan(settings, scene);
+    });
+
+    expect(statistics.load).toHaveBeenCalledTimes(1);
+    expect(setLastStatistics).toHaveBeenCalledWith([]);
+    expect(arrangement).toBe(mixed);
   });
 });
 

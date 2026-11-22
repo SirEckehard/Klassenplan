@@ -14,12 +14,17 @@ import type {
   PlanUsage,
 } from '@/types';
 import type { SeatingState } from './useSeatingState';
-import { calculateCurrentStatistics } from './useSeatingStatisticsUpdater';
+import {
+  calculateCurrentStatistics,
+  seatingStatistics,
+  type SeatingStatisticsModule,
+} from './useSeatingStatisticsUpdater';
 import {
   DEFAULT_MIX_WEIGHTS,
   DEFAULT_NEIGHBOR_WEIGHTS,
   hasActiveWeights,
   mergeNeighborWeights,
+  logWarn,
   normalizeMixSettings,
 } from '@/utils';
 import { hasPlanFeedback } from '@/utils/data/planUsage';
@@ -170,21 +175,47 @@ export function useSeatingAlgorithm(
           };
           addMixResult(result);
 
-          const topCriteria = calculateCurrentStatistics(
-            arrangement,
-            students,
-            normalizedSettings,
-            seatingHistory,
-            scene,
-            {
-              planUsage: planUsageRef.current,
-              planUsageSince: planUsageSinceRef.current,
-              planUsageManual: planUsageManualRef.current,
+          const applyStatistics = (statistics: SeatingStatisticsModule) => {
+            const topCriteria = calculateCurrentStatistics(
+              statistics,
+              arrangement,
+              students,
+              normalizedSettings,
+              seatingHistory,
+              scene,
+              {
+                planUsage: planUsageRef.current,
+                planUsageSince: planUsageSinceRef.current,
+                planUsageManual: planUsageManualRef.current,
+              },
+            );
+            setLastStatistics(topCriteria);
+          };
+
+          const statistics = seatingStatistics.get();
+          if (statistics) {
+            applyStatistics(statistics);
+            return arrangement;
+          }
+
+          // The plan layer fetches the statistics with itself; a mix before
+          // they arrived gets its fulfilment once they have.
+          return seatingStatistics.load().then(
+            (loaded) => {
+              if (isSameScope(openScopeRef.current, scope)) {
+                applyStatistics(loaded);
+              }
+              return arrangement;
+            },
+            (error: unknown) => {
+              logWarn(
+                'Could not load the seating statistics',
+                { error },
+                'useSeatingAlgorithm',
+              );
+              return arrangement;
             },
           );
-          setLastStatistics(topCriteria);
-
-          return arrangement;
         });
     },
     [

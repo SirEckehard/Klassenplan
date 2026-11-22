@@ -30,27 +30,29 @@ const distDir = path.resolve(
 const KB = 1024;
 
 /**
- * Headroom is deliberately tight (roughly +12 % over the measured size at the
- * time of writing; the initial payload was last tightened on 2026-09-16 and
- * raised on 2026-11-22 from 220 to 224 KB brotli: it stood at 219.9 KB, and
- * feedback on a plan in use (decision 0054) brought 1.4 KB that cannot load
- * later — the criterion's term and fulfilment, which the seating statistics
- * read on the first plan, its record, and its words in both languages). A
- * budget nobody ever hits is a budget nobody maintains — when one of these
- * fails, either the growth is justified and the number moves in the same
- * commit, or it isn't and the import gets fixed.
+ * Headroom is deliberately tight (the initial payload's budget was set on
+ * 2026-09-16 at 195 KB brotli measured; raised to 224 KB on 2026-11-22 for
+ * feedback on a plan in use and lowered back to 220 KB the same day, when the
+ * seating statistics left the initial payload). A budget nobody ever hits is
+ * a budget nobody maintains — when one of these fails, either the growth is
+ * justified and the number moves in the same commit, or it isn't and the
+ * import gets fixed. Before raising one, look for what the start page loads
+ * without needing it: the analysis on 2026-11-22 found the criterion model
+ * (9.8 KB) behind a single hook of the app-wide provider.
  *
- * For context on the initial payload (212 KB brotli over 37 files on
- * 2026-11-06, 195 KB over 17 on 2026-09-16): about 86 KB of that is react-dom plus the German i18n bundle, neither of which can
- * be deferred — react-dom renders the first frame and German is the fallback
- * language. The storage history, the backup flow and the CSV import load on
- * demand since 2026-09-16 (223 KB before). What generator-only code remains —
- * repositories, stores, seating statistics — comes in with the app-wide
+ * For context on the initial payload (211.5 KB brotli over 36 files on
+ * 2026-11-22, 195 KB over 17 on 2026-09-16): about 86 KB of that is react-dom
+ * plus the German i18n bundle, neither of which can be deferred — react-dom
+ * renders the first frame and German is the fallback language. The storage
+ * history, the backup flow and the CSV import load on demand since 2026-09-16
+ * (223 KB before), the seating statistics with the plan layer since
+ * 2026-11-22 (221.3 KB before). What generator-only code remains —
+ * repositories, stores, the backup hook — comes in with the app-wide
  * provider; deferring it means untangling the provider import graph, which
- * belongs to the R1/R2 state-architecture work.
+ * belongs to the R1/R2 state-architecture work (about 65 KB brotli).
  */
 const BUDGETS = {
-  initial: { raw: 840 * KB, brotli: 224 * KB },
+  initial: { raw: 840 * KB, brotli: 220 * KB },
   largestChunk: { raw: 330 * KB, brotli: 78 * KB },
   css: { raw: 200 * KB, brotli: 24 * KB },
 };
