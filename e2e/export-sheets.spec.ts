@@ -83,6 +83,11 @@ async function restoreFixture(page: Page): Promise<void> {
   await restore.getByText('Alles ersetzen').click();
   await restore.getByRole('button', { name: 'Wiederherstellen' }).click();
   await expect(restore).toBeHidden();
+  // The photos are written last, after the students show: the page must not
+  // be left before the import says it is done, or they are lost on the way.
+  await expect(
+    page.getByText('Daten wurden erfolgreich importiert.'),
+  ).toBeVisible();
   await expect(
     page.getByRole('button', { name: 'Emma Becker im Inspektor öffnen' }),
   ).toBeVisible();
