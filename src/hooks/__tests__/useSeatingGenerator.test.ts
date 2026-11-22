@@ -320,6 +320,7 @@ describe('useSeatingGenerator', () => {
       autoMixing: false,
       autoMixError: null,
       handleStepChange: vi.fn(),
+      leavePlanLayer: vi.fn().mockResolvedValue(true),
       setStep: vi.fn(),
       setClassroomEdited: vi.fn(),
       setPlanNameError: vi.fn(),

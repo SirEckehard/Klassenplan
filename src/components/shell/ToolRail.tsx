@@ -391,12 +391,40 @@ function ToolRailLibrary() {
   const { t } = useTranslation('generator');
   const isCompact = React.useContext(DensityContext) === 'compact';
   const { pathname } = useLocation();
+  const { leavePlanLayer } = useSeatingPlanActions();
+  const navigate = useLocalizedNavigate();
   const label = t('storage.historyTitle');
   const isHere = /^(\/en)?\/bibliothek\/?$/.test(pathname);
+
+  // Leaving the plan layer this way saves the plan on screen as the way back
+  // to the room does, so "Bibliothek" shows it as it stands, its circle with
+  // it, and opening another plan there loses nothing. A click that opens a
+  // new tab leaves this one where it is.
+  const handleClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
+    if (
+      isHere ||
+      event.button !== 0 ||
+      event.metaKey ||
+      event.ctrlKey ||
+      event.shiftKey ||
+      event.altKey
+    ) {
+      return;
+    }
+    event.preventDefault();
+    leavePlanLayer()
+      .then((go) => {
+        if (go) navigate('/bibliothek');
+      })
+      .catch((error: unknown) => {
+        logError('Failed to leave for the library', { error }, 'ToolRail');
+      });
+  };
 
   return (
     <LocalizedLink
       to="/bibliothek"
+      onClick={handleClick}
       data-tour={TOUR_ANCHORS.library}
       title={label}
       aria-label={isCompact ? label : undefined}
@@ -602,7 +630,7 @@ export function ToolRailButton({
       aria-expanded={panel ? open : undefined}
       className={
         isCompact
-          ? `relative inline-flex size-11 shrink-0 select-none items-center justify-center rounded-lg [-webkit-touch-callout:none] ${entryStateClass(
+          ? `relative inline-flex size-11 shrink-0 select-none items-center justify-center rounded-lg touch-callout-none ${entryStateClass(
               isActive,
               disabled,
             )} ${onPointerDown && !disabled ? 'cursor-grab active:cursor-grabbing' : ''}`

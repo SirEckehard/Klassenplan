@@ -92,6 +92,12 @@ export interface SeatingPlanState {
 
 export interface SeatingPlanActions {
   handleStepChange: (n: number) => void;
+  /**
+   * Saves the plan on screen as leaving the plan layer for the room does, for
+   * a way out of the workspace that is not a layer ("Bibliothek"). Resolves
+   * whether to go: false when the save failed and the teacher chose to stay.
+   */
+  leavePlanLayer: () => Promise<boolean>;
   addStudent: (
     name: string,
     gender?: 'boy' | 'girl' | 'diverse',

@@ -74,9 +74,26 @@ export interface WizardConfig {
 
 export interface WizardActions {
   handleStepChange: (n: number) => Promise<void>;
+  /** See `SeatingPlanActions.leavePlanLayer`. */
+  leavePlanLayer: () => Promise<boolean>;
   setStep: (step: number) => void;
   setClassroomEdited: (edited: boolean) => void;
   setPlanNameError: (error: boolean) => void;
+}
+
+/**
+ * Says that the plan could not be saved on the way out and asks whether to
+ * leave all the same.
+ */
+async function confirmLeavingUnsaved(): Promise<boolean> {
+  showToast('error', TOAST_MESSAGES.PLAN_SAVE_FAILED);
+  return confirmDialog({
+    tone: 'neutral',
+    icon: WarningIcon,
+    title: i18n.t('dialogs.savePlanFailed.title', { ns: 'common' }),
+    confirmLabel: i18n.t('dialogs.savePlanFailed.confirm', { ns: 'common' }),
+    cancelLabel: i18n.t('dialogs.savePlanFailed.cancel', { ns: 'common' }),
+  });
 }
 
 /**
@@ -142,78 +159,85 @@ export function useSeatingWizard(
   }, []);
 
   /**
+   * The auto-save of leaving the plan layer, whichever way it is left: back
+   * to the room or the class, or out to "Bibliothek". Saves the plan on
+   * screen — its circle with it — when it changed, and reports false only
+   * when that save failed.
+   */
+  const autoSavePlan = useCallback((): boolean => {
+    // A plan made for other tables is not saved: it would store the seats
+    // of tables that are gone under the room as it now stands.
+    if (
+      step !== 3 ||
+      !hasPlanForScene(classroomScene, currentSeating) ||
+      !hasUnsavedSeatingChanges
+    ) {
+      return true;
+    }
+    setPlanNameError(false);
+    const trimmed = planName.trim();
+    // The name the last auto-save generated is no name either: the plan
+    // stays in the room's auto-save slot until it is named, saved on
+    // purpose or used — exporting and presenting keep it as a plan.
+    const hasCustomName = trimmed.length > 0 && !openPlanIsAutoSave;
+    const finalName = hasCustomName ? trimmed : createTimestampPlanName();
+
+    if (!hasCustomName) {
+      setPlanName(finalName);
+    }
+
+    const ok = saveSeatingPlan(finalName, classroomScene, circleLayout, {
+      // Only a generated name marks this as a throwaway auto-save; a name
+      // the user typed makes it a real plan.
+      autoSave: !hasCustomName,
+    });
+
+    if (ok) {
+      announcePlanSaved(finalName);
+      // The name as saved, which the one on screen takes only with the
+      // next render.
+      syncSeatingSnapshot({ planName: finalName });
+      markClassroomSynced(classroomScene);
+    }
+    return ok;
+  }, [
+    step,
+    currentSeating,
+    hasUnsavedSeatingChanges,
+    planName,
+    openPlanIsAutoSave,
+    classroomScene,
+    circleLayout,
+    saveSeatingPlan,
+    setPlanName,
+    setPlanNameError,
+    syncSeatingSnapshot,
+    markClassroomSynced,
+  ]);
+
+  /**
+   * Saves the plan on screen as leaving the plan layer does, for a way out
+   * of the workspace that is not a layer ("Bibliothek"). Resolves whether to
+   * go: false when the save failed and the teacher chose to stay.
+   */
+  const leavePlanLayer = useCallback(
+    async (): Promise<boolean> => autoSavePlan() || confirmLeavingUnsaved(),
+    [autoSavePlan],
+  );
+
+  /**
    * Handle backward navigation with auto-save logic.
    * When navigating back from step 3 with unsaved changes, auto-saves the plan.
    */
   const handleBackwardNavigation = useCallback(
     async (targetStep: number): Promise<boolean> => {
-      // A plan made for other tables is not saved: it would store the seats
-      // of tables that are gone under the room as it now stands.
-      if (
-        step === 3 &&
-        hasPlanForScene(classroomScene, currentSeating) &&
-        hasUnsavedSeatingChanges
-      ) {
-        setPlanNameError(false);
-        const trimmed = planName.trim();
-        // The name the last auto-save generated is no name either: the plan
-        // stays in the room's auto-save slot until it is named, saved on
-        // purpose or used — exporting and presenting keep it as a plan.
-        const hasCustomName = trimmed.length > 0 && !openPlanIsAutoSave;
-        const finalName = hasCustomName ? trimmed : createTimestampPlanName();
-
-        if (!hasCustomName) {
-          setPlanName(finalName);
-        }
-
-        const ok = saveSeatingPlan(finalName, classroomScene, circleLayout, {
-          // Only a generated name marks this as a throwaway auto-save; a name
-          // the user typed makes it a real plan.
-          autoSave: !hasCustomName,
-        });
-
-        if (ok) {
-          announcePlanSaved(finalName);
-          // The name as saved, which the one on screen takes only with the
-          // next render.
-          syncSeatingSnapshot({ planName: finalName });
-          markClassroomSynced(classroomScene);
-        } else {
-          showToast('error', TOAST_MESSAGES.PLAN_SAVE_FAILED);
-          const shouldContinue = await confirmDialog({
-            tone: 'neutral',
-            icon: WarningIcon,
-            title: i18n.t('dialogs.savePlanFailed.title', { ns: 'common' }),
-            confirmLabel: i18n.t('dialogs.savePlanFailed.confirm', {
-              ns: 'common',
-            }),
-            cancelLabel: i18n.t('dialogs.savePlanFailed.cancel', {
-              ns: 'common',
-            }),
-          });
-          if (!shouldContinue) {
-            return false;
-          }
-        }
+      if (!autoSavePlan() && !(await confirmLeavingUnsaved())) {
+        return false;
       }
       setStep(targetStep);
       return true;
     },
-    [
-      step,
-      currentSeating,
-      hasUnsavedSeatingChanges,
-      planName,
-      openPlanIsAutoSave,
-      classroomScene,
-      circleLayout,
-      saveSeatingPlan,
-      setPlanName,
-      setPlanNameError,
-      syncSeatingSnapshot,
-      markClassroomSynced,
-      setStep,
-    ],
+    [autoSavePlan, setStep],
   );
 
   /**
@@ -407,6 +431,7 @@ export function useSeatingWizard(
     autoMixing,
     autoMixError,
     handleStepChange,
+    leavePlanLayer,
     setStep,
     setPlanNameError,
     setClassroomEdited,

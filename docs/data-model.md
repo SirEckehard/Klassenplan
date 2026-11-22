@@ -168,8 +168,11 @@ until 2026-11-06 it started with the repetition and the gender mix alone.
   whole students on the seats and is read alike; its next write stores ids.
 - **`seatingHistory` holds saved plans**, not a log. At most one entry per room
   carries `autoSaved: true`; the next silent auto-save in that room overwrites
-  it. The name an auto-save generated is no name the teacher chose: leaving the
-  plan layer again writes to the same entry, and only a save on purpose, an
+  it. Leaving the plan layer — back to the room or the class, or out to
+  "Bibliothek" — saves the plan on screen when it changed since it was opened
+  or saved, its circle with it; what a class opened with counts as unchanged
+  (`useUnsavedSeatingTracker`). The name an auto-save generated is no name the
+  teacher chose: leaving the plan layer again writes to the same entry, and only a save on purpose, an
   export or a projection make it a plan of its own. Names are unique
   within a class: a save writes to the open plan when the name is its own or
   the save renames it (`SaveSeatingPlanOptions.rename`), and otherwise starts a

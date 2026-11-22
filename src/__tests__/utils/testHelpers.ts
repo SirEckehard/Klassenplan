@@ -64,6 +64,7 @@ interface MockSeatingGeneratorState {
 
 interface MockSeatingGeneratorActions {
   handleStepChange: (next: number) => void;
+  leavePlanLayer: () => Promise<boolean>;
   addStudent: (
     name: string,
     gender?: 'boy' | 'girl' | 'diverse',
@@ -190,6 +191,8 @@ const createDefaultMockActions = (): MockSeatingGeneratorActions => {
   const actions: MockSeatingGeneratorActions = {
     handleStepChange:
       createMockFn<MockSeatingGeneratorActions['handleStepChange']>(),
+    leavePlanLayer:
+      createMockFn<MockSeatingGeneratorActions['leavePlanLayer']>(),
     addStudent: createMockFn<MockSeatingGeneratorActions['addStudent']>(),
     addBulkPlaceholderStudents:
       createMockFn<MockSeatingGeneratorActions['addBulkPlaceholderStudents']>(),
@@ -330,6 +333,7 @@ const createDefaultMockActions = (): MockSeatingGeneratorActions => {
   toMock(actions.moveStudent).mockReturnValue(true);
   toMock(actions.onMix).mockImplementation(() => undefined);
   toMock(actions.handleStepChange).mockImplementation(() => undefined);
+  toMock(actions.leavePlanLayer).mockResolvedValue(true);
   toMock(actions.acknowledgeStudentUpdates).mockImplementation(() => undefined);
   toMock(actions.selectClass).mockResolvedValue(true);
   toMock(actions.createClass).mockResolvedValue('class-new');

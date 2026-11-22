@@ -569,6 +569,7 @@ export function useSeatingGenerator() {
     planNameError,
     planNameInputRef,
     handleStepChange,
+    leavePlanLayer,
     setStep,
     setPlanNameError,
     handleMix,
@@ -807,6 +808,7 @@ export function useSeatingGenerator() {
   const actions = useMemo(
     () => ({
       handleStepChange,
+      leavePlanLayer,
       addStudent,
       addBulkPlaceholderStudents,
       removeStudent,
@@ -890,6 +892,7 @@ export function useSeatingGenerator() {
     }),
     [
       handleStepChange,
+      leavePlanLayer,
       addStudent,
       addBulkPlaceholderStudents,
       removeStudent,

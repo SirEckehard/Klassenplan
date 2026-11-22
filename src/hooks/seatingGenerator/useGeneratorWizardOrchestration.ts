@@ -66,6 +66,7 @@ export interface WizardOrchestrationReturn {
 
   // Wizard actions
   handleStepChange: (step: number) => void;
+  leavePlanLayer: () => Promise<boolean>;
   setStep: (step: number) => void;
   setPlanNameError: (error: boolean) => void;
 
@@ -132,6 +133,7 @@ export function useGeneratorWizardOrchestration(
     autoMixing,
     autoMixError,
     handleStepChange,
+    leavePlanLayer,
     setStep,
     setPlanNameError,
   } = useSeatingWizard({
@@ -169,6 +171,7 @@ export function useGeneratorWizardOrchestration(
 
     // Wizard actions
     handleStepChange,
+    leavePlanLayer,
     setStep,
     setPlanNameError,
 

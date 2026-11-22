@@ -28,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ### Fixed
 
 - Desks pushed together in a row now mix genders and performance levels across the join as a double desk does, and the fulfilment counts it
+- Going to "Library" saves the open plan, its seating circle included, as going back to the room does
 - Other small fixes
 
 ## [3.4.1] - 2026-11-19

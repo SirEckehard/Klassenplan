@@ -23,6 +23,7 @@ import { getButton } from '@/__tests__/utils';
 const actions = vi.hoisted(() => ({
   handleExportAll: vi.fn().mockResolvedValue(undefined),
   triggerImport: vi.fn(),
+  leavePlanLayer: vi.fn().mockResolvedValue(true),
 }));
 
 const layout = vi.hoisted(() => ({ isPhone: false }));
@@ -218,8 +219,9 @@ describe('ToolRail', () => {
   });
 
   // "Bibliothek" is a page of the workspace (decision 0024), reached
-  // by a link like any other page.
-  it('leads to the library, a page of its own', () => {
+  // by a link like any other page — after the plan on screen was saved, as
+  // the way back to the room saves it.
+  it('leads to the library, a page of its own', async () => {
     renderRail();
 
     const entry = screen.getByRole('link', {
@@ -229,7 +231,19 @@ describe('ToolRail', () => {
     expect(entry).not.toHaveAttribute('aria-current');
 
     fireEvent.click(entry);
-    expect(screen.getByText('Seite: Bibliothek')).toBeInTheDocument();
+    expect(actions.leavePlanLayer).toHaveBeenCalledTimes(1);
+    expect(await screen.findByText('Seite: Bibliothek')).toBeInTheDocument();
+  });
+
+  it('stays when the plan could not be saved and the teacher stays', async () => {
+    actions.leavePlanLayer.mockResolvedValueOnce(false);
+    renderRail();
+
+    fireEvent.click(screen.getByRole('link', { name: /Bibliothek|Library/i }));
+
+    await waitFor(() => expect(actions.leavePlanLayer).toHaveBeenCalled());
+    await act(async () => {});
+    expect(screen.queryByText('Seite: Bibliothek')).not.toBeInTheDocument();
   });
 
   it('keeps both ways a backup travels behind one entry', () => {

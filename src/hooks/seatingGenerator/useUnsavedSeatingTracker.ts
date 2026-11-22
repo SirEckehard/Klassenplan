@@ -123,18 +123,6 @@ export function useUnsavedSeatingTracker({
     if (!trackingEnabled) {
       return;
     }
-    // Handle class switching - reset state cleanly
-    if (previousClassIdRef.current !== activeClassId) {
-      previousClassIdRef.current = activeClassId;
-      isInitializedRef.current = false;
-      savedSnapshotRef.current = null;
-      if (hasUnsavedRef.current) {
-        queueMicrotask(() => {
-          setHasUnsavedSeatingChanges(false);
-        });
-      }
-      return;
-    }
 
     // Create current snapshot for comparison
     const currentSnapshot = createSnapshot(
@@ -143,6 +131,22 @@ export function useUnsavedSeatingTracker({
       planName,
       lockedPositions,
     );
+
+    // Another class opened: what it opened with is the saved state. Its data
+    // arrives with its id (`applyPersistedState`, while tracking waits out a
+    // reload), so the first change made in it — a circle drawn, a seat
+    // swapped — is a change, not the baseline.
+    if (previousClassIdRef.current !== activeClassId) {
+      previousClassIdRef.current = activeClassId;
+      isInitializedRef.current = true;
+      savedSnapshotRef.current = currentSnapshot;
+      if (hasUnsavedRef.current) {
+        queueMicrotask(() => {
+          setHasUnsavedSeatingChanges(false);
+        });
+      }
+      return;
+    }
 
     // Initialize on first run
     if (!isInitializedRef.current) {

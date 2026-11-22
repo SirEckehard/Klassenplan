@@ -331,7 +331,10 @@ afterwards.
   folder one step up, named ("‹ 7b"), which cuts the path back by one step, as ←
   from the first column on screen does, and on the right where the last column
   stands, which opens the whole path as a menu. It opens on the plan that is
-  open, in its room, in its class. The neighbourhoods are a folder too: the
+  open, in its room, in its class. The way there from the plan layer saves the
+  plan on screen first, as the way back to the room does (`leavePlanLayer`), so
+  the plan stands there as it was left — a circle drawn for it included — and
+  opening another plan loses nothing. The neighbourhoods are a folder too: the
   class's students, and a student's neighbours in the next column, most often
   first, with their photos where there are — a pair of two full names does not
   fit a column, one name does. What is selected is read and changed in the
