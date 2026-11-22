@@ -75,6 +75,8 @@ type SmartMixControlsProps = FulfillmentProps & {
   suspendedWeights?: SuspendedWeights;
   /** Every criterion, whatever data the class has: a preset's. */
   allCriteria?: boolean;
+  /** A plan in use has feedback: "Erfahrung" shows (decision 0054). */
+  planFeedback?: boolean;
   /** The levels shown, not changed: "Standard" in "Bibliothek". */
   readOnly?: boolean;
 };
@@ -359,6 +361,7 @@ function SmartMixControls({
   activeHighlightKey = null,
   activeHighlightMode = null,
   allCriteria = false,
+  planFeedback = false,
   readOnly = false,
 }: SmartMixControlsProps) {
   const mix = useMixCriteria({
@@ -367,6 +370,7 @@ function SmartMixControls({
     students,
     suspendedWeights,
     allCriteria,
+    planFeedback,
   });
 
   // The statistics carry only the criteria the mix scored, in the order of the
@@ -428,9 +432,14 @@ export function MixRecipeSection({
   setMixSettings,
   students,
   suspendedWeights,
+  planFeedback = false,
 }: Pick<
   SmartMixControlsProps,
-  'settings' | 'setMixSettings' | 'students' | 'suspendedWeights'
+  | 'settings'
+  | 'setMixSettings'
+  | 'students'
+  | 'suspendedWeights'
+  | 'planFeedback'
 >) {
   const { t } = useTranslation('generator');
   const mix = useMixCriteria({
@@ -438,6 +447,7 @@ export function MixRecipeSection({
     setMixSettings,
     students,
     suspendedWeights,
+    planFeedback,
   });
   const text = useMixRecipeText();
   const presets = useMixPresets();

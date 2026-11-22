@@ -1125,7 +1125,8 @@ function PlanLibraryPage() {
             records={usageRecords}
             rooms={classLibrary.rooms}
             plans={classLibrary.plans}
-            studentCount={classLibrary.students.length}
+            students={classLibrary.students}
+            experienceCounts={classLibrary.experienceCounts}
             onRename={async (name) =>
               toProblem(
                 await edit(current.classId, {

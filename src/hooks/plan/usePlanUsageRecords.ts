@@ -20,13 +20,13 @@ import {
   loadPlanUsageResetAt,
   markPlanUsed,
   resetPlanUsage,
-  setPlanFeedback,
   setPlanUsageConfirmed,
   setPlanUsageManual,
   subscribeToPlanUsage,
   undoPlanUsageReset,
   type PlanUsageResetSnapshot,
 } from '@/repositories/planUsageStore';
+import { useSetPlanFeedback } from './useSetPlanFeedback';
 
 const LOG_SOURCE = 'usePlanUsageRecords';
 
@@ -131,22 +131,7 @@ export function usePlanUsageRecords(
     [classId],
   );
 
-  const setFeedback = useCallback(
-    (
-      seating: SeatingArrangement,
-      feedback: PlanFeedback | null,
-      at: string,
-    ) => {
-      setPlanFeedback(classId, seating, feedback, at).catch((error) => {
-        logError(
-          'Failed to keep how a plan went',
-          { error, rating: feedback?.rating ?? null },
-          LOG_SOURCE,
-        );
-      });
-    },
-    [classId],
-  );
+  const setFeedback = useSetPlanFeedback(classId);
 
   const resetUsage = useCallback(
     () =>

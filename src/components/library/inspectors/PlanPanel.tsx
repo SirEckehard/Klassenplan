@@ -21,7 +21,7 @@ import {
 } from '@/components/shell/InspectorPanel';
 import type { LibraryRoom } from '@/hooks/library/useClassLibrary';
 import type { PlanUsageRecordsReturn } from '@/hooks/plan/usePlanUsageRecords';
-import type { SavedPlan } from '@/types';
+import type { SavedPlan, Student } from '@/types';
 import {
   checkName,
   formatLongDate,
@@ -31,11 +31,11 @@ import {
   type NameProblem,
 } from '@/utils';
 import {
-  collectSeatingPairKeys,
-  computePlanFingerprint,
+  findPlanUsage,
   isCountedUsage,
   storedPlanDateToTimestamp,
 } from '@/utils/data/planUsage';
+import PlanFeedbackRows from '@/components/SeatingPlanGenerator/views/PlanFeedbackRows';
 import ToggleSwitch from '@/components/ui/controls/ToggleSwitch';
 import InspectorSelect from '@/components/students/InspectorSelect';
 import { hasShapeMismatch } from '@/utils/math/scene';
@@ -51,8 +51,8 @@ export type PlanMove = { roomId: string } | { newRoomName: string };
  * belongs to, which it can leave for another or a new one (decision 0024) —
  * a menu, as a student's language level is, since a class may have many
  * rooms; what it holds; whether it was really in use — marked here by hand,
- * and whether the class detects that on its own (decision 0025); a copy
- * beside it; and removing it. What the plan is and where it belongs share
+ * and whether the class detects that on its own (decision 0025) — and how it
+ * went (decision 0054); a copy beside it; and removing it. What the plan is and where it belongs share
  * one section: a heading over the room's single row only repeated it.
  */
 export default function PlanPanel({
@@ -60,7 +60,8 @@ export default function PlanPanel({
   records,
   rooms,
   plans,
-  studentCount,
+  students,
+  experienceCounts,
   onRename,
   onMove,
   onDuplicate,
@@ -76,7 +77,10 @@ export default function PlanPanel({
   rooms: LibraryRoom[];
   /** Every plan of the class: a name one of them carries is taken. */
   plans: SavedPlan[];
-  studentCount: number;
+  /** The class, for its size and the names at the plan's tables. */
+  students: Student[];
+  /** Whether "Erfahrung" counts in the class's mixing (decision 0054). */
+  experienceCounts: boolean;
   onRename: (name: string) => Promise<NameProblem | null> | NameProblem | null;
   onMove: (move: PlanMove) => Promise<NameProblem | null> | NameProblem | null;
   onDuplicate: () => void;
@@ -85,7 +89,8 @@ export default function PlanPanel({
 }) {
   const { t } = useTranslation('generator');
   const [namingRoom, setNamingRoom] = React.useState(false);
-  const { planUsage, planUsageManual, setUsageManual, markUsed } = records;
+  const { planUsage, planUsageManual, setUsageManual, markUsed, setFeedback } =
+    records;
 
   const seated = plan.seating.reduce(
     (sum, table) => sum + table.filter(Boolean).length,
@@ -110,24 +115,21 @@ export default function PlanPanel({
   };
 
   // Whether the plan was really in use: its pairs match a usage record.
-  const usage = React.useMemo(() => {
-    if (seated === 0) return undefined;
-    const fingerprint = computePlanFingerprint(
-      collectSeatingPairKeys(plan.seating),
-    );
-    return planUsage.find((record) => record.fingerprint === fingerprint);
-  }, [plan.seating, planUsage, seated]);
+  const usage = React.useMemo(
+    () => findPlanUsage(planUsage, plan.seating),
+    [plan.seating, planUsage],
+  );
   const usageSources = usage
     ? [...new Set(usage.sources.filter((source) => source !== 'edited'))]
     : [];
   // The records come resolved for the class's mode, so this is what counts.
   const used = usage ? isCountedUsage(usage) : false;
+  // A record marking or feedback creates is dated the day the plan was made,
+  // so an old plan does not become the most recent one.
+  const madeAt = () =>
+    storedPlanDateToTimestamp(plan.date ?? '') ?? new Date().toISOString();
   const handleUsedChange = (next: boolean) => {
-    // A record this creates is dated the day the plan was made, so marking an
-    // old plan does not make it the most recent one.
-    const at =
-      storedPlanDateToTimestamp(plan.date ?? '') ?? new Date().toISOString();
-    markUsed(plan.seating, next, at);
+    markUsed(plan.seating, next, madeAt());
   };
 
   return (
@@ -206,7 +208,7 @@ export default function PlanPanel({
           <ValueRow label={t('library.plan.seated')}>
             {t('library.plan.seatedValue', {
               seated,
-              total: studentCount,
+              total: students.length,
             })}
           </ValueRow>
           <ValueRow label={t('library.room.tables')}>
@@ -243,6 +245,17 @@ export default function PlanPanel({
               size="sm"
             />
           </InspectorRow>
+          {seated > 0 && (
+            <PlanFeedbackRows
+              seating={plan.seating}
+              records={planUsage}
+              students={students}
+              counts={experienceCounts}
+              onChange={(feedback) =>
+                setFeedback(plan.seating, feedback, madeAt())
+              }
+            />
+          )}
           <InspectorRow
             label={t('library.plan.detect')}
             icon={<InspectorIcon icon={MagicWandIcon} />}

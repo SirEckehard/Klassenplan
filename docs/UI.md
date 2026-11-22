@@ -1,6 +1,6 @@
 # The Interface
 
-> **Status:** current · **Last reviewed:** 2026-11-20 · **Source of truth:**
+> **Status:** current · **Last reviewed:** 2026-11-22 · **Source of truth:**
 > `src/components/shell/`, `src/components/SeatingPlanGenerator/`,
 > `src/contexts/InspectorContext.tsx`
 
@@ -335,8 +335,10 @@ afterwards.
   class's students, and a student's neighbours in the next column, most often
   first, with their photos where there are — a pair of two full names does not
   fit a column, one name does. What is selected is read and changed in the
-  inspector (`components/library/inspectors/`: class, room, plan, mix,
-  neighbourhoods and a pair of them, template, preset — its criteria as the
+  inspector (`components/library/inspectors/`: class, room, plan — whether it
+  was in use and how it went (`PlanFeedbackRows`) —, mix, neighbourhoods and a
+  pair of them, each plan they rest on saying how it went, template, preset —
+  its criteria as the
   plan's inspector shows them, every one of them and each change kept at once
   ("Standard" read only), an own one renamed and deleted, a changed shipped one
   restored —, folder), a class's name, school year and notes in its panel as in
@@ -489,7 +491,15 @@ afterwards.
   öffnen …" opens another saved plan of the class — the open room's first, each
   named with its room once the class has more than one, a plan of another room
   opening that room (`handleHistoryLoad`, as "Bibliothek" does); renaming and
-  removing another plan stay in "Bibliothek". A name another plan carries is
+  removing another plan stay in "Bibliothek". Last in the section stands how
+  the plan went (`PlanFeedbackRows`, decision 0054) — "Gut" or "Nicht gut",
+  each saying what it does and so a list under the question, pressed again to
+  take it back, and with "Nicht gut" a switch for every table of two or more,
+  named by its students' first names — while the stage shows a plan that can have been in use: saved and
+  unchanged, or already counted as used; a fresh mix and the circle have
+  none. "Bibliothek" has the same rows under "Genutzt", and a sentence under
+  them says the feedback waits while "Erfahrung" is off. A name another plan
+  carries is
   refused under the name, not by a toast. Ctrl/⌘+S saves straight away under the
   name the plan has, from the open name field under the typed one. The header
   carries no plan name. "The open plan" is the one `activePlanId` names — the id
@@ -956,7 +966,10 @@ afterwards.
   is, and for a changed shipped preset "Original wiederherstellen". Kept is said
   to a screen reader alone, since the button names the result. How well the plan
   meets them is the status bar's to state, not the inspector's (see above);
-  after the preset come "Hinweise" while the class and the room leave something
+  "Erfahrung" stands under Verlauf only once a plan in use has feedback
+  (`hasPlanFeedback`), and counts as no criterion before — its weight is
+  never cleared for that, since the records load after the class (decision
+  0054); after the preset come "Hinweise" while the class and the room leave something
   unmet — more students needing a front seat "Sehr wichtig" than the front row
   holds, a wish answered with a distance wish (`MixHintsSection`, `useMixHints`,
   `model/feasibility.ts`); the section is not there otherwise. Decision 0018

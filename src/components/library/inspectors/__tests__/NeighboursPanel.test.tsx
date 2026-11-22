@@ -191,4 +191,38 @@ describe('NeighbourPairPanel', () => {
       }),
     ).toHaveLength(2);
   });
+
+  // Why a pair is parted (decision 0054).
+  it('says how a plan went, and when it did not at their table', () => {
+    render(
+      <NeighbourPairPanel
+        studentId="b"
+        neighbourId="a"
+        studentName="Ben"
+        neighbourName="Anna"
+        planUsage={[
+          record('u1', ['a::b'], '2026-08-01T00:00:00.000Z', {
+            confirmed: true,
+            feedback: { rating: 'good', at: '2026-08-02' },
+          }),
+          record('u2', ['a::b', 'c::d'], '2026-09-01T00:00:00.000Z', {
+            confirmed: true,
+            feedback: {
+              rating: 'poor',
+              poorTables: [['a', 'b']],
+              at: '2026-09-02',
+            },
+          }),
+        ]}
+        onSetConfirmed={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByText(/^(Gut|Good)$/)).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        /^(Nicht gut · an ihrem Tisch|Not good · at their table)$/,
+      ),
+    ).toBeInTheDocument();
+  });
 });

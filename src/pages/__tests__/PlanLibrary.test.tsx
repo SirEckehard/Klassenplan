@@ -150,6 +150,7 @@ const sevenB = (): LibraryClass => ({
   id: '7b',
   name: '7b',
   isOpen: true,
+  experienceCounts: true,
   students: [ada, ben],
   rooms: [
     {

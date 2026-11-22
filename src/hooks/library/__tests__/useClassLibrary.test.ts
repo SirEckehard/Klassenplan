@@ -2,13 +2,19 @@
 // Copyright (C) 2026 Eike Schäfer
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type { ClassRecord, ClassSummary, RoomRecord } from '@/types';
+import type {
+  ClassRecord,
+  ClassSummary,
+  MixSettings,
+  RoomRecord,
+} from '@/types';
 import {
   createMockClassroomScene,
   createMockSavedPlan,
 } from '@/__tests__/utils';
 import type { ClassParts } from '@/utils/data/classRooms';
 import { useClassLibrary, type LibraryEditOutcome } from '../useClassLibrary';
+import { DEFAULT_MIX_WEIGHTS } from '@/utils';
 
 const mocks = vi.hoisted(() => ({
   state: {} as Record<string, unknown>,
@@ -78,6 +84,7 @@ beforeEach(() => {
     seatingHistory: [createMockSavedPlan({ id: 'p1', roomId: 'r2' })],
     mixHistory: [],
     classroomScene: createMockClassroomScene(3),
+    mixSettings: { ...DEFAULT_MIX_WEIGHTS },
   };
   mocks.actions = {
     renameSeatingPlan: vi.fn(() => true),
@@ -117,6 +124,31 @@ describe('useClassLibrary', () => {
     expect(result.current.loading).toBe(false);
     expect(result.current.selected?.isOpen).toBe(false);
     expect(result.current.selected?.rooms[0]?.scene.tables).toHaveLength(5);
+  });
+
+  // Decision 0054: whether "Erfahrung" counts, read as opening the class
+  // would read it.
+  it('says whether "Erfahrung" counts in a class, live or stored', async () => {
+    mocks.state = {
+      ...mocks.state,
+      mixSettings: { ...DEFAULT_MIX_WEIGHTS, considerPlanFeedback: 0 },
+    };
+    const { result: open } = renderHook(() => useClassLibrary('open'));
+    expect(open.current.selected?.experienceCounts).toBe(false);
+
+    // Settings from before the criterion take it at its default.
+    const before: Partial<MixSettings> = { ...DEFAULT_MIX_WEIGHTS };
+    delete before.considerPlanFeedback;
+    mocks.repository.loadClassRecord.mockResolvedValueOnce({
+      success: true,
+      data: {
+        ...storedClass('other', '8c'),
+        mixSettings: { ...before, criteriaVersion: 2 },
+      },
+    });
+    const { result: stored } = renderHook(() => useClassLibrary('other'));
+    await waitFor(() => expect(stored.current.selected?.name).toBe('8c'));
+    expect(stored.current.selected?.experienceCounts).toBe(true);
   });
 
   it('drops an answer that arrives for a class no longer selected', async () => {

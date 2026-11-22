@@ -27,19 +27,36 @@ import { announce, showToast } from '@/utils/ui/toast';
 /**
  * The plans a neighbourhood rests on, each named by its saved plan and room
  * where the class still has them, and each taken out of the count or let back in by hand
- * (decision 0010).
+ * (decision 0010) — and how it went where the teacher said so, for a pair
+ * whether at their table (decision 0054), so it reads why a pair is parted.
  */
 export function UsageRecordList({
   records,
   origins,
   onSetConfirmed,
+  pair,
 }: {
   records: readonly PlanUsage[];
   /** Saved plans and rooms by fingerprint (`buildUsageOrigins`). */
   origins?: ReadonlyMap<string, UsageOrigin>;
   onSetConfirmed: (usageId: string, confirmed: boolean) => void;
+  /** The two students the list is about, by id, when it is about a pair. */
+  pair?: readonly [string, string];
 }) {
   const { t } = useTranslation('generator');
+  const feedbackLabel = (entry: PlanUsage) => {
+    const feedback = entry.feedback;
+    if (!feedback) return null;
+    if (feedback.rating === 'good') return t('planFeedback.ratedGood');
+    const atTheirTable =
+      pair !== undefined &&
+      (feedback.poorTables ?? []).some(
+        (table) => table.includes(pair[0]) && table.includes(pair[1]),
+      );
+    return atTheirTable
+      ? `${t('planFeedback.ratedPoor')} · ${t('planFeedback.atTheirTable')}`
+      : t('planFeedback.ratedPoor');
+  };
   // The saved plan's name where one holds the arrangement, the date it was
   // last used and the room it was made in.
   const recordLabel = (entry: PlanUsage) => {
@@ -56,6 +73,7 @@ export function UsageRecordList({
     <ul className="flex flex-col divide-y divide-(--border-card)">
       {records.map((entry) => {
         const excluded = !isCountedUsage(entry);
+        const feedback = feedbackLabel(entry);
         return (
           <li
             key={entry.id}
@@ -76,6 +94,9 @@ export function UsageRecordList({
                   .map((source) => t(`storage.neighbors.sources.${source}`))
                   .join(', ')}
               </span>
+              {feedback && (
+                <span className="text-(--text-muted)">{feedback}</span>
+              )}
             </span>
             <button
               type="button"

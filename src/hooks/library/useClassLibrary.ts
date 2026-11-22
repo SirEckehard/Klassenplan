@@ -16,10 +16,12 @@ import type {
 } from '@/types';
 import {
   createTimestampPlanName,
+  DEFAULT_CLASS_MIX_SETTINGS,
   DEFAULT_CLASSROOM_SCENE,
   generateId,
   logError,
   MAX_NAME_LENGTH,
+  migrateStoredMixSettings,
   toIsoDate,
   uniqueName,
 } from '@/utils';
@@ -58,6 +60,12 @@ export interface LibraryClass {
   /** In the order they were stored. */
   plans: SavedPlan[];
   mixes: MixResult[];
+  /**
+   * Whether "Erfahrung" counts in the class's mixing (decision 0054): the
+   * live weight of the open class, the stored one — brought up to date as
+   * opening the class does — of another.
+   */
+  experienceCounts: boolean;
 }
 
 /** A change "Bibliothek" asks for; ids and dates are made here. */
@@ -231,6 +239,7 @@ export function useClassLibrary(selectedClassId: string | null) {
         activePlanId: state.activePlanId,
         plans: state.seatingHistory,
         mixes: state.mixHistory,
+        experienceCounts: state.mixSettings.considerPlanFeedback > 0,
       };
     }
     const record = stored?.id === selectedClassId ? stored.record : undefined;
@@ -255,6 +264,10 @@ export function useClassLibrary(selectedClassId: string | null) {
       activePlanId: record.activePlanId ?? null,
       plans: record.seatingHistory,
       mixes: record.mixHistory,
+      experienceCounts:
+        ((record.mixSettings
+          ? migrateStoredMixSettings(record.mixSettings).considerPlanFeedback
+          : DEFAULT_CLASS_MIX_SETTINGS.considerPlanFeedback) ?? 0) > 0,
     };
   }, [selectedClassId, openClassId, state, stored]);
 

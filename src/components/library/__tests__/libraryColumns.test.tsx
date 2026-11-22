@@ -55,6 +55,7 @@ const library: LibraryClass = {
   id: '7b',
   name: '7b',
   isOpen: true,
+  experienceCounts: true,
   students: [
     createMockStudent({ id: 'c', name: 'Carla' }),
     createMockStudent({ id: 'a', name: 'Anna' }),

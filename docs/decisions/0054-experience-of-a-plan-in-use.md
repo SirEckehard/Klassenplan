@@ -4,7 +4,7 @@
 - **In place since:** — (the next release)
 - **Sources:** the maintainer's idea and choices of 2026-11-22 (feedback on a
   plan in "Bibliothek" that the mixing can use; a rating of the plan and, when
-  it did not go well, the tables where it did not; "Lief gut" makes repetition
+  it did not go well, the tables where it did not; "Gut" makes repetition
   milder; a criterion of its own; given in "Bibliothek" and in the plan
   layer's inspector, the tables as rows of names) and the four defaults
   confirmed on the page "Plan-Feedback „Erfahrung“" the same day (twice as
@@ -53,15 +53,17 @@ repetition cannot express, since it treats every pair alike.
   inside `planUsage`.
 
 - **"Erfahrung" is a criterion of its own** (`considerPlanFeedback`, family
-  Verlauf, "Wichtig" by default, "Sehr wichtig" in "Klassenarbeit"), not a
+  Verlauf, "Wichtig" by default and in every shipped preset, the level
+  settings from before take, so a class mixing by a preset still reads as
+  it), not a
   part of "Wiederholung": it acts with repetition off, and it shows what it
   achieved on a line of its own (decision 0031). A pair of a table that did
   not work costs `considerPlanFeedback` × 2 × its weight at the table, as a
-  distance wish of the same level; a plan rated "Lief nicht gut" without a
+  distance wish of the same level; a plan rated "Nicht gut" without a
   table weighs each of its pairs a quarter. It counts fully for the
   repetition's window of plans in use and fades out over a second one as
   long.
-- **"Lief gut" makes repetition milder.** While "Erfahrung" counts, the pairs
+- **"Gut" makes repetition milder.** While "Erfahrung" counts, the pairs
   of a plan that went well count half as repetition, as two who wish each
   other do (decision 0033), and stay out of the "Wiederholung" line.
 - **It weighs nothing without feedback, and it is never cleared for want of
@@ -88,7 +90,7 @@ Where the teacher gives it follows in the next step of the same change.
   effect with repetition off and one line for two meanings. The maintainer
   chose a criterion of its own.
 - **A rating of the plan alone.** Simple, but it tells the mixing nothing
-  repetition does not, so the tables come with "Lief nicht gut".
+  repetition does not, so the tables come with "Nicht gut".
 - **The criterion shown and weighed only with feedback**, as markers are
   (decision 0016). The records load after the class; a weight cleared while
   they load and set again once they are there would undo the teacher's

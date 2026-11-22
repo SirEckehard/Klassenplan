@@ -4,7 +4,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { renderHook } from '@testing-library/react';
 import { useMixCriteria } from '@/hooks/ui/useMixCriteria';
 import { createMockStudent } from '@/__tests__/utils';
-import { DEFAULT_MIX_WEIGHTS } from '@/utils';
+import { DEFAULT_MIX_WEIGHTS, neutralSettings } from '@/utils';
 import { CRITERIA_FAMILY_MAP } from '@/utils/ui/criteriaIcons';
 
 // Enough data for every criterion the panel offers.
@@ -87,5 +87,49 @@ describe('useMixCriteria', () => {
         key !== 'considerPlanFeedback',
     );
     expect([...keys].sort()).toEqual(offered.sort());
+  });
+
+  // "Erfahrung" waits for feedback on a plan in use (decision 0054).
+  describe('"Erfahrung"', () => {
+    const keysOf = (planFeedback: boolean) => {
+      const { result } = renderHook(() =>
+        useMixCriteria({
+          settings: { ...DEFAULT_MIX_WEIGHTS },
+          setMixSettings: vi.fn(),
+          students,
+          planFeedback,
+        }),
+      );
+      return result.current.categories
+        .find((category) => category.id === 'history')!
+        .criteria.map((criterion) => criterion.key);
+    };
+
+    it('stands beside the repetition once a plan has feedback', () => {
+      expect(keysOf(true)).toEqual([
+        'avoidPreviousPairs',
+        'considerPlanFeedback',
+      ]);
+      expect(keysOf(false)).toEqual(['avoidPreviousPairs']);
+    });
+
+    it('keeps the mix from chance only while it shows', () => {
+      const only = {
+        ...neutralSettings,
+        considerPlanFeedback: 6,
+      };
+      const random = (planFeedback: boolean) =>
+        renderHook(() =>
+          useMixCriteria({
+            settings: only,
+            setMixSettings: vi.fn(),
+            students,
+            planFeedback,
+          }),
+        ).result.current.isRandom;
+
+      expect(random(false)).toBe(true);
+      expect(random(true)).toBe(false);
+    });
   });
 });

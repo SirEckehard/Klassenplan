@@ -12,6 +12,7 @@ import {
   useSeatingPlanActions,
 } from '@/contexts/SeatingPlanContext';
 import { usePlanSaveState } from '@/hooks/plan/usePlanSaveState';
+import { useSetPlanFeedback } from '@/hooks/plan/useSetPlanFeedback';
 import {
   InspectorActionRow,
   InspectorHeader,
@@ -31,6 +32,12 @@ import {
   toIsoDate,
   uniqueName,
 } from '@/utils';
+import {
+  findPlanUsage,
+  isCountedUsage,
+  storedPlanDateToTimestamp,
+} from '@/utils/data/planUsage';
+import PlanFeedbackRows from './PlanFeedbackRows';
 
 /** The day a plan was saved, "heute" and "gestern" by name. */
 function savedOn(
@@ -216,9 +223,51 @@ export function PlanInspectorHeader() {
 }
 
 /**
- * The plan's own section, first in its inspector: the ways to keep it, and
- * the other plans of the class to open instead. Its name is the heading's
- * (`PlanInspectorHeader`).
+ * How the plan on the stage went (decision 0054), for a plan that can have
+ * been in use: one saved and shown as saved, or one already counted as used.
+ * A fresh mix is an experiment and gets none, nor does the circle — feedback
+ * names the tables, so `PlanSection` renders this in the table plan alone. A
+ * record it creates is dated the day the plan was saved.
+ */
+function PlanFeedbackOnStage() {
+  const {
+    activeClass,
+    classroomScene,
+    currentSeating,
+    mixSettings,
+    planUsage,
+    students,
+  } = useSeatingPlanState();
+  const { openPlan, hasUnsavedChanges } = usePlanSaveState();
+  const setFeedback = useSetPlanFeedback(activeClass.id);
+
+  if (!hasPlanForScene(classroomScene, currentSeating)) return null;
+  const record = findPlanUsage(planUsage, currentSeating);
+  const savedAsShown = openPlan !== undefined && !hasUnsavedChanges();
+  if (!savedAsShown && !(record && isCountedUsage(record))) return null;
+
+  return (
+    <PlanFeedbackRows
+      seating={currentSeating}
+      records={planUsage}
+      students={students}
+      counts={mixSettings.considerPlanFeedback > 0}
+      onChange={(feedback) =>
+        setFeedback(
+          currentSeating,
+          feedback,
+          (openPlan && storedPlanDateToTimestamp(openPlan.date)) ??
+            new Date().toISOString(),
+        )
+      }
+    />
+  );
+}
+
+/**
+ * The plan's own section, first in its inspector: the ways to keep it, the
+ * other plans of the class to open instead, and how the plan went. Its name
+ * is the heading's (`PlanInspectorHeader`).
  *
  * "Plan speichern" writes the stage into the open plan, or starts the first
  * one. "Als neuen Plan speichern" leaves the open plan as it was and keeps
@@ -232,8 +281,14 @@ export function PlanInspectorHeader() {
  */
 export function PlanSection() {
   const { t } = useTranslation('generator');
-  const { planName, seatingHistory, activePlanId, activeRoomId, rooms } =
-    useSeatingPlanState();
+  const {
+    planName,
+    seatingHistory,
+    activePlanId,
+    activeRoomId,
+    rooms,
+    seatingMode,
+  } = useSeatingPlanState();
   const { handleHistoryLoad } = useSeatingPlanActions();
   const { openPlan, canSave, nameTaken, save, saveAsNew } = usePlanSave();
   // A name a saved plan carries while the persistence does not hold that
@@ -303,6 +358,7 @@ export function PlanSection() {
           }))}
         />
       )}
+      {seatingMode === 'table' && <PlanFeedbackOnStage />}
     </InspectorSection>
   );
 }

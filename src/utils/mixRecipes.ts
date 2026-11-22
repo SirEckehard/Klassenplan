@@ -108,7 +108,9 @@ export const MIX_RECIPES: readonly MixRecipe[] = [
       avoidConcentrationTogether: 8,
       avoidConcentrationNearRestless: 8,
       avoidPreviousPairs: 8,
-      considerPlanFeedback: 8,
+      // Every shipped preset at the default, which stored settings from
+      // before take (decision 0054): a class mixing by one reads as it.
+      considerPlanFeedback: 6,
       preferFrontForNeedsFrontSeat: 8,
       keepNeighbourSeatFree: 8,
       seatLeftHandersLeft: 5,

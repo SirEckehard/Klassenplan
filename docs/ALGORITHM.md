@@ -437,14 +437,14 @@ of six plans.
 ### How a plan went
 
 A plan in use can carry feedback
-([decision 0054](decisions/0054-experience-of-a-plan-in-use.md)): "Lief gut",
-or "Lief nicht gut" with the tables at which it did not work.
+([decision 0054](decisions/0054-experience-of-a-plan-in-use.md)): "Gut", or
+"Nicht gut" with the tables at which it did not work.
 `buildPlanExperience()` (`src/utils/pairs.ts`) reads it from the counted
 usage records, ranked as `buildPreviousPairs` ranks them, the plan being read
 left out:
 
-- **A table that did not work** weighs each of its pairs 1. A plan rated "Lief
-  nicht gut" without a table weighs each of its pairs `POOR_PLAN_PAIR_WEIGHT`
+- **A table that did not work** weighs each of its pairs 1. A plan rated "Nicht
+  gut" without a table weighs each of its pairs `POOR_PLAN_PAIR_WEIGHT`
   = ¼: repetition parts them anyway, and the rating alone cannot say which
   pair it means. A pair adds up to `MAX_PAIR_WEIGHT`.
 - **It lasts twice as long as a repetition**: fully within the repetition's
@@ -458,8 +458,8 @@ left out:
 `considerPlanFeedback` ("Erfahrung") charges a pair at one table its weight
 times `CRITERION_WEIGHTS.experience` = 2 times the pair's weight and relation
 weight, on top of the repetition — as much as a distance wish of the same
-level. The halving of a good pair applies while "Erfahrung" counts, so "Lief
-gut" acts through "Wiederholung" and needs both. Without feedback the
+level. The halving of a good pair applies while "Erfahrung" counts, so "Gut"
+acts through "Wiederholung" and needs both. Without feedback the
 criterion weighs nothing, and a mix treats it as off (`buildMixProblem`), so
 it never turns a mix by no other criterion from chance; its weight is never
 cleared for want of data either, since the records load after the class.

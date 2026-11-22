@@ -251,7 +251,10 @@ describe("presets of the teacher's own (decision 0038)", () => {
     expect(levels.essential).not.toContain('avoidConcentrationNearRestless');
     expect(levels.essential).toContain('keepNeighbourSeatFree');
     expect(levels.consider).toEqual(['preferFrontForSmallerStudents']);
-    expect(levels.important).toEqual(['seatLeftHandersLeft']);
+    expect(levels.important).toEqual([
+      'considerPlanFeedback',
+      'seatLeftHandersLeft',
+    ]);
   });
 
   it('drops what is not a preset and brings older weights up to date', () => {

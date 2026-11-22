@@ -195,6 +195,51 @@ test('a plan is found in its room, and a lab is a room of its own', async ({
   expect(consoleErrors).toEqual([]);
 });
 
+// Decision 0054: how a plan in use went is said in its inspector, on the
+// plan layer and in "Bibliothek" alike, and "Erfahrung" stands among the
+// criteria once a plan has feedback.
+test('how a plan went is said in its inspector, and "Erfahrung" follows', async ({
+  page,
+}) => {
+  await page.goto('/generator');
+  await createClassWithStudents(page);
+  await page.getByRole('button', { name: 'Weiter zum Raum' }).click();
+  await setUpDoubleTables(page);
+  await mixAndSave(page, 'Woche 1');
+
+  const inspector = page.getByRole('complementary', { name: 'Plan' });
+  const experience = inspector.getByText('Erfahrung', { exact: true });
+
+  await test.step('a table that did not work, on the plan layer', async () => {
+    await expect(experience).toHaveCount(0);
+    await inspector.getByRole('button', { name: /^Nicht gut:/ }).click();
+
+    const tables = inspector.getByRole('switch', { name: /^Tisch mit / });
+    await expect(tables).toHaveCount(2);
+    await tables.first().click();
+    await expect(tables.first()).toHaveAttribute('aria-checked', 'true');
+    await expect(experience).toBeVisible();
+  });
+
+  await test.step('"Bibliothek" says the same of the plan', async () => {
+    await openLibrary(page);
+
+    await expect(
+      page.getByRole('heading', { level: 2, name: 'Woche 1' }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole('button', { name: /^Nicht gut:/ }),
+    ).toHaveAttribute('aria-pressed', 'true');
+    await expect(
+      page.getByRole('switch', { name: /^Tisch mit / }).first(),
+    ).toHaveAttribute('aria-checked', 'true');
+    await expect(page.getByRole('switch', { name: 'Genutzt' })).toHaveAttribute(
+      'aria-checked',
+      'true',
+    );
+  });
+});
+
 // Decision 0038: a mix kept as a preset of one's own is offered in every
 // class and listed in "Bibliothek", which applies a preset without mixing.
 test('a preset of your own is kept and found in "Bibliothek"', async ({

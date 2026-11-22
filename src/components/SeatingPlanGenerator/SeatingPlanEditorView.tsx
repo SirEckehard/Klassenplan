@@ -47,6 +47,7 @@ import {
   withoutUnavailableWeights,
   formatPercent,
 } from '@/utils';
+import { hasPlanFeedback } from '@/utils/data/planUsage';
 import {
   buildBadgeHighlightLookup,
   type BadgeDisplayMode,
@@ -280,6 +281,11 @@ export default function SeatingPlanEditorView({
 }: Props) {
   const isDark = useIsDarkMode();
   const { t } = useTranslation('generator');
+  // "Erfahrung" shows once a plan in use has feedback (decision 0054).
+  const planFeedback = React.useMemo(
+    () => hasPlanFeedback(planUsage),
+    [planUsage],
+  );
   // Marks the visit (`spg.hasVisitedApp`) for the onboarding tour record.
   useFirstVisit();
   const layoutMode = useLayoutMode();
@@ -801,6 +807,7 @@ export default function SeatingPlanEditorView({
               setMixSettings={setMixSettings}
               students={students}
               suspendedWeights={suspendedWeights}
+              planFeedback={planFeedback}
             />
             {/* What the mixing cannot meet in this class and room, there
                 only while there is something to say. */}
@@ -815,6 +822,7 @@ export default function SeatingPlanEditorView({
               setMixSettings={setMixSettings}
               students={students}
               suspendedWeights={suspendedWeights}
+              planFeedback={planFeedback}
               {...fulfillmentProps}
             />
           </InspectorBody>

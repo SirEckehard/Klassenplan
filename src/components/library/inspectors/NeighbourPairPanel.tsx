@@ -80,6 +80,7 @@ export default function NeighbourPairPanel({
           <InspectorSection title={t('storage.neighbors.basisTitle')}>
             <UsageRecordList
               records={records}
+              pair={[studentId, neighbourId]}
               origins={origins}
               onSetConfirmed={onSetConfirmed}
             />

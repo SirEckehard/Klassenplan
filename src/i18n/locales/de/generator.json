@@ -72,6 +72,10 @@
         "title": "Speichern",
         "body": "Benenne den Plan oben im Inspektor und sichere ihn mit „Plan speichern“."
       },
+      "feedback": {
+        "title": "Rückmeldung zum Plan",
+        "body": "Sag im Inspektor, wie ein genutzter Plan lief: Wer an Tischen saß, an denen es nicht lief, bleibt mit „Erfahrung“ länger getrennt."
+      },
       "seats": {
         "title": "Plätze tauschen und sperren",
         "body": "Ziehe Schüler auf andere Plätze. Das Schloss eines Platzes schließt den Schüler beim nächsten Mischen aus."
@@ -1273,6 +1277,18 @@
     "viewSettings": "Ansichtseinstellungen",
     "manage": "Verwalten",
     "classTools": "Klassenwerkzeuge"
+  },
+  "planFeedback": {
+    "label": "Wie hat der Plan funktioniert?",
+    "good": "Gut: Wer nebeneinandersaß, darf früher wieder zusammensitzen.",
+    "poor": "Nicht gut: Wer an den gewählten Tischen saß, bleibt länger getrennt.",
+    "hint": "„Gut“: Wer nebeneinandersaß, darf früher wieder zusammensitzen. „Nicht gut“: Wer an den gewählten Tischen saß, bleibt länger getrennt.",
+    "tables": "Wähle die Tische, an denen es Probleme gab.",
+    "table": "Tisch mit {{names}}",
+    "off": "Wirkt beim Mischen, sobald das Kriterium „Erfahrung“ an ist.",
+    "atTheirTable": "an ihrem Tisch",
+    "ratedGood": "Gut",
+    "ratedPoor": "Nicht gut"
   },
   "planSave": {
     "section": "Plan",

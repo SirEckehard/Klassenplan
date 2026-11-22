@@ -22,6 +22,7 @@ import {
   mergeNeighborWeights,
   normalizeMixSettings,
 } from '@/utils';
+import { hasPlanFeedback } from '@/utils/data/planUsage';
 import { algorithmWorkerClient } from '@/workers/algorithmWorkerClient';
 import type { WorkerProgressPayload } from '@/workers/algorithmWorker.types';
 
@@ -124,7 +125,13 @@ export function useSeatingAlgorithm(
         ),
       };
 
-      const refine = hasActiveWeights(normalizedSettings);
+      // "Erfahrung" without feedback weighs nothing and keeps no mix from
+      // chance (decision 0054).
+      const refine = hasActiveWeights(
+        hasPlanFeedback(planUsageRef.current)
+          ? normalizedSettings
+          : { ...normalizedSettings, considerPlanFeedback: 0 },
+      );
 
       const scope = openScopeRef.current;
       return algorithmWorkerClient

@@ -86,7 +86,8 @@ const renderPanel = (
         },
       ]}
       plans={[plan]}
-      studentCount={2}
+      students={plan.seating.flat().filter((seat) => seat !== null)}
+      experienceCounts
       onRename={() => null}
       onMove={() => null}
       onDuplicate={vi.fn()}
@@ -171,6 +172,84 @@ describe('PlanPanel', () => {
     expect(
       screen.getByText(/nur Pläne, die du selbst|only the plans you mark/i),
     ).toBeInTheDocument();
+  });
+
+  // How a plan in use went (decision 0054).
+  describe('feedback', () => {
+    const wentWell = () =>
+      screen.getByRole('button', { name: /^(Gut|Good):/i });
+    const wentPoorly = () =>
+      screen.getByRole('button', {
+        name: /^(Nicht gut|Not good):/i,
+      });
+
+    it('says a plan went well, dated the day it was made', async () => {
+      const user = userEvent.setup();
+      renderPanel();
+
+      await user.click(wentWell());
+
+      expect(usageRecords.current?.setFeedback).toHaveBeenCalledWith(
+        plan.seating,
+        { rating: 'good', at: expect.any(String) },
+        new Date(2026, 8, 1).toISOString(),
+      );
+    });
+
+    it('takes the feedback back with the chip pressed again', async () => {
+      usageRecords.current = records({
+        planUsage: [
+          recordOf({ feedback: { rating: 'good', at: '2026-10-01' } }),
+        ],
+      });
+      const user = userEvent.setup();
+      renderPanel();
+
+      expect(wentWell()).toHaveAttribute('aria-pressed', 'true');
+      await user.click(wentWell());
+
+      expect(usageRecords.current?.setFeedback).toHaveBeenCalledWith(
+        plan.seating,
+        null,
+        expect.any(String),
+      );
+    });
+
+    it('names the tables by who sat there once it did not go well', async () => {
+      usageRecords.current = records({
+        planUsage: [
+          recordOf({ feedback: { rating: 'poor', at: '2026-10-01' } }),
+        ],
+      });
+      const user = userEvent.setup();
+      renderPanel();
+
+      const table = screen.getByRole('switch', {
+        name: /(Tisch mit|Table with) Anna · Ben/i,
+      });
+      expect(table).toHaveAttribute('aria-checked', 'false');
+      await user.click(table);
+
+      expect(usageRecords.current?.setFeedback).toHaveBeenCalledWith(
+        plan.seating,
+        { rating: 'poor', poorTables: [['a', 'b']], at: expect.any(String) },
+        expect.any(String),
+      );
+      expect(wentPoorly()).toHaveAttribute('aria-pressed', 'true');
+    });
+
+    it('says the feedback waits while "Erfahrung" is off', () => {
+      usageRecords.current = records({
+        planUsage: [
+          recordOf({ feedback: { rating: 'good', at: '2026-10-01' } }),
+        ],
+      });
+      renderPanel({ experienceCounts: false });
+
+      expect(
+        screen.getByText(/sobald das Kriterium|once the .Experience/i),
+      ).toBeInTheDocument();
+    });
   });
 
   // A class may have many rooms: the plan's room is a menu, as a student's

@@ -72,6 +72,10 @@
         "title": "Saving",
         "body": "Name the plan at the top of the inspector and keep it with “Save plan”."
       },
+      "feedback": {
+        "title": "Plan feedback",
+        "body": "Say in the inspector how a plan in use went: with “Experience”, who sat at tables where it didn't work stays apart for longer."
+      },
       "seats": {
         "title": "Swapping and locking seats",
         "body": "Drag students to other seats. A seat's lock keeps its student out of the next mix."
@@ -1273,6 +1277,18 @@
     "viewSettings": "View settings",
     "manage": "Manage",
     "classTools": "Class tools"
+  },
+  "planFeedback": {
+    "label": "How did the plan work?",
+    "good": "Good: who sat next to each other may sit together again sooner.",
+    "poor": "Not good: who sat at the chosen tables stays apart for longer.",
+    "hint": "“Good”: who sat next to each other may sit together again sooner. “Not good”: who sat at the chosen tables stays apart for longer.",
+    "tables": "Choose the tables where there were problems.",
+    "table": "Table with {{names}}",
+    "off": "Takes effect when mixing once the “Experience” criterion is on.",
+    "atTheirTable": "at their table",
+    "ratedGood": "Good",
+    "ratedPoor": "Not good"
   },
   "planSave": {
     "section": "Plan",

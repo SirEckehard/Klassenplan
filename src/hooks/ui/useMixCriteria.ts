@@ -67,6 +67,12 @@ type UseMixCriteriaOptions = {
    * belongs to no class (decision 0038).
    */
   allCriteria?: boolean;
+  /**
+   * A plan in use of the class has feedback (`hasPlanFeedback`): "Erfahrung"
+   * has something to weigh, and only then shows and counts as on (decision
+   * 0054).
+   */
+  planFeedback?: boolean;
 };
 
 /**
@@ -74,9 +80,9 @@ type UseMixCriteriaOptions = {
  * (`StudentInspector`): person, learning, language, behaviour, social, place and
  * room. Each category is a data family and borrows the class list's heading, so
  * a criterion stands under the same word — and in the same colour
- * (`CRITERIA_FAMILY_MAP`) — as the attribute it acts on. Repetition is about the
- * plans already used rather than an attribute: it has a family of its own
- * (`history`) and leads under a heading of its own.
+ * (`CRITERIA_FAMILY_MAP`) — as the attribute it acts on. Repetition and
+ * experience are about the plans already used rather than an attribute: they
+ * have a family of their own (`history`) and lead under a heading of their own.
  */
 export const buildMixCriteriaCategories = (
   t: TFunction<'generator'>,
@@ -89,6 +95,11 @@ export const buildMixCriteriaCategories = (
         key: 'avoidPreviousPairs',
         label: t('mix.criteria.avoidPreviousPairs.label'),
         description: t('mix.criteria.avoidPreviousPairs.desc'),
+      },
+      {
+        key: 'considerPlanFeedback',
+        label: t('mix.criteria.considerPlanFeedback.label'),
+        description: t('mix.criteria.considerPlanFeedback.desc'),
       },
     ],
   },
@@ -225,6 +236,7 @@ export function useMixCriteria({
   students,
   suspendedWeights,
   allCriteria = false,
+  planFeedback = false,
 }: UseMixCriteriaOptions) {
   const { t } = useTranslation('generator');
   const [ownSuspendedWeights] = React.useState(createSuspendedWeights);
@@ -238,14 +250,21 @@ export function useMixCriteria({
           criteria: category.criteria.filter(
             (criterion) =>
               allCriteria ||
-              isCriterionAvailable(criterion.key, students).available,
+              (isCriterionAvailable(criterion.key, students).available &&
+                (criterion.key !== 'considerPlanFeedback' || planFeedback)),
           ),
         }))
         .filter((category) => category.criteria.length > 0),
-    [t, students, allCriteria],
+    [t, students, allCriteria, planFeedback],
   );
 
-  const isRandom = !hasActiveWeights(settings);
+  // A hidden "Erfahrung" weighs nothing, so it does not keep the mix from
+  // chance (decision 0054).
+  const isRandom = !hasActiveWeights(
+    allCriteria || planFeedback
+      ? settings
+      : { ...settings, considerPlanFeedback: 0 },
+  );
 
   /** The weight a criterion's control shows; see {@link criterionWeight}. */
   const weightOf = React.useCallback(

@@ -367,6 +367,34 @@ export function usageBelongsToClass(
   });
 }
 
+/**
+ * Whether a plan in use of the class carries feedback that counts: then
+ * "Erfahrung" has something to weigh, and the criteria panel shows it
+ * (decision 0054).
+ *
+ * @param entries Usage records of one class, resolved for its mode
+ */
+export function hasPlanFeedback(entries: readonly PlanUsage[]): boolean {
+  return entries.some((entry) => entry.feedback && isCountedUsage(entry));
+}
+
+/**
+ * The record of an arrangement, by its pairs: a plan seating the same people
+ * side by side is the same plan in use. None for a plan without a pair.
+ *
+ * @param entries Usage records of one class
+ * @param seating The arrangement to look up
+ */
+export function findPlanUsage(
+  entries: readonly PlanUsage[],
+  seating: SeatingArrangement | null | undefined,
+): PlanUsage | undefined {
+  const pairs = collectSeatingPairKeys(seating);
+  if (pairs.length === 0) return undefined;
+  const fingerprint = computePlanFingerprint(pairs);
+  return entries.find((entry) => entry.fingerprint === fingerprint);
+}
+
 /** One pair of students and how often they were neighbours. */
 export interface NeighborPairStat {
   /** Pair key, `"idA::idB"`. */

@@ -306,7 +306,7 @@ export function tablesOfPairs(pairs: readonly string[]): string[][] {
 }
 
 /**
- * A plan rated "Lief nicht gut" without a table weighs each of its pairs this
+ * A plan rated "Nicht gut" without a table weighs each of its pairs this
  * much; a table chosen weighs each of its pairs 1. The repetition parts them
  * anyway, and the rating alone cannot say which pair it means.
  */

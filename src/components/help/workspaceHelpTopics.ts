@@ -26,6 +26,7 @@ import {
 import type { HelpTopic } from '@/components/help/HelpTopicList';
 import { VIEW_SETTING_ICONS } from '@/components/SeatingPlanGenerator/canvas/viewSettingIcons';
 import { ENTITY_ICONS } from '@/components/shell/entityIcons';
+import { CRITERIA_ICON_MAP } from '@/utils/ui/criteriaIcons';
 import { STUDENT_ATTRIBUTE_ICONS } from '@/utils/ui/studentAppearance';
 
 /**
@@ -61,6 +62,10 @@ export const WORKSPACE_HELP_TOPICS = {
   plan: [
     { key: 'help.plan.criteria', icon: ENTITY_ICONS.preset },
     { key: 'help.plan.save', icon: FloppyDiskIcon },
+    {
+      key: 'help.plan.feedback',
+      icon: CRITERIA_ICON_MAP.considerPlanFeedback,
+    },
     { key: 'help.plan.seats', icon: LockIcon },
     { key: 'help.plan.fulfilment', icon: ChartBarIcon },
     { key: 'help.plan.badges', icon: VIEW_SETTING_ICONS.badges },
@@ -84,6 +89,11 @@ export const WORKSPACE_HELP_TOPICS = {
   library: [
     { key: 'help.library.columns', icon: BooksIcon },
     { key: 'help.library.edit', icon: PencilLineIcon },
+    // How a plan went is said in its inspector here as on the plan layer.
+    {
+      key: 'help.plan.feedback',
+      icon: CRITERIA_ICON_MAP.considerPlanFeedback,
+    },
     { key: 'help.library.open', icon: ArrowSquareOutIcon },
     { key: 'help.library.history', icon: ClockCounterClockwiseIcon },
     { key: 'help.library.add', icon: FolderPlusIcon },

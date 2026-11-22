@@ -17,7 +17,16 @@ import {
 } from '@/components/SeatingPlanGenerator/views/PlanInspectorParts';
 import { getButton } from '@/__tests__/utils';
 import { toIsoDate } from '@/utils';
-import type { RoomRecord, SavedPlan, SeatingArrangement } from '@/types';
+import type {
+  PlanUsage,
+  RoomRecord,
+  SavedPlan,
+  SeatingArrangement,
+} from '@/types';
+import {
+  collectSeatingPairKeys,
+  computePlanFingerprint,
+} from '@/utils/data/planUsage';
 
 const SEATED = [[{ id: 'anna', name: 'Anna' }]] as SeatingArrangement;
 
@@ -30,6 +39,10 @@ const mocks = vi.hoisted(() => ({
   currentSeating: [] as SeatingArrangement,
   rooms: [] as RoomRecord[],
   activeRoomId: null as string | null,
+  seatingMode: 'table' as 'table' | 'circle',
+  planUsage: [] as PlanUsage[],
+  considerPlanFeedback: 6,
+  setFeedback: vi.fn(),
   handleSaveSeatingPlan: vi.fn((..._args: unknown[]) => true),
   handleHistoryLoad: vi.fn(),
   renameSeatingPlan: vi.fn((..._args: unknown[]) => true),
@@ -47,9 +60,13 @@ vi.mock('@/contexts/SeatingPlanContext', () => ({
     currentSeating: mocks.currentSeating,
     circleLayout: null,
     lockedPositions: {},
-    seatingMode: 'table',
+    seatingMode: mocks.seatingMode,
     rooms: mocks.rooms,
     activeRoomId: mocks.activeRoomId,
+    activeClass: { id: 'c1', name: '7b' },
+    mixSettings: { considerPlanFeedback: mocks.considerPlanFeedback },
+    planUsage: mocks.planUsage,
+    students: [],
   }),
   useSeatingPlanActions: () => ({
     handleSaveSeatingPlan: mocks.handleSaveSeatingPlan,
@@ -57,6 +74,10 @@ vi.mock('@/contexts/SeatingPlanContext', () => ({
     renameSeatingPlan: mocks.renameSeatingPlan,
     setPlanName: mocks.setPlanName,
   }),
+}));
+
+vi.mock('@/hooks/plan/useSetPlanFeedback', () => ({
+  useSetPlanFeedback: () => mocks.setFeedback,
 }));
 
 vi.mock('@/utils/ui/toast', () => ({
@@ -102,6 +123,9 @@ beforeEach(() => {
   mocks.currentSeating = SEATED;
   mocks.rooms = [{ id: 'classroom', name: 'Klassenraum', createdAt: '' }];
   mocks.activeRoomId = 'classroom';
+  mocks.seatingMode = 'table';
+  mocks.planUsage = [];
+  mocks.classroomScene = { tables: [{ seatCount: 1 }], features: [] };
   mocks.handleSaveSeatingPlan.mockReturnValue(true);
 });
 
@@ -237,6 +261,70 @@ describe('PlanSection', () => {
     mocks.seatingHistory = [];
     render(<PlanSection />);
     expect(openMenuButton()).toBeNull();
+  });
+});
+
+// How a plan in use went (decision 0054).
+describe('PlanSection: feedback', () => {
+  const PAIR = [
+    [
+      { id: 'anna', name: 'Anna' },
+      { id: 'ben', name: 'Ben' },
+    ],
+  ] as SeatingArrangement;
+  const wentWell = () =>
+    screen.queryByRole('button', { name: /^(Gut|Good):/i });
+
+  beforeEach(() => {
+    mocks.classroomScene = { tables: [{ seatCount: 2 }], features: [] };
+    mocks.currentSeating = PAIR;
+    mocks.seatingHistory = [savedPlan('Deutsch', { seating: PAIR })];
+  });
+
+  it('asks how the saved plan on the stage went, dated the day it was saved', async () => {
+    const user = userEvent.setup();
+    render(<PlanSection />);
+
+    await user.click(wentWell()!);
+
+    expect(mocks.setFeedback).toHaveBeenCalledWith(
+      PAIR,
+      { rating: 'good', at: expect.any(String) },
+      new Date(2026, 9, 12).toISOString(),
+    );
+  });
+
+  it('asks nothing of a fresh mix', () => {
+    mocks.activePlanId = null;
+    render(<PlanSection />);
+
+    expect(wentWell()).not.toBeInTheDocument();
+  });
+
+  it('asks a mix that was in use', () => {
+    mocks.activePlanId = null;
+    const pairs = collectSeatingPairKeys(PAIR);
+    mocks.planUsage = [
+      {
+        id: 'u1',
+        fingerprint: computePlanFingerprint(pairs),
+        pairs,
+        firstSeenAt: '2026-10-12T08:00:00.000Z',
+        lastSeenAt: '2026-10-12T08:00:00.000Z',
+        sources: ['presented'],
+        confidence: 1,
+      },
+    ];
+    render(<PlanSection />);
+
+    expect(wentWell()).toBeInTheDocument();
+  });
+
+  it('asks nothing in the circle, where no tables are named', () => {
+    mocks.seatingMode = 'circle';
+    render(<PlanSection />);
+
+    expect(wentWell()).not.toBeInTheDocument();
   });
 });
 
