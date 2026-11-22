@@ -413,7 +413,7 @@
         "usageOutro": "Only the seating neighbourhoods and a timestamp are stored – as always, entirely on your own device.",
         "weightNote": "The plan you are looking at does not count against itself: even after you presented, exported or saved it, “Repetition” compares it only with the other plans in use.",
         "viewNote": "In the “Library” at the foot of the toolbar, a class’s “Neighbourhoods” folder shows for every student whom they have sat next to and how often – including the data it rests on, from which you can remove individual plans. “Reset” forgets every neighbourhood so far at once, say for a new school year.",
-        "feedbackNote": "How a plan in use worked you say in the plan’s inspector, on the “Plan” layer or in the “Library”: “Good” lets its pairs sit together again sooner, “Not good” keeps the students of the chosen tables apart about twice as long as repetition does, after which it fades. The “Experience” criterion does this; it appears once a plan has feedback."
+        "feedbackNote": "You can say how a plan in use worked in the seating plan’s inspector or in the “Library”: “Good” lets its pairs sit together again sooner, “Not good” keeps the students of the chosen tables apart for longer than repetition does – fully for a while, then less and less, until it ends after about twice the time. The “Experience” criterion sets how much this feedback should count; it appears as soon as at least one plan has feedback."
       }
     },
     "tipps": {
