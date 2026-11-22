@@ -31,7 +31,11 @@ const KB = 1024;
 
 /**
  * Headroom is deliberately tight (roughly +12 % over the measured size at the
- * time of writing; the initial payload was last tightened on 2026-09-16). A
+ * time of writing; the initial payload was last tightened on 2026-09-16 and
+ * raised on 2026-11-22 from 220 to 224 KB brotli: it stood at 219.9 KB, and
+ * feedback on a plan in use (decision 0054) brought 1.4 KB that cannot load
+ * later — the criterion's term and fulfilment, which the seating statistics
+ * read on the first plan, its record, and its words in both languages). A
  * budget nobody ever hits is a budget nobody maintains — when one of these
  * fails, either the growth is justified and the number moves in the same
  * commit, or it isn't and the import gets fixed.
@@ -46,7 +50,7 @@ const KB = 1024;
  * belongs to the R1/R2 state-architecture work.
  */
 const BUDGETS = {
-  initial: { raw: 840 * KB, brotli: 220 * KB },
+  initial: { raw: 840 * KB, brotli: 224 * KB },
   largestChunk: { raw: 330 * KB, brotli: 78 * KB },
   css: { raw: 200 * KB, brotli: 24 * KB },
 };
