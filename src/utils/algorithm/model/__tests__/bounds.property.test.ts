@@ -8,7 +8,7 @@
  */
 import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
-import { maxMatching, mostBalancedUnits } from '../bounds';
+import { fewestPairsTogether, maxMatching, mostBalancedUnits } from '../bounds';
 
 const RUNS = { numRuns: 200 };
 
@@ -102,5 +102,51 @@ describe('mostBalancedUnits', () => {
         1,
       ),
     ).toBe(2);
+  });
+});
+
+/** The fewest pairs at one table, by trying every spread of the group. */
+const fewestPairsBySearch = (members: number, capacity: number[]): number => {
+  const search = (table: number, left: number): number => {
+    if (table === capacity.length) return left === 0 ? 0 : Infinity;
+    let best = Infinity;
+    for (let here = 0; here <= Math.min(left, capacity[table]!); here++) {
+      best = Math.min(
+        best,
+        (here * (here - 1)) / 2 + search(table + 1, left - here),
+      );
+    }
+    return best;
+  };
+  return search(0, members);
+};
+
+describe('fewestPairsTogether', () => {
+  it('finds as few pairs as a search through every spread', () => {
+    fc.assert(
+      fc.property(
+        fc
+          .array(fc.integer({ min: 1, max: 6 }), { minLength: 1, maxLength: 6 })
+          .chain((capacity) =>
+            fc.record({
+              capacity: fc.constant(capacity),
+              members: fc.integer({
+                min: 0,
+                max: capacity.reduce((sum, seats) => sum + seats, 0),
+              }),
+            }),
+          ),
+        ({ capacity, members }) => {
+          expect(fewestPairsTogether(members, capacity)).toBe(
+            fewestPairsBySearch(members, capacity),
+          );
+        },
+      ),
+      RUNS,
+    );
+  });
+
+  it('leaves two pairs of a table of six spread over four tables', () => {
+    expect(fewestPairsTogether(6, [6, 6, 6, 6])).toBe(2);
   });
 });

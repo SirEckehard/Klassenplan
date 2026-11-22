@@ -1,6 +1,6 @@
 # Algorithm Documentation
 
-> **Status:** current · **Last reviewed:** 2026-11-21
+> **Status:** current · **Last reviewed:** 2026-11-22
 
 This document describes the algorithms used in the Klassenplan seating generator.
 
@@ -168,7 +168,9 @@ on (`evenTargetsFor`).
 The recommended weight and the presets set "Sehr wichtig". Settings stored
 before carry no `criteriaVersion`; a level below "Sehr wichtig" is lifted to
 it once (`migrateStoredMixSettings`) where stored settings come in, since
-until then every level kept the students in the front row.
+until then every level kept the students in the front row. Settings from
+before version 3 take "Erfahrung" at its default once, unless every weight is
+off ([decision 0054](decisions/0054-experience-of-a-plan-in-use.md)).
 
 ## Construction
 
@@ -431,3 +433,40 @@ of "Wiederholung" (`wishEachOther`), since their staying together is what the
 class asked for rather than a repetition the plan failed to part; the mixing
 still counts them at half. `MIX_RUNS=1 npx vitest run mixRuns --silent=false` measures a run
 of six plans.
+
+### How a plan went
+
+A plan in use can carry feedback
+([decision 0054](decisions/0054-experience-of-a-plan-in-use.md)): "Lief gut",
+or "Lief nicht gut" with the tables at which it did not work.
+`buildPlanExperience()` (`src/utils/pairs.ts`) reads it from the counted
+usage records, ranked as `buildPreviousPairs` ranks them, the plan being read
+left out:
+
+- **A table that did not work** weighs each of its pairs 1. A plan rated "Lief
+  nicht gut" without a table weighs each of its pairs `POOR_PLAN_PAIR_WEIGHT`
+  = ¼: repetition parts them anyway, and the rating alone cannot say which
+  pair it means. A pair adds up to `MAX_PAIR_WEIGHT`.
+- **It lasts twice as long as a repetition**: fully within the repetition's
+  window, then fading to nothing over a second window as long
+  (`experienceFactor`). "Zurücksetzen" ends it at once with the records.
+- **A plan that went well** gives its pairs — but those that did not work
+  elsewhere — `CRITERION_WEIGHTS.goodPlanRepetition` = 0.5 in
+  `historyFactor`, as two who wish each other: they may sit together again
+  sooner.
+
+`considerPlanFeedback` ("Erfahrung") charges a pair at one table its weight
+times `CRITERION_WEIGHTS.experience` = 2 times the pair's weight and relation
+weight, on top of the repetition — as much as a distance wish of the same
+level. The halving of a good pair applies while "Erfahrung" counts, so "Lief
+gut" acts through "Wiederholung" and needs both. Without feedback the
+criterion weighs nothing, and a mix treats it as off (`buildMixProblem`), so
+it never turns a mix by no other criterion from chance; its weight is never
+cleared for want of data either, since the records load after the class.
+
+The fulfilment counts every pair of a table that did not work, by its weight
+and how closely the two sit now. Per table, the pairs its students must form
+wherever they sit — spread as evenly as the plan's tables take them
+(`fewestPairsTogether` in `bounds.ts`) — are left out, the closest first, so
+a table of six spread over four tables still reads 100 %. The pairs of a plan
+that went well stay out of "Wiederholung", as those who wish each other do.

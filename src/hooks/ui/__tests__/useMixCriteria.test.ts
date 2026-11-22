@@ -79,9 +79,12 @@ describe('useMixCriteria', () => {
       category.criteria.map((criterion) => criterion.key),
     );
 
-    // The second distractibility weight moves with the first, without a row.
+    // The second distractibility weight moves with the first, without a row;
+    // "Erfahrung" waits for feedback on a plan in use (decision 0054).
     const offered = Object.keys(CRITERIA_FAMILY_MAP).filter(
-      (key) => key !== 'avoidConcentrationNearRestless',
+      (key) =>
+        key !== 'avoidConcentrationNearRestless' &&
+        key !== 'considerPlanFeedback',
     );
     expect([...keys].sort()).toEqual(offered.sort());
   });

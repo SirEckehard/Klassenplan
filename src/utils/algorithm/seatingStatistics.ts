@@ -197,6 +197,7 @@ export function getTopFulfilledCriteria(
   // A fixed order, kept as listed
   const list: CriterionFulfillment[] = [
     criterion('avoidPreviousPairs', 'Wiederholung'),
+    criterion('considerPlanFeedback', 'Erfahrung'),
     criterion('preferGenderMix', 'Geschlechter'),
     criterion('preferFrontForSmallerStudents', 'Körpergröße'),
     criterion('preferLanguageMixing', 'Sprachförderung'),

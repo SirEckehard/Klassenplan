@@ -55,6 +55,17 @@ export function isCriterionAvailable(
       };
     }
 
+    // Never cleared for want of data: without feedback on a plan in use it
+    // weighs nothing, and the panel shows it once there is some (decision
+    // 0054) — the records load after the class, so clearing it would undo a
+    // level the teacher chose.
+    case 'considerPlanFeedback': {
+      return {
+        key,
+        available: true,
+      };
+    }
+
     case 'avoidRestlessTogether': {
       const restlessCount = students.filter((s) => s.restless).length;
       const available = restlessCount >= 2;

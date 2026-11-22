@@ -9,7 +9,12 @@ import type {
   PlanUsage,
 } from '@/types';
 import { shuffleArray } from './shuffle';
-import { buildPreviousPairs, type PreviousPairWeights } from '@/utils/pairs';
+import {
+  buildPlanExperience,
+  buildPreviousPairs,
+  type PlanExperience,
+  type PreviousPairWeights,
+} from '@/utils/pairs';
 import { getWishPartnerIds } from '@/utils/student/partnerUtils';
 import { hasActiveWeights, logDebug, logWarn } from '@/utils';
 import { importanceOfWeight } from '@/utils/mixImportance';
@@ -91,8 +96,9 @@ const validLocks = (
 const buildMixProblem = ({
   students,
   scene,
-  settings,
+  settings: requested,
   previousPairs,
+  experience,
   targets,
   lockedPositions,
   rng,
@@ -102,17 +108,24 @@ const buildMixProblem = ({
   scene: ClassroomScene;
   settings: Partial<MixSettings>;
   previousPairs: PreviousPairWeights;
+  experience?: PlanExperience;
   targets: number[];
   lockedPositions: Record<string, { table: number; seat: number }>;
   rng: RandomSource;
   /** A plan to refine, whose students are taken in as they are seated */
   arrangement?: SeatingArrangement;
 }): MixProblem => {
+  // "Erfahrung" without feedback weighs nothing and the panel leaves it out:
+  // it must not turn a mix by no other criterion from chance (decision 0054).
+  const settings = experience
+    ? requested
+    : { ...requested, considerPlanFeedback: 0 };
   const context = buildModelContext({
     scene,
     students,
     settings,
     previousPairs,
+    experience,
     usable: (table, seat) => seat < (targets[table] ?? 0),
     arrangement,
   });
@@ -625,6 +638,25 @@ const previousPairsFor = (
       })
     : new Map<string, number>();
 
+/**
+ * What the feedback on the plans in use says, which a mix follows while
+ * "Erfahrung" counts (decision 0054); none while no plan has feedback. The
+ * plan on screen is not left out: once in use, it is the newest plan to part.
+ */
+const experienceFor = (
+  students: Student[],
+  settings: Partial<MixSettings>,
+  planUsage: PlanUsage[] | undefined,
+): PlanExperience | undefined => {
+  if (!settings.considerPlanFeedback) return undefined;
+  const experience = buildPlanExperience(planUsage, {
+    studentCount: students.length,
+  });
+  return experience.poor.size > 0 || experience.good.size > 0
+    ? experience
+    : undefined;
+};
+
 const lockSeats = (problem: MixProblem): Uint8Array => {
   const fixed = new Uint8Array(problem.context.layout.size);
   for (const seat of problem.locks.keys()) fixed[seat] = 1;
@@ -673,6 +705,7 @@ export function generateSeatingPlan(
       settings,
       options ?? {},
     ),
+    experience: experienceFor(students, settings, options?.planUsage),
     targets: seatTargetsFor(students, scene, lockedPositions, rng),
     lockedPositions,
     rng,
@@ -695,7 +728,8 @@ export function generateSeatingPlan(
  * 0027) and one score (decision 0031). Both phases take the tables' targets
  * the construction drew, and both weigh the pairs of the plans in use — never
  * an earlier mix, never the plan on screen as such (decision 0032), never the
- * pairs the construction itself just made — by recency and by kind. Within
+ * pairs the construction itself just made — by recency and by kind, and the
+ * feedback on those plans (decision 0054). Within
  * the session every table is held to the construction's count.
  *
  * @param options.refine - Whether the refinement runs; without it the
@@ -734,6 +768,7 @@ export function runMixSession(
       settings,
       options ?? {},
     ),
+    experience: experienceFor(students, settings, options?.planUsage),
     targets: seatTargetsFor(students, scene, lockedPositions, rng),
     lockedPositions,
     rng,
@@ -786,6 +821,8 @@ export function runMixSession(
 export interface MixSessionContext {
   targets: number[];
   previousPairs: PreviousPairWeights;
+  /** What the feedback on the plans in use says (decision 0054) */
+  experience?: PlanExperience;
 }
 
 /** How `refineSeatingLocal` runs. */
@@ -863,6 +900,9 @@ export function refineSeatingLocal(
         planUsageSince: options?.planUsageSince,
         planUsageManual: options?.planUsageManual,
       }),
+    experience: session
+      ? session.experience
+      : experienceFor(students, settings, options?.planUsage),
     targets:
       session?.targets ?? seatTargetsFor(students, scene, lockedPositions, rng),
     lockedPositions,

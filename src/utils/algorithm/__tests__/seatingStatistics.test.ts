@@ -412,6 +412,104 @@ describe('seatingStatistics', () => {
     });
   });
 
+  // How a plan in use went (decision 0054).
+  describe('experience', () => {
+    const ada = student('ada');
+    const alan = student('alan');
+    const grace = student('grace');
+    const hedy = student('hedy');
+    const rated = (
+      seating: SeatingArrangement,
+      feedback: PlanUsage['feedback'],
+    ): PlanUsage => {
+      const pairs = collectSeatingPairKeys(seating);
+      return {
+        id: 'u1',
+        fingerprint: computePlanFingerprint(pairs),
+        pairs,
+        firstSeenAt: '2026-10-01T08:00:00.000Z',
+        lastSeenAt: '2026-10-01T08:00:00.000Z',
+        sources: ['presented'],
+        confidence: 1,
+        confirmed: true,
+        feedback,
+      };
+    };
+    const poorAt = (seating: SeatingArrangement, table: string[]) =>
+      rated(seating, { rating: 'poor', poorTables: [table], at: '2026-10-02' });
+
+    it('reads a table that did not work and is parted as met, kept together as not', () => {
+      const before = poorAt([[ada, alan], [grace, hedy], []], ['ada', 'alan']);
+      const read = (plan: SeatingArrangement) =>
+        fulfilment(
+          DESKS_IN_A_ROW,
+          plan,
+          { considerPlanFeedback: 6 },
+          { planUsage: [before] },
+        ).percentage('considerPlanFeedback');
+
+      expect(read([[ada, grace], [alan, hedy], []])).toBe(100);
+      expect(
+        read([
+          [alan, ada],
+          [grace, null],
+          [hedy, null],
+        ]),
+      ).toBe(0);
+    });
+
+    it('leaves out the pairs the room forces together', () => {
+      // Three students of one table over two desks: one pair stays.
+      const before = poorAt(
+        [[ada, alan, grace], [hedy]],
+        ['ada', 'alan', 'grace'],
+      );
+      const { percentage, stats } = fulfilment(
+        DESK_BEHIND_DESK,
+        [
+          [ada, alan],
+          [grace, hedy],
+        ],
+        { considerPlanFeedback: 6 },
+        { planUsage: [before] },
+      );
+
+      expect(percentage('considerPlanFeedback')).toBe(100);
+      expect(stats.criteria.considerPlanFeedback?.total).toBe(2);
+    });
+
+    it('leaves a pair from a plan that went well out of the repetition while it counts', () => {
+      const before = rated([[ada, alan], [grace, hedy], []], {
+        rating: 'good',
+        at: '2026-10-02',
+      });
+      const plan: SeatingArrangement = [
+        [alan, ada],
+        [grace, null],
+        [hedy, null],
+      ];
+      const read = (weights: Partial<MixSettings>) =>
+        fulfilment(DESKS_IN_A_ROW, plan, weights, {
+          planUsage: [before],
+        }).percentage('avoidPreviousPairs');
+
+      expect(
+        read({ avoidPreviousPairs: 6, considerPlanFeedback: 6 }),
+      ).toBeUndefined();
+      expect(read({ avoidPreviousPairs: 6 })).toBe(0);
+    });
+
+    it('says nothing while no plan in use has feedback', () => {
+      const { percentage } = fulfilment(
+        DESKS_IN_A_ROW,
+        [[ada, alan], [grace, hedy], []],
+        { considerPlanFeedback: 6 },
+      );
+
+      expect(percentage('considerPlanFeedback')).toBeUndefined();
+    });
+  });
+
   describe('gender', () => {
     const boy = (id: string) => student(id, { gender: 'boy' });
     const girl = (id: string) => student(id, { gender: 'girl' });

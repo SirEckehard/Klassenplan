@@ -536,6 +536,10 @@
         "label": "Repetition",
         "desc": "Separate students who sat next to each other last time"
       },
+      "considerPlanFeedback": {
+        "label": "Experience",
+        "desc": "Keep tables that did not work apart for longer"
+      },
       "avoidRestlessTogether": {
         "label": "Restlessness",
         "desc": "Separate students showing restless behavior"

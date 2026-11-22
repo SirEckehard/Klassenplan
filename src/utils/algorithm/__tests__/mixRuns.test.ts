@@ -8,8 +8,11 @@
  * together, whether a classmate wished one-sidedly sits with the same wisher
  * again, and how many other pairs repeat, counted by the seats alone, so it
  * reads the same whatever the weights; and every criterion's mean
- * fulfilment over the run. Not part of the normal run — it measures, it does
- * not check:
+ * fulfilment over the run. A second pass keeps the plans as usage records
+ * and says after each that its most restless table did not work (decision
+ * 0054): how often such a pair sits together again later in the run, with
+ * the feedback and without it. Not part of the normal run — it measures, it
+ * does not check:
  *
  *   MIX_RUNS=1 npx vitest run mixRuns --silent=false
  */
@@ -18,10 +21,15 @@ import type {
   ClassroomFeature,
   ClassroomScene,
   MixSettings,
+  PlanUsage,
   SavedPlan,
   SeatingArrangement,
   Student,
 } from '@/types';
+import {
+  collectSeatingPairKeys,
+  computePlanFingerprint,
+} from '@/utils/data/planUsage';
 import { seatPairsFor } from '@/utils/math/seatGeometry';
 import { createRng, type RandomSource } from '../rng';
 import { shuffleArray } from '../shuffle';
@@ -269,6 +277,109 @@ describe.skipIf(!process.env.MIX_RUNS)('mix runs', () => {
           `    ${label.padEnd(24)} ${(sum / count('plans')).toFixed(1).padStart(6)} %`,
         );
       }
+    }
+    console.log(lines.join('\n'));
+    expect(lines.length).toBeGreaterThan(0);
+  }, 900_000);
+});
+
+describe.skipIf(!process.env.MIX_RUNS)('mix runs with feedback', () => {
+  it('measures how often a table that did not work comes together again', () => {
+    const lines: string[] = [];
+    for (const fixture of fixtures) {
+      const scene: ClassroomScene = {
+        totalStudents: 0,
+        tables: fixture.tables,
+        features: [board],
+      };
+      const students = buildClass(
+        fixture.students,
+        createRng(2000 + fixture.students),
+      );
+      const settings: MixSettings = withoutUnavailableWeights(
+        normalizeMixSettings({}),
+        students,
+      );
+      const restlessness = (seats: SeatingArrangement[number]) =>
+        seats.reduce(
+          (sum, seated) =>
+            sum +
+            (seated?.restless ? 1 : 0) +
+            (seated?.concentrationIssues ? 1 : 0),
+          0,
+        );
+      const result = [false, true].map((rated) => {
+        let again = 0;
+        let chances = 0;
+        let overall = 0;
+        let plans = 0;
+        for (let seed = 1; seed <= SEEDS; seed++) {
+          const rng = createRng(seed);
+          const records: PlanUsage[] = [];
+          const poorPairs: string[] = [];
+          for (let plan = 0; plan < PLANS; plan++) {
+            const seating = runMixSession(students, [], {}, settings, scene, {
+              rng,
+              refine: true,
+              planUsage: records,
+            });
+            const now = new Set(collectSeatingPairKeys(seating));
+            for (const key of poorPairs) {
+              chances += 1;
+              if (now.has(key)) again += 1;
+            }
+            if (plan > 0) {
+              plans += 1;
+              overall += calculateCriteriaWeightedScore(
+                getTopFulfilledCriteria(
+                  calculateSeatingStatistics(
+                    seating,
+                    students,
+                    settings,
+                    [],
+                    scene,
+                    {
+                      planUsage: records,
+                    },
+                  ),
+                  settings,
+                ),
+              );
+            }
+            // The most restless table of two or more: the one the teacher
+            // says did not work.
+            const worst = seating
+              .filter((seats) => seats.filter(Boolean).length >= 2)
+              .reduce((a, b) => (restlessness(b) > restlessness(a) ? b : a));
+            const table = worst.flatMap((seated) =>
+              seated ? [seated.id] : [],
+            );
+            poorPairs.push(...collectSeatingPairKeys([worst]));
+            const pairs = collectSeatingPairKeys(seating);
+            const at = `2026-09-${String(plan + 1).padStart(2, '0')}T08:00:00.000Z`;
+            records.push({
+              id: `u${plan}`,
+              fingerprint: computePlanFingerprint(pairs),
+              pairs,
+              firstSeenAt: at,
+              lastSeenAt: at,
+              sources: ['presented'],
+              confidence: 1,
+              ...(rated && {
+                confirmed: true,
+                feedback: { rating: 'poor', poorTables: [table.sort()], at },
+              }),
+            });
+          }
+        }
+        return {
+          again: (100 * again) / Math.max(1, chances),
+          overall: overall / Math.max(1, plans),
+        };
+      });
+      lines.push(
+        `${fixture.name} (${fixture.students}, ${PLANS} plans, ${SEEDS} seeds): a pair of a table that did not work together again later ${result[0]!.again.toFixed(1)} % without feedback, ${result[1]!.again.toFixed(1)} % with it; overall fulfilment ${result[0]!.overall.toFixed(1)} % → ${result[1]!.overall.toFixed(1)} %`,
+      );
     }
     console.log(lines.join('\n'));
     expect(lines.length).toBeGreaterThan(0);

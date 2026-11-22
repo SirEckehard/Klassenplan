@@ -18,6 +18,7 @@ import { CRITERION_WEIGHTS, RELATION_WEIGHTS } from '@/utils';
 import {
   seatPairKey,
   seatStudentIdentifier,
+  type PlanExperience,
   type PreviousPairWeights,
 } from '@/utils/pairs';
 import {
@@ -33,6 +34,7 @@ export interface CriterionWeights {
   wish: number;
   avoid: number;
   previous: number;
+  experience: number;
   restless: number;
   concentration: number;
   concentrationNearRestless: number;
@@ -62,6 +64,7 @@ export const resolveCriterionWeights = (
     wish: settings.considerWishPartners ?? 0,
     avoid: settings.avoidConflictPartners ?? 0,
     previous: settings.avoidPreviousPairs ?? 0,
+    experience: settings.considerPlanFeedback ?? 0,
     restless: settings.avoidRestlessTogether ?? 0,
     concentration: settings.avoidConcentrationTogether ?? 0,
     concentrationNearRestless: settings.avoidConcentrationNearRestless ?? 0,
@@ -221,18 +224,53 @@ const directedAvoid = (from: StudentFacts, to: StudentFacts): number => {
 };
 
 /**
+ * Whether two students sat together in a plan that went well while
+ * "Erfahrung" counts (decision 0054).
+ */
+export const wentWellTogether = (
+  weights: CriterionWeights,
+  experience: PlanExperience,
+  a: StudentFacts,
+  b: StudentFacts,
+): boolean =>
+  weights.experience > 0 && experience.good.has(seatPairKey(a.key, b.key));
+
+/**
  * How much the history counts a pair (decision 0033): fully, and while wishes
  * count `mutualWishRepetition` for two students who wish each other — a
  * friendship the class asked for holds longer. A one-sided wish counts in
  * full, so the wished classmate is not tied to the one who wished, and a
- * student with several wishes takes them in turn.
+ * student with several wishes takes them in turn. Two who sat together in a
+ * plan that went well count `goodPlanRepetition` while "Erfahrung" counts
+ * (decision 0054).
  */
 const historyFactor = (
   weights: CriterionWeights,
+  experience: PlanExperience,
   a: StudentFacts,
   b: StudentFacts,
-): number =>
-  wishEachOther(weights, a, b) ? CRITERION_WEIGHTS.mutualWishRepetition : 1;
+): number => {
+  if (wishEachOther(weights, a, b)) {
+    return CRITERION_WEIGHTS.mutualWishRepetition;
+  }
+  return wentWellTogether(weights, experience, a, b)
+    ? CRITERION_WEIGHTS.goodPlanRepetition
+    : 1;
+};
+
+/** How much a pair did not work at a table, see `buildPlanExperience`. */
+export const experienceWeight = (
+  experience: PlanExperience,
+  a: StudentFacts,
+  b: StudentFacts,
+): number => experience.poor.get(seatPairKey(a.key, b.key)) ?? 0;
+
+/** No feedback: what a model without the plans in use reads. */
+const NO_EXPERIENCE: PlanExperience = {
+  poor: new Map(),
+  groups: [],
+  good: new Set(),
+};
 
 /** The history weight of a pair, see `buildPreviousPairs`. */
 export const historyWeight = (
@@ -252,6 +290,7 @@ export const pairTerm = (
   a: StudentFacts,
   b: StudentFacts,
   kind: number,
+  experience: PlanExperience = NO_EXPERIENCE,
 ): number => {
   const closeness = relationWeight(kind);
   if (closeness === 0) return 0;
@@ -309,7 +348,14 @@ export const pairTerm = (
       score +=
         weights.previous *
         historyWeight(previousPairs, a, b) *
-        historyFactor(weights, a, b) *
+        historyFactor(weights, experience, a, b) *
+        closeness;
+    }
+    if (weights.experience > 0) {
+      score +=
+        weights.experience *
+        CRITERION_WEIGHTS.experience *
+        experienceWeight(experience, a, b) *
         closeness;
     }
     const mixed = (a.strong && b.weak) || (a.weak && b.strong);

@@ -229,10 +229,12 @@ describe('SeatingPlanView', () => {
     const updates = setMixSettings.mock.calls.map(([update]) =>
       typeof update === 'function' ? update(DEFAULT_MIX_WEIGHTS) : update,
     );
-    // The class has no students, so nothing but the history criterion stays.
+    // The class has no students, so nothing but the history criteria stays:
+    // repetition and experience read the plans in use (decision 0054).
     expect(updates).toContainEqual({
       ...neutralSettings,
       avoidPreviousPairs: DEFAULT_MIX_WEIGHTS.avoidPreviousPairs,
+      considerPlanFeedback: DEFAULT_MIX_WEIGHTS.considerPlanFeedback,
     });
   });
 

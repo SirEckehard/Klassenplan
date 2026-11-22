@@ -321,6 +321,16 @@ export const CRITERION_WEIGHTS = {
    * one-sided wish, which counts like any pair.
    */
   mutualWishRepetition: 0.5,
+  /**
+   * Per pair of a table at which a plan in use did not work (decision 0054):
+   * on top of the repetition, as much as a distance wish of the same level.
+   */
+  experience: 2,
+  /**
+   * How much a repetition of two students from a plan that went well counts,
+   * while "Erfahrung" counts (decision 0054): half, as two who wish each other.
+   */
+  goodPlanRepetition: 0.5,
   gender: {
     /** Per student by which a gender holds more than half of a table */
     tableExcess: 2,

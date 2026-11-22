@@ -394,3 +394,15 @@ joins of two of one gender fell from 2–4 of 6 to none in eight seeds of
 eight. Rooms without such a join — all rooms of mixQuality —
 give the same plans for every seed and read the same, so the figures in
 [PERFORMANCE.md](../PERFORMANCE.md) stand; a mix takes no longer.
+
+## Addendum of 2026-11-22: experience of a plan in use
+
+[Decision 0054](0054-experience-of-a-plan-in-use.md) adds "Erfahrung" within
+this model: a pair term at the table kinds, `considerPlanFeedback` times
+`CRITERION_WEIGHTS.experience` times how much a pair did not work, and a
+factor of the repetition term for the pairs of a plan that went well, as
+two who wish each other have. The fulfilment counts the pairs of a table
+that did not work against the pairs the room forces together
+(`fewestPairsTogether`). Without feedback the term is nothing and a mix
+treats the criterion as off; every room of mixQuality gives the same plans
+as before, seed for seed.

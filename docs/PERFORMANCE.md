@@ -111,7 +111,7 @@ What is left of the name cards' eight seconds is drawing twelve pages at
 
 ### Mix quality
 
-`src/utils/algorithm/__tests__/mixQuality.test.ts` measures what a mix comes to by the fulfilment a teacher reads — seven rooms, 30 seeds each, every criterion's mean percentage and the weighted whole — and runs only on request (`MIX_QUALITY=1 npx vitest run mixQuality --silent=false`; without the flag Vitest 5 hides what a passing test prints). On 2026-11-06, after the window and door seats and the tables pushed together of 2026-11-02 — every room 0.7 to 1.3 points above 2026-10-29:
+`src/utils/algorithm/__tests__/mixQuality.test.ts` measures what a mix comes to by the fulfilment a teacher reads — eight rooms, 30 seeds each, every criterion's mean percentage and the weighted whole — and runs only on request (`MIX_QUALITY=1 npx vitest run mixQuality --silent=false`; without the flag Vitest 5 hides what a passing test prints). On 2026-11-06, after the window and door seats and the tables pushed together of 2026-11-02 — every room 0.7 to 1.3 points above 2026-10-29:
 
 | Room                                       | Fulfilment | Time per mix, Vitest 5 |
 | ------------------------------------------ | ---------: | ---------------------: |
@@ -134,6 +134,21 @@ On 2026-11-20 "Neu einrichten" changed the three rooms it builds here
 desk stands at the back in the middle, the group tables in even lanes further
 apart. Double desks came to 89.5 %, groups of four to 90.1 %, groups of six
 to 87.5 %, at the same times; the other four rooms gave the same figures.
+
+The eighth room, added on 2026-11-22 with
+[decision 0054](decisions/0054-experience-of-a-plan-in-use.md), is the room
+of groups of four with two plans in use: the older went well, the newer did
+not at two of its tables. It reads 91.1 %, "Erfahrung" 100 %; side by side,
+a mix with the feedback took as long as one with the same plans and none
+(195 against 210 ms on a busy machine). The seven rooms before it gave the
+same plans, seed for seed, after the criterion came. A second pass of
+`mixRuns` keeps its six plans as usage records and says after each that its
+most restless table did not work: a pair of such a table sat together again
+later in the run in 30.9 % of the chances at double desks without the
+feedback and 0.7 % with it, at groups of four 17.9 % and 2.0 %, at groups of
+six — where five tables cannot part a table of six — 15.8 % and 7.7 %; the
+fulfilment over the run moved from 85.0, 82.1 and 81.2 % to 87.5, 83.1 and
+80.5 %.
 
 What a run of plans comes to — wishes taking turns, friends staying together, pairs repeating — is measured by `src/utils/algorithm/__tests__/mixRuns.test.ts` (`MIX_RUNS=1 npx vitest run mixRuns --silent=false`): six plans one after the other in three rooms, 30 seeds each, about 20 s; its figures are in [decision 0033](decisions/0033-wishes-take-turns.md).
 

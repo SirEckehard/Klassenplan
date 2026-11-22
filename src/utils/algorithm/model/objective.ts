@@ -20,8 +20,8 @@ import type {
   Student,
 } from '@/types';
 import { ADJACENT_GAP } from '@/utils';
-import type { PreviousPairWeights } from '@/utils/pairs';
-import { seatStudentIdentifier } from '@/utils/pairs';
+import type { PlanExperience, PreviousPairWeights } from '@/utils/pairs';
+import { emptyPlanExperience, seatStudentIdentifier } from '@/utils/pairs';
 import { getSeatPositions } from '@/utils/math/seatGeometry';
 import { getFeatureDistanceMaps } from '../featureDistances';
 import {
@@ -52,6 +52,8 @@ export interface ModelInput {
   students: Student[];
   settings: Partial<MixSettings>;
   previousPairs: PreviousPairWeights;
+  /** What the feedback on the plans in use says; none when left out */
+  experience?: PlanExperience;
   /**
    * Whether a seat counts as taken when the model asks who sits alone: the
    * seats within the tables' targets while mixing, the occupied seats when a
@@ -70,6 +72,7 @@ export interface ModelContext {
   layout: SeatLayout;
   weights: CriterionWeights;
   previousPairs: PreviousPairWeights;
+  experience: PlanExperience;
   /** The class, then any seated student it no longer has */
   students: Student[];
   facts: StudentFacts[];
@@ -114,6 +117,7 @@ const scaledDistance = (
 
 export const buildModelContext = (input: ModelInput): ModelContext => {
   const { scene, settings, previousPairs } = input;
+  const experience = input.experience ?? emptyPlanExperience();
   const layout = getSeatLayout(scene);
   const weights = resolveCriterionWeights(settings);
 
@@ -181,6 +185,7 @@ export const buildModelContext = (input: ModelInput): ModelContext => {
           facts[i]!,
           facts[j]!,
           kind,
+          experience,
         );
         if (value === 0) continue;
         pair[base + i * n + j] = value;
@@ -213,6 +218,7 @@ export const buildModelContext = (input: ModelInput): ModelContext => {
     layout,
     weights,
     previousPairs,
+    experience,
     students,
     facts,
     indexOf,

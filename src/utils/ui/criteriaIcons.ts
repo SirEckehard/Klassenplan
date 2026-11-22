@@ -3,6 +3,7 @@
 import type { Icon } from '@phosphor-icons/react';
 import {
   RepeatIcon,
+  NotebookIcon,
   ActivityIcon,
   BrainIcon,
   SmileyNervousIcon,
@@ -25,6 +26,7 @@ import type { DataFamily } from './designTokens';
 
 export const CRITERIA_ICON_MAP: Record<ScalarMixSettingKey, Icon> = {
   avoidPreviousPairs: RepeatIcon,
+  considerPlanFeedback: NotebookIcon,
   avoidRestlessTogether: ActivityIcon,
   avoidConcentrationTogether: BrainIcon,
   avoidConcentrationNearRestless: BrainIcon,
@@ -49,8 +51,8 @@ export const CRITERIA_ICON_MAP: Record<ScalarMixSettingKey, Icon> = {
  *
  * A criterion that acts on a student attribute speaks in the family the
  * student chips use, so a criterion in the inspector and the attribute it acts
- * on carry one colour. Repetition acts on the plans already used, not on an
- * attribute, and has a family of its own. Colour never travels alone here
+ * on carry one colour. Repetition and experience act on the plans already
+ * used, not on an attribute, and have a family of their own. Colour never travels alone here
  * either: every row has its icon and its name.
  */
 export const CRITERIA_FAMILY_MAP: Record<ScalarMixSettingKey, DataFamily> = {
@@ -62,6 +64,7 @@ export const CRITERIA_FAMILY_MAP: Record<ScalarMixSettingKey, DataFamily> = {
   avoidConflictPartners: 'social',
   distributeSocialRoles: 'social',
   avoidPreviousPairs: 'history',
+  considerPlanFeedback: 'history',
   peerTutoring: 'learning',
   homogeneousPerformanceGroups: 'learning',
   preferLanguageMixing: 'language',

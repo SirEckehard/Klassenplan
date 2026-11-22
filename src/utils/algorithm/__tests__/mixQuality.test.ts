@@ -2,7 +2,7 @@
 // Copyright (C) 2026 Eike Schäfer
 /**
  * How good the plans of "Mischen" are, by the fulfilment the teacher reads
- * (decision 0031): seven rooms, thirty seeds each, every criterion's mean
+ * (decision 0031): eight rooms, thirty seeds each, every criterion's mean
  * percentage, the weighted whole and the time per mix. Not part of the normal
  * run — it measures, it does not check:
  *
@@ -14,10 +14,15 @@ import type {
   ClassroomScene,
   ClassroomTable,
   MixSettings,
+  PlanUsage,
   SavedPlan,
   SeatingArrangement,
   Student,
 } from '@/types';
+import {
+  collectSeatingPairKeys,
+  computePlanFingerprint,
+} from '../../data/planUsage';
 import { createRng, type RandomSource } from '../rng';
 import { shuffleArray } from '../shuffle';
 import arrangeTables from '../autoArrange';
@@ -152,6 +157,11 @@ type Fixture = {
   locks?: boolean;
   /** Two students needing the seat beside free, every fifth left-handed */
   seatNeeds?: boolean;
+  /**
+   * Two plans in use: the older went well, the newer did not at two of its
+   * tables (decision 0054)
+   */
+  feedback?: boolean;
 };
 
 const fixtures: Fixture[] = [
@@ -219,7 +229,38 @@ const fixtures: Fixture[] = [
     students: 26,
     seatNeeds: true,
   },
+  {
+    name: 'Vierertische mit Rückmeldung',
+    room: scene(arrangeTables('group4', 7)),
+    students: 26,
+    feedback: true,
+  },
 ];
+
+/** A plan in use on day `day`, with how it went. */
+const usageOf = (
+  seating: SeatingArrangement,
+  day: number,
+  feedback: PlanUsage['feedback'],
+): PlanUsage => {
+  const pairs = collectSeatingPairKeys(seating);
+  const at = `2026-09-0${day}T08:00:00.000Z`;
+  return {
+    id: `u${day}`,
+    fingerprint: computePlanFingerprint(pairs),
+    pairs,
+    firstSeenAt: at,
+    lastSeenAt: at,
+    sources: ['presented'],
+    confidence: 1,
+    confirmed: true,
+    feedback,
+  };
+};
+
+/** The ids of who sits at a table of a plan. */
+const idsAt = (seating: SeatingArrangement, table: number): string[] =>
+  seating[table]!.flatMap((seated) => (seated ? [seated.id] : [])).sort();
 
 describe.skipIf(!process.env.MIX_QUALITY)('mix quality', () => {
   it('measures every room', () => {
@@ -253,6 +294,19 @@ describe.skipIf(!process.env.MIX_QUALITY)('mix quality', () => {
         fixture.locks
           ? { s5: { table: 7, seat: 0 }, s11: { table: 2, seat: 1 } }
           : {};
+      const planUsage: PlanUsage[] = [];
+      if (fixture.feedback) {
+        const older = randomArrangement(fixture.room, students, classRng);
+        const newer = randomArrangement(fixture.room, students, classRng);
+        planUsage.push(
+          usageOf(older, 1, { rating: 'good', at: '2026-09-01' }),
+          usageOf(newer, 2, {
+            rating: 'poor',
+            poorTables: [idsAt(newer, 0), idsAt(newer, 3)],
+            at: '2026-09-02',
+          }),
+        );
+      }
 
       const sums = new Map<string, number>();
       let total = 0;
@@ -265,7 +319,7 @@ describe.skipIf(!process.env.MIX_QUALITY)('mix quality', () => {
           lockedPositions,
           settings,
           fixture.room,
-          { rng: createRng(seed), refine: true },
+          { rng: createRng(seed), refine: true, planUsage },
         );
         time += performance.now() - started;
         const criteria = getTopFulfilledCriteria(
@@ -275,6 +329,7 @@ describe.skipIf(!process.env.MIX_QUALITY)('mix quality', () => {
             settings,
             seatingHistory,
             fixture.room,
+            { planUsage },
           ),
           settings,
         );

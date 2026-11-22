@@ -17,17 +17,19 @@
 import type { ScalarMixSettingKey } from '@/types';
 import { isTableActive } from '@/utils/math/scene';
 import {
+  experienceWeight,
   genderExcess,
   historyWeight,
   isCloseKind,
   isNeighbourKind,
   isTableKind,
   relationWeight,
+  wentWellTogether,
   wishEachOther,
   GENDER_COUNT,
   type SeatPlace,
 } from './criteria';
-import { maxMatching, mostBalancedUnits } from './bounds';
+import { fewestPairsTogether, maxMatching, mostBalancedUnits } from './bounds';
 import { frontRowsOf, toleratesRowBehind } from './frontPool';
 import {
   strongSpeakerCloseness,
@@ -354,7 +356,8 @@ export function evaluateCriteria(
   // Repetition: the pairs at one table, by the history's weight. Two students
   // who wish each other and stay together are what the class asked for, not
   // a repetition the plan failed to part (decision 0033): the mixing counts
-  // them at `mutualWishRepetition`, the fulfilment leaves them out.
+  // them at `mutualWishRepetition`, the fulfilment leaves them out — and so
+  // two from a plan that went well (decision 0054).
   const previous = new CaseCollector();
   for (let a = 0; a < size; a++) {
     const i = occupants[a]!;
@@ -363,12 +366,67 @@ export function evaluateCriteria(
       const b = relation.seat;
       if (b <= a || !isTableKind(relation.kind)) continue;
       const j = occupants[b]!;
-      if (j < 0 || wishEachOther(weights, facts[i]!, facts[j]!)) continue;
+      if (
+        j < 0 ||
+        wishEachOther(weights, facts[i]!, facts[j]!) ||
+        wentWellTogether(weights, context.experience, facts[i]!, facts[j]!)
+      ) {
+        continue;
+      }
       const weight = historyWeight(context.previousPairs, facts[i]!, facts[j]!);
       previous.add(1 - Math.min(1, weight) * relationWeight(relation.kind), [
         a,
         b,
       ]);
+    }
+  }
+
+  // Experience (decision 0054): every pair of a table at which a plan in use
+  // did not work, by how much it still counts and how closely the two sit
+  // now. A table of six cannot be parted over four tables: per such table
+  // the pairs its students must form wherever they sit — spread as evenly as
+  // the plan's tables take them — are left out, the closest first.
+  const experience = new CaseCollector();
+  if (weights.experience > 0 && context.experience.groups.length > 0) {
+    const capacity = new Array<number>(context.scene.tables.length).fill(0);
+    for (let seat = 0; seat < size; seat++) {
+      if (occupants[seat]! >= 0) capacity[layout.tableOf[seat]!]! += 1;
+    }
+    for (const group of context.experience.groups) {
+      const members: number[] = [];
+      for (const key of group) {
+        const student = context.indexOf.get(key);
+        if (student !== undefined && seatOf[student]! >= 0) {
+          members.push(student);
+        }
+      }
+      if (members.length < 2) continue;
+      const pairs: Array<[credit: number, a: number, b: number]> = [];
+      members.forEach((i, index) => {
+        for (const j of members.slice(index + 1)) {
+          const a = seatOf[i]!;
+          const b = seatOf[j]!;
+          const kind = kindBetween(a, b);
+          const weight = Math.min(
+            1,
+            experienceWeight(context.experience, facts[i]!, facts[j]!),
+          );
+          pairs.push([
+            kind >= 0 && isTableKind(kind)
+              ? 1 - weight * relationWeight(kind)
+              : 1,
+            a,
+            b,
+          ]);
+        }
+      });
+      const allowed =
+        pairs.length - fewestPairsTogether(members.length, capacity);
+      pairs.sort((x, y) => y[0] - x[0]);
+      pairs.forEach(([credit, a, b], index) => {
+        if (index < allowed) experience.add(credit, [a, b]);
+        else experience.mark(credit, [a, b]);
+      });
     }
   }
 
@@ -517,6 +575,7 @@ export function evaluateCriteria(
     considerWishPartners: wish.result(),
     avoidConflictPartners: avoid.result(),
     avoidPreviousPairs: previous.result(),
+    considerPlanFeedback: experience.result(),
     avoidRestlessTogether: restless.result(),
     avoidConcentrationTogether: concentration.result(),
     avoidConcentrationNearRestless: nearRestless.result(),

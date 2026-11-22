@@ -144,7 +144,16 @@ describe('swapDelta and placementCost', () => {
       previousPairs: new Map([
         ['s0::s3', 1.6],
         ['s1::s2', 0.5],
+        ['s6::s7', 1],
       ]),
+      experience: {
+        poor: new Map([
+          ['s4::s9', 1],
+          ['s1::s2', 0.25],
+        ]),
+        groups: [['s4', 's9']],
+        good: new Set(['s6::s7', 's10::s11']),
+      },
       usable: (_table, seat) => seat < 2,
     });
     const size = context.layout.size;
@@ -374,5 +383,76 @@ describe('the terms', () => {
         students,
       ),
     ).toBe(0);
+  });
+});
+
+// How a plan in use went (decision 0054).
+describe('the experience term', () => {
+  const desks = (y: number, zIndex: number): ClassroomTable => ({
+    x: 600,
+    y,
+    width: 55,
+    height: 130,
+    rotation: 0,
+    seatCount: 2,
+    locked: false,
+    zIndex,
+    templateType: 'double',
+  });
+  // Two double desks along the board's wall, seats 1 and 2 directly beside.
+  const twoDesks = roomOf([desks(100, 0), desks(260, 1)]);
+  const [a, b, c, d] = ['a', 'b', 'c', 'd'].map((id) => student(id));
+  const scoreOf = (
+    weights: Partial<MixSettings>,
+    arrangement: (Student | null)[][],
+    experience = {
+      poor: new Map([['a::b', 1]]),
+      groups: [['a', 'b']],
+      good: new Set(['c::d']),
+    },
+  ) => {
+    const context = buildModelContext({
+      scene: twoDesks,
+      students: [a!, b!, c!, d!],
+      settings: settings(weights),
+      previousPairs: new Map([
+        ['a::b', 1],
+        ['c::d', 1],
+      ]),
+      experience,
+    });
+    return scoreArrangement(context, occupantsOf(context, arrangement));
+  };
+
+  it('costs a pair that did not work while they share a desk, not apart', () => {
+    const together = [
+      [a!, b!],
+      [c!, d!],
+    ];
+    const apart = [
+      [a!, c!],
+      [b!, d!],
+    ];
+
+    expect(scoreOf({ considerPlanFeedback: 6 }, together)).toBe(12);
+    expect(scoreOf({ considerPlanFeedback: 6 }, apart)).toBe(0);
+    expect(scoreOf({ considerPlanFeedback: 0 }, together)).toBe(0);
+  });
+
+  it('halves the repetition of a pair from a plan that went well while it counts', () => {
+    const arrangement = [
+      [a!, c!],
+      [b!, d!],
+    ];
+    const cdTogether = [
+      [c!, d!],
+      [a!, null],
+    ];
+
+    expect(scoreOf({ avoidPreviousPairs: 6 }, arrangement)).toBe(0);
+    expect(scoreOf({ avoidPreviousPairs: 6 }, cdTogether)).toBe(6);
+    expect(
+      scoreOf({ avoidPreviousPairs: 6, considerPlanFeedback: 6 }, cdTogether),
+    ).toBe(3);
   });
 });

@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest';
 import type { Student } from '@/types';
 import {
   DEFAULT_MIX_WEIGHTS,
+  MIX_CRITERIA_VERSION,
   MIX_RECIPES,
   areMixSettingsEqual,
   normalizeMixSettings,
@@ -286,6 +287,31 @@ describe("presets of the teacher's own (decision 0038)", () => {
     expect(data.presets.map((preset) => preset.name)).toEqual(['Eins']);
     expect(data.presets[0]!.weights.avoidShyAlone).toBe(5);
     expect(data.presets[0]!.weights.considerWishPartners).toBe(0);
+  });
+
+  it('gives a preset from before "Erfahrung" its default, and one since none', () => {
+    const data = normalizeMixPresetData({
+      version: 1,
+      overrides: {},
+      presets: [
+        {
+          id: 'old',
+          name: 'Alt',
+          weights: { avoidRestlessTogether: 8 },
+          criteriaVersion: 2,
+        },
+        {
+          id: 'new',
+          name: 'Neu',
+          weights: { avoidRestlessTogether: 8 },
+          criteriaVersion: MIX_CRITERIA_VERSION,
+        },
+      ],
+    });
+
+    expect(
+      data.presets.map((preset) => preset.weights.considerPlanFeedback),
+    ).toEqual([DEFAULT_MIX_WEIGHTS.considerPlanFeedback, 0]);
   });
 });
 

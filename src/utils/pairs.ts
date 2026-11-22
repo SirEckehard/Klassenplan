@@ -246,3 +246,134 @@ export function buildPreviousPairs(
 
   return pairWeights;
 }
+
+/**
+ * What the plans in use taught about pairs (decision 0054): `poor` weighs the
+ * pairs of the tables at which a plan did not work, `good` holds the pairs of
+ * plans that went well.
+ */
+export interface PlanExperience {
+  /** Pair key → weight between 0 and `MAX_PAIR_WEIGHT` */
+  poor: PreviousPairWeights;
+  /**
+   * The students of every table that did not work, while it counts, by
+   * `seatStudentIdentifier` — what the fulfilment counts against, since a
+   * table of six cannot be parted over four tables
+   */
+  groups: string[][];
+  /** Pair keys of plans that went well, none of them in `poor` */
+  good: ReadonlySet<string>;
+}
+
+/** Experience of a class that gave no feedback. */
+export const emptyPlanExperience = (): PlanExperience => ({
+  poor: new Map(),
+  groups: [],
+  good: new Set(),
+});
+
+/**
+ * The tables an arrangement's pair keys stand for: every two students of a
+ * table are a pair and no pair crosses tables, so a table is a group of
+ * students linked by pairs. A student alone at a table has no pair and no
+ * table here.
+ */
+export function tablesOfPairs(pairs: readonly string[]): string[][] {
+  const parent = new Map<string, string>();
+  const find = (id: string): string => {
+    let root = id;
+    while (parent.get(root) !== root) root = parent.get(root)!;
+    parent.set(id, root);
+    return root;
+  };
+  for (const key of pairs) {
+    const separator = key.indexOf('::');
+    if (separator === -1) continue;
+    const a = key.slice(0, separator);
+    const b = key.slice(separator + 2);
+    if (!parent.has(a)) parent.set(a, a);
+    if (!parent.has(b)) parent.set(b, b);
+    parent.set(find(a), find(b));
+  }
+  const tables = new Map<string, string[]>();
+  for (const id of [...parent.keys()].sort()) {
+    const root = find(id);
+    const table = tables.get(root);
+    if (table) table.push(id);
+    else tables.set(root, [id]);
+  }
+  return [...tables.values()];
+}
+
+/**
+ * A plan rated "Lief nicht gut" without a table weighs each of its pairs this
+ * much; a table chosen weighs each of its pairs 1. The repetition parts them
+ * anyway, and the rating alone cannot say which pair it means.
+ */
+export const POOR_PLAN_PAIR_WEIGHT = 0.25;
+
+/**
+ * How much a plan's feedback still counts by its rank among the plans in use,
+ * newest first: fully within the repetition's window, then fading to nothing
+ * over a second window as long — twice as long as a repetition, and then
+ * over (decision 0054).
+ */
+const experienceFactor = (rank: number, windowSize: number): number => {
+  if (rank < windowSize) return 1;
+  return Math.max(0, (2 * windowSize - rank) / (windowSize + 1));
+};
+
+/**
+ * Build what the feedback on the plans in use says about pairs (decision
+ * 0054). Only usage records carry feedback, so the saved plans never stand in
+ * here; the records are ranked as `buildPreviousPairs` ranks them, the plan
+ * being read left out.
+ *
+ * @param planUsage The class's usage records, resolved for its mode
+ * @param options The plan being read and the class size
+ */
+export function buildPlanExperience(
+  planUsage: readonly PlanUsage[] = [],
+  options?: Pick<BuildPreviousPairsOptions, 'plan' | 'studentCount'>,
+): PlanExperience {
+  const poor: PreviousPairWeights = new Map();
+  const groups: string[][] = [];
+  const windowSize = calculatePairHistoryWindowSize(options?.studentCount);
+  const ownFingerprint = options?.plan ? fingerprintOf(options.plan) : null;
+  const counted = planUsage
+    .filter(isCountedUsage)
+    .filter((entry) => entry.fingerprint !== ownFingerprint)
+    .sort((a, b) => b.lastSeenAt.localeCompare(a.lastSeenAt));
+
+  const wentWell = new Set<string>();
+  counted.forEach((entry, rank) => {
+    const factor = experienceFactor(rank, windowSize);
+    const feedback = entry.feedback;
+    if (!feedback || factor <= 0) return;
+    if (feedback.rating === 'good') {
+      for (const key of entry.pairs) wentWell.add(key);
+      return;
+    }
+    if (feedback.poorTables && feedback.poorTables.length > 0) {
+      for (const table of feedback.poorTables) {
+        groups.push([...table]);
+        const pairs = new Set<string>();
+        table.forEach((id, i) => {
+          for (const other of table.slice(i + 1)) {
+            pairs.add(seatPairKey(id, other));
+          }
+        });
+        addPairKeys([...pairs], factor, poor);
+      }
+    } else {
+      groups.push(...tablesOfPairs(entry.pairs));
+      addPairKeys(entry.pairs, factor * POOR_PLAN_PAIR_WEIGHT, poor);
+    }
+  });
+
+  const good = new Set<string>();
+  for (const key of wentWell) {
+    if (!poor.has(key)) good.add(key);
+  }
+  return { poor, groups, good };
+}

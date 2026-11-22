@@ -112,6 +112,50 @@ describe('mix importance', () => {
         MIX_CRITERIA_VERSION,
       );
     });
+  });
+
+  // Decision 0054: "Erfahrung" weighs nothing until a plan in use has
+  // feedback, so settings from before take it at its default.
+  describe('"Erfahrung" in settings from before', () => {
+    const before = (extra: Partial<MixSettings> = {}) => {
+      const settings: Partial<MixSettings> = {
+        ...neutralSettings,
+        avoidPreviousPairs: 6,
+        preferFrontForNeedsFrontSeat: 5,
+        ...extra,
+        criteriaVersion: 2,
+      };
+      delete settings.considerPlanFeedback;
+      return settings;
+    };
+
+    it('takes the default, and leaves the front rows of version 2 alone', () => {
+      const migrated = migrateStoredMixSettings(before());
+
+      expect(migrated.considerPlanFeedback).toBe(
+        DEFAULT_MIX_WEIGHTS.considerPlanFeedback,
+      );
+      expect(migrated.preferFrontForNeedsFrontSeat).toBe(5);
+      expect(migrated.criteriaVersion).toBe(MIX_CRITERIA_VERSION);
+    });
+
+    it('keeps a class mixed by chance on purpose by chance', () => {
+      const migrated = migrateStoredMixSettings(
+        before({ avoidPreviousPairs: 0, preferFrontForNeedsFrontSeat: 0 }),
+      );
+
+      expect(migrated.considerPlanFeedback).toBeUndefined();
+      expect(
+        normalizeMixSettings(migrated, neutralSettings).considerPlanFeedback,
+      ).toBe(0);
+    });
+
+    it('keeps a weight the settings already hold', () => {
+      expect(
+        migrateStoredMixSettings({ ...before(), considerPlanFeedback: 0 })
+          .considerPlanFeedback,
+      ).toBe(0);
+    });
 
     it('recommends "Sehr wichtig" for front seats', () => {
       expect(

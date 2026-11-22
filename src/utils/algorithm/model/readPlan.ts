@@ -8,7 +8,7 @@ import type {
   SeatingArrangement,
   Student,
 } from '@/types';
-import { buildPreviousPairs } from '@/utils/pairs';
+import { buildPlanExperience, buildPreviousPairs } from '@/utils/pairs';
 import {
   buildModelContext,
   occupantsOf,
@@ -34,7 +34,7 @@ export interface PlanReading {
  * the fulfilment and the highlights read. A seat counts as taken when someone
  * sits on it — the plan is what it is, there are no targets to fill. Its
  * repetition is read against the plans in use, the plan itself left out
- * (decision 0032).
+ * (decision 0032), and so is the feedback on them (decision 0054).
  */
 export function readPlan(reading: PlanReading): {
   context: ModelContext;
@@ -51,11 +51,19 @@ export function readPlan(reading: PlanReading): {
           studentCount: students.length,
         })
       : new Map<string, number>();
+  const experience =
+    (settings.considerPlanFeedback ?? 0) > 0
+      ? buildPlanExperience(reading.planUsage, {
+          plan: arrangement,
+          studentCount: students.length,
+        })
+      : undefined;
   const context = buildModelContext({
     scene,
     students,
     settings,
     previousPairs,
+    experience,
     usable: (table, seat) => Boolean(arrangement[table]?.[seat]),
     arrangement,
   });

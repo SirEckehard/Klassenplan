@@ -536,6 +536,10 @@
         "label": "Wiederholung",
         "desc": "Schüler, die zuletzt nebeneinander saßen, trennen"
       },
+      "considerPlanFeedback": {
+        "label": "Erfahrung",
+        "desc": "Tische, an denen es nicht lief, länger trennen"
+      },
       "avoidRestlessTogether": {
         "label": "Unruhe",
         "desc": "Schüler mit Unruheverhalten trennen"

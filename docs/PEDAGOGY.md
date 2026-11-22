@@ -66,6 +66,7 @@ The weights in [`src/utils/mixSettings.ts`](../src/utils/mixSettings.ts) are nor
 | `considerWishPartners`                  | 8       | Respecting preferred partners is the strongest student preference we can capture directly; high social legitimacy               |
 | `avoidConflictPartners`                 | 7       | Conflict avoidance has an immediate effect on classroom climate; slightly below preferred partners                              |
 | `avoidPreviousPairs`                    | 6       | Prevents stagnation and encourages new social contacts; broadly accepted in pedagogy                                            |
+| `considerPlanFeedback`                  | 6       | The teacher's own experience with an arrangement; weighs nothing until a plan in use has feedback, then like repetition         |
 | `avoidRestlessTogether`                 | 5       | Evidence for disruption reduction through spatial separation (Wannarka & Ruhl 2008)                                             |
 | `avoidConcentrationTogether`            | 5       | Analogous to `avoidRestlessTogether`; equal weight is deliberate                                                                |
 | `avoidConcentrationNearRestless`        | 5       | Interaction between restless and distractible behavior                                                                          |

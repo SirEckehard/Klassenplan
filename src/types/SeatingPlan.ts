@@ -32,6 +32,11 @@ export interface NeighborWeightSettings {
 
 export interface MixSettings {
   avoidPreviousPairs: number;
+  /**
+   * How a plan in use went (decision 0054): tables that did not work stay
+   * apart, the pairs of a plan that went well may sit together sooner.
+   */
+  considerPlanFeedback: number;
   avoidRestlessTogether: number;
   avoidConcentrationTogether: number;
   avoidConcentrationNearRestless: number;

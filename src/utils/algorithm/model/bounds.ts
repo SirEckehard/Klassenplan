@@ -213,3 +213,32 @@ export function mostBalancedUnits(
   for (const state of states.values()) best = Math.max(best, state.balanced);
   return best;
 }
+
+/**
+ * The fewest pairs a group of students must form at one table when spread
+ * over tables that take `capacity` of them each — evenly, a student at a time
+ * to the table holding fewest of them that has room: each one more at a table
+ * pairs with everyone already there, so the even spread is the least
+ * (decision 0054). The tables together hold at least the group.
+ *
+ * @param members - How many students the group has
+ * @param capacity - How many of them each table can take
+ */
+export function fewestPairsTogether(
+  members: number,
+  capacity: readonly number[],
+): number {
+  const counts = capacity.map(() => 0);
+  let pairs = 0;
+  for (let placed = 0; placed < members; placed++) {
+    let best = -1;
+    for (let table = 0; table < counts.length; table++) {
+      if (counts[table]! >= capacity[table]!) continue;
+      if (best < 0 || counts[table]! < counts[best]!) best = table;
+    }
+    if (best < 0) break;
+    pairs += counts[best]!;
+    counts[best]! += 1;
+  }
+  return pairs;
+}

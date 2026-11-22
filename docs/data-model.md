@@ -96,9 +96,12 @@ interface RoomWorkingState {
 // SavedPlan and MixResult carry `roomId?: string`.
 ```
 
-`MixSettings` carries `criteriaVersion` (`MIX_CRITERIA_VERSION`, currently 2)
+`MixSettings` carries `criteriaVersion` (`MIX_CRITERIA_VERSION`, currently 3)
 since [decision 0031](decisions/0031-one-criterion-model.md): from version 2
-only "Sehr wichtig" keeps students needing a front seat in the front rows.
+only "Sehr wichtig" keeps students needing a front seat in the front rows,
+from version 3 there is `considerPlanFeedback`, which settings from before
+take at its default unless every weight is off
+([decision 0054](decisions/0054-experience-of-a-plan-in-use.md)).
 Settings stored without it — a class's `mixSettings`, the browser's last
 weights under `spg.mixSettings`, a backup's, a mix of the history — are
 brought up to it where they come in (`migrateStoredMixSettings`): a level of

@@ -23,9 +23,9 @@ import {
 } from './mixSettings';
 
 /**
- * A lesson in the form the algorithm understands: eighteen weights at once.
+ * A lesson in the form the algorithm understands: nineteen weights at once.
  *
- * Setting eighteen criteria one by one is the part of the plan nobody asks for.
+ * Setting nineteen criteria one by one is the part of the plan nobody asks for.
  * A recipe answers the question a teacher actually has — "was ist das hier für
  * eine Stunde?" — and the criteria below it stay exactly as changeable as they
  * were (decision 0018). Besides the shipped ones a teacher keeps presets of
@@ -74,6 +74,7 @@ export const MIX_RECIPES: readonly MixRecipe[] = [
       keepNeighbourSeatFree: 8,
       seatLeftHandersLeft: 5,
       avoidPreviousPairs: 3,
+      considerPlanFeedback: 6,
       considerWishPartners: 3,
       preferFrontForSmallerStudents: 3,
     },
@@ -90,6 +91,7 @@ export const MIX_RECIPES: readonly MixRecipe[] = [
       distributeSocialRoles: 6,
       avoidShyAlone: 5,
       avoidPreviousPairs: 5,
+      considerPlanFeedback: 6,
       preferGenderMix: 3,
       preferFrontForNeedsFrontSeat: 8,
       keepNeighbourSeatFree: 8,
@@ -106,6 +108,7 @@ export const MIX_RECIPES: readonly MixRecipe[] = [
       avoidConcentrationTogether: 8,
       avoidConcentrationNearRestless: 8,
       avoidPreviousPairs: 8,
+      considerPlanFeedback: 8,
       preferFrontForNeedsFrontSeat: 8,
       keepNeighbourSeatFree: 8,
       seatLeftHandersLeft: 5,
@@ -118,6 +121,7 @@ export const MIX_RECIPES: readonly MixRecipe[] = [
     builtin: 'newClass',
     weights: {
       avoidPreviousPairs: 8,
+      considerPlanFeedback: 6,
       avoidConflictPartners: 7,
       avoidShyAlone: 6,
       preferGenderMix: 6,
@@ -303,14 +307,15 @@ const storedWeights = (
 ): MixPresetWeights | null => {
   if (!value || typeof value !== 'object') return null;
   const record = value as Record<string, unknown>;
-  const weights = SCALAR_MIX_SETTING_KEYS.reduce((acc, key) => {
+  // Only what the preset holds: a criterion it does not name yet is the
+  // migration's to fill, and off after it (`fullRecipeWeights`).
+  const weights: Partial<MixPresetWeights> = {};
+  for (const key of SCALAR_MIX_SETTING_KEYS) {
     const weight = record[key];
-    acc[key] =
-      typeof weight === 'number' && Number.isFinite(weight)
-        ? Math.min(10, Math.max(0, weight))
-        : 0;
-    return acc;
-  }, {} as MixPresetWeights);
+    if (typeof weight === 'number' && Number.isFinite(weight)) {
+      weights[key] = Math.min(10, Math.max(0, weight));
+    }
+  }
   const migrated = migrateStoredMixSettings({
     ...weights,
     criteriaVersion:

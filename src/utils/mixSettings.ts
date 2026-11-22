@@ -28,6 +28,7 @@ export const SCALAR_MIX_SETTING_KEYS: ReadonlyArray<ScalarMixSettingKey> = [
   'considerWishPartners',
   'avoidConflictPartners',
   'avoidPreviousPairs',
+  'considerPlanFeedback',
   'avoidRestlessTogether',
   'avoidConcentrationTogether',
   'avoidConcentrationNearRestless',
@@ -50,6 +51,7 @@ export const DEFAULT_MIX_WEIGHTS: Readonly<MixSettings> = {
   considerWishPartners: 8,
   avoidConflictPartners: 7,
   avoidPreviousPairs: 6,
+  considerPlanFeedback: 6,
   avoidRestlessTogether: 5,
   avoidConcentrationTogether: 5,
   avoidConcentrationNearRestless: 5,
@@ -70,16 +72,19 @@ export const DEFAULT_MIX_WEIGHTS: Readonly<MixSettings> = {
 
 /**
  * What the weights mean. 2 since decision 0031: only "Sehr wichtig" keeps the
- * students needing a front seat in the front rows. Settings stored before
- * carry no version; `migrateStoredMixSettings` brings them to this one.
+ * students needing a front seat in the front rows. 3 since decision 0054:
+ * "Erfahrung" is there, and settings from before take it at its default.
+ * Settings stored before carry an older version or none;
+ * `migrateStoredMixSettings` brings them to this one.
  */
-export const MIX_CRITERIA_VERSION = 2;
+export const MIX_CRITERIA_VERSION = 3;
 
 // Neutral settings to disable all mixing criteria
 export const neutralSettings: Readonly<MixSettings> = {
   considerWishPartners: 0,
   avoidConflictPartners: 0,
   avoidPreviousPairs: 0,
+  considerPlanFeedback: 0,
   avoidRestlessTogether: 0,
   avoidConcentrationTogether: 0,
   avoidConcentrationNearRestless: 0,

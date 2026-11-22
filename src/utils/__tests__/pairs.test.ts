@@ -1,7 +1,13 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import { describe, it, expect } from 'vitest';
-import { buildPreviousPairs, MAX_PAIR_WEIGHT } from '../pairs';
+import {
+  buildPlanExperience,
+  buildPreviousPairs,
+  MAX_PAIR_WEIGHT,
+  POOR_PLAN_PAIR_WEIGHT,
+  tablesOfPairs,
+} from '../pairs';
 import {
   collectSeatingPairKeys,
   computePlanFingerprint,
@@ -328,5 +334,119 @@ describe('buildPreviousPairs after a reset', () => {
     expect(
       buildPreviousPairs(history, { since: null, studentCount: 4 }),
     ).toEqual(buildPreviousPairs(history, { studentCount: 4 }));
+  });
+});
+
+describe('tablesOfPairs', () => {
+  it('gives back the tables of two or more an arrangement had', () => {
+    expect(tablesOfPairs(['a::b', 'a::c', 'b::c', 'd::e'])).toEqual([
+      ['a', 'b', 'c'],
+      ['d', 'e'],
+    ]);
+  });
+});
+
+// How a plan in use went (decision 0054).
+describe('buildPlanExperience', () => {
+  /** A record seen on day `day` of October, newest the highest day. */
+  const recordOf = (
+    day: number,
+    overrides: Partial<PlanUsage> = {},
+  ): PlanUsage =>
+    usageOf({
+      id: `u${day}`,
+      fingerprint: `f${day}`,
+      pairs: ['a::b', 'c::d', 'c::e', 'd::e'],
+      lastSeenAt: `2026-10-${String(day).padStart(2, '0')}T08:00:00.000Z`,
+      ...overrides,
+    });
+  const poorTable = (day: number, table = ['c', 'd', 'e']) =>
+    recordOf(day, {
+      feedback: { rating: 'poor', poorTables: [table], at: '2026-10-30' },
+    });
+
+  it('weighs every pair of a table that did not work', () => {
+    const experience = buildPlanExperience([poorTable(1)]);
+
+    expect([...experience.poor.entries()]).toEqual([
+      ['c::d', 1],
+      ['c::e', 1],
+      ['d::e', 1],
+    ]);
+    expect(experience.groups).toEqual([['c', 'd', 'e']]);
+    expect(experience.good.size).toBe(0);
+  });
+
+  it('weighs a plan that did not work without a table lightly, table by table', () => {
+    const experience = buildPlanExperience([
+      recordOf(1, { feedback: { rating: 'poor', at: '2026-10-30' } }),
+    ]);
+
+    expect(experience.poor.get('a::b')).toBe(POOR_PLAN_PAIR_WEIGHT);
+    expect(experience.poor.get('d::e')).toBe(POOR_PLAN_PAIR_WEIGHT);
+    expect(experience.groups).toEqual([
+      ['a', 'b'],
+      ['c', 'd', 'e'],
+    ]);
+  });
+
+  it('adds up a pair that did not work twice, up to the most a pair weighs', () => {
+    const experience = buildPlanExperience([
+      poorTable(1),
+      poorTable(2, ['c', 'd']),
+      poorTable(3, ['c', 'd']),
+    ]);
+
+    expect(experience.poor.get('c::d')).toBe(MAX_PAIR_WEIGHT);
+    expect(experience.poor.get('c::e')).toBe(1);
+  });
+
+  it('counts fully for a window of plans, then fades out over a second one', () => {
+    // Five students and no class size: a window of five plans in use.
+    const newer = Array.from({ length: 9 }, (_, index) => recordOf(index + 2));
+    const weightAt = (newerCount: number) =>
+      buildPlanExperience([
+        poorTable(1),
+        ...newer.slice(0, newerCount),
+      ]).poor.get('c::d') ?? 0;
+
+    expect(weightAt(4)).toBe(1);
+    expect(weightAt(5)).toBeCloseTo(5 / 6);
+    expect(weightAt(9)).toBeCloseTo(1 / 6);
+    expect(
+      buildPlanExperience([poorTable(1), ...newer, recordOf(20)]).poor.size,
+    ).toBe(0);
+  });
+
+  it('keeps the pairs of a plan that went well, unless they did not work elsewhere', () => {
+    const experience = buildPlanExperience([
+      recordOf(1, { feedback: { rating: 'good', at: '2026-10-30' } }),
+      poorTable(2, ['c', 'd']),
+    ]);
+
+    expect([...experience.good].sort()).toEqual(['a::b', 'c::e', 'd::e']);
+    expect(experience.poor.has('c::d')).toBe(true);
+  });
+
+  it('passes over a record out of the count and the plan being read', () => {
+    const own = poorTable(2);
+    const seating = [
+      [carol, dave],
+      [alice, bob],
+    ];
+    const read = {
+      ...own,
+      pairs: collectSeatingPairKeys(seating),
+      fingerprint: computePlanFingerprint(collectSeatingPairKeys(seating)),
+    };
+
+    expect(
+      buildPlanExperience([poorTable(1, ['c', 'd']), read], {
+        plan: seating,
+      }).poor.has('c::e'),
+    ).toBe(false);
+    expect(
+      buildPlanExperience([{ ...poorTable(1), confirmed: false }]).poor.size,
+    ).toBe(0);
   });
 });

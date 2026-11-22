@@ -5,6 +5,7 @@ import {
   DEFAULT_MIX_WEIGHTS,
   MIX_CRITERIA_VERSION,
   criterionWeight,
+  hasActiveWeights,
 } from './mixSettings';
 
 /**
@@ -82,9 +83,13 @@ export const criterionImportance = (
  * Before decision 0031 every level of "Vordere Plätze" kept the students
  * needing a front seat in the front rows; now only "Sehr wichtig" does. A
  * stored level below it is lifted to the recommended weight once, so a class
- * keeps the plans it had — the teacher can lower it again afterwards. Runs
- * where stored settings come in: the browser's last settings, a class
- * opened, a backup restored, a mix of the history opened.
+ * keeps the plans it had — the teacher can lower it again afterwards.
+ * Settings from before decision 0054 take "Erfahrung" at its default: it
+ * weighs nothing until a plan in use has feedback, and the first feedback
+ * should count without a switch the teacher never saw — unless every
+ * criterion is off, a class mixed by chance on purpose. Runs where stored
+ * settings come in: the browser's last settings, a class opened, a backup
+ * restored, a mix of the history opened, a stored preset.
  */
 export const migrateStoredMixSettings = <
   T extends Partial<MixSettings> | null | undefined,
@@ -92,17 +97,24 @@ export const migrateStoredMixSettings = <
   stored: T,
 ): T => {
   if (!stored || typeof stored !== 'object') return stored;
-  if ((stored.criteriaVersion ?? 1) >= MIX_CRITERIA_VERSION) return stored;
+  const version = stored.criteriaVersion ?? 1;
+  if (version >= MIX_CRITERIA_VERSION) return stored;
   const front = stored.preferFrontForNeedsFrontSeat;
   const lift =
+    version < 2 &&
     typeof front === 'number' &&
     front > 0 &&
     importanceOfWeight(front) !== 'essential';
+  const experience =
+    typeof stored.considerPlanFeedback !== 'number' && hasActiveWeights(stored);
   return {
     ...stored,
     ...(lift && {
       preferFrontForNeedsFrontSeat:
         DEFAULT_MIX_WEIGHTS.preferFrontForNeedsFrontSeat,
+    }),
+    ...(experience && {
+      considerPlanFeedback: DEFAULT_MIX_WEIGHTS.considerPlanFeedback,
     }),
     criteriaVersion: MIX_CRITERIA_VERSION,
   };
