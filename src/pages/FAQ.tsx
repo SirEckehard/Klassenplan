@@ -320,6 +320,7 @@ export default function FAQ() {
                 <p>{t('faq.settings.repeat.usageOutro')}</p>
                 <p>{t('faq.settings.repeat.weightNote')}</p>
                 <p>{t('faq.settings.repeat.viewNote')}</p>
+                <p>{t('faq.settings.repeat.feedbackNote')}</p>
               </>
             ),
           },

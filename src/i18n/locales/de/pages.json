@@ -412,7 +412,8 @@
         "usage4": "Plätze im Sitzplan von Hand tauschen",
         "usageOutro": "Gespeichert werden dabei nur die Sitznachbarschaften und ein Zeitstempel, wie immer ausschließlich lokal auf deinem Gerät.",
         "weightNote": "Der Plan, den du gerade ansiehst, zählt dabei nicht gegen sich selbst: Auch nachdem du ihn präsentiert, exportiert oder gespeichert hast, vergleicht „Wiederholung“ ihn nur mit den anderen genutzten Plänen.",
-        "viewNote": "In der „Bibliothek“ unten in der Werkzeugleiste zeigt der Ordner „Nachbarschaften“ einer Klasse für jeden Schüler, neben wem er schon wie oft saß – samt Datengrundlage, aus der du einzelne Pläne herausnehmen kannst. „Zurücksetzen“ vergisst alle bisherigen Nachbarschaften auf einmal, etwa zum neuen Schuljahr."
+        "viewNote": "In der „Bibliothek“ unten in der Werkzeugleiste zeigt der Ordner „Nachbarschaften“ einer Klasse für jeden Schüler, neben wem er schon wie oft saß – samt Datengrundlage, aus der du einzelne Pläne herausnehmen kannst. „Zurücksetzen“ vergisst alle bisherigen Nachbarschaften auf einmal, etwa zum neuen Schuljahr.",
+        "feedbackNote": "Wie ein genutzter Plan funktioniert hat, sagst du im Inspektor des Plans, auf der Ebene „Plan“ oder in der „Bibliothek“: „Gut“ lässt seine Paare früher wieder zusammensitzen, „Nicht gut“ hält die Schüler der gewählten Tische etwa doppelt so lange getrennt wie die Wiederholung, danach verblasst es. Das übernimmt das Kriterium „Erfahrung“; es erscheint, sobald ein Plan eine Rückmeldung hat."
       }
     },
     "tipps": {

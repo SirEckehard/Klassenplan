@@ -55,6 +55,22 @@ student needs to work all read "Freier Nachbarplatz". What holds for the reason
 behind a front seat holds here too. `leftHanded` describes how a student
 writes, nothing more, and is no health matter.
 
+### Experience with an arrangement, not with a child
+
+How a plan in use went ("Gut", or "Nicht gut" and the tables where it did not
+work; [decision 0054](decisions/0054-experience-of-a-plan-in-use.md)) is
+recorded on the arrangement, not on a student. A restless table is often a
+matter of who sat together, on which day, in which lesson — the same children
+apart may work well. Turning that into "unruhig" for each of them would label
+every child of the table for something true of the group; feedback on the plan
+keeps it where it happened. It stores no reason and no free text, and it
+fades: fully for as many plans as repetition counts, then out over as many
+again; "Zurücksetzen" in the neighbourhoods ends it at once. When it is one
+pair that does not work, the distance wish is the more exact tool; when a plan
+went well, its pairs may sit together again sooner rather than being parted
+like any repetition. Feedback is still information about the students who sat
+at a table, which is why [PRIVACY.md](PRIVACY.md#data-inventory) lists it.
+
 ---
 
 ## 3. Rationale for the default weights
@@ -116,7 +132,7 @@ are in the class.
 
 ### A weight only acts where the class has the data
 
-A criterion is offered only when the class carries the data it needs – no preferred partner, no `considerWishPartners`. Weights for criteria the inspector does not show are set to 0 rather than left in place, so a plan is never built on a criterion the teacher cannot see or change ([decision 0016](decisions/0016-hidden-criteria-carry-no-weight.md)). Distractibility is available for two distractible students **or** for one distractible student and at least one restless classmate, because it governs both distances; its two weights (`avoidConcentrationTogether`, `avoidConcentrationNearRestless`) move as one.
+A criterion is offered only when the class carries the data it needs – no preferred partner, no `considerWishPartners`. Weights for criteria the inspector does not show are set to 0 rather than left in place, so a plan is never built on a criterion the teacher cannot see or change ([decision 0016](decisions/0016-hidden-criteria-carry-no-weight.md)). Distractibility is available for two distractible students **or** for one distractible student and at least one restless classmate, because it governs both distances; its two weights (`avoidConcentrationTogether`, `avoidConcentrationNearRestless`) move as one. "Erfahrung" (`considerPlanFeedback`) shows once a plan in use has feedback; its weight is kept meanwhile, since without feedback it acts on nothing.
 
 ### Tension between `peerTutoring` and `homogeneousPerformanceGroups`
 

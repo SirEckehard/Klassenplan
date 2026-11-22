@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - "Mark" at the top of the class list sets an attribute on many students and replaces the "Attributes" view
 - "Save room as a file …" in the room's inspector passes a room to a colleague without saving it as a template first
 - "Set up from scratch" offers seven seating arrangements, from a horseshoe to desks facing the walls, and puts a new room together at random
+- You can say how a plan in use worked and at which tables it did not, and the new criterion "Experience" keeps those students apart for longer
 
 ### Improved
 
