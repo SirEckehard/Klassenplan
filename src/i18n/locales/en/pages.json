@@ -177,7 +177,7 @@
     },
     "klassenliste": {
       "title": "Class list & class management",
-      "description": "Multiple classes, CSV import, photos, the “Attributes” view and the name game.",
+      "description": "Multiple classes, CSV import, photos, “Mark” and the name game.",
       "classes": {
         "q": "Can I manage several classes?",
         "a": "Yes. The class switcher at the top left of the header lets you create as many classes as you like, rename them, switch between them or delete them. Each class keeps its own students, classroom layouts, seating plans and recent mixes. Deleting a class also deletes its seating plans."
@@ -214,7 +214,7 @@
     "eigenschaften": {
       "title": "Student Properties & Criteria",
       "description": "Overview of all properties and how the algorithm uses them.",
-      "intro": "On the class layer you record properties for every student – in the inspector, or faster in the “Attributes” view. When you mix the seating plan, they come into play through the criteria selected there. This overview shows every property, what it means and what the algorithm does with it.",
+      "intro": "On the class layer you record properties for every student – in the inspector, or faster with “Mark” in the class list. When you mix the seating plan, they come into play through the criteria selected there. This overview shows every property, what it means and what the algorithm does with it.",
       "algorithmLabel": "When mixing:",
       "props": {
         "gender": {
@@ -507,7 +507,7 @@
       "description": "How data is stored locally, how backups work and how to move to a new device.",
       "where": {
         "q": "Where is my data stored?",
-        "a": "All data is stored in the browser (IndexedDB for core data, localStorage for settings). There is no cloud, no account, and no server synchronization. Your data stays on your device."
+        "a": "All data is stored in the browser (IndexedDB for core data, localStorage for settings). There is no cloud, no account, and no server synchronization. Your data stays on your device. After the update that changes how classes are stored, Klassenplan also keeps the data from before for 30 days (under “Backup” → “Data from before the update …”). What you delete in that time stays in this copy until then; “Clear all data” removes it too."
       },
       "loss": {
         "q": "Can my data simply disappear?",
@@ -521,6 +521,10 @@
         "q": "How does the backup work?",
         "a": "The export creates a file encrypted with your password (at least 8 characters) containing all classes, students including their photos, seating plans, mix and usage history, seating circle, room elements, templates and settings. Without that password the file cannot be restored."
       },
+      "auto": {
+        "q": "Can Klassenplan back up by itself?",
+        "a": "Yes, in Chrome and Edge on a computer. Under “Backup” → “Back up automatically …” you choose a folder once – on your computer, in OneDrive or on a network drive – and a password. From then on Klassenplan saves an encrypted backup there once a day after your classes changed and keeps the newest seven. In a browser tab, Chrome asks for the folder again after a restart; the status bar then shows “Resume backup”. A forgotten password cannot be recovered. You bring such a file back like any backup, with “Import backup”. Firefox and Safari cannot write into a folder; there Klassenplan reminds you to back up by hand."
+      },
       "deviceChange": {
         "q": "How do I move my classes to a new device?",
         "intro": "Through the backup file — there is no sync between devices, because there is no server.",
@@ -533,7 +537,7 @@
       },
       "frequency": {
         "q": "How often should I make a backup?",
-        "a": "For example after creating a class or after setting up and saving a classroom. Klassenplan reminds you once your last backup is more than 30 days old. You can postpone that reminder or switch it off for good via “Stop reminding me”."
+        "a": "For example after creating a class or after setting up and saving a classroom. Klassenplan reminds you once your last backup is more than 30 days old. You can postpone that reminder or switch it off for good via “Stop reminding me”. In Chrome and Edge, “Back up automatically …” can do it for you every day."
       },
       "update": {
         "q": "What happens to my backup after a Klassenplan update?",

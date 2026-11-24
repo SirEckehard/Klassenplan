@@ -177,7 +177,7 @@
     },
     "klassenliste": {
       "title": "Klassenliste & Klassenverwaltung",
-      "description": "Mehrere Klassen, CSV-Import, Fotos, die Ansicht „Merkmale“ und Namensspiel.",
+      "description": "Mehrere Klassen, CSV-Import, Fotos, „Markieren“ und Namensspiel.",
       "classes": {
         "q": "Kann ich mehrere Klassen verwalten?",
         "a": "Ja. Über die Klassenauswahl oben links in der Kopfzeile legst du beliebig viele Klassen an, benennst sie um, wechselst zwischen ihnen oder löschst sie. Jede Klasse hat ihre eigenen Schüler, Klassenraum-Layouts, Sitzpläne und letzten Mischungen. Löschst du eine Klasse, werden auch deren Sitzpläne gelöscht."
@@ -214,7 +214,7 @@
     "eigenschaften": {
       "title": "Schülereigenschaften & Kriterien",
       "description": "Übersicht aller Eigenschaften und wie der Algorithmus sie verwendet.",
-      "intro": "Für jeden Schüler hinterlegst du in der Klasse Eigenschaften – im Inspektor oder schneller in der Ansicht „Merkmale“. Beim Mischen im Sitzplan fließen sie über die dort ausgewählten Kriterien ein. Die Übersicht zeigt alle Eigenschaften, was sie bedeuten und was der Algorithmus daraus macht.",
+      "intro": "Für jeden Schüler hinterlegst du in der Klasse Eigenschaften – im Inspektor oder schneller mit „Markieren“ in der Klassenliste. Beim Mischen im Sitzplan fließen sie über die dort ausgewählten Kriterien ein. Die Übersicht zeigt alle Eigenschaften, was sie bedeuten und was der Algorithmus daraus macht.",
       "algorithmLabel": "Beim Mischen:",
       "props": {
         "gender": {
@@ -507,7 +507,7 @@
       "description": "Wie Daten lokal gespeichert werden, wie Backups funktionieren und wie du auf ein neues Gerät wechselst.",
       "where": {
         "q": "Wo liegen meine Daten?",
-        "a": "Alle Daten werden im Browser gespeichert (IndexedDB für Kerndaten, localStorage für Einstellungen). Es gibt keine Cloud, kein Konto und keine Server-Synchronisation. Deine Daten bleiben auf deinem Gerät."
+        "a": "Alle Daten werden im Browser gespeichert (IndexedDB für Kerndaten, localStorage für Einstellungen). Es gibt keine Cloud, kein Konto und keine Server-Synchronisation. Deine Daten bleiben auf deinem Gerät. Nach dem Update, das die Speicherung der Klassen umstellt, hebt Klassenplan den Stand von vorher 30 Tage lang zusätzlich auf (unter „Backup“ → „Stand vor dem Update …“). Was du in dieser Zeit löschst, steckt bis dahin noch in dieser Kopie; „Alle Daten löschen“ entfernt auch sie."
       },
       "loss": {
         "q": "Können meine Daten einfach verschwinden?",
@@ -521,6 +521,10 @@
         "q": "Wie funktioniert das Backup?",
         "a": "Der Export erstellt eine mit deinem Passwort verschlüsselte Datei (mindestens 8 Zeichen) mit allen Klassen, Schülern samt Fotos, Sitzplänen, Misch- und Nutzungs-Historie, Sitzkreis, Raumelementen, Vorlagen und Einstellungen. Ohne dieses Passwort lässt sich die Datei nicht wiederherstellen."
       },
+      "auto": {
+        "q": "Kann Klassenplan von selbst sichern?",
+        "a": "Ja, in Chrome und Edge am Computer. Unter „Backup“ → „Automatisch sichern …“ wählst du einmal einen Ordner, etwa auf deinem Rechner, in OneDrive oder auf einem Netzlaufwerk, und ein Passwort. Danach legt Klassenplan einmal am Tag nach einer Änderung an deinen Klassen ein verschlüsseltes Backup dort ab und behält die neuesten sieben. Im Browser-Tab fragt Chrome nach einem Neustart noch einmal nach dem Ordner; dann steht unten in der Statusleiste „Sicherung fortsetzen“. Ein vergessenes Passwort lässt sich nicht wiederherstellen. Zurück holst du eine solche Datei wie jedes Backup mit „Backup importieren“. Firefox und Safari können nicht in einen Ordner schreiben; dort erinnert dich Klassenplan an ein Backup von Hand."
+      },
       "deviceChange": {
         "q": "Wie nehme ich meine Daten auf ein neues Gerät mit?",
         "intro": "Über die Backup-Datei – eine Synchronisation zwischen Geräten gibt es nicht, weil es keinen Server gibt.",
@@ -533,7 +537,7 @@
       },
       "frequency": {
         "q": "Wie oft sollte ich ein Backup machen?",
-        "a": "Zum Beispiel nach dem Anlegen einer Klasse oder nach dem Einrichten & Speichern eines Klassenraums. Klassenplan erinnert dich, wenn dein letztes Backup älter als 30 Tage ist. Diese Erinnerung kannst du vertagen oder über „Nicht mehr erinnern“ dauerhaft abschalten."
+        "a": "Zum Beispiel nach dem Anlegen einer Klasse oder nach dem Einrichten & Speichern eines Klassenraums. Klassenplan erinnert dich, wenn dein letztes Backup älter als 30 Tage ist. Diese Erinnerung kannst du vertagen oder über „Nicht mehr erinnern“ dauerhaft abschalten. In Chrome und Edge kann „Automatisch sichern …“ das täglich für dich übernehmen."
       },
       "update": {
         "q": "Was passiert nach einem Update von Klassenplan mit meinem Backup?",

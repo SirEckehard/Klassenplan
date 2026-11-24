@@ -1100,7 +1100,7 @@
     "students": {
       "backup": {
         "title": "Back up your data",
-        "body": "“Backup” exports your data encrypted and restores it – in another browser or on another device, too."
+        "body": "“Backup” exports your data encrypted and restores it – in another browser or on another device, too. In Chrome and Edge it can also back up into a folder of your choice by itself every day."
       },
       "proceed": {
         "title": "On to the room",

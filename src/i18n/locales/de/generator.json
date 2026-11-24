@@ -1100,7 +1100,7 @@
     "students": {
       "backup": {
         "title": "Daten sichern",
-        "body": "Unter „Backup“ exportierst du deine Daten verschlüsselt und stellst sie wieder her – auch in einem anderen Browser oder auf einem anderen Gerät."
+        "body": "Unter „Backup“ exportierst du deine Daten verschlüsselt und stellst sie wieder her – auch in einem anderen Browser oder auf einem anderen Gerät. In Chrome und Edge sichert Klassenplan auf Wunsch auch täglich von selbst in einen Ordner."
       },
       "proceed": {
         "title": "Weiter zum Raum",

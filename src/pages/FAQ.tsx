@@ -431,6 +431,10 @@ export default function FAQ() {
             answer: <p>{t('faq.backups.how.a')}</p>,
           },
           {
+            question: t('faq.backups.auto.q'),
+            answer: <p>{t('faq.backups.auto.a')}</p>,
+          },
+          {
             question: t('faq.backups.deviceChange.q'),
             answer: (
               <>
