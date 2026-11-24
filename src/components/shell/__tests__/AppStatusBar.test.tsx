@@ -25,6 +25,10 @@ import {
   setUpdateReady,
 } from '@/hooks/pwa/swUpdateController';
 import { confirmInStatusBar } from '@/utils/ui/statusNotice';
+import {
+  registerAutoBackupActions,
+  setAutoBackupState,
+} from '@/hooks/persistence/autoBackupStatus';
 
 const mocks = vi.hoisted(() => ({
   state: {
@@ -191,6 +195,54 @@ describe('AppStatusBar', () => {
     } finally {
       act(() => setUpdateReady(false));
       setUpdateController(null);
+    }
+  });
+
+  // No permission helps a write that failed (decision 0050): the bar says
+  // it failed and a click tries again, which says why if it fails again.
+  it('offers to try a failed automatic backup again', async () => {
+    const resume = vi.fn().mockResolvedValue(undefined);
+    const unregister = registerAutoBackupActions({
+      setUp: vi.fn(),
+      stop: vi.fn(),
+      resume,
+    });
+    act(() =>
+      setAutoBackupState({
+        configured: true,
+        folderName: 'Sicherung',
+        lastWrittenAt: null,
+        waiting: false,
+        failure: { reason: 'write' },
+      }),
+    );
+    try {
+      render(<AppStatusBar />);
+      expect(
+        within(status()).queryByRole('button', {
+          name: /freigibst|allow its folder/i,
+        }),
+      ).not.toBeInTheDocument();
+
+      await userEvent
+        .setup()
+        .click(
+          getButton(
+            /ließ sich nicht schreiben – noch einmal|could not be written – try again/i,
+          ),
+        );
+      expect(resume).toHaveBeenCalledOnce();
+    } finally {
+      unregister();
+      act(() =>
+        setAutoBackupState({
+          configured: false,
+          folderName: null,
+          lastWrittenAt: null,
+          waiting: false,
+          failure: null,
+        }),
+      );
     }
   });
 

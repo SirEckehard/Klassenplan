@@ -383,6 +383,7 @@
     "beforeUpdate": "Data from before the update …",
     "autoBackup": "Back up automatically …",
     "autoBackupStop": "Stop backing up automatically",
+    "autoBackupRenew": "Set up the automatic backup again …",
     "autoBackupWhere": "In “{{folder}}”",
     "autoBackupLast": "In “{{folder}}”, last {{when}}",
     "backupExported": "Backup exported.",
@@ -1138,8 +1139,7 @@
       "planSaved": "Plan saved",
       "backupSaved": "Backup saved",
       "fileSaved": "File saved",
-      "autoBackupOn": "Automatic backup set up",
-      "autoBackupOff": "Automatic backup stopped"
+      "autoBackupOn": "Automatic backup set up"
     },
     "layers": {
       "class": "Class",
@@ -1181,7 +1181,9 @@
     },
     "teachersDay": "Today is World Teachers' Day: thank you for your work!",
     "autoBackupWaiting": "Resume backup",
-    "autoBackupWaitingTitle": "The automatic backup waits until you allow its folder again"
+    "autoBackupWaitingTitle": "The automatic backup waits until you allow its folder again",
+    "autoBackupFailed": "Backup failed",
+    "autoBackupFailedRetry": "The automatic backup could not be written – try again"
   },
   "sceneInspector": {
     "deleteFeature": "Delete room element",

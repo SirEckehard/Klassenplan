@@ -4,6 +4,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
 import {
+  ArrowClockwiseIcon,
   BooksIcon,
   BroomIcon,
   ChalkboardTeacherIcon,
@@ -318,6 +319,33 @@ function ToolRailFoot({ planPresent }: { planPresent: boolean }) {
                 {t('generator:storage.beforeUpdate')}
               </button>
             )}
+            {/* A backup that could not write its last file is set up anew
+                here: another folder, a new password (decision 0050). */}
+            {supportsAutoBackup() &&
+              autoBackup.configured &&
+              autoBackup.failure && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    close();
+                    // Called in the click: the folder picker needs it.
+                    autoBackupActions.setUp().catch((error: unknown) => {
+                      logError(
+                        'Setting up the automatic backup again failed',
+                        { error },
+                        'ToolRail',
+                      );
+                    });
+                  }}
+                  className={menuItemClass}
+                >
+                  <ArrowClockwiseIcon
+                    className={footMenuIconClass}
+                    aria-hidden="true"
+                  />
+                  {t('generator:storage.autoBackupRenew')}
+                </button>
+              )}
             {/* Into a folder of the teacher's choosing, where the browser
                 can write into one (decision 0050). */}
             {supportsAutoBackup() && (

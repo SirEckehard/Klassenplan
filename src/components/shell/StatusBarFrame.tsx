@@ -50,7 +50,6 @@ const NOTICE_TEXT: Record<StatusNoticeKind, string> = {
   backupSaved: 'shell.notice.backupSaved',
   fileSaved: 'shell.notice.fileSaved',
   autoBackupOn: 'shell.notice.autoBackupOn',
-  autoBackupOff: 'shell.notice.autoBackupOff',
 };
 
 /** The toolbar's switch: quiet, and as high as the bar's other controls. */
@@ -218,8 +217,11 @@ export default function StatusBarFrame({
   const unsaved = persistStatus === 'failed';
   const newerData = persistStatus === 'newer';
   const updateReady = useUpdateReady();
-  // The automatic backup waits for its folder to be allowed again (0050).
-  const backupWaiting = useAutoBackupState().waiting;
+  // The automatic backup waits for its folder to be allowed again, or could
+  // not write its last file (0050).
+  const autoBackup = useAutoBackupState();
+  const backupWaiting = autoBackup.waiting;
+  const backupFailed = autoBackup.failure !== null;
   const notice = useStatusNotice();
   useRegisterStatusBar();
   const isDesktop = layoutMode === 'desktop';
@@ -408,6 +410,30 @@ export default function StatusBarFrame({
               </span>
             </button>
           )}
+          {/* No permission helps a write that failed: the button tries once
+              more and says why it failed (decision 0050). */}
+          {backupFailed && (
+            <button
+              type="button"
+              onClick={() => {
+                autoBackupActions.resume().catch((error: unknown) => {
+                  logError(
+                    'Retrying the automatic backup failed',
+                    { error },
+                    'StatusBarFrame',
+                  );
+                });
+              }}
+              aria-label={t('shell.autoBackupFailedRetry')}
+              title={t('shell.autoBackupFailedRetry')}
+              className={`${secondaryButtonClass} ${touchHitAreaClass} h-9 shrink-0 gap-2 px-3 text-(--status-alert-text) max-sm:w-9 max-sm:px-0`}
+            >
+              <WarningCircleIcon size={16} aria-hidden="true" />
+              <span className={statusBarWordClass}>
+                {t('shell.autoBackupFailed')}
+              </span>
+            </button>
+          )}
           {/* A polite status of its own, out of the flow, so going offline or
               a new version is said once while the bar as a whole stays
               quiet. The failed write announces itself through its toast;
@@ -418,6 +444,7 @@ export default function StatusBarFrame({
               updateReady ? t('common:pwa.updateAvailable') : '',
               newerData ? t('shell.newerDataReload') : '',
               backupWaiting ? t('shell.autoBackupWaitingTitle') : '',
+              backupFailed ? t('shell.autoBackupFailedRetry') : '',
             ]
               .filter(Boolean)
               .join('. ')}

@@ -383,6 +383,7 @@
     "beforeUpdate": "Stand vor dem Update …",
     "autoBackup": "Automatisch sichern …",
     "autoBackupStop": "Automatische Sicherung beenden",
+    "autoBackupRenew": "Automatische Sicherung neu einrichten …",
     "autoBackupWhere": "In „{{folder}}“",
     "autoBackupLast": "In „{{folder}}“, zuletzt {{when}}",
     "backupExported": "Backup exportiert.",
@@ -1138,8 +1139,7 @@
       "planSaved": "Plan gespeichert",
       "backupSaved": "Backup gespeichert",
       "fileSaved": "Datei gespeichert",
-      "autoBackupOn": "Automatische Sicherung eingerichtet",
-      "autoBackupOff": "Automatische Sicherung beendet"
+      "autoBackupOn": "Automatische Sicherung eingerichtet"
     },
     "layers": {
       "class": "Klasse",
@@ -1181,7 +1181,9 @@
     },
     "teachersDay": "Heute ist Weltlehrertag: Danke für deine Arbeit!",
     "autoBackupWaiting": "Sicherung fortsetzen",
-    "autoBackupWaitingTitle": "Die automatische Sicherung wartet, bis du ihren Ordner wieder freigibst"
+    "autoBackupWaitingTitle": "Die automatische Sicherung wartet, bis du ihren Ordner wieder freigibst",
+    "autoBackupFailed": "Sicherung fehlgeschlagen",
+    "autoBackupFailedRetry": "Die automatische Sicherung ließ sich nicht schreiben – noch einmal versuchen"
   },
   "sceneInspector": {
     "deleteFeature": "Raumelement löschen",

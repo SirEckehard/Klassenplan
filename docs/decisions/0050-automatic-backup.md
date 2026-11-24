@@ -69,3 +69,22 @@ with that password on any device.
   change; one renamed stops counting among the seven.
 - "Alle Daten löschen" removes the settings with everything else; the files
   in the folder stay, as files the teacher saved do.
+
+## Addendum of 2026-11-24: a failed write and a stop taken back
+
+The review of 2026-11-22 (N37 and N39 on its checklist) brought two changes,
+started by the maintainer before the release:
+
+- **A write that fails is a state of its own** (`failure` beside `waiting` in
+  `autoBackupStatus`). It used to show as a folder to allow again, and its
+  message sent the teacher to set the backup up anew where the menu offered
+  only to stop it. Now the status bar says "Sicherung fehlgeschlagen"; a click
+  tries again and says why it failed — too large or not restorable in the
+  words of the backup by hand, the folder gone, or the write — and the backup
+  menu offers "Automatische Sicherung neu einrichten …". A look tries a failed
+  write again only once a class changed since: a backup too large stays so,
+  and every look would build it anew.
+- **Stopping asks nothing and can be taken back**, as decision 0041 has it
+  for what comes back: the toast "Automatische Sicherung beendet." offers
+  "Rückgängig" for eight seconds and writes the folder and the key back,
+  unless another backup was set up meanwhile.

@@ -9,7 +9,7 @@ import {
   screen,
   waitFor,
 } from '@testing-library/react';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import '@/i18n';
 import {
@@ -19,6 +19,11 @@ import {
   type ToolRailDensity,
 } from '@/components/shell/ToolRail';
 import { getButton } from '@/__tests__/utils';
+import {
+  registerAutoBackupActions,
+  setAutoBackupState,
+  type AutoBackupState,
+} from '@/hooks/persistence/autoBackupStatus';
 
 const actions = vi.hoisted(() => ({
   handleExportAll: vi.fn().mockResolvedValue(undefined),
@@ -256,6 +261,70 @@ describe('ToolRail', () => {
     fireEvent.click(getButton(/^Backup$/i));
     fireEvent.click(getButton(/Backup importieren|Import backup/i));
     expect(actions.triggerImport).toHaveBeenCalledTimes(1);
+  });
+
+  // Where the browser can write into a folder (decision 0050): a backup
+  // that could not write is set up anew from the menu, which names it so.
+  describe('the automatic backup', () => {
+    const setUp = vi.fn().mockResolvedValue(undefined);
+    const stop = vi.fn().mockResolvedValue(undefined);
+    let unregister = () => {};
+    const setUpAs = (state: Partial<AutoBackupState>) =>
+      act(() =>
+        setAutoBackupState({
+          configured: true,
+          folderName: 'Sicherung',
+          lastWrittenAt: null,
+          waiting: false,
+          failure: null,
+          ...state,
+        }),
+      );
+
+    beforeEach(() => {
+      vi.stubGlobal('isSecureContext', true);
+      window.showDirectoryPicker = vi.fn() as never;
+      unregister = registerAutoBackupActions({
+        setUp,
+        stop,
+        resume: vi.fn(),
+      });
+    });
+
+    afterEach(() => {
+      unregister();
+      delete window.showDirectoryPicker;
+      vi.unstubAllGlobals();
+      setUpAs({ configured: false, folderName: null });
+    });
+
+    it('offers no second way in while it writes', () => {
+      setUpAs({});
+      renderRail();
+      fireEvent.click(getButton(/^Backup$/i));
+      expect(
+        screen.queryByRole('button', {
+          name: /neu einrichten|set up .* again/i,
+        }),
+      ).not.toBeInTheDocument();
+      fireEvent.click(
+        getButton(/Automatische Sicherung beenden|Stop backing up/i),
+      );
+      expect(stop).toHaveBeenCalledOnce();
+    });
+
+    it('is set up anew from the menu once a write failed', () => {
+      setUpAs({ failure: { reason: 'folder' } });
+      renderRail();
+      fireEvent.click(getButton(/^Backup$/i));
+      fireEvent.click(
+        getButton(
+          /Automatische Sicherung neu einrichten|Set up the automatic backup again/i,
+        ),
+      );
+      expect(setUp).toHaveBeenCalledOnce();
+      expect(stop).not.toHaveBeenCalled();
+    });
   });
 
   // The panel is portalled to the end of the page, so a keyboard user would

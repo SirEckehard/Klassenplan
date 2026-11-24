@@ -95,6 +95,7 @@ export function useAutoBackup({
           folderName: config.folderName,
           lastWrittenAt: config.lastWrittenAt,
           waiting: false,
+          failure: null,
         });
       })
       .catch((error: unknown) => {

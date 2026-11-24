@@ -523,7 +523,7 @@
       },
       "auto": {
         "q": "Can Klassenplan back up by itself?",
-        "a": "Yes, in Chrome and Edge on a computer. Under “Backup” → “Back up automatically …” you choose a folder once – on your computer, in OneDrive or on a network drive – and a password. From then on Klassenplan saves an encrypted backup there once a day after your classes changed and keeps the newest seven. In a browser tab, Chrome asks for the folder again after a restart; the status bar then shows “Resume backup”. A forgotten password cannot be recovered. You bring such a file back like any backup, with “Import backup”. Firefox and Safari cannot write into a folder; there Klassenplan reminds you to back up by hand."
+        "a": "Yes, in Chrome and Edge on a computer. Under “Backup” → “Back up automatically …” you choose a folder once – on your computer, in OneDrive or on a network drive – and a password. From then on Klassenplan saves an encrypted backup there once a day after your classes changed and keeps the newest seven. When Klassenplan runs in a browser tab, the browser asks for the folder again after a restart; the status bar then shows “Resume backup”. A forgotten password cannot be recovered. You bring such a file back like any backup, with “Import backup”. Firefox and Safari cannot write into a folder; there Klassenplan reminds you to back up by hand."
       },
       "deviceChange": {
         "q": "How do I move my classes to a new device?",

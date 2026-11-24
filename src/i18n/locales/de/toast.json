@@ -39,7 +39,9 @@
     "mergedNothing": "Die Klassen und Vorlagen aus dem Backup gibt es hier schon.",
     "beforeUpdateRestored": "Stand vor dem Update wiederhergestellt.",
     "beforeUpdateGone": "Der Stand vor dem Update wird nicht mehr aufbewahrt.",
-    "autoBackupFailed": "Die automatische Sicherung ließ sich nicht schreiben. Richte sie unter „Backup“ neu ein."
+    "autoBackupFailed": "Die automatische Sicherung ließ sich nicht schreiben. Richte sie unter „Backup“ neu ein.",
+    "autoBackupFolderGone": "Der Ordner „{{folder}}“ der automatischen Sicherung ist nicht mehr erreichbar. Richte sie unter „Backup“ neu ein.",
+    "autoBackupStopped": "Automatische Sicherung beendet."
   },
   "backupValidation": {
     "payloadTooLarge": "Import fehlgeschlagen. Inhalt ist zu groß.",

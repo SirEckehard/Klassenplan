@@ -16,6 +16,15 @@ export interface AutoBackupDeps {
   listClasses: () => Promise<Result<ClassSummary[]>>;
 }
 
+/**
+ * Why the last file could not be written: too large or not restorable, as
+ * the backup by hand is refused too; the folder gone or no longer allowed;
+ * or the write itself.
+ */
+export type AutoBackupFailure =
+  | { reason: 'tooLarge'; sizeBytes: number; maxBytes: number }
+  | { reason: 'notRestorable' | 'folder' | 'write' };
+
 export interface AutoBackupState {
   /** Whether a folder is set up. */
   configured: boolean;
@@ -27,6 +36,12 @@ export interface AutoBackupState {
    * restart, in a tab — which takes a click: the status bar offers it.
    */
   waiting: boolean;
+  /**
+   * The last file could not be written, and why. No permission helps here:
+   * the status bar tries again and says why, the backup menu offers to set
+   * the backup up anew.
+   */
+  failure: AutoBackupFailure | null;
 }
 
 const NOT_SET_UP: AutoBackupState = {
@@ -34,17 +49,24 @@ const NOT_SET_UP: AutoBackupState = {
   folderName: null,
   lastWrittenAt: null,
   waiting: false,
+  failure: null,
 };
 
 let state = NOT_SET_UP;
 const listeners = new Set<() => void>();
+
+const sameFailure = (
+  a: AutoBackupFailure | null,
+  b: AutoBackupFailure | null,
+): boolean => a === b || JSON.stringify(a) === JSON.stringify(b);
 
 export function setAutoBackupState(next: AutoBackupState): void {
   if (
     next.configured === state.configured &&
     next.folderName === state.folderName &&
     next.lastWrittenAt === state.lastWrittenAt &&
-    next.waiting === state.waiting
+    next.waiting === state.waiting &&
+    sameFailure(next.failure, state.failure)
   ) {
     return;
   }
@@ -69,7 +91,10 @@ interface AutoBackupActions {
   /** Chooses a folder and a password; starts in a click, for the picker. */
   setUp: () => Promise<void>;
   stop: () => Promise<void>;
-  /** Asks for the folder again and writes what is due; also in a click. */
+  /**
+   * Asks for the folder again and writes what is due, or tries a failed
+   * write again and says why it failed; also in a click.
+   */
   resume: () => Promise<void>;
 }
 

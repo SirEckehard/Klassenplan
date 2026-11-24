@@ -39,7 +39,9 @@
     "mergedNothing": "The backup's classes and templates are already here.",
     "beforeUpdateRestored": "Data from before the update restored.",
     "beforeUpdateGone": "The data from before the update is no longer kept.",
-    "autoBackupFailed": "The automatic backup could not be written. Set it up again under “Backup”."
+    "autoBackupFailed": "The automatic backup could not be written. Set it up again under “Backup”.",
+    "autoBackupFolderGone": "The automatic backup’s folder “{{folder}}” can no longer be reached. Set it up again under “Backup”.",
+    "autoBackupStopped": "Automatic backup stopped."
   },
   "backupValidation": {
     "payloadTooLarge": "Import failed. Content is too large.",
