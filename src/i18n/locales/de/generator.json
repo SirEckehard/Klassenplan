@@ -385,7 +385,9 @@
     "autoBackupStop": "Automatische Sicherung beenden",
     "autoBackupRenew": "Automatische Sicherung neu einrichten …",
     "autoBackupWhere": "In „{{folder}}“",
-    "autoBackupLast": "In „{{folder}}“, zuletzt {{when}}",
+    "lastBackup": "Zuletzt gesichert: {{when}}",
+    "lastBackupAuto": "Zuletzt gesichert: {{when}}, automatisch",
+    "lastBackupNever": "Noch kein Backup in diesem Browser",
     "backupExported": "Backup exportiert.",
     "historyTitle": "Bibliothek",
     "mixHistory": "Letzte Mischungen",
@@ -1291,6 +1293,13 @@
     "atTheirTable": "an ihrem Tisch",
     "ratedGood": "Gut",
     "ratedPoor": "Nicht gut"
+  },
+  "planFeedbackPrompt": {
+    "eyebrow": "Wie lief der letzte Plan?",
+    "named": "Du hast „{{name}}“ seit dem {{since}} genutzt. Wie lief er?",
+    "unnamed": "Du hast einen Plan seit dem {{since}} genutzt. Wie lief er?",
+    "why": "Was du sagst, nutzt „Erfahrung“ beim Mischen. Die Tische, an denen es nicht lief, gibst du in der Bibliothek an.",
+    "later": "Später"
   },
   "planSave": {
     "section": "Plan",

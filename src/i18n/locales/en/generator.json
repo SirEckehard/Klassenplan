@@ -385,7 +385,9 @@
     "autoBackupStop": "Stop backing up automatically",
     "autoBackupRenew": "Set up the automatic backup again …",
     "autoBackupWhere": "In “{{folder}}”",
-    "autoBackupLast": "In “{{folder}}”, last {{when}}",
+    "lastBackup": "Last backed up: {{when}}",
+    "lastBackupAuto": "Last backed up: {{when}}, automatically",
+    "lastBackupNever": "No backup in this browser yet",
     "backupExported": "Backup exported.",
     "historyTitle": "Library",
     "mixHistory": "Recent mixes",
@@ -1291,6 +1293,13 @@
     "atTheirTable": "at their table",
     "ratedGood": "Good",
     "ratedPoor": "Not good"
+  },
+  "planFeedbackPrompt": {
+    "eyebrow": "How did the last plan go?",
+    "named": "You used “{{name}}” since {{since}}. How did it go?",
+    "unnamed": "You used a plan since {{since}}. How did it go?",
+    "why": "What you say is used by “Experience” when mixing. The tables where it did not work are named in the Library.",
+    "later": "Later"
   },
   "planSave": {
     "section": "Plan",

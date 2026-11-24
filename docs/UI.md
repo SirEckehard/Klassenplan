@@ -190,8 +190,14 @@ afterwards.
   backup reminder) asks once they stood still for twelve weeks, with "Zur
   Klassenliste", "Passt noch", "Alle Klassen passen noch" where there is more
   than one class, and "Später"
-  ([decision 0044](decisions/0044-markers-carry-a-date.md)). The notices above
-  the layer — what is new, the backup, the markers — stand one at a time, in
+  ([decision 0044](decisions/0044-markers-carry-a-date.md)). After them,
+  while "Erfahrung" counts, a card asks how the last plan in use went once
+  another followed it after a week at least (`PlanFeedbackReminder`), with
+  "Gut", "Nicht gut" and "Später"; it asks about a plan once, and the tables
+  are named in "Bibliothek"
+  ([decision 0054](decisions/0054-experience-of-a-plan-in-use.md)). The
+  notices above the layer — what is new, the backup, the markers, the last
+  plan — stand one at a time, in
   that order (`*:not-first:hidden` on their container, each rendering nothing
   until it is due), and below `lg` keep their sentence and their answers
   only, without icon, reason or link: stacked and full, they pushed the plan
@@ -218,7 +224,7 @@ afterwards.
   carries what every layer needs, identical on every layer and on the export
   page: "Bibliothek" (a link to `/bibliothek`, marked as the current page there;
   the gear of the pages beside the app leads there too), "Klassenwerkzeuge" (one
-  menu for the four class-tool routes below), "Backup" (export/import, and for 30 days after the switch to a key per class "Stand vor dem Update …", decision 0049, and in Chrome and Edge "Automatisch sichern …" — a folder and a password, then an encrypted file a day; set up, the row ends it at once with "Rückgängig" and names the folder and the last file, and after a failed write "Automatische Sicherung neu einrichten …" stands above it, decision 0050) and
+  menu for the four class-tool routes below), "Backup" (at its head a quiet line with when this browser last saved one, "automatisch" where the automatic backup did; export/import, and for 30 days after the switch to a key per class "Stand vor dem Update …", decision 0049, and in Chrome and Edge "Automatisch sichern …" — a folder and a password, then an encrypted file a day; set up, the row ends it at once with "Rückgängig" and names the folder, and after a failed write "Automatische Sicherung neu einrichten …" stands above it, decision 0050) and
   "Unterstützen". On a narrow phone (below `sm`) the plan layer's foot starts
   with "Präsentieren", which its status bar has no room for beside "Exportieren"
   (`planPresent`); an iPad mini in portrait has room for both in the bar. The

@@ -19,6 +19,7 @@ import {
   type ToolRailDensity,
 } from '@/components/shell/ToolRail';
 import { getButton } from '@/__tests__/utils';
+import { LOCAL_STORAGE_KEYS } from '@/utils';
 import {
   registerAutoBackupActions,
   setAutoBackupState,
@@ -251,6 +252,31 @@ describe('ToolRail', () => {
     expect(screen.queryByText('Seite: Bibliothek')).not.toBeInTheDocument();
   });
 
+  // One place for when the last backup was saved, by hand or automatically
+  // (I17 of the review of 22 November 2026).
+  it('says at the head of the backup menu when the last backup was saved', () => {
+    window.localStorage.removeItem(LOCAL_STORAGE_KEYS.lastBackupAt);
+    const { unmount } = renderRail();
+    fireEvent.click(getButton(/^Backup$/i));
+    expect(
+      screen.getByText(
+        /Noch kein Backup in diesem Browser|No backup in this browser yet/,
+      ),
+    ).toBeInTheDocument();
+    unmount();
+
+    window.localStorage.setItem(
+      LOCAL_STORAGE_KEYS.lastBackupAt,
+      '2026-11-24T07:12:00.000Z',
+    );
+    renderRail();
+    fireEvent.click(getButton(/^Backup$/i));
+    expect(
+      screen.getByText(/^(Zuletzt gesichert|Last backed up): .*2026/),
+    ).not.toHaveTextContent(/automatisch|automatically/);
+    window.localStorage.removeItem(LOCAL_STORAGE_KEYS.lastBackupAt);
+  });
+
   it('keeps both ways a backup travels behind one entry', () => {
     renderRail();
 
@@ -311,6 +337,22 @@ describe('ToolRail', () => {
         getButton(/Automatische Sicherung beenden|Stop backing up/i),
       );
       expect(stop).toHaveBeenCalledOnce();
+    });
+
+    it('says the last backup was the automatic one', () => {
+      window.localStorage.setItem(
+        LOCAL_STORAGE_KEYS.lastBackupAt,
+        '2026-11-24T07:12:00.000Z',
+      );
+      setUpAs({ lastWrittenAt: '2026-11-24T07:12:00.000Z' });
+      renderRail();
+      fireEvent.click(getButton(/^Backup$/i));
+      expect(
+        screen.getByText(
+          /^(Zuletzt gesichert|Last backed up): .*(automatisch|automatically)$/,
+        ),
+      ).toBeInTheDocument();
+      window.localStorage.removeItem(LOCAL_STORAGE_KEYS.lastBackupAt);
     });
 
     it('is set up anew from the menu once a write failed', () => {

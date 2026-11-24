@@ -68,6 +68,9 @@ export const STORAGE_KEYS = {
     // Per class id, the day the question whether the markers still hold
     // may come again after "Später" (decision 0044). Ids only, no names.
     markerReviewSnoozedUntil: 'spg.markerReviewSnoozedUntil',
+    // The plans in use the plan layer asked about how they went, by their
+    // usage record's id (decision 0054). Ids only, no names.
+    planFeedbackAsked: 'spg.planFeedbackAsked',
     mixSettings: 'spg.mixSettings',
     // Whether the plan layer's fulfilment panel stands open.
     showStatisticsBadge: 'spg.showStatisticsBadge',
@@ -277,6 +280,7 @@ export const PROJECT_LOCAL_STORAGE_KEYS = [
   STORAGE_KEYS.localStorage.backupReminderDisabled,
   STORAGE_KEYS.localStorage.dataChangedAt,
   STORAGE_KEYS.localStorage.markerReviewSnoozedUntil,
+  STORAGE_KEYS.localStorage.planFeedbackAsked,
   STORAGE_KEYS.localStorage.mixSettings,
   STORAGE_KEYS.localStorage.showStatisticsBadge,
   STORAGE_KEYS.localStorage.studentSortMode,

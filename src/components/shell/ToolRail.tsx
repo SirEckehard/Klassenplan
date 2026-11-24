@@ -30,6 +30,7 @@ import { useClickOutside } from '@/hooks/ui/useClickOutside';
 import { usePopoverFocus } from '@/hooks/ui/usePopoverFocus';
 import { useBreakpointUp } from '@/hooks/ui/useBreakpoint';
 import { useClassesFromBeforeUpdate } from '@/hooks/persistence/useClassesFromBeforeUpdate';
+import { useLastBackupAt } from '@/hooks/useLastBackup';
 import {
   autoBackupActions,
   supportsAutoBackup,
@@ -269,6 +270,11 @@ function ToolRailFoot({ planPresent }: { planPresent: boolean }) {
         data-tour={TOUR_ANCHORS.backup}
         panel={(close) => (
           <div className={footMenuClass}>
+            <BackupStatusLine
+              automaticAt={
+                autoBackup.configured ? autoBackup.lastWrittenAt : null
+              }
+            />
             <button
               type="button"
               onClick={() => {
@@ -371,14 +377,9 @@ function ToolRailFoot({ planPresent }: { planPresent: boolean }) {
                   <span className="flex min-w-0 flex-col">
                     <span>{t('generator:storage.autoBackupStop')}</span>
                     <span className="text-xs text-(--text-muted)">
-                      {autoBackup.lastWrittenAt
-                        ? t('generator:storage.autoBackupLast', {
-                            folder: autoBackup.folderName,
-                            when: formatDateAndTime(autoBackup.lastWrittenAt),
-                          })
-                        : t('generator:storage.autoBackupWhere', {
-                            folder: autoBackup.folderName,
-                          })}
+                      {t('generator:storage.autoBackupWhere', {
+                        folder: autoBackup.folderName,
+                      })}
                     </span>
                   </span>
                 ) : (
@@ -391,6 +392,31 @@ function ToolRailFoot({ planPresent }: { planPresent: boolean }) {
       />
       <ToolRailSupport />
     </div>
+  );
+}
+
+/**
+ * When this browser last saved a backup, at the head of the backup menu, by
+ * hand or automatically — one place for both, read as the menu opens. It
+ * names nothing to press: the rows below do that.
+ */
+function BackupStatusLine({ automaticAt }: { automaticAt: string | null }) {
+  const { t } = useTranslation('generator');
+  const lastAt = useLastBackupAt();
+  // The automatic backup notes its files as the backup by hand does; a
+  // stamp within a minute of its last file is that file.
+  const automatic =
+    lastAt !== null &&
+    automaticAt !== null &&
+    Math.abs(Date.parse(automaticAt) - lastAt.getTime()) < 60_000;
+  return (
+    <p className="border-b border-(--border-card) px-3 pt-1.5 pb-2 text-xs text-(--text-muted)">
+      {lastAt === null
+        ? t('storage.lastBackupNever')
+        : t(automatic ? 'storage.lastBackupAuto' : 'storage.lastBackup', {
+            when: formatDateAndTime(lastAt.toISOString()),
+          })}
+    </p>
   );
 }
 

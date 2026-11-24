@@ -14,11 +14,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - "Mark" at the top of the class list sets an attribute on many students and replaces the "Attributes" view
 - "Save room as a file …" in the room's inspector passes a room to a colleague without saving it as a template first
 - "Set up from scratch" offers seven seating arrangements, from a horseshoe to desks facing the walls, and puts a new room together at random
-- You can say how a plan in use worked and at which tables it did not, and the new criterion "Experience" keeps those students apart for longer
+- You can say how a plan in use worked and at which tables it did not, and the new criterion "Experience" keeps those students apart for longer; once a plan was followed by another, the seating plan asks once how it went
 
 ### Improved
 
 - Saving stays quick however many classes there are, and for 30 days after the update "Backup" can bring back the classes as they were before it
+- "Backup" shows when you last saved a backup
 - On a phone and an upright tablet the class list shows attributes as icons and unfolds them with an arrow
 - On a wide screen the class list names the wish and distance partners in their attribute
 - "Relationships" shows contradictions and who has not been named yet at the top, and a line per student with their wishes in order and how often they were named

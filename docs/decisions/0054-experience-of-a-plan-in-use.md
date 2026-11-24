@@ -75,7 +75,8 @@ repetition cannot express, since it treats every pair alike.
 - **The fulfilment counts what the room allows**: per table that did not work,
   the pairs its students must form wherever they sit are left out.
 
-Where the teacher gives it follows in the next step of the same change.
+The teacher gives it in the plan's inspector in "Bibliothek" and in the plan
+layer's inspector, the tables as rows of names (UI.md).
 
 ## Alternatives considered
 
@@ -118,3 +119,18 @@ Where the teacher gives it follows in the next step of the same change.
 - The plan usage record now says how a plan went at which table, which is
   information about the students who sat there;
   [PRIVACY.md](../PRIVACY.md#data-inventory) lists it.
+
+## Addendum of 2026-11-24: the plan layer asks
+
+Feedback lived in the inspectors, where only who looked for it found it, and
+"Erfahrung" weighs nothing without it. The review of 2026-11-22 (I16 on its
+checklist, chosen by the maintainer) brought a question: on the plan layer,
+while "Erfahrung" counts, a card asks how the last plan in use went once the
+plan on the stage is another one and that plan was in use a week at least
+(`planToAskAbout`, from its record's first day). It asks about the newest
+plan in use only, never about an older one, and about each once: "Gut" and
+"Nicht gut" keep the feedback on its record (`setPlanUsageFeedback`),
+"Später" lets it go, and `spg.planFeedbackAsked` keeps the ids of the
+records asked about. The tables where it did not work are named in
+"Bibliothek"; a "Nicht gut" without them weighs each pair a quarter, as
+above.

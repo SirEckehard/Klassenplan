@@ -315,6 +315,39 @@ export async function setPlanFeedback(
   }));
 }
 
+/**
+ * Say how a plan in use went by its record, where its arrangement is no
+ * longer on the stage — the plan layer's question after it was followed by
+ * another (decision 0054).
+ *
+ * @param classId The class the record belongs to
+ * @param record The usage record to keep the feedback on
+ * @param feedback What the teacher said
+ */
+export async function setPlanUsageFeedback(
+  classId: string | null | undefined,
+  record: Pick<PlanUsage, 'id' | 'pairs' | 'fingerprint' | 'firstSeenAt'>,
+  feedback: PlanFeedback,
+): Promise<void> {
+  if (!classId || !hasIndexedDB()) return;
+  await mutate((data) => ({
+    ...data,
+    byClass: {
+      ...data.byClass,
+      [classId]: withPlanFeedback(
+        data.byClass[classId] ?? [],
+        {
+          pairs: record.pairs,
+          fingerprint: record.fingerprint,
+          at: record.firstSeenAt,
+          id: record.id,
+        },
+        feedback,
+      ),
+    },
+  }));
+}
+
 /** What a reset took away, so "Rückgängig" can put it back. */
 export interface PlanUsageResetSnapshot {
   records: PlanUsage[];

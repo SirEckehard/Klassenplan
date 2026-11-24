@@ -433,6 +433,9 @@ list is `PROJECT_LOCAL_STORAGE_KEYS` in `storageKeys.ts`. Groups:
   presets, templates, saved circles, plan usage, the name cards' files), which
   the automatic backup reads beside each class's `updatedAt`
   ([decision 0050](decisions/0050-automatic-backup.md)).
+- **Plan feedback asked:** `spg.planFeedbackAsked`, the ids of the usage
+  records the plan layer asked about how they went, at most 60
+  ([decision 0054](decisions/0054-experience-of-a-plan-in-use.md)).
 - **Marker review:** `spg.markerReviewSnoozedUntil`, the day the question
   whether a class's markers still hold may come again, by class id
   ([decision 0044](decisions/0044-markers-carry-a-date.md)). A student's
