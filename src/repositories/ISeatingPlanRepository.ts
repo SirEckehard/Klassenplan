@@ -80,6 +80,11 @@ export interface ISeatingPlanRepository {
    */
   loadRetiredClasses(): Promise<Result<RetiredClasses | null>>;
   /**
+   * Whether the classes from before the switch are still kept, without
+   * reading them as classes; asked once per window and remembered.
+   */
+  hasRetiredClasses(): Promise<Result<boolean>>;
+  /**
    * Notes the class this window opens as opened now (`lastUsedAt`), without
    * touching `updatedAt`; nothing is written while no class exists.
    */

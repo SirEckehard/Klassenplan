@@ -62,6 +62,7 @@ import {
   CLASS_STORAGE_VERSION,
   classRecordKey,
   emptyClassIndex,
+  hasRetiredCollection,
   isNewerStorage,
   listClassRecordKeys,
   readClassIndex,
@@ -152,6 +153,11 @@ export class IndexedDBRepository implements ISeatingPlanRepository {
    * they would lose what the newer one keeps.
    */
   private newerStorage = false;
+  /**
+   * Whether the classes from before version 4 are kept, once asked: the
+   * answer only goes from yes to no — 30 days on, or "Alle Daten löschen".
+   */
+  private retiredKept: boolean | undefined;
   private _lock: Promise<void> = Promise.resolve();
 
   /**
@@ -499,6 +505,15 @@ export class IndexedDBRepository implements ISeatingPlanRepository {
     }
   }
 
+  /**
+   * Notes that a class was opened: `lastUsedAt` alone. `updatedAt` is what
+   * other windows and the automatic backup tell a change of the class by,
+   * and opening it changes nothing in it.
+   */
+  private markOpened(record: ClassRecord) {
+    record.lastUsedAt = new Date().toISOString();
+  }
+
   /** The open class's id, from the index when this tab knows none yet. */
   private async openClassIdForWrite(): Promise<string | null> {
     if (this.openClassId !== undefined) return this.openClassId;
@@ -779,7 +794,7 @@ export class IndexedDBRepository implements ISeatingPlanRepository {
           index.activeClassId = classId;
         });
         const opened = await this.changeClass(classId, (record) => {
-          this.touchClass(record, { lastUsed: true });
+          this.markOpened(record);
           return cloneValue(record);
         });
         if (!isRepositoryResult(opened)) {
@@ -817,7 +832,7 @@ export class IndexedDBRepository implements ISeatingPlanRepository {
         await idbDel(classRecordKey(classId));
         if (wasActive && fallbackId) {
           await this.changeClass(fallbackId, (record) => {
-            this.touchClass(record, { lastUsed: true });
+            this.markOpened(record);
           });
         }
         // The tab whose open class went moves on as the stored one did.
@@ -891,6 +906,23 @@ export class IndexedDBRepository implements ISeatingPlanRepository {
     );
   }
 
+  async hasRetiredClasses(): Promise<Result<boolean>> {
+    return this.withErrorHandling(
+      async () => {
+        if (this.retiredKept === undefined) {
+          await this.ensureStorage();
+          this.retiredKept = await hasRetiredCollection();
+        }
+        return this.retiredKept;
+      },
+      {
+        logMessage: 'Failed to look for the classes from before the update',
+        errorMessage: 'Failed to look for the classes from before the update',
+        fallback: false,
+      },
+    );
+  }
+
   async markOpenClassOpened(): Promise<Result<void>> {
     return this.withErrorHandling(
       async () => {
@@ -899,9 +931,7 @@ export class IndexedDBRepository implements ISeatingPlanRepository {
           this.refuse(RepositoryErrorType.NOT_FOUND, 'No class open');
         }
         return this.changeClass(openClassId, (record) => {
-          // `lastUsedAt` alone: `updatedAt` is what other windows tell a
-          // change of the class by, and opening it changes nothing in it.
-          record.lastUsedAt = new Date().toISOString();
+          this.markOpened(record);
         });
       },
       {
@@ -950,11 +980,14 @@ export class IndexedDBRepository implements ISeatingPlanRepository {
         if (this.openClassStamp === undefined) {
           return false;
         }
+        const knownClassId = this.openClassId;
         const openClassId = this.resolveOpenClassId(await this.loadIndex());
+        // A class deleted elsewhere counts too: the tab moves on to another,
+        // whose stamp may match by chance.
+        if (openClassId !== knownClassId) return true;
         const stored = openClassId
           ? await readStoredClass(openClassId)
           : undefined;
-        // A class deleted elsewhere counts too: the tab moves on to another.
         return stored?.record?.updatedAt !== this.openClassStamp;
       },
       {
@@ -1389,6 +1422,7 @@ export class IndexedDBRepository implements ISeatingPlanRepository {
         this.openClassStamp = undefined;
         this.storageReady = false;
         this.newerStorage = false;
+        this.retiredKept = undefined;
         return undefined;
       },
       {

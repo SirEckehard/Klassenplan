@@ -7,7 +7,8 @@ import { logError } from '@/utils';
 /**
  * Whether the classes as they were before the switch to a key per class are
  * still kept — 30 days after it (decision 0049). The backup menu offers
- * them only then; asked once when the menu's toolbar appears.
+ * them only then. The toolbar's foot asks on every layer; the repository
+ * reads the answer once per window, without reading the classes as classes.
  */
 export function useClassesFromBeforeUpdate(): boolean {
   const repository = useSeatingRepository();
@@ -16,9 +17,9 @@ export function useClassesFromBeforeUpdate(): boolean {
   useEffect(() => {
     let live = true;
     repository
-      .loadRetiredClasses()
+      .hasRetiredClasses()
       .then((result) => {
-        if (live) setKept(result.success && result.data !== null);
+        if (live) setKept(result.success && result.data);
       })
       .catch((error: unknown) => {
         logError(

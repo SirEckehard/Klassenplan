@@ -106,6 +106,40 @@ describe('the switch to a key per class', () => {
     expect(isFromNewerVersion(marker, CLASS_COLLECTION_VERSION)).toBe(true);
   });
 
+  // The toolbar's foot asks on every layer: the answer is read once, not
+  // the classes put on their seats each time (N42 of the review of
+  // 22 November 2026).
+  it('says once per window whether the classes from before are kept', async () => {
+    const repository = new IndexedDBRepository();
+    expectData(await repository.loadClassCollection());
+    expect(expectData(await repository.hasRetiredClasses())).toBe(true);
+
+    // Asked again, the window answers from what it read.
+    const kept = memory.get(COLLECTION_KEY);
+    memory.delete(COLLECTION_KEY);
+    expect(expectData(await repository.hasRetiredClasses())).toBe(true);
+
+    // A window opened later reads it anew; past the 30 days it is no more.
+    memory.set(COLLECTION_KEY, kept);
+    vi.setSystemTime(NOW + 29 * DAY);
+    expect(
+      expectData(await new IndexedDBRepository().hasRetiredClasses()),
+    ).toBe(true);
+    vi.setSystemTime(NOW + 30 * DAY);
+    expect(
+      expectData(await new IndexedDBRepository().hasRetiredClasses()),
+    ).toBe(false);
+  });
+
+  it('forgets the answer with "Alle Daten löschen"', async () => {
+    const repository = new IndexedDBRepository();
+    expectData(await repository.loadClassCollection());
+    expect(expectData(await repository.hasRetiredClasses())).toBe(true);
+
+    expectData(await repository.clearAll());
+    expect(expectData(await repository.hasRetiredClasses())).toBe(false);
+  });
+
   it('restores the classes from before as a backup is restored', async () => {
     const repository = new IndexedDBRepository();
     expectData(await repository.loadClassCollection());
@@ -194,6 +228,67 @@ describe('class keys the index does not name', () => {
 
     expect(memory.has(classKey(sevenA.id))).toBe(false);
     expect(memory.has(classKey(eightB.id))).toBe(true);
+  });
+});
+
+describe('a replace that stops before the index', () => {
+  beforeEach(() => {
+    memory.clear();
+    vi.stubGlobal('indexedDB', {});
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  // A backup of this device brings classes of the same id back; one that
+  // stops halfway, say on a full disk, leaves no mix of the two (N44 of the
+  // review of 22 November 2026).
+  it('leaves the classes as they were', async () => {
+    const repository = new IndexedDBRepository();
+    const sevenA = expectData(
+      await repository.createClass(
+        { name: '7a', students: [createMockStudent({ name: 'Mia' })] },
+        { activate: true },
+      ),
+    );
+    const eightB = expectData(await repository.createClass({ name: '8b' }));
+    const before = structuredClone(memory.get(classKey(sevenA.id)));
+
+    const idb = await import('idb-keyval');
+    const set = vi.mocked(idb.set);
+    const write = set.getMockImplementation()!;
+    set.mockImplementation(async (key, value, store) => {
+      if (String(key) === classRecordKey(eightB.id)) {
+        throw new DOMException('Disk full', 'QuotaExceededError');
+      }
+      return write(key, value, store);
+    });
+    const nineC = createClassRecord({ name: '9c' });
+    try {
+      const result = await repository.saveClassCollection({
+        version: CLASS_COLLECTION_VERSION,
+        activeClassId: sevenA.id,
+        classes: [
+          { ...sevenA, students: [createMockStudent({ name: 'Noah' })] },
+          { ...eightB, name: '8b neu' },
+          nineC,
+        ],
+      });
+      expect(result.success).toBe(false);
+    } finally {
+      set.mockImplementation(write);
+    }
+
+    expect(memory.get(classKey(sevenA.id))).toEqual(before);
+    expect(memory.has(classKey(nineC.id))).toBe(false);
+    const classes = expectData(
+      await new IndexedDBRepository().loadClassCollection(),
+    ).classes;
+    expect(classes.map((entry) => entry.name)).toEqual(['7a', '8b']);
+    expect(classes[0]?.students.map((student) => student.name)).toEqual([
+      'Mia',
+    ]);
   });
 });
 

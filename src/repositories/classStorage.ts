@@ -34,6 +34,7 @@ import {
 } from './idbClient';
 import { isFromNewerVersion } from './newerStoredData';
 import type { ClassCollectionState, ClassRecord } from '@/types';
+import { logError } from '@/utils';
 import { CLASS_RECORD_KEY_PREFIX, DB_KEYS } from '@/utils/data/storageKeys';
 
 /** 4: one key per class and an index (decision 0049). */
@@ -107,7 +108,9 @@ export const storedClassOf = (record: ClassRecord): StoredClass => ({
  * Writes a whole collection, already in its stored form: first every class,
  * then the index, which makes them the classes there are, then away with the
  * classes it no longer names. A failure before the index leaves the classes
- * as they were.
+ * as they were: a class of the same id — a backup of this device brings its
+ * own classes back — is overwritten in place, so what stood there is read
+ * first and written back when the replace stops.
  *
  * `keepExisting` is the switch to version 4: a class or an index another tab
  * wrote meanwhile stays, since it is the newer of the two.
@@ -121,15 +124,77 @@ export async function writeStoredCollection(
   } = {},
 ): Promise<StoredClassIndex> {
   const classes = collection.classes as ClassRecord[];
-  await Promise.all(
-    classes.map((record) =>
-      options.keepExisting
-        ? changeStored<StoredClass>(classRecordKey(record.id), (current) =>
-            current ? UNCHANGED : storedClassOf(record),
-          )
-        : writeValue(classRecordKey(record.id), storedClassOf(record)),
+  if (options.keepExisting) {
+    await Promise.all(
+      classes.map((record) =>
+        changeStored<StoredClass>(classRecordKey(record.id), (current) =>
+          current ? UNCHANGED : storedClassOf(record),
+        ),
+      ),
+    );
+    return writeIndex(collection, options);
+  }
+
+  const before = new Map(
+    await Promise.all(
+      classes.map(
+        async (record) =>
+          [
+            record.id,
+            await readValue<StoredClass>(classRecordKey(record.id)),
+          ] as const,
+      ),
     ),
   );
+  let written: StoredClassIndex;
+  try {
+    await Promise.all(
+      classes.map((record) =>
+        writeValue(classRecordKey(record.id), storedClassOf(record)),
+      ),
+    );
+    written = await writeIndex(collection, options);
+  } catch (error) {
+    await putBack(before);
+    throw error;
+  }
+  await removeClassesNotIn(written, { now: true });
+  return written;
+}
+
+/**
+ * The classes as they stood before a replace that stopped: each written
+ * back, or gone where there was none. As much as can be: a key that cannot
+ * be put back is left over, and the index decides what counts.
+ */
+async function putBack(
+  before: ReadonlyMap<string, StoredClass | undefined>,
+): Promise<void> {
+  await Promise.all(
+    [...before].map(async ([classId, stored]) => {
+      try {
+        if (stored) await writeValue(classRecordKey(classId), stored);
+        else await deleteValues([classRecordKey(classId)]);
+      } catch (error) {
+        logError(
+          'Failed to put a class back after a replace stopped',
+          { error, classId },
+          'classStorage',
+        );
+      }
+    }),
+  );
+}
+
+/** The index of a collection just written, or the one another tab wrote. */
+async function writeIndex(
+  collection: ClassCollectionState,
+  options: {
+    keepExisting?: boolean;
+    guardIndex?: (current: StoredClassIndex | undefined) => void;
+  },
+): Promise<StoredClassIndex> {
+  const classes = collection.classes as ClassRecord[];
   let written: StoredClassIndex = {
     version: CLASS_STORAGE_VERSION,
     activeClassId: collection.activeClassId,
@@ -145,9 +210,6 @@ export async function writeStoredCollection(
     written = proposed;
     return proposed;
   });
-  if (!options.keepExisting) {
-    await removeClassesNotIn(written, { now: true });
-  }
   return written;
 }
 
@@ -225,6 +287,15 @@ export async function readRetiredCollection(
       : UNCHANGED,
   );
   return undefined;
+}
+
+/**
+ * Whether the classes from before version 4 are still kept: read, but not
+ * repaired or put on their seats. Past their 30 days they are dropped here
+ * as in `readRetiredCollection`.
+ */
+export async function hasRetiredCollection(now = new Date()): Promise<boolean> {
+  return (await readRetiredCollection(now)) !== undefined;
 }
 
 /** When the copy from before version 4 goes, for the teacher to read. */

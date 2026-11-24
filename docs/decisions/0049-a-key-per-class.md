@@ -86,3 +86,23 @@ class reads and writes that class alone, in one transaction as before.
 - "Alle Daten löschen" removes every `spg.class:` key besides the fixed ones.
 - The next change of a stored shape keeps the old value for 30 days the same
   way (`docs/data-model.md`, "Changing a stored shape").
+
+## Addendum of 2026-11-24: what the review before the release found
+
+The review of 2026-11-22 (N42, N43 and N44 on its checklist) brought three
+changes the maintainer chose:
+
+- **A replace that stops puts the classes back.** A backup of this device
+  brings classes of the same id, which a replace overwrites in place before
+  the index names the new set; the promise above held for new ids only.
+  `writeStoredCollection` now reads what stands under those ids first and
+  writes it back — or removes a class that was not there — when the replace
+  stops before the index.
+- **Opening a class changes nothing in it.** `setActiveClass` and the class
+  a deletion moves on to note `lastUsedAt` alone, as `markOpenClassOpened`
+  did: `updatedAt` is what another window and the automatic backup tell a
+  change by. A window whose open class was deleted elsewhere tells it by the
+  class it moves on to, not by a stamp that may match.
+- **Whether the classes from before are kept is asked once per window**
+  (`hasRetiredClasses`), without reading them as classes; the toolbar's foot
+  asked on every layer and put every old class on its seats to answer.

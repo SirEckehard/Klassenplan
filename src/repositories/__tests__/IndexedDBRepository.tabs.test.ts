@@ -209,6 +209,23 @@ describe('telling another window’s changes to the open class', () => {
     expect(await changedElsewhere(tabB)).toBe(false);
   });
 
+  // Opening a class changes nothing in it: the other window keeps its view
+  // and its undo, and the automatic backup sees no change (N43 of the review
+  // of 22 November 2026).
+  it('counts no class the other window only opened', async () => {
+    const { tabA, tabB, sevenA, eightB } = await twoTabs();
+    expectData(await tabB.loadActiveClassSnapshot());
+    later();
+    expectData(await tabA.setActiveClass(eightB.id));
+    later();
+    expectData(await tabA.setActiveClass(sevenA.id));
+
+    expect(await changedElsewhere(tabB)).toBe(false);
+    const stored = expectData(await tabB.loadClassRecord(sevenA.id));
+    expect(stored.updatedAt).toBe(sevenA.updatedAt);
+    expect(stored.lastUsedAt).not.toBe(sevenA.lastUsedAt);
+  });
+
   it('counts the open class deleted in the other window', async () => {
     const { tabA, tabB, sevenA, eightB } = await twoTabs();
     expectData(await tabB.loadActiveClassSnapshot());
