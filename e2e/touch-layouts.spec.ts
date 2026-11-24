@@ -90,6 +90,43 @@ async function expectAbsentListOverBar(
   return list;
 }
 
+test(
+  'a finger held on a marker in the class list explains it',
+  { tag: '@tablet' },
+  async ({ page }) => {
+    // Decision 0051: below `lg` the markers are the seats' icons, and a long
+    // press opens the card a pointer opens on hover; the row stays closed.
+    await loadSampleClass(page);
+    const badge = page.locator('[data-student-list] [data-card-badge]').first();
+    await expect(badge).toBeVisible();
+    const box = await boxOf(badge);
+    const finger = {
+      x: box.x + box.width / 2,
+      y: box.y + box.height / 2,
+      id: 1,
+      radiusX: 4,
+      radiusY: 4,
+      force: 1,
+    };
+    const cdp = await page.context().newCDPSession(page);
+    await cdp.send('Input.dispatchTouchEvent', {
+      type: 'touchStart',
+      touchPoints: [finger],
+    });
+    await expect(page.getByRole('tooltip')).toBeVisible();
+    await cdp.send('Input.dispatchTouchEvent', {
+      type: 'touchEnd',
+      touchPoints: [],
+    });
+
+    // It stays after the finger lifts, and the student was not opened.
+    await expect(page.getByRole('tooltip')).toBeVisible();
+    await expect(
+      page.getByRole('complementary', { name: 'Eigenschaften' }),
+    ).toBeHidden();
+  },
+);
+
 async function loadSampleClass(page: Page): Promise<void> {
   await page.goto('/generator');
   await page
