@@ -1,7 +1,7 @@
 # 0044 – Markers carry a date, and the app asks whether they still hold
 
 - **Status:** accepted
-- **In place since:** — (the next release)
+- **In place since:** v3.4.0 (2026-11-15)
 - **Sources:** the maintainer's choices of 2026-11-12 on the checklist
   "Klassenplan Ausbau 3.4" (after twelve weeks, half a year being too long;
   classes from before count from the day they were made),

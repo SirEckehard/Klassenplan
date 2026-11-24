@@ -1,7 +1,7 @@
 # 0048 – The published image takes its operator when it starts
 
 - **Status:** accepted
-- **In place since:** — (the next release)
+- **In place since:** v3.4.1 (2026-11-19)
 - **Sources:** the review "Schneller, leichter, einfacher" of 2026-11-17
   (E1, chosen by the maintainer on 2026-11-18),
   [decision 0012](0012-legal-pages-for-self-hosted-builds.md),

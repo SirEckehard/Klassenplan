@@ -68,7 +68,9 @@ the image for both architectures, pushes the multi-arch manifest to GHCR as
    sure the last CI run on `update` is green (`gh run list --limit 3`).
    Bring the docs up to date for what the release changed — the affected
    `docs/` pages with their **Last reviewed** date, and a decision record in
-   `docs/decisions/` where one is needed (see its README)
+   `docs/decisions/` where one is needed (see its README); every record whose
+   **In place since** still reads "— (the next release)" takes the version
+   and the day of this one
 2. Commit the bump as `update: vX.Y.Z changelog and version bump`, touching all
    eight files: `package.json` and `package-lock.json` (the two project entries
    at the top only — dependencies share the version string), `README.md` (image

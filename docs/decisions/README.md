@@ -66,7 +66,7 @@ it says so instead of reconstructing one.
 | [0051](0051-markers-in-the-class-list.md)            | The class list explains its markers, and a brush replaces the focus mode |
 | [0052](0052-relations-findings-first.md)             | The relations view: what deserves a look first, then a line per student  |
 | [0053](0053-room-arrangements.md)                    | "Neu einrichten" sets tables towards the board, and offers arrangements  |
-| [0054](0054-experience-of-a-plan-in-use.md)          | A plan in use keeps how it went, and "Erfahrung" reads it (proposed)     |
+| [0054](0054-experience-of-a-plan-in-use.md)          | A plan in use keeps how it went, and "Erfahrung" reads it                |
 
 ## Reasons still to be recorded
 
@@ -105,4 +105,7 @@ there; the record or the changelog keeps the answer.
 Copy [TEMPLATE.md](TEMPLATE.md), number it after the last record, keep it to a
 page, and link it from the document that describes the affected part. A
 decision that replaces an earlier one sets the old record's status to
-"superseded by NNNN" instead of deleting it.
+"superseded by NNNN" instead of deleting it. Its **In place since** reads
+"— (the next release)" until the release that ships it, which writes in its
+version and day (`v3.4.0 (2026-11-15)`), as the index drops a "(proposed)"
+once the record is accepted.

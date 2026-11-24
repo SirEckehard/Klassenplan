@@ -1,7 +1,7 @@
 # 0043 – A free seat beside, and the left-hander's left
 
 - **Status:** accepted
-- **In place since:** — (the next release)
+- **In place since:** v3.4.0 (2026-11-15)
 - **Sources:** the maintainer's choices of 2026-11-12 on the checklist
   "Klassenplan Ausbau 3.4" (both markers without a reason, as for front seats;
   the left-hander read by who sits to the left, not by where the seat is; the

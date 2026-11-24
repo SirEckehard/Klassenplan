@@ -1,7 +1,7 @@
 # 0045 – Who is missing today, marked in the projection and never stored
 
 - **Status:** accepted
-- **In place since:** — (the next release)
+- **In place since:** v3.4.0 (2026-11-15)
 - **Sources:** the maintainer's choices of 2026-11-12 on the checklist
   "Klassenplan Ausbau 3.4" (marked in the projection alone, by a tap on the
   seat, never stored), [decision 0001](0001-offline-first-no-server.md),

@@ -1,7 +1,7 @@
 # 0046 – A room template or a preset as a file of its own
 
 - **Status:** accepted
-- **In place since:** — (the next release)
+- **In place since:** v3.4.0 (2026-11-15)
 - **Sources:** the maintainer's choices of 2026-11-12 on the checklist
   "Klassenplan Ausbau 3.4" (one extension, the content decides),
   [decision 0030](0030-class-file.md),

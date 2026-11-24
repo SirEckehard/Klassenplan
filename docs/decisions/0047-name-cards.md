@@ -1,7 +1,7 @@
 # 0047 – Name cards: a fifth sheet that belongs to the children
 
 - **Status:** accepted
-- **In place since:** — (the next release)
+- **In place since:** v3.4.0 (2026-11-15)
 - **Sources:** the maintainer's choices of 2026-11-12 on the checklist
   "Klassenplan Ausbau 3.4" (E1 no Grundschrift, a font of one's own instead;
   E6 Andika, ABeeZee, Patrick Hand, Atkinson and OpenDyslexic; E7 the own
