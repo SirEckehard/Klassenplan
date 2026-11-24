@@ -74,6 +74,14 @@ export function setAutoBackupState(next: AutoBackupState): void {
   for (const listener of [...listeners]) listener();
 }
 
+/**
+ * Back to "not set up", after "Alle Daten löschen" took the settings: the
+ * runner's next look would say so only minutes later.
+ */
+export function clearAutoBackupState(): void {
+  setAutoBackupState(NOT_SET_UP);
+}
+
 function subscribe(listener: () => void): () => void {
   listeners.add(listener);
   return () => {

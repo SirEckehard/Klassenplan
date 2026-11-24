@@ -14,6 +14,7 @@
  * record cannot be read, and is reported the same way.
  */
 import { tryReadValue, tryWriteValue } from './idbClient';
+import { noteDataChanged } from '@/utils/data/backupReminder';
 import { DB_KEYS } from '@/utils/data/storageKeys';
 import { hasIndexedDB } from '@/utils/data/indexedDb';
 import { logError, logWarn } from '@/utils';
@@ -94,6 +95,7 @@ async function writeData(next: DutyData): Promise<boolean> {
     logError('Failed to save duties', { error: result.error }, LOG_SOURCE);
     return false;
   }
+  noteDataChanged();
   return true;
 }
 

@@ -19,6 +19,7 @@ import {
   saveClassDuties,
   sweepOrphanDuties,
 } from '../dutyStore';
+import { readDataChangedAt } from '@/utils/data/backupReminder';
 
 const duties = (current: Record<string, string[]>): ClassDuties => ({
   duties: [{ id: 'board', name: 'Tafeldienst', count: 2 }],
@@ -60,6 +61,14 @@ describe('dutyStore', () => {
       'class-1',
       'class-2',
     ]);
+  });
+
+  // Duties lie beside the classes: their stamp tells the automatic backup
+  // that something changed (decision 0050).
+  it('notes a change for the automatic backup', async () => {
+    window.localStorage.removeItem('spg.dataChangedAt');
+    await saveClassDuties('class-1', duties({ board: ['a'] }));
+    expect(readDataChangedAt()).not.toBeNull();
   });
 
   it('sweeps deleted classes and students that left', async () => {

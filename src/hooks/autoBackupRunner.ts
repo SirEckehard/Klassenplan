@@ -28,7 +28,10 @@ import {
   autoBackupFilesToRemove,
   isAutoBackupDue,
 } from '@/utils/data/autoBackup';
-import { recordBackupCreated } from '@/utils/data/backupReminder';
+import {
+  readDataChangedAt,
+  recordBackupCreated,
+} from '@/utils/data/backupReminder';
 import { BackupExportError } from '@/utils/validation/backupLimits';
 import { confirmInStatusBar } from '@/utils/ui/statusNotice';
 import { showToast } from '@/utils/ui/toast';
@@ -160,16 +163,20 @@ async function write(
   publish(current);
 }
 
-/** When a class last changed, as the classes are stored. */
+/**
+ * When the data last changed: a class by its `updatedAt`, what lies beside
+ * the classes — duties, presets, templates, the plans in use and how they
+ * went, the name cards' files — by the stamp its stores leave
+ * (`noteDataChanged`).
+ */
 async function lastChangeAt(deps: AutoBackupDeps): Promise<string | null> {
   const result = await deps.listClasses();
-  if (!result.success || result.data.length === 0) return null;
-  return (
-    result.data
-      .map((entry) => entry.updatedAt)
-      .sort()
-      .at(-1) ?? null
-  );
+  const stamps = result.success
+    ? result.data.map((entry) => entry.updatedAt)
+    : [];
+  const beside = readDataChangedAt();
+  if (beside) stamps.push(beside);
+  return stamps.sort().at(-1) ?? null;
 }
 
 /** Writes a file when one is due and the folder may be written. */

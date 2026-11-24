@@ -2,7 +2,9 @@
 // Copyright (C) 2026 Eike Schäfer
 import '@testing-library/jest-dom/vitest';
 import {
+  act,
   render,
+  renderHook,
   screen,
   cleanup,
   waitFor,
@@ -16,6 +18,10 @@ import AppSettingsMenu from '@/components/shell/AppSettingsMenu';
 import { getButton } from '@/__tests__/utils';
 import { useReturnToApp } from '@/hooks/useReturnToApp';
 import { characterKeyShortcutsEnabled, LOCAL_STORAGE_KEYS } from '@/utils';
+import {
+  setAutoBackupState,
+  useAutoBackupState,
+} from '@/hooks/persistence/autoBackupStatus';
 
 /** What a page the menu opened offers in its head: the way back, or nothing. */
 function ReturnToAppLink() {
@@ -207,6 +213,41 @@ describe('AppSettingsMenu', () => {
       }),
     );
     expect(clearAllData).toHaveBeenCalledTimes(1);
+  });
+
+  // The automatic backup ends with everything else; its files stay in the
+  // folder, which the question says (N40 of the review of 22 November 2026).
+  it('says the automatic backup ends and its files stay', async () => {
+    clearAllData.mockClear();
+    act(() =>
+      setAutoBackupState({
+        configured: true,
+        folderName: 'Klassenplan-Sicherung',
+        lastWrittenAt: null,
+        waiting: false,
+        failure: null,
+      }),
+    );
+    const backup = renderHook(() => useAutoBackupState());
+    renderMenu();
+    const user = await openMenu();
+    await user.click(
+      screen.getByRole('button', { name: /alle daten löschen|clear all/i }),
+    );
+    const dialog = await screen.findByRole('alertdialog', {
+      name: /alle daten löschen|delete all data/i,
+    });
+    expect(dialog).toHaveTextContent(
+      /Ordner „Klassenplan-Sicherung“ bleiben|folder “Klassenplan-Sicherung” stay/,
+    );
+
+    await user.click(
+      within(dialog).getByRole('button', {
+        name: /^(alle daten löschen|delete all data)$/i,
+      }),
+    );
+    expect(clearAllData).toHaveBeenCalledTimes(1);
+    expect(backup.result.current.configured).toBe(false);
   });
 
   it('switches the single-key shortcuts off and on again', async () => {

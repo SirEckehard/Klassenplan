@@ -8,8 +8,8 @@
  * days without a visit — takes the classes with it, and the only way back is a
  * backup file the teacher exported. So the app has to ask for one now and then.
  *
- * Deliberately plain `localStorage` and no personal data: four timestamps and a
- * flag. They are registered in `PROJECT_LOCAL_STORAGE_KEYS`, so "delete all
+ * Deliberately plain `localStorage` and no personal data: five timestamps and
+ * a flag. They are registered in `PROJECT_LOCAL_STORAGE_KEYS`, so "delete all
  * data" clears them along with everything else.
  */
 import { LOCAL_STORAGE_KEYS } from '@/utils/data/storageKeys';
@@ -166,4 +166,21 @@ export function isBackupReminderDue(
 /** Whole days since the given date, floored at 0. */
 export function daysSince(date: Date, now: Date = new Date()): number {
   return Math.max(0, Math.floor((now.getTime() - date.getTime()) / DAY_MS));
+}
+
+/**
+ * Notes that data beside the classes changed — the plans in use and how they
+ * went, the duties, the presets, the room templates and saved circles, the
+ * name cards' files. A class says its own change by its `updatedAt`; these
+ * say it here, so the automatic backup writes a file after them too
+ * (decision 0050).
+ */
+export function noteDataChanged(now: Date = new Date()): void {
+  writeStamp(LOCAL_STORAGE_KEYS.dataChangedAt, now);
+}
+
+/** When data beside the classes last changed (ISO 8601), or null. */
+export function readDataChangedAt(): string | null {
+  const stamp = readStamp(LOCAL_STORAGE_KEYS.dataChangedAt);
+  return stamp === null ? null : new Date(stamp).toISOString();
 }

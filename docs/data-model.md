@@ -1,6 +1,6 @@
 # Data Model
 
-> **Status:** current · **Last reviewed:** 2026-11-22 · **Source of truth:**
+> **Status:** current · **Last reviewed:** 2026-11-24 · **Source of truth:**
 > `src/utils/data/storageKeys.ts`, `src/types/`, `src/repositories/`
 
 Everything Klassenplan stores lives in the teacher's browser. This document
@@ -428,7 +428,11 @@ list is `PROJECT_LOCAL_STORAGE_KEYS` in `storageKeys.ts`. Groups:
   seen version, PWA install prompt dismissal, and the year the status bar last
   greeted on World Teachers' Day (`spg.teachersDayGreeted`).
 - **Backup reminder:** `spg.lastBackupAt`, `spg.backupDataSince`,
-  `spg.backupReminderSnoozedUntil`, `spg.backupReminderDisabled`.
+  `spg.backupReminderSnoozedUntil`, `spg.backupReminderDisabled`; and
+  `spg.dataChangedAt`, when data beside the classes last changed (duties,
+  presets, templates, saved circles, plan usage, the name cards' files), which
+  the automatic backup reads beside each class's `updatedAt`
+  ([decision 0050](decisions/0050-automatic-backup.md)).
 - **Marker review:** `spg.markerReviewSnoozedUntil`, the day the question
   whether a class's markers still hold may come again, by class id
   ([decision 0044](decisions/0044-markers-carry-a-date.md)). A student's

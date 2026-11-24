@@ -20,6 +20,7 @@ import { blobToDataUrl } from '@/utils/image/processStudentPhoto';
 import type { Result } from './types';
 import { ResultHelpers, RepositoryErrorType } from './types';
 import { tryDeleteValue, tryReadValue, tryWriteValue } from './idbClient';
+import { noteDataChanged } from '@/utils/data/backupReminder';
 
 export type CardFileKind = 'font' | 'image';
 
@@ -96,7 +97,10 @@ export async function setCardFile(
 ): Promise<Result<void>> {
   if (!hasIndexedDB()) return unavailable();
   const result = await tryWriteValue(KEYS[kind], file);
-  if (result.success) notify(kind);
+  if (result.success) {
+    noteDataChanged();
+    notify(kind);
+  }
   return result;
 }
 
@@ -106,7 +110,10 @@ export async function deleteCardFile(
 ): Promise<Result<void>> {
   if (!hasIndexedDB()) return unavailable();
   const result = await tryDeleteValue(KEYS[kind]);
-  if (result.success) notify(kind);
+  if (result.success) {
+    noteDataChanged();
+    notify(kind);
+  }
   return result;
 }
 

@@ -15,6 +15,7 @@
  * read, and that is reported the same way.
  */
 import { tryReadValue, tryWriteValue } from './idbClient';
+import { noteDataChanged } from '@/utils/data/backupReminder';
 import { DB_KEYS } from '@/utils/data/storageKeys';
 import { hasIndexedDB } from '@/utils/data/indexedDb';
 import {
@@ -119,6 +120,7 @@ async function writeData(next: MixPresetData): Promise<boolean> {
     logError('Failed to save mix presets', { error: result.error }, LOG_SOURCE);
     return false;
   }
+  noteDataChanged();
   notifyListeners();
   return true;
 }

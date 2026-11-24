@@ -105,7 +105,8 @@
       "title": "Alle Daten löschen?",
       "confirm": "Alle Daten löschen",
       "cancel": "Abbrechen",
-      "meta": "Alles in diesem Browser"
+      "meta": "Alles in diesem Browser",
+      "autoBackup": "Die automatische Sicherung endet damit. Ihre Dateien im Ordner „{{folder}}“ bleiben; die löschst du dort selbst."
     },
     "beforeUpdate": {
       "title": "Stand vor dem Update wiederherstellen?",

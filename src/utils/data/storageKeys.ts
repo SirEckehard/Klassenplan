@@ -61,6 +61,10 @@ export const STORAGE_KEYS = {
     backupDataSince: 'spg.backupDataSince',
     backupReminderSnoozedUntil: 'spg.backupReminderSnoozedUntil',
     backupReminderDisabled: 'spg.backupReminderDisabled',
+    // When data beside the classes last changed — duties, presets, templates,
+    // plans in use and how they went, the name cards' files — for the
+    // automatic backup (`noteDataChanged`, decision 0050). A moment only.
+    dataChangedAt: 'spg.dataChangedAt',
     // Per class id, the day the question whether the markers still hold
     // may come again after "Später" (decision 0044). Ids only, no names.
     markerReviewSnoozedUntil: 'spg.markerReviewSnoozedUntil',
@@ -269,6 +273,7 @@ export const PROJECT_LOCAL_STORAGE_KEYS = [
   STORAGE_KEYS.localStorage.backupDataSince,
   STORAGE_KEYS.localStorage.backupReminderSnoozedUntil,
   STORAGE_KEYS.localStorage.backupReminderDisabled,
+  STORAGE_KEYS.localStorage.dataChangedAt,
   STORAGE_KEYS.localStorage.markerReviewSnoozedUntil,
   STORAGE_KEYS.localStorage.mixSettings,
   STORAGE_KEYS.localStorage.studentSortMode,

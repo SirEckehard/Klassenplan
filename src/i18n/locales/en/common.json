@@ -105,7 +105,8 @@
       "title": "Delete all data?",
       "confirm": "Delete all data",
       "cancel": "Cancel",
-      "meta": "Everything in this browser"
+      "meta": "Everything in this browser",
+      "autoBackup": "The automatic backup ends with it. Its files in the folder “{{folder}}” stay; you delete them there yourself."
     },
     "beforeUpdate": {
       "title": "Restore the data from before the update?",

@@ -70,10 +70,10 @@ with that password on any device.
 - "Alle Daten löschen" removes the settings with everything else; the files
   in the folder stay, as files the teacher saved do.
 
-## Addendum of 2026-11-24: a failed write and a stop taken back
+## Addendum of 2026-11-24: failures, changes beside the classes, stopping
 
-The review of 2026-11-22 (N37 and N39 on its checklist) brought two changes,
-started by the maintainer before the release:
+The review of 2026-11-22 (N37, N38, N39 and N40 on its checklist) brought
+these changes, chosen by the maintainer before the release:
 
 - **A write that fails is a state of its own** (`failure` beside `waiting` in
   `autoBackupStatus`). It used to show as a folder to allow again, and its
@@ -88,3 +88,12 @@ started by the maintainer before the release:
   for what comes back: the toast "Automatische Sicherung beendet." offers
   "Rückgängig" for eight seconds and writes the folder and the key back,
   unless another backup was set up meanwhile.
+- **A change beside the classes counts too** (N38). A file was due only once
+  a class's `updatedAt` passed the last one; duties, presets, templates, saved
+  circles, the plans in use and how they went and the name cards' files lie
+  in stores of their own and changed nothing there. Each of them now leaves
+  `spg.dataChangedAt` when it writes (`noteDataChanged`), and the look takes
+  the latest of both.
+- **"Alle Daten löschen" says what becomes of the backup** (N40): with one
+  set up, its question adds that the backup ends and its files stay in the
+  folder, and the menu and the status bar forget it at once.

@@ -14,6 +14,7 @@
  * — presenting, exporting, saving — has to keep working without it.
  */
 import { tryReadValue, tryWriteValue } from './idbClient';
+import { noteDataChanged } from '@/utils/data/backupReminder';
 import { DB_KEYS } from '@/utils/data/storageKeys';
 import { hasIndexedDB } from '@/utils/data/indexedDb';
 import { generateId, logError, logWarn } from '@/utils';
@@ -142,7 +143,9 @@ async function writeData(data: PlanUsageData): Promise<void> {
       { error: result.error },
       LOG_SOURCE,
     );
+    return;
   }
+  noteDataChanged();
 }
 
 /** Run `task` behind the chain, swallowing and logging failures. */

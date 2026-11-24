@@ -78,6 +78,7 @@ import {
   type StoredClassIndex,
 } from './classStorage';
 import { dropMissingPartners } from '@/utils/student/partnerUtils';
+import { noteDataChanged } from '@/utils/data/backupReminder';
 
 const REPOSITORY_LOG_SOURCE = 'IndexedDBRepository';
 
@@ -1275,6 +1276,7 @@ export class IndexedDBRepository implements ISeatingPlanRepository {
     return this.withErrorHandling(
       async () => {
         await idbSet(DB_KEYS.circleLayouts, layouts);
+        noteDataChanged();
         return undefined;
       },
       {
@@ -1305,6 +1307,7 @@ export class IndexedDBRepository implements ISeatingPlanRepository {
           (await idbGet<ClassroomTemplate[]>(DB_KEYS.classroomTemplates)) || [];
         const updated = [...existing, template];
         await idbSet(DB_KEYS.classroomTemplates, updated);
+        noteDataChanged();
         return template;
       },
       {
@@ -1318,6 +1321,7 @@ export class IndexedDBRepository implements ISeatingPlanRepository {
     return this.withErrorHandling(
       async () => {
         await idbSet(DB_KEYS.classroomTemplates, templates);
+        noteDataChanged();
         return undefined;
       },
       {
@@ -1345,6 +1349,7 @@ export class IndexedDBRepository implements ISeatingPlanRepository {
             ? [...others.slice(0, at), template, ...others.slice(at)]
             : others,
         );
+        noteDataChanged();
         return undefined;
       },
       {
@@ -1366,6 +1371,7 @@ export class IndexedDBRepository implements ISeatingPlanRepository {
           entry.id === id ? { ...entry, scene } : entry,
         );
         await idbSet(DB_KEYS.classroomTemplates, next);
+        noteDataChanged();
         return undefined;
       },
       {
@@ -1382,6 +1388,7 @@ export class IndexedDBRepository implements ISeatingPlanRepository {
           (await idbGet<ClassroomTemplate[]>(DB_KEYS.classroomTemplates)) || [];
         const filtered = templates.filter((entry) => entry.id !== id);
         await idbSet(DB_KEYS.classroomTemplates, filtered);
+        noteDataChanged();
         return undefined;
       },
       {
@@ -1400,6 +1407,7 @@ export class IndexedDBRepository implements ISeatingPlanRepository {
           entry.id === id ? { ...entry, name: newName } : entry,
         );
         await idbSet(DB_KEYS.classroomTemplates, updated);
+        noteDataChanged();
         return undefined;
       },
       {

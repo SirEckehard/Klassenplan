@@ -13,6 +13,10 @@ import { getAllDuties } from '@/repositories/dutyStore';
 import { getCardFile } from '@/repositories/cardFileStore';
 import type { ConfirmFact } from '@/components/ui/modals/ConfirmDialog';
 import { useInstallPrompt } from '@/hooks/useInstallPrompt';
+import {
+  clearAutoBackupState,
+  useAutoBackupState,
+} from '@/hooks/persistence/autoBackupStatus';
 import { isRunningInstalled } from '@/utils/ui/installGuide';
 import {
   logError,
@@ -157,9 +161,21 @@ export function ClearAllDataDialog({
     };
   }, [loadTemplate, open, repository]);
 
+  // The automatic backup ends with the rest; its files stay in the folder,
+  // as a backup the teacher saved does (decision 0050).
+  const autoBackup = useAutoBackupState();
+  const message = autoBackup.configured
+    ? `${t('dialogs.cannotUndo')} ${t('dialogs.clearAllData.autoBackup', {
+        folder: autoBackup.folderName ?? '',
+      })}`
+    : t('dialogs.cannotUndo');
+
   const handleConfirm = async () => {
     try {
       await clearAllData();
+      // The settings are gone; the menu and the status bar say so at once,
+      // not with the backup's next look.
+      clearAutoBackupState();
       showToast('success', TOAST_MESSAGES.DATA_DELETED);
       onClose();
     } catch {
@@ -174,7 +190,7 @@ export function ClearAllDataDialog({
       title={t('dialogs.clearAllData.title')}
       meta={t('dialogs.clearAllData.meta')}
       facts={facts ?? []}
-      message={t('dialogs.cannotUndo')}
+      message={message}
       way={{
         label: t('dialogs.backupFirst'),
         onSelect: () => {

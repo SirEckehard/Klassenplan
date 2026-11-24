@@ -60,6 +60,7 @@ import {
   saveAutoBackupConfig,
 } from '@/repositories/autoBackupStore';
 import { BackupExportError } from '@/utils/validation/backupLimits';
+import { noteDataChanged } from '@/utils/data/backupReminder';
 import { subscribeToToasts, type ToastEvent } from '@/utils/ui/toast';
 
 /** A folder as the File System Access API hands it out, in memory. */
@@ -144,6 +145,7 @@ describe('the automatic backup', () => {
   let unsubscribeToasts = () => {};
 
   beforeEach(async () => {
+    window.localStorage.removeItem('spg.dataChangedAt');
     toasts = [];
     unsubscribeToasts = subscribeToToasts((event) => {
       if (event.action === 'add') toasts.push(event.toast);
@@ -180,6 +182,35 @@ describe('the automatic backup', () => {
       'sealed:{"version":3}',
     );
     expect(result.current.lastWrittenAt?.slice(0, 10)).toBe('2026-11-20');
+  });
+
+  // Duties, presets, templates, how a plan went: none of them is a class,
+  // and each counts as a change all the same (N38 of the review of
+  // 22 November 2026).
+  it('writes after a change beside the classes', async () => {
+    const folder = makeFolder();
+    await setUpWith(folder, new Date(NOW - 20 * HOUR).toISOString());
+    classChangedAt(new Date(NOW - 30 * HOUR).toISOString());
+    noteDataChanged(new Date(NOW - HOUR));
+
+    mount();
+    await firstLook();
+
+    expect(folder.files.has('klassenplan-auto-2026-11-20.klassenplan')).toBe(
+      true,
+    );
+  });
+
+  it('writes nothing while nothing changed since the last file', async () => {
+    const folder = makeFolder();
+    await setUpWith(folder, new Date(NOW - 20 * HOUR).toISOString());
+    classChangedAt(new Date(NOW - 30 * HOUR).toISOString());
+    noteDataChanged(new Date(NOW - 25 * HOUR));
+
+    mount();
+    await firstLook();
+
+    expect(folder.files.size).toBe(0);
   });
 
   it('knows at once that it is set up, before the first look', async () => {
