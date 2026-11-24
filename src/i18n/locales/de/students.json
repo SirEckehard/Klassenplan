@@ -390,6 +390,7 @@
     "mutualWish": "{{name}} (gegenseitig)",
     "namedByList": "Wunsch von {{names}}",
     "namedByNobodyHint": "Niemand hat sie als Wunschpartner genannt. Vielleicht lohnt eine Nachfrage.",
+    "namedCount_zero": "von niemandem genannt",
     "namedCount_one": "{{count}}× genannt",
     "namedCount_other": "{{count}}× genannt",
     "noRelations": "Für diese Klasse ist noch kein Wunsch und kein Distanzpartner eingetragen.",

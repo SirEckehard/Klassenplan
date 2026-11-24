@@ -1,6 +1,6 @@
 # Design System – Klassenplan
 
-> **Status:** current · **Last reviewed:** 2026-11-21 · **Maintainer:** Eike
+> **Status:** current · **Last reviewed:** 2026-11-24 · **Maintainer:** Eike
 > Schäfer · **Describes:** Klassenplan 3.1.2
 
 This document describes the binding design tokens for Klassenplan. All values live in `src/index.css` and are reachable from TypeScript through `src/utils/ui/designTokens.ts`.
@@ -74,15 +74,16 @@ SVG `font-family` attributes are not reached by the `@theme` token, so the scene
 
 Numbers that sit in columns or get compared — counts, percentages, times — are set with `tabular-nums`.
 
-**Sizes.** Text takes Tailwind's scale (`text-xs` 12 px, `text-sm` 14 px, …) and, between its steps, three tokens from `@theme`, each for one role:
+**Sizes.** Text takes Tailwind's scale (`text-xs` 12 px, `text-sm` 14 px, …) and, between its steps, four tokens from `@theme`, each for one role:
 
 | Token          | Size                | Used for                                                                                        |
 | -------------- | ------------------- | ----------------------------------------------------------------------------------------------- |
 | `text-micro`   | `0.625rem` (10 px)  | A counter on a button, the smallest captions (the phone's table templates, a preset group)      |
 | `text-caption` | `0.6875rem` (11 px) | Uppercase group headings in the toolbar, menus and lists; small print such as an error's report |
 | `text-control` | `0.8125rem` (13 px) | Rows and entries of the toolbar, the inspector and the menus, and their fields                  |
+| `text-name`    | `0.9375rem` (15 px) | A student's name on a line of a list: the class list, "Beziehungen"                             |
 
-They set no line height, so a row keeps the one it inherits, and they grow with the browser's text size, as rem does. A size used once — a student's name in the class list, an inspector's title — stays where it is, in rem; the lockup's sizes belong to the logo.
+They set no line height, so a row keeps the one it inherits, and they grow with the browser's text size, as rem does. A size used once — an inspector's title — stays where it is, in rem; the lockup's sizes belong to the logo.
 
 **Names a teacher typed.** A class, room, plan, template, preset or student name can be 120 characters long and a single word. It stays inside its box in one of two ways. In a row, a menu, a column or a subtitle it is cut: `truncate` on an element that may shrink (`min-w-0`, never `shrink-0` without a width), inside a grid column that may shrink as well (`grid-cols-1`, not the automatic track that grows to the longest word). Where it is the title, such as the inspector's `h2`, its pill (`editableTitleClass`) or a question that names it, it wraps with `wrap-anywhere`, not `wrap-break-word`. Only `anywhere` lowers the element's minimum width, so a button or a flex item sized to its content breaks the word too, where `break-word` lets the box grow out of the panel.
 

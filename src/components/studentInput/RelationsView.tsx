@@ -469,7 +469,7 @@ function RelationsRow({
       >
         <span className="flex min-w-0 flex-1 items-center gap-3">
           <StudentAvatar student={student} size={32} />
-          <span className="truncate text-[0.9375rem] text-(--text-page)">
+          <span className="truncate text-name text-(--text-page)">
             {nameOf(student)}
           </span>
           {own.inContradiction && (

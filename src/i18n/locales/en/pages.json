@@ -199,8 +199,8 @@
         "a": "Tick several students in the list: the inspector on the right then sets gender, height, language level, social role or individual attributes for all of them at once. Search, filters and sorting above the list help you find the right students quickly."
       },
       "review": {
-        "q": "Why does Klassenplan ask whether the markers still hold?",
-        "a": "Markers describe how a student behaves right now – and children change. Every marker remembers when it last changed – except left-handed and height, which do not change. Once a class’s markers have stayed the same for twelve weeks, the seating plan asks once: you can go to the class list, confirm with \"Still right\" – for every class at once with \"Still right for all classes\" – or put the question off for a week. Nothing changes by itself. The class’s inspector shows when you last confirmed the markers."
+        "q": "Why does Klassenplan ask whether the attributes still hold?",
+        "a": "Attributes describe how a student behaves right now – and children change. Every attribute remembers when it last changed – except left-handed and height, which do not change. Once a class’s attributes have stayed the same for twelve weeks, the seating plan asks once: you can go to the class list, confirm with \"Still right\" – for every class at once with \"Still right for all classes\" – or put the question off for a week. Nothing changes by itself. The class’s inspector shows when you last confirmed the attributes."
       },
       "demo": {
         "q": "Can I try Klassenplan without real student data?",
@@ -457,7 +457,7 @@
       },
       "substitute": {
         "q": "How do I give a substitute the seating plan?",
-        "a": "On the export page, choose “Substitute” under “View” in the toolbar. The sheet shows the seating plan or the circle with the names – without markers and without gender colors, even if you switched them on for your own printout. The header names the class, the room and the day of the lesson, which you set in the inspector. Below the plan you can add a note such as the task and print empty lines for the substitute, for example for who was absent. The note is not stored, and photos only go on the sheet if you switch them on."
+        "a": "On the export page, choose “Substitute” under “View” in the toolbar. The sheet shows the seating plan or the circle with the names – without attributes and without gender colors, even if you switched them on for your own printout. The header names the class, the room and the day of the lesson, which you set in the inspector. Below the plan you can add a note such as the task and print empty lines for the substitute, for example for who was absent. The note is not stored, and photos only go on the sheet if you switch them on."
       },
       "nameCards": {
         "q": "Can I print name cards for the desks?",
@@ -465,7 +465,7 @@
       },
       "names": {
         "q": "The names on the plan are too long and too small – what can I do?",
-        "a": "On the seating plan under “View settings › Names”, in presentation mode and under “Names” on the export page you decide how names appear: first name only, first name + last initial, or first and last name. Names that would look the same are told apart automatically – “Frida Ehrmann” and “Frida Emmerich” become “Frida Eh.” and “Frida Em.”. Names also grow when there is less on the seats: hide the markers under “View settings › Markers” on the seating plan, with “Markers” in the bar in presentation mode, and under “Markers on the sheet” in the inspector on the export page. Also keep “Enlarge the plan” switched on, and the tables are fitted to the whole sheet."
+        "a": "On the seating plan under “View settings › Names”, in presentation mode and under “Names” on the export page you decide how names appear: first name only, first name + last initial, or first and last name. Names that would look the same are told apart automatically – “Frida Ehrmann” and “Frida Emmerich” become “Frida Eh.” and “Frida Em.”. Names also grow when there is less on the seats: hide the attributes under “View settings › Attributes” on the seating plan, with “Attributes” in the bar in presentation mode, and under “Attributes on the sheet” in the inspector on the export page. Also keep “Enlarge the plan” switched on, and the tables are fitted to the whole sheet."
       }
     },
     "oberflaeche": {
@@ -523,7 +523,7 @@
       },
       "auto": {
         "q": "Can Klassenplan back up by itself?",
-        "a": "Yes, in Chrome and Edge on a computer. Under “Backup” → “Back up automatically …” you choose a folder once – on your computer, in OneDrive or on a network drive – and a password. From then on Klassenplan saves an encrypted backup there once a day after your classes changed and keeps the newest seven. When Klassenplan runs in a browser tab, the browser asks for the folder again after a restart; the status bar then shows “Resume backup”. A forgotten password cannot be recovered. You bring such a file back like any backup, with “Import backup”. Firefox and Safari cannot write into a folder; there Klassenplan reminds you to back up by hand."
+        "a": "Yes, in Chrome and Edge on a computer. Under “Backup” → “Back up automatically …” you choose a folder once – on your computer, in OneDrive or on a network drive – and a password. From then on Klassenplan saves an encrypted backup there once a day after your classes changed and keeps the newest seven. When Klassenplan runs in a browser tab, the browser asks for the folder again after a restart; the status bar then shows “Resume backup”. A forgotten password cannot be recovered. You bring such a file back like any backup, with “Import backup”. Firefox and Safari cannot write into a folder; there Klassenplan reminds you to back up by hand. If your school computer deletes the browser profile when you sign out, this setup goes with the classes: bring the newest backup back with “Import backup” and set the backup up again. For good, only a profile that is kept helps there – ask your school’s IT about it."
       },
       "deviceChange": {
         "q": "How do I move my classes to a new device?",

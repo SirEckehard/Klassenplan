@@ -85,14 +85,16 @@
     'Atkinson Hyperlegible Next Fallback', sans-serif;
   --font-serif: 'Source Serif 4 Variable', 'Source Serif 4 Fallback', serif;
 
-  /* Three sizes between Tailwind's steps, each for one role (DESIGNSYSTEM.md
+  /* Four sizes between Tailwind's steps, each for one role (DESIGNSYSTEM.md
      § 3): counters and the smallest captions, group headings and small print,
-     the rows and entries of toolbar, inspector and menus. In rem, so they
+     the rows and entries of toolbar, inspector and menus, a student's name in
+     a list. In rem, so they
      grow with the browser's text size; they set no line height, as the
      pixel values they replace did not. */
   --text-micro: 0.625rem;
   --text-caption: 0.6875rem;
   --text-control: 0.8125rem;
+  --text-name: 0.9375rem;
 
   /* Paper and ink — light */
   --surface-page: #fcfbf8;
@@ -563,8 +565,6 @@
   color: var(--data-chip-text, var(--data-person-text));
 }
 
-/* A marker the mix weighs nothing of right now: an outline in the family's
-   colour instead of its fill. */
 /* A marker offered to choose, not the one chosen: an outline, its family's
    colour on hover. */
 @utility data-chip-quiet {
@@ -576,6 +576,8 @@
   }
 }
 
+/* A marker the mix weighs nothing of right now: an outline in the family's
+   colour instead of its fill. */
 @utility data-chip-off {
   --data-chip-fill: transparent;
   --data-chip-border-style: dashed;
@@ -624,13 +626,13 @@
   --data-chip-accent: var(--data-history);
 }
 
-/* A section heading takes its family's accent as the text colour. */
 /* What a finger held on an element does instead of the browser's own menu
    (a card in the class list, `useStudentCard`). */
 @utility touch-callout-none {
   -webkit-touch-callout: none;
 }
 
+/* A section heading takes its family's accent as the text colour. */
 @utility data-heading {
   font-size: 0.625rem;
   font-weight: 700;

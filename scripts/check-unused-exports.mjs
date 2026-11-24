@@ -31,12 +31,13 @@ const rootDir = path.resolve(
  * Highest number of modules with unused exports that this repository accepts.
  *
  * Lower it whenever a cleanup drops the real count — that is what makes the
- * ratchet tighten. Raising it needs a reason in the same commit.
+ * ratchet tighten. An export the tool misses because it is reached only
+ * through `import()` goes into `REACHED_BY_IMPORT` below, never into a higher
+ * baseline.
  *
- * 24 (2026-11-20): `compareClassFacts` in `components/ui/modals/confirmFacts.ts`
- * is reached only through `useDataBackup`'s `import()` of that module, which
- * the tool does not follow; it compares the classes of now with those from
- * before the update in the restore's question.
+ * 20 (2026-11-24): the exports reached only through `import()` are named in
+ * `REACHED_BY_IMPORT` and no longer counted; the baseline had risen to 24 for
+ * `compareClassFacts` (review of 2026-11-22, K34).
  *
  * 25 (2026-10-29): the cleanup removed what nothing called (the dead modules
  * `useIndexedDBState` and `responsiveViewBox`, functions only their tests
@@ -65,9 +66,43 @@ const rootDir = path.resolve(
  * import to leave the initial bundle, and the tool does not follow `import()`;
  * `exportAllAsJson` is the one export of it no test imports statically.
  */
-const BASELINE = 24;
+const BASELINE = 20;
 
 const IGNORE_FILES = 'vite-env.d.ts|index.tsx|App.tsx';
+
+/**
+ * Exports the app reaches only through a dynamic `import()` of their module,
+ * which the tool does not follow — by file below `src/`, the names checked
+ * against the code: each import names it in destructuring.
+ */
+const REACHED_BY_IMPORT = {
+  // `useDataBackup`, for the question before "Stand vor dem Update …".
+  'components/ui/modals/confirmFacts.ts': ['compareClassFacts'],
+  // `AppSettingsMenu`, through the module both settings menus load on demand.
+  'components/ui/navigation/AppSettingsItems.tsx': [
+    'InstallGuideDialog',
+    'ClearAllDataDialog',
+  ],
+  // `Duties`, for the roster's PDF.
+  'services/export/pdfExportFunctions.ts': ['exportDutyRosterToPdf'],
+  // `Export`, for PNG and SVG.
+  'utils/export/imageExportFunctions.ts': ['exportSvgAsPng', 'exportSvgAsFile'],
+};
+
+/**
+ * The modules with unused exports in the tool's output, less those whose
+ * every unused export is reached through `import()`.
+ */
+const countUnused = (output) =>
+  output
+    .split('\n')
+    .map((line) => /^(.+\.tsx?): (.+)$/.exec(line.trim()))
+    .filter((match) => match !== null)
+    .filter(([, file, names]) => {
+      const relative = path.relative(path.join(rootDir, 'src'), file);
+      const reached = new Set(REACHED_BY_IMPORT[relative] ?? []);
+      return names.split(', ').some((name) => !reached.has(name.trim()));
+    }).length;
 
 const run = () => {
   const result = spawnSync(
@@ -117,7 +152,7 @@ const run = () => {
     return;
   }
 
-  const count = Number(match[1]);
+  const count = countUnused(output);
 
   if (count > BASELINE) {
     logError(

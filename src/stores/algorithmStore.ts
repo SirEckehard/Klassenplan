@@ -64,7 +64,7 @@ function persistMixSettings(settings: MixSettings) {
   }
 }
 
-const STATISTICS_BADGE_KEY = 'spg.showStatisticsBadge';
+const STATISTICS_BADGE_KEY = LOCAL_STORAGE_KEYS.showStatisticsBadge;
 
 function readStatisticsBadge(): boolean {
   const browserWindow = getBrowserWindow();

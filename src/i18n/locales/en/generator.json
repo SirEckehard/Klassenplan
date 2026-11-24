@@ -85,12 +85,12 @@
         "body": "“Fulfilment” in the status bar shows how well each criterion is met – a click on one marks the seats it concerns."
       },
       "badges": {
-        "title": "Markers",
+        "title": "Attributes",
         "body": "Hover over or tap an icon on a seat: it explains itself and marks everyone who shares it."
       },
       "view": {
         "title": "View",
-        "body": "Under “View settings” you choose how names, photos and markers appear; the legend is there too."
+        "body": "Under “View settings” you choose how names, photos and attributes appear; the legend is there too."
       }
     },
     "circle": {
@@ -139,11 +139,11 @@
       "title": "Presentation mode",
       "studentView": {
         "title": "Student view",
-        "body": "Shows the plan from the class's side, without markers and photos."
+        "body": "Shows the plan from the class's side, without attributes and photos."
       },
       "display": {
         "title": "Showing and hiding",
-        "body": "Switch markers, photos, names, room and colours in the bar at the bottom."
+        "body": "Switch attributes, photos, names, room and colours in the bar at the bottom."
       },
       "contrast": {
         "title": "Contrast",
@@ -224,9 +224,9 @@
     "teacherView": "Teacher view",
     "teacherViewTitle": "Show the seating chart from the teacher's view",
     "studentView": "Student view",
-    "studentViewTitle": "Show the seating chart from the class's view – without markers and photos",
-    "badges": "Markers",
-    "badgesTitle": "Show or hide student marker icons",
+    "studentViewTitle": "Show the seating chart from the class's view – without attributes and photos",
+    "badges": "Attributes",
+    "badgesTitle": "Show or hide student attribute icons",
     "photos": "Photos",
     "photosTitle": "Show or hide student photos",
     "colors": "Colors",
@@ -334,10 +334,10 @@
       "sourceLocked": "This seat is locked and cannot be moved.",
       "moveFailed": "Move not possible."
     },
-    "ariaBadges": "Markers: {{list}}",
+    "ariaBadges": "Attributes: {{list}}",
     "badgeTooltip": {
-      "more_one": "One more marker",
-      "more_other": "{{count}} more markers"
+      "more_one": "One more attribute",
+      "more_other": "{{count}} more attributes"
     }
   },
   "backupReminder": {
@@ -352,18 +352,18 @@
     "faqLink": "Moving your data to a new device"
   },
   "markerReview": {
-    "eyebrow": "Review markers",
-    "stale_one": "The markers of {{count}} student have not changed for more than {{weeks}} weeks.",
-    "stale_other": "The markers of {{count}} students have not changed for more than {{weeks}} weeks.",
-    "why": "Markers describe how someone behaves right now, and children change. Do they still hold?",
+    "eyebrow": "Review attributes",
+    "stale_one": "The attributes of {{count}} student have not changed for more than {{weeks}} weeks.",
+    "stale_other": "The attributes of {{count}} students have not changed for more than {{weeks}} weeks.",
+    "why": "Attributes describe how someone behaves right now, and children change. Do they still hold?",
     "review": "To the class list",
     "confirm": "Still right",
     "confirmAll": "Still right for all classes",
-    "confirmedAll_one": "Noted for {{count}} class: the markers still hold.",
-    "confirmedAll_other": "Noted for {{count}} classes: the markers still hold.",
+    "confirmedAll_one": "Noted for {{count}} class: the attributes still hold.",
+    "confirmedAll_other": "Noted for {{count}} classes: the attributes still hold.",
     "later": "Later",
-    "row": "Markers reviewed",
-    "rowHint": "After {{weeks}} weeks without a change, the seating plan asks whether the markers still hold.",
+    "row": "Attributes reviewed",
+    "rowHint": "After {{weeks}} weeks without a change, the seating plan asks whether the attributes still hold.",
     "never": "not yet",
     "now": "Reviewed now"
   },
@@ -709,7 +709,7 @@
     "orientation": "Orientation",
     "content": "On the sheet",
     "rows": {
-      "needs": "Markers",
+      "needs": "Attributes",
       "genderColors": "Gender colors",
       "photos": "Photos",
       "legend": "Legend",
@@ -718,8 +718,8 @@
       "frameOnTables": "Enlarge the plan",
       "room": "Room"
     },
-    "badgeFamilies": "Markers on the sheet",
-    "legendUnavailable": "Only with markers or gender colors on the sheet",
+    "badgeFamilies": "Attributes on the sheet",
+    "legendUnavailable": "Only with attributes or gender colors on the sheet",
     "noteList": {
       "view": "List",
       "section": "List",
@@ -889,16 +889,16 @@
     "viewSettings": "View Settings",
     "workspace": "Workspace",
     "badges": {
-      "title": "Markers",
+      "title": "Attributes",
       "all": "All",
       "active": "Active criteria only",
       "off": "Off",
-      "hint": "“Active criteria only” shows just the markers whose mix criterion is not set to “Off”.",
+      "hint": "“Active criteria only” shows just the attributes whose mix criterion is not set to “Off”.",
       "legend": "Legend",
-      "legendEmpty": "No markers are set in this class yet.",
+      "legendEmpty": "No attributes are set in this class yet.",
       "hoverLabel": "On hover",
       "hoverTooltip": "Explain on hover",
-      "hoverHighlight": "Mark shared markers"
+      "hoverHighlight": "Highlight shared attributes"
     }
   },
   "common": {

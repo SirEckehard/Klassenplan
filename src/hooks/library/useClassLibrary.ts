@@ -6,6 +6,7 @@ import {
   useSeatingPlanState,
 } from '@/contexts/SeatingPlanContext';
 import { useSeatingRepository } from '@/hooks/useSeatingRepository';
+import { RepositoryErrorType } from '@/repositories';
 import type {
   ClassRecord,
   ClassroomScene,
@@ -183,7 +184,12 @@ export function useClassLibrary(selectedClassId: string | null) {
       .loadClassRecord(selectedClassId)
       .then((result) => {
         if (!current) return;
-        if (!result.success) {
+        // A class deleted a moment ago is gone, not broken: the library
+        // moves on without it.
+        if (
+          !result.success &&
+          result.error.type !== RepositoryErrorType.NOT_FOUND
+        ) {
           logError(
             'Failed to load a class for the library',
             { error: result.error, classId: selectedClassId },

@@ -69,6 +69,8 @@ export const STORAGE_KEYS = {
     // may come again after "Später" (decision 0044). Ids only, no names.
     markerReviewSnoozedUntil: 'spg.markerReviewSnoozedUntil',
     mixSettings: 'spg.mixSettings',
+    // Whether the plan layer's fulfilment panel stands open.
+    showStatisticsBadge: 'spg.showStatisticsBadge',
     // Sort order of the class list in step 1. A way of looking at the list,
     // so it survives leaving and re-entering the step (search and filter do
     // not — they hide students and must not do so silently on return).
@@ -276,6 +278,7 @@ export const PROJECT_LOCAL_STORAGE_KEYS = [
   STORAGE_KEYS.localStorage.dataChangedAt,
   STORAGE_KEYS.localStorage.markerReviewSnoozedUntil,
   STORAGE_KEYS.localStorage.mixSettings,
+  STORAGE_KEYS.localStorage.showStatisticsBadge,
   STORAGE_KEYS.localStorage.studentSortMode,
   STORAGE_KEYS.localStorage.studentCards,
   STORAGE_KEYS.localStorage.sidebarExpanded,

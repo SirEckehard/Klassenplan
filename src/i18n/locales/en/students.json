@@ -251,7 +251,7 @@
   "listToolbar": {
     "searchLabel": "Search students",
     "searchPlaceholder": "Search name…",
-    "filterLabel": "Filter by marker",
+    "filterLabel": "Filter by attribute",
     "filters": {
       "all": "All students",
       "restless": "Restless only",
@@ -390,6 +390,7 @@
     "mutualWish": "{{name}} (mutual)",
     "namedByList": "Wished for by {{names}}",
     "namedByNobodyHint": "Nobody named them as a preferred partner. It may be worth asking.",
+    "namedCount_zero": "named by nobody",
     "namedCount_one": "named once",
     "namedCount_other": "named {{count}}×",
     "noRelations": "No preferred and no keep-apart partners have been set for this class yet.",
