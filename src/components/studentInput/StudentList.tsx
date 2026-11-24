@@ -92,8 +92,12 @@ const StudentList = ({
   const isLgUp = useIsLgUp();
   const brushKey = brush?.active ?? null;
 
-  const listRef = React.useRef<HTMLDivElement>(null);
-  const { card } = useStudentCard(listRef, {
+  // In state, not a ref: the list is drawn only once the class has a
+  // student, and the cards have to find it then (`useStudentCard`).
+  const [listElement, setListElement] = React.useState<HTMLDivElement | null>(
+    null,
+  );
+  const { card } = useStudentCard(listElement, {
     enabled: brushKey === null,
     kinds: cards,
   });
@@ -230,7 +234,7 @@ const StudentList = ({
       className={`${listContainerClass} @container relative mb-4 overflow-hidden lg:mb-0 lg:flex lg:min-h-0 lg:flex-col`}
     >
       <div
-        ref={listRef}
+        ref={setListElement}
         onKeyDown={handleKeyDown}
         className="grid grid-cols-1 content-start lg:min-h-0 lg:overflow-y-auto"
       >

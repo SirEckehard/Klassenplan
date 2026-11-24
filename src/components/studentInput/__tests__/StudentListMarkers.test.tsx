@@ -253,6 +253,36 @@ describe('the card of a badge', () => {
     );
     expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
   });
+
+  // A class just created, or one switched to from an empty class: the list
+  // stays mounted with nobody in it and draws its rows only later (M16 of
+  // the review of 22 November 2026).
+  it('opens once the list is drawn after a class without students', () => {
+    vi.useFakeTimers();
+    const view = renderList({ students: [] });
+    expect(document.querySelector('[data-student-list]')).toBeNull();
+
+    view.rerender(
+      <InspectorProvider>
+        <Probe />
+        <StudentList
+          students={students}
+          lastAddedId={null}
+          mixSettings={mixSettings}
+        />
+      </InspectorProvider>,
+    );
+    fireEvent.pointerOver(badge('a', 'restless'), { pointerType: 'mouse' });
+    expect(screen.getByRole('tooltip')).toHaveTextContent(/Unruhig|Restless/);
+
+    fireEvent.pointerOver(within(rowOf('b')).getByText('Ben'), {
+      pointerType: 'mouse',
+    });
+    act(() => vi.advanceTimersByTime(PROFILE_HOVER_MS));
+    expect(screen.getByRole('tooltip')).toHaveTextContent(
+      /Noch keine Merkmale|No attributes yet/,
+    );
+  });
 });
 
 describe('the brush', () => {

@@ -2,19 +2,24 @@
 // Copyright (C) 2026 Eike Schäfer
 import '@testing-library/jest-dom/vitest';
 import {
+  act,
   cleanup,
   fireEvent,
   render,
   screen,
   within,
 } from '@testing-library/react';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import '@/i18n';
 import RelationsView from '@/components/studentInput/RelationsView';
 import { InspectorProvider } from '@/contexts/InspectorContext';
 import { createMockStudent } from '@/__tests__/utils';
+import { PROFILE_HOVER_MS } from '@/hooks/student/useStudentCard';
 
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  vi.useRealTimers();
+});
 
 const students = [
   createMockStudent({ id: 'a', name: 'Ada', wishPartnerIds: ['b', 'c'] }),
@@ -125,6 +130,34 @@ describe('RelationsView', () => {
     fireEvent.click(rows()[2]);
     expect(rows()[2]).toHaveAttribute('aria-current', 'true');
     expect(rows()[0]).not.toHaveAttribute('aria-current');
+  });
+
+  // The view is drawn only once the class has a wish; its faces explain
+  // themselves from then on, not only after a reload (M16 of the review of
+  // 22 November 2026).
+  it('opens the card of a face once the first wish brings the view', () => {
+    vi.useFakeTimers();
+    const withoutWishes = students.map((student) => ({
+      ...student,
+      wishPartnerIds: [],
+      avoidPartnerIds: [],
+    }));
+    const view = render(
+      <InspectorProvider>
+        <RelationsView students={withoutWishes} />
+      </InspectorProvider>,
+    );
+    view.rerender(
+      <InspectorProvider>
+        <RelationsView students={students} />
+      </InspectorProvider>,
+    );
+
+    const face = document.querySelector('[data-card-profile="b"]');
+    if (!face) throw new Error('No face of Ben');
+    fireEvent.pointerOver(face, { pointerType: 'mouse' });
+    act(() => vi.advanceTimersByTime(PROFILE_HOVER_MS));
+    expect(screen.getByRole('tooltip')).toHaveTextContent(/Ben/);
   });
 
   // A partner who has left the class leaves the id behind in the record.

@@ -101,9 +101,15 @@ const sameCard = (a: StudentCard | null, b: StudentCard | null) =>
  * `data-card-student`, and `data-card-hidden` behind a "+N") and
  * `data-card-profile`. `kinds` leaves either kind closed, by a mouse and a
  * finger alike, as the seats' tooltip is (`useStudentCardSettings`).
+ *
+ * `root` is the element itself, which the caller keeps in state through a
+ * callback ref, not a ref object: a list that is drawn only once it has
+ * students — a class just created, a class switched to from an empty one —
+ * gets its element after the first render, and a ref's change starts no
+ * effect, so the cards stayed closed there until a reload.
  */
 export function useStudentCard(
-  rootRef: React.RefObject<HTMLElement | null>,
+  root: HTMLElement | null,
   {
     enabled = true,
     kinds = ALL_KINDS,
@@ -123,7 +129,6 @@ export function useStudentCard(
     const allowed: CardKinds = { badge: badgeCards, profile: profileCards };
     // A card of a kind just switched off goes with it.
     if (cardRef.current && !allowed[cardRef.current.kind]) update(null);
-    const root = rootRef.current;
     if (!root || !enabled || (!badgeCards && !profileCards)) return undefined;
 
     let profileTimer = 0;
@@ -242,7 +247,7 @@ export function useStudentCard(
       window.removeEventListener('resize', dismiss);
       window.removeEventListener('keydown', handleKey);
     };
-  }, [badgeCards, dismiss, enabled, profileCards, rootRef, update]);
+  }, [badgeCards, dismiss, enabled, profileCards, root, update]);
 
   const shown =
     enabled && card && (card.kind === 'badge' ? badgeCards : profileCards)

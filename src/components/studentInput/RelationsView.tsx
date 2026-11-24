@@ -60,9 +60,12 @@ export default function RelationsView({
   const openedId = selection?.kind === 'student' ? selection.id : null;
   const [finding, setFinding] = React.useState<Finding | null>(null);
   const [sortMode, setSortMode] = React.useState<SortMode>('class');
-  const rootRef = React.useRef<HTMLDivElement>(null);
   // A small face explains whom it shows, as a name in the class list does.
-  const { card } = useStudentCard(rootRef, { kinds: cards });
+  // In state, not a ref: the view is drawn only once the class has a wish.
+  const [rootElement, setRootElement] = React.useState<HTMLDivElement | null>(
+    null,
+  );
+  const { card } = useStudentCard(rootElement, { kinds: cards });
 
   const relations = React.useMemo(
     () => describeClassRelations(students),
@@ -114,7 +117,7 @@ export default function RelationsView({
   const detailsId = 'relations-finding';
 
   return (
-    <div ref={rootRef} className="@container flex flex-col gap-4">
+    <div ref={setRootElement} className="@container flex flex-col gap-4">
       <p className="text-sm text-(--text-muted)">
         {t('relations.description')}
       </p>

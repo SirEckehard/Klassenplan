@@ -87,6 +87,21 @@ test('a teacher can go from an empty app to an exportable seating plan', async (
     ).toContainText('4 Schüler');
   });
 
+  await test.step('step 1 — a name the pointer rests on shows the student', async () => {
+    // The list was drawn only once the class had students; its cards have
+    // to open all the same, not only after a reload.
+    await page
+      .getByRole('button', { name: `${STUDENTS[0]} im Inspektor öffnen` })
+      .locator('[data-card-profile]')
+      .last()
+      .hover();
+    await expect(page.getByRole('tooltip')).toContainText(
+      'Noch keine Merkmale',
+    );
+    await page.mouse.move(0, 0);
+    await expect(page.getByRole('tooltip')).toBeHidden();
+  });
+
   await test.step('step 2 — set the room up from the inspector', async () => {
     await page.getByRole('button', { name: 'Weiter zum Raum' }).click();
 
