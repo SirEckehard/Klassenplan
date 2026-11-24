@@ -272,11 +272,18 @@ function StudentPhotoButton({ student, updateStudent }: Props) {
             onClick={handleRemove}
             title={t('photo.remove')}
             aria-label={t('photo.remove')}
-            // On a touch screen the badge grows and an invisible margin makes
-            // it a 44px target; a tap that lands there by mistake only asks.
-            className="absolute -right-1 -top-1 flex h-4 w-4 cursor-pointer items-center justify-center rounded-full border border-(--surface-card) bg-(--button-danger-bg) text-white shadow-sm transition hover:bg-(--button-danger-bg-hover) pointer-coarse:h-6 pointer-coarse:w-6 pointer-coarse:before:absolute pointer-coarse:before:-inset-2.5 pointer-coarse:before:content-['']"
+            // A 24px target around a 16px badge, so the pointer finds it
+            // (WCAG 2.5.8); on a touch screen the badge grows and an
+            // invisible margin makes it a 44px target. A tap that lands there
+            // by mistake only asks.
+            className="group/remove absolute -right-2 -top-2 flex h-6 w-6 cursor-pointer items-center justify-center rounded-full pointer-coarse:before:absolute pointer-coarse:before:-inset-2.5 pointer-coarse:before:content-['']"
           >
-            <XIcon size={9} weight="bold" />
+            <span
+              aria-hidden="true"
+              className="flex h-4 w-4 items-center justify-center rounded-full border border-(--surface-card) bg-(--button-danger-bg) text-white shadow-sm transition group-hover/remove:bg-(--button-danger-bg-hover) pointer-coarse:h-6 pointer-coarse:w-6"
+            >
+              <XIcon size={9} weight="bold" />
+            </span>
           </button>
         )}
 
