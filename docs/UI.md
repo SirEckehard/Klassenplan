@@ -934,7 +934,8 @@ afterwards.
   "Stand vor dem Update …" counts two states instead, now and from before,
   side by side (`comparison`, `compareClassFacts`): a row that differs stands
   in full ink with its difference, and a class only one of them holds is named
-  below.
+  below; the line under its title dates the copy by its newest change, which a
+  window still on 3.4.0 may have made after the switch (decision 0049).
 - **A message stands where it belongs, and is rarely a card** (decision 0037).
   What the screen shows is not said again — a plan that opened, a class made, a
   room deleted after its question — but heard by a screen reader (`announce`). A

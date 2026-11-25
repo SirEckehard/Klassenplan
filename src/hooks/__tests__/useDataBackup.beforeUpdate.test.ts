@@ -114,6 +114,34 @@ describe('restoring the classes from before the update', () => {
     expect(importAllFromJson).not.toHaveBeenCalled();
   });
 
+  // A window still on 3.4.0 writes into the copy after the switch
+  // (decision 0049, addendum of 2026-11-25).
+  it('dates the copy by the switch, or by a change made in it later', async () => {
+    confirmDialog.mockResolvedValue(false);
+    const copyChangedAt = async (updatedAt: string) => {
+      repository.loadRetiredClasses.mockResolvedValue({
+        success: true,
+        data: {
+          collection: {
+            ...before,
+            classes: before.classes.map((entry) => ({ ...entry, updatedAt })),
+          },
+          retiredAt: '2026-11-20T08:00:00.000Z',
+          keptUntil: '2026-12-20T08:00:00.000Z',
+        },
+      });
+      await restore();
+      return confirmDialog.mock.lastCall![0].meta as string;
+    };
+
+    expect(await copyChangedAt('2026-11-18T08:00:00.000Z')).toMatch(
+      /^(Vom|From) 20\. November 2026/,
+    );
+    expect(await copyChangedAt('2026-11-23T08:00:00.000Z')).toMatch(
+      /^(Vom|From) 23\. November 2026/,
+    );
+  });
+
   it('says so when the copy is gone', async () => {
     repository.loadRetiredClasses.mockResolvedValue({
       success: true,

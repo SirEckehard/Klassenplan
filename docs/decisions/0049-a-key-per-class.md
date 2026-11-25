@@ -106,3 +106,16 @@ changes the maintainer chose:
 - **Whether the classes from before are kept is asked once per window**
   (`hasRetiredClasses`), without reading them as classes; the toolbar's foot
   asked on every layer and put every old class on its seats to answer.
+
+## Addendum of 2026-11-25: a window still on 3.4.0
+
+The consequence above — what a window of 3.4.0 or earlier changes is lost —
+is too dark, as the same review found (A10) in the code of 3.4.0. Such a
+window reads the copy as its collection, changes it and spreads the rest
+back, so `retiredAt` stays and its change lands in the copy: for the 30 days
+"Stand vor dem Update" offers it, the way back to work done there after the
+switch. The question dates the copy by its newest change, no longer by the
+switch alone. Only that window's "Alles ersetzen" writes a collection
+without the marker; the index stays the truth, the copy is no more, and the
+classes are in the backup file it restored. Tests in
+`IndexedDBRepository.classStorage.test.ts` write as 3.4.0 does.

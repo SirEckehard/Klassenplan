@@ -339,11 +339,20 @@ export default function useDataBackup({
       };
       const onlyNow = namesOnlyIn(now, before);
       const onlyBefore = namesOnlyIn(before, now);
+      // A window still on 3.4.0 writes into the copy after the switch
+      // (decision 0049, addendum of 2026-11-25): it holds the state of its
+      // newest change, which may be later than the switch.
+      const asOf = Math.max(
+        Date.parse(retired.retiredAt),
+        ...before
+          .map((entry) => Date.parse(entry.updatedAt))
+          .filter(Number.isFinite),
+      );
       const confirmed = await confirmDialog({
         icon: ClockCounterClockwiseIcon,
         title: i18n.t('common:dialogs.beforeUpdate.title'),
         meta: i18n.t('common:dialogs.beforeUpdate.meta', {
-          date: formatLongDate(retired.retiredAt),
+          date: formatLongDate(asOf),
           until: formatLongDate(retired.keptUntil),
         }),
         comparison: {

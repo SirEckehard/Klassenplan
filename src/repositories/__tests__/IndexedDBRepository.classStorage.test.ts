@@ -3,8 +3,8 @@
 /**
  * The switch to a key per class (decision 0049) around its edges: the copy
  * of the classes from before, kept 30 days and safe from a window still on
- * 3.4.1; two tabs switching at once; keys the index no longer names; and
- * "Alle Daten löschen".
+ * 3.4.1, and what a window on 3.4.0 writes into it; two tabs switching at
+ * once; keys the index no longer names; and "Alle Daten löschen".
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -150,6 +150,62 @@ describe('the switch to a key per class', () => {
 
     const restored = expectData(await repository.loadClassCollection());
     expect(restored.classes.map((entry) => entry.name)).toEqual(['7a', '8b']);
+  });
+
+  // A window still on 3.4.0 knows no newer data. It changes what it reads
+  // and spreads the rest, as its `changeCollection` did, so the marker stays
+  // and the change lands in the copy (decision 0049, addendum of 2026-11-25).
+  it('keeps in the copy what a window still on 3.4.0 changes after the switch', async () => {
+    expectData(await new IndexedDBRepository().loadClassCollection());
+    vi.setSystemTime(NOW + DAY);
+    const read = memory.get(COLLECTION_KEY) as ClassCollectionState;
+    memory.set(COLLECTION_KEY, {
+      ...read,
+      version: CLASS_COLLECTION_VERSION,
+      classes: read.classes.map((entry) =>
+        entry.id === 'class-7a'
+          ? {
+              ...entry,
+              students: [
+                ...entry.students,
+                createMockStudent({ id: 'noah', name: 'Noah' }),
+              ],
+              updatedAt: new Date(NOW + DAY).toISOString(),
+            }
+          : entry,
+      ),
+    });
+
+    // The classes in their keys stay as they were ...
+    const later = new IndexedDBRepository();
+    const now = expectData(await later.loadClassCollection());
+    expect(now.classes[0]?.students.map((student) => student.name)).toEqual([
+      'Mia',
+    ]);
+    // ... and "Stand vor dem Update" brings the change back.
+    expect(expectData(await later.hasRetiredClasses())).toBe(true);
+    const retired = expectData(await later.loadRetiredClasses());
+    expect(
+      retired?.collection.classes[0]?.students.map((student) => student.name),
+    ).toEqual(['Mia', 'Noah']);
+    expect(retired?.keptUntil).toBe(new Date(NOW + 30 * DAY).toISOString());
+  });
+
+  // Its "Alles ersetzen" writes a backup's classes without the marker: the
+  // index stays the truth, and the classes are in the backup file.
+  it('stays with the classes in their keys after a restore in a window still on 3.4.0', async () => {
+    expectData(await new IndexedDBRepository().loadClassCollection());
+    const nineC = createClassRecord({ id: 'class-9c', name: '9c' });
+    memory.set(COLLECTION_KEY, {
+      version: CLASS_COLLECTION_VERSION,
+      activeClassId: nineC.id,
+      classes: [nineC],
+    });
+
+    const later = new IndexedDBRepository();
+    const now = expectData(await later.loadClassCollection());
+    expect(now.classes.map((entry) => entry.name)).toEqual(['7a', '8b']);
+    expect(expectData(await later.hasRetiredClasses())).toBe(false);
   });
 
   it('switches once when two tabs open at the same moment', async () => {
