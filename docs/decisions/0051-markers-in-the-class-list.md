@@ -1,7 +1,7 @@
 # 0051 – The class list explains its markers, and a brush replaces the focus mode
 
 - **Status:** accepted
-- **In place since:** — (the next release)
+- **In place since:** v3.5.0 (2026-11-25)
 - **Sources:** the maintainer's choices of 2026-11-19 on the page "Merkmale in
   der Klassenliste" (B, E, F and H taken, A, C, D and G not), a screenshot of
   the list on a phone, [UI.md § The class list](../UI.md#the-class-list),

@@ -1,7 +1,7 @@
 # 0054 – A plan in use keeps how it went, and "Erfahrung" reads it
 
 - **Status:** accepted
-- **In place since:** — (the next release)
+- **In place since:** v3.5.0 (2026-11-25)
 - **Sources:** the maintainer's idea and choices of 2026-11-22 (feedback on a
   plan in "Bibliothek" that the mixing can use; a rating of the plan and, when
   it did not go well, the tables where it did not; "Gut" makes repetition

@@ -1,7 +1,7 @@
 # 0053 – "Neu einrichten" sets tables towards the board, and offers arrangements
 
 - **Status:** accepted
-- **In place since:** — (the next release)
+- **In place since:** v3.5.0 (2026-11-25)
 - **Sources:** the maintainer's choices of 2026-11-20 on the page
   "Raum-Aufstellungen" (every point taken but group tables staggered by
   default; notes on the herringbone, sketches of the islands and the market

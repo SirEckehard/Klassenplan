@@ -1,7 +1,7 @@
 # 0052 – The relations view: what deserves a look first, then a line per student
 
 - **Status:** accepted
-- **In place since:** — (the next release)
+- **In place since:** v3.5.0 (2026-11-25)
 - **Sources:** the maintainer's choices of 2026-11-20 on the page "Beziehungen
   der Klasse" (A and C taken, H left for later, B, D, E, F and G not),
   [UI.md § The class list](../UI.md#the-class-list),

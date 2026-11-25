@@ -1,6 +1,6 @@
 # Architecture
 
-> **Status:** current · **Last reviewed:** 2026-11-19 · **Maintainer:** Eike
+> **Status:** current · **Last reviewed:** 2026-11-25 · **Maintainer:** Eike
 > Schäfer · **Describes:** Klassenplan 3.1.2
 
 This is the entry point for anyone who wants to understand _why_ Klassenplan is
@@ -401,7 +401,7 @@ budgets take their place; measurements and details are in
 
 | Quality                         | Budget                                                        | Status                                                                                        |
 | ------------------------------- | ------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
-| Load size                       | Initial payload ≤ 220 KB brotli                               | 211.5 KB on 2026-11-22; enforced in CI and the Docker build                                   |
+| Load size                       | Initial payload ≤ 220 KB brotli                               | 212.7 KB on 2026-11-25; enforced in CI and the Docker build                                   |
 | Response to _Mischen_           | ≤ 500 ms for 36 students on the slowest supported device      | About 72 ms on an Apple M1 Pro under Vitest 5; measured by hand with `npm run bench`          |
 | Page experience                 | Core Web Vitals "good"                                        | Logged in the browser only; no field data; layout shift guarded by `e2e/layout-shift.spec.ts` |
 | Offline use                     | The generator works without a connection after the first load | In place since v1.2.0; not tested automatically                                               |

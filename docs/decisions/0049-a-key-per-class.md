@@ -1,7 +1,7 @@
 # 0049 – Every class under a key of its own
 
 - **Status:** accepted
-- **In place since:** — (the next release)
+- **In place since:** v3.5.0 (2026-11-25)
 - **Sources:** the review "Schneller, leichter, einfacher" of 2026-11-17
   (S2 and B2, chosen by the maintainer on 2026-11-19),
   [decision 0035](0035-seats-stored-by-id.md) (seats as ids),

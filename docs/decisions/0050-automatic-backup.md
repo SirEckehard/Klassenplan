@@ -1,7 +1,7 @@
 # 0050 – A backup that writes itself, under a password set once
 
 - **Status:** accepted
-- **In place since:** — (the next release)
+- **In place since:** v3.5.0 (2026-11-25)
 - **Sources:** the review "Schneller, leichter, einfacher" of 2026-11-17
   (B3; the password chosen by the maintainer on 2026-11-19),
   [school-deployment.md](../school-deployment.md#keeping-the-data),

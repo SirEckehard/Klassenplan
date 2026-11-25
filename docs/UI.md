@@ -1,6 +1,6 @@
 # The Interface
 
-> **Status:** current · **Last reviewed:** 2026-11-24 · **Source of truth:**
+> **Status:** current · **Last reviewed:** 2026-11-25 · **Source of truth:**
 > `src/components/shell/`, `src/components/SeatingPlanGenerator/`,
 > `src/contexts/InspectorContext.tsx`
 
