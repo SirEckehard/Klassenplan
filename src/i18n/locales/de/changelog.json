@@ -1,4 +1,22 @@
 {
+  "v3_5_0": {
+    "0": "In Chrome und Edge kann „Backup“ selbst ein verschlüsseltes Backup in einem Ordner deiner Wahl speichern, einmal am Tag nach einer Änderung",
+    "1": "Die Klassenliste erklärt ein Merkmal, wenn du darauf zeigst oder den Finger darauf hältst, wie es der Sitzplan tut, und „Ansichtseinstellungen“ schaltet das ab",
+    "2": "„Markieren“ oben in der Klassenliste setzt ein Merkmal bei vielen Schülern auf einmal und ersetzt die Ansicht „Merkmale“",
+    "3": "„Raum als Datei speichern …“ im Inspektor des Raums gibt einen Raum an Kolleginnen und Kollegen weiter, ohne ihn erst als Vorlage zu speichern",
+    "4": "„Neu einrichten“ bietet sieben Sitzordnungen, vom Hufeisen bis zu Tischen an den Wänden, und stellt einen neuen Raum per Zufall zusammen",
+    "5": "Du kannst festhalten, wie ein genutzter Plan funktioniert hat und an welchen Tischen nicht, und das neue Kriterium „Erfahrung“ hält diese Schüler länger auseinander; folgt auf einen Plan ein neuer, fragt der Sitzplan einmal, wie er lief",
+    "6": "Speichern bleibt schnell, egal wie viele Klassen es gibt, und 30 Tage nach dem Update kann „Backup“ die Klassen so zurückholen, wie sie davor waren",
+    "7": "„Backup“ zeigt, wann du zuletzt ein Backup gespeichert hast",
+    "8": "Auf dem Handy und dem Tablet im Hochformat zeigt die Klassenliste Merkmale als Icons und klappt sie mit einem Pfeil auf",
+    "9": "Auf einem breiten Bildschirm nennt die Klassenliste die Wunsch- und Distanzpartner in ihrem Merkmal",
+    "10": "„Beziehungen“ zeigt Widersprüche und wer noch nicht genannt wurde ganz oben, darunter eine Zeile je Schüler mit seinen Wünschen der Reihe nach und wie oft er genannt wurde",
+    "11": "„Neu einrichten“ verteilt Gruppentische gleichmäßig im Raum und richtet jede Anordnung zur Tafel aus, wo immer sie hängt",
+    "12": "Die Startseite stellt auch die Namensschilder und die Klassenwerkzeuge vor, mit neuen Screenshots und auf einem großen Bildschirm mit Ausschnitten neben ihren Abschnitten",
+    "13": "Zusammengeschobene Tische in einer Reihe mischen Geschlechter und Leistungsstärken über die Fuge hinweg wie ein Doppeltisch, und die Erfüllung zählt es mit",
+    "14": "Der Wechsel in die „Bibliothek“ speichert den offenen Plan samt Sitzkreis, wie es der Wechsel zurück zum Raum tut",
+    "15": "Weitere kleine Fehler behoben"
+  },
   "v3_4_1": {
     "0": "Speichern als PDF geht um ein Vielfaches schneller, vor allem bei Namensschildern auf langsameren Computern",
     "1": "Wer Klassenplan für eine Schule betreibt, stellt Adresse, Rechtstexte und Kontakt beim Start des Docker-Images ein, das nur noch ein Fünftel so groß ist, ohne root auf Port 8080 (bisher 80) läuft und HTTPS mit einem Befehl bietet; jeder Release kommt außerdem als Dateien für einen Webserver ohne Docker",

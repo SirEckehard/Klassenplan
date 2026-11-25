@@ -1,4 +1,22 @@
 {
+  "v3_5_0": {
+    "0": "In Chrome and Edge, \"Backup\" can save an encrypted backup into a folder of your choice by itself, once a day after a change",
+    "1": "The class list explains an attribute when you point at it or press and hold it, as the seating plan does, and \"View settings\" switches it off",
+    "2": "\"Mark\" at the top of the class list sets an attribute on many students and replaces the \"Attributes\" view",
+    "3": "\"Save room as a file …\" in the room's inspector passes a room to a colleague without saving it as a template first",
+    "4": "\"Set up from scratch\" offers seven seating arrangements, from a horseshoe to desks facing the walls, and puts a new room together at random",
+    "5": "You can say how a plan in use worked and at which tables it did not, and the new criterion \"Experience\" keeps those students apart for longer; once a plan was followed by another, the seating plan asks once how it went",
+    "6": "Saving stays quick however many classes there are, and for 30 days after the update \"Backup\" can bring back the classes as they were before it",
+    "7": "\"Backup\" shows when you last saved a backup",
+    "8": "On a phone and an upright tablet the class list shows attributes as icons and unfolds them with an arrow",
+    "9": "On a wide screen the class list names the wish and distance partners in their attribute",
+    "10": "\"Relationships\" shows contradictions and who has not been named yet at the top, and a line per student with their wishes in order and how often they were named",
+    "11": "\"Set up from scratch\" spreads group tables evenly through the room and turns every layout towards the board, wherever it hangs",
+    "12": "The start page also presents the name cards and the class tools, with new screenshots and, on a large screen, close-ups beside its sections",
+    "13": "Desks pushed together in a row now mix genders and performance levels across the join as a double desk does, and the fulfilment counts it",
+    "14": "Going to \"Library\" saves the open plan, its seating circle included, as going back to the room does",
+    "15": "Other small fixes"
+  },
   "v3_4_1": {
     "0": "Saving as PDF is several times faster, most of all for name cards on slower computers",
     "1": "Whoever runs Klassenplan for a school sets its address, legal pages and contact when starting the Docker image, which is a fifth of its former size, runs without root on port 8080 (formerly 80) and offers HTTPS with one command; every release also comes as files for a web server without Docker",

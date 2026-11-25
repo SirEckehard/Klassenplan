@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [3.5.0] - 2026-11-25
+
 ### Added
 
 - In Chrome and Edge, "Backup" can save an encrypted backup into a folder of your choice by itself, once a day after a change

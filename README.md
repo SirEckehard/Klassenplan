@@ -59,10 +59,10 @@ Recommended before commits: `npm test -- --run && npm run lint && npm run typech
 A production-ready [`Dockerfile`](Dockerfile) (multi-stage build with nginx) ships with the repository. Release tags publish a multi-arch image (amd64/arm64) to GitHub Container Registry. One command starts it on port 8080:
 
 ```bash
-docker run -d --name klassenplan -p 8080:8080 --restart unless-stopped ghcr.io/sireckehard/klassenplan:3.4
+docker run -d --name klassenplan -p 8080:8080 --restart unless-stopped ghcr.io/sireckehard/klassenplan:3.5
 ```
 
-Tags follow the release: `3.4.1` and `3.4` pin a version, `latest` always tracks the newest release. To set variables and update with one command, use [`docker-compose.yml`](docker-compose.yml):
+Tags follow the release: `3.5.0` and `3.5` pin a version, `latest` always tracks the newest release. To set variables and update with one command, use [`docker-compose.yml`](docker-compose.yml):
 
 ```bash
 docker compose up -d           # uses the published image, serves on port 8080
@@ -77,7 +77,7 @@ The compose file reads these optional variables from a `.env` file next to it (s
 | `SITE_URL`                   | `https://klassenplan.de` | The address the instance is served under: canonical, hreflang, sitemap  |
 | `IMPRINT_URL`, `PRIVACY_URL` | empty                    | Your own Impressum and Datenschutzerklärung instead of klassenplan.de's |
 | `CONTACT_EMAIL`              | empty                    | Your contact address for the contact page and the error reports         |
-| `KLASSENPLAN_VERSION`        | `latest`                 | Compose only: pins the image tag, e.g. `3.4.1`                          |
+| `KLASSENPLAN_VERSION`        | `latest`                 | Compose only: pins the image tag, e.g. `3.5.0`                          |
 | `KLASSENPLAN_PORT`           | `8080`                   | Compose only: host port the container is published on                   |
 | `DOMAIN`                     | none                     | `docker-compose.https.yml` only: the host name Caddy fetches HTTPS for  |
 
