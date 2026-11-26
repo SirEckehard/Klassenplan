@@ -57,7 +57,7 @@ const plan: SavedPlan = createMockSavedPlan({
 });
 
 const recordOf = (overrides: Partial<PlanUsage> = {}): PlanUsage => {
-  const pairs = collectSeatingPairKeys(plan.seating);
+  const pairs = collectSeatingPairKeys(plan.seating, plan.scene);
   return {
     id: 'u1',
     fingerprint: computePlanFingerprint(pairs),
@@ -133,6 +133,7 @@ describe('PlanPanel', () => {
 
     expect(usageRecords.current?.markUsed).toHaveBeenCalledWith(
       plan.seating,
+      plan.scene,
       true,
       new Date(2026, 8, 1).toISOString(),
     );
@@ -149,6 +150,7 @@ describe('PlanPanel', () => {
 
     expect(usageRecords.current?.markUsed).toHaveBeenCalledWith(
       plan.seating,
+      plan.scene,
       false,
       expect.any(String),
     );
@@ -191,6 +193,7 @@ describe('PlanPanel', () => {
 
       expect(usageRecords.current?.setFeedback).toHaveBeenCalledWith(
         plan.seating,
+        plan.scene,
         { rating: 'good', at: expect.any(String) },
         new Date(2026, 8, 1).toISOString(),
       );
@@ -210,6 +213,7 @@ describe('PlanPanel', () => {
 
       expect(usageRecords.current?.setFeedback).toHaveBeenCalledWith(
         plan.seating,
+        plan.scene,
         null,
         expect.any(String),
       );
@@ -232,10 +236,70 @@ describe('PlanPanel', () => {
 
       expect(usageRecords.current?.setFeedback).toHaveBeenCalledWith(
         plan.seating,
+        plan.scene,
         { rating: 'poor', poorTables: [['a', 'b']], at: expect.any(String) },
         expect.any(String),
       );
       expect(wentPoorly()).toHaveAttribute('aria-pressed', 'true');
+    });
+
+    it('names single desks pushed together as one table', async () => {
+      // Two single desks edge to edge, a third a step away.
+      const single = (y: number) => ({
+        x: 600,
+        y,
+        width: 55,
+        height: 65,
+        rotation: 0,
+        seatCount: 1,
+        locked: false,
+        zIndex: 0,
+        templateType: 'single' as const,
+      });
+      const [anna, ben, carla] = [
+        createMockStudent({ id: 'a', name: 'Anna' }),
+        createMockStudent({ id: 'b', name: 'Ben' }),
+        createMockStudent({ id: 'c', name: 'Carla' }),
+      ];
+      const desks: SavedPlan = {
+        ...plan,
+        scene: createMockClassroomScene(0, {
+          tables: [single(100), single(165), single(400)],
+        }),
+        seating: [[anna!], [ben!], [carla!]],
+      };
+      const pairs = collectSeatingPairKeys(desks.seating, desks.scene);
+      usageRecords.current = records({
+        planUsage: [
+          recordOf({
+            pairs,
+            fingerprint: computePlanFingerprint(pairs),
+            feedback: { rating: 'poor', at: '2026-10-01' },
+          }),
+        ],
+      });
+      const user = userEvent.setup();
+      renderPanel({
+        plan: desks,
+        plans: [desks],
+        students: [anna!, ben!, carla!],
+      });
+
+      expect(pairs).toEqual(['a::b']);
+      expect(
+        screen.getAllByRole('switch', { name: /Tisch mit|Table with/i }),
+      ).toHaveLength(1);
+      await user.click(
+        screen.getByRole('switch', {
+          name: /(Tisch mit|Table with) Anna · Ben/i,
+        }),
+      );
+      expect(usageRecords.current?.setFeedback).toHaveBeenCalledWith(
+        desks.seating,
+        desks.scene,
+        { rating: 'poor', poorTables: [['a', 'b']], at: expect.any(String) },
+        expect.any(String),
+      );
     });
 
     it('says the feedback waits while "Erfahrung" is off', () => {

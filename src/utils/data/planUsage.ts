@@ -8,13 +8,17 @@
  * exactly instead of statistically.
  */
 import type {
+  ClassroomScene,
   MixResult,
   PlanFeedback,
   PlanUsage,
   PlanUsageSource,
   SavedPlan,
   SeatingArrangement,
+  Student,
 } from '@/types';
+import { getSeatLayout } from '@/utils/algorithm/model/seatRelations';
+import { hasShapeMismatch } from '@/utils/math/scene';
 import { seatPairKey, seatStudentIdentifier } from '@/utils/pairs';
 
 /**
@@ -36,24 +40,145 @@ const PLAN_USAGE_SOURCE_CONFIDENCE: Record<PlanUsageSource, number> = {
  */
 export const PLAN_USAGE_LIMIT = 40;
 
-/** Pair keys of an arrangement, sorted and free of duplicates. */
+/**
+ * The room a plan was made in, which says whose tables were pushed together;
+ * null where it is not known.
+ */
+export type PlanRoom = ClassroomScene | null | undefined;
+
+const seatedOnly = (seats: readonly (Student | null | undefined)[]) =>
+  seats.filter((seat): seat is Student => Boolean(seat));
+
+/**
+ * Who sat together in an arrangement, as the mixing reads the room (decision
+ * 0031): the students of every table group — a table on its own, or tables
+ * pushed together round a corner or face to face — and the two at every join
+ * of desks pushed together in a row, which count as a double desk. Each in
+ * seat order, ordered by their first seat; a group with nobody seated is
+ * empty. Without the room, or for a room the arrangement was not made for,
+ * every table on its own, which is all the records knew up to 3.5.0.
+ *
+ * @param seating The arrangement
+ * @param scene The room it was made in
+ */
+export function seatedTogether(
+  seating: SeatingArrangement | null | undefined,
+  scene: PlanRoom,
+): Student[][] {
+  if (!seating) return [];
+  if (!scene || hasShapeMismatch(scene, seating)) {
+    return seating.map((table) => seatedOnly(table ?? []));
+  }
+  const layout = getSeatLayout(scene);
+  const occupant = (seat: number) =>
+    seating[layout.tableOf[seat]!]?.[layout.seatOf[seat]!];
+  // Groups first, so a group and a join starting at one seat keep that order.
+  return [
+    ...layout.groups.map((seats) => ({ first: seats[0] ?? 0, seats })),
+    ...layout.joins.map(([a, b]) => ({ first: a, seats: [a, b] })),
+  ]
+    .sort((x, y) => x.first - y.first)
+    .map(({ seats }) => seatedOnly(seats.map(occupant)));
+}
+
+/**
+ * Pair keys of an arrangement, sorted and free of duplicates: every two who
+ * sat together ({@link seatedTogether}).
+ *
+ * @param seating The arrangement
+ * @param scene The room it was made in; without it every table on its own
+ */
 export function collectSeatingPairKeys(
   seating: SeatingArrangement | null | undefined,
+  scene: PlanRoom,
 ): string[] {
-  if (!seating) return [];
-
   const keys = new Set<string>();
-  for (const table of seating) {
-    const identifiers = (table ?? [])
-      .filter(Boolean)
-      .map((seat) => seatStudentIdentifier(seat!));
+  for (const unit of seatedTogether(seating, scene)) {
+    const identifiers = unit.map(seatStudentIdentifier);
     for (let i = 0; i < identifiers.length; i++) {
       for (let j = i + 1; j < identifiers.length; j++) {
-        keys.add(seatPairKey(identifiers[i], identifiers[j]));
+        keys.add(seatPairKey(identifiers[i]!, identifiers[j]!));
       }
     }
   }
   return [...keys].sort();
+}
+
+/**
+ * A plan as its record knows it: who sat together and the fingerprint of
+ * that. Where tables were pushed together, also the fingerprint a record
+ * written up to 3.5.0 carries for the plan, which counted every table on its
+ * own: such a record still finds its plan, and takes the plan's pairs with
+ * the next signal, marking or feedback for it.
+ */
+export interface PlanPairs {
+  pairs: string[];
+  fingerprint: string;
+  formerFingerprint?: string;
+}
+
+/**
+ * The pairs and fingerprints of an arrangement, or null for one without a
+ * pair, which no record holds.
+ *
+ * @param seating The arrangement
+ * @param scene The room it was made in
+ */
+export function planPairsOf(
+  seating: SeatingArrangement | null | undefined,
+  scene: PlanRoom,
+): PlanPairs | null {
+  const pairs = collectSeatingPairKeys(seating, scene);
+  if (pairs.length === 0) return null;
+  const fingerprint = computePlanFingerprint(pairs);
+  const tablePairs = scene ? collectSeatingPairKeys(seating, null) : pairs;
+  if (tablePairs.length === 0) return { pairs, fingerprint };
+  const formerFingerprint = computePlanFingerprint(tablePairs);
+  return formerFingerprint === fingerprint
+    ? { pairs, fingerprint }
+    : { pairs, fingerprint, formerFingerprint };
+}
+
+/** Whether a record is the record of this plan, by either fingerprint. */
+export function isRecordOf(
+  entry: PlanUsage,
+  plan: Pick<PlanPairs, 'fingerprint' | 'formerFingerprint'>,
+): boolean {
+  return (
+    entry.fingerprint === plan.fingerprint ||
+    (plan.formerFingerprint !== undefined &&
+      entry.fingerprint === plan.formerFingerprint)
+  );
+}
+
+/**
+ * The index of a plan's record, -1 for none: the record with its fingerprint,
+ * or else one written before tables pushed together counted.
+ */
+function indexOfRecord(
+  entries: readonly PlanUsage[],
+  plan: Pick<PlanPairs, 'fingerprint' | 'formerFingerprint'>,
+): number {
+  const index = entries.findIndex(
+    (entry) => entry.fingerprint === plan.fingerprint,
+  );
+  if (index !== -1 || plan.formerFingerprint === undefined) return index;
+  return entries.findIndex(
+    (entry) => entry.fingerprint === plan.formerFingerprint,
+  );
+}
+
+/**
+ * The record of a plan, by its pairs and fingerprints.
+ *
+ * @param entries Usage records of one class
+ * @param plan The plan's pairs, as {@link planPairsOf} gives them
+ */
+export function findPlanRecord(
+  entries: readonly PlanUsage[],
+  plan: Pick<PlanPairs, 'fingerprint' | 'formerFingerprint'>,
+): PlanUsage | undefined {
+  return entries[indexOfRecord(entries, plan)];
 }
 
 /**
@@ -109,15 +234,29 @@ export function trimPlanUsage(entries: PlanUsage[]): PlanUsage[] {
     .slice(entries.length - PLAN_USAGE_LIMIT);
 }
 
-export interface PlanUsageSignal {
-  pairs: string[];
-  fingerprint: string;
+export interface PlanUsageSignal extends PlanPairs {
   source: PlanUsageSource;
   /** ISO 8601 timestamp of the action. */
   at: string;
   /** Id for the record this signal creates; ignored when one already exists. */
   id: string;
 }
+
+/** A plan marked or rated by hand: its pairs, its date, an id for a record. */
+export type PlanMarking = Pick<
+  PlanUsageSignal,
+  'pairs' | 'fingerprint' | 'formerFingerprint' | 'at' | 'id'
+>;
+
+/**
+ * A record as its plan reads now. One found by the fingerprint it was written
+ * with up to 3.5.0 takes the plan's pairs, which count the tables pushed
+ * together as well; the tables of its feedback sat together then as now.
+ */
+const upToDate = (entry: PlanUsage, plan: PlanPairs): PlanUsage =>
+  entry.fingerprint === plan.fingerprint
+    ? entry
+    : { ...entry, fingerprint: plan.fingerprint, pairs: [...plan.pairs] };
 
 /**
  * Fold one usage signal into the records of a class.
@@ -129,9 +268,10 @@ export interface PlanUsageSignal {
  */
 export function mergePlanUsageSignal(
   entries: readonly PlanUsage[],
-  { pairs, fingerprint, source, at, id }: PlanUsageSignal,
+  signal: PlanUsageSignal,
 ): PlanUsage[] {
-  const index = entries.findIndex((entry) => entry.fingerprint === fingerprint);
+  const { pairs, fingerprint, source, at, id } = signal;
+  const index = indexOfRecord(entries, signal);
 
   if (index !== -1) {
     const existing = entries[index];
@@ -140,7 +280,7 @@ export function mergePlanUsageSignal(
       : [...existing.sources, source];
     const next = [...entries];
     next[index] = {
-      ...existing,
+      ...upToDate(existing, signal),
       sources,
       confidence: confidenceForSources(sources),
       firstSeenAt: at < existing.firstSeenAt ? at : existing.firstSeenAt,
@@ -176,19 +316,15 @@ export function mergePlanUsageSignal(
  */
 export function markPlanUsage(
   entries: readonly PlanUsage[],
-  {
-    pairs,
-    fingerprint,
-    at,
-    id,
-  }: Pick<PlanUsageSignal, 'pairs' | 'fingerprint' | 'at' | 'id'>,
+  signal: PlanMarking,
   used: boolean,
 ): PlanUsage[] {
-  const index = entries.findIndex((entry) => entry.fingerprint === fingerprint);
+  const { pairs, fingerprint, at, id } = signal;
+  const index = indexOfRecord(entries, signal);
 
   if (index !== -1) {
     const next = [...entries];
-    next[index] = { ...entries[index], confirmed: used };
+    next[index] = { ...upToDate(entries[index], signal), confirmed: used };
     return next;
   }
   if (!used) return [...entries];
@@ -258,18 +394,14 @@ export function normalizePlanFeedback(
  */
 export function withPlanFeedback(
   entries: readonly PlanUsage[],
-  {
-    pairs,
-    fingerprint,
-    at,
-    id,
-  }: Pick<PlanUsageSignal, 'pairs' | 'fingerprint' | 'at' | 'id'>,
+  signal: PlanMarking,
   feedback: PlanFeedback | null,
 ): PlanUsage[] {
-  const index = entries.findIndex((entry) => entry.fingerprint === fingerprint);
+  const { pairs, fingerprint, at, id } = signal;
+  const index = indexOfRecord(entries, signal);
 
   if (index !== -1) {
-    const existing = entries[index];
+    const existing = upToDate(entries[index], signal);
     const next = [...entries];
     if (feedback === null) {
       const rest = { ...existing };
@@ -384,15 +516,15 @@ export function hasPlanFeedback(entries: readonly PlanUsage[]): boolean {
  *
  * @param entries Usage records of one class
  * @param seating The arrangement to look up
+ * @param scene The room it was made in
  */
 export function findPlanUsage(
   entries: readonly PlanUsage[],
   seating: SeatingArrangement | null | undefined,
+  scene: PlanRoom,
 ): PlanUsage | undefined {
-  const pairs = collectSeatingPairKeys(seating);
-  if (pairs.length === 0) return undefined;
-  const fingerprint = computePlanFingerprint(pairs);
-  return entries.find((entry) => entry.fingerprint === fingerprint);
+  const plan = planPairsOf(seating, scene);
+  return plan ? findPlanRecord(entries, plan) : undefined;
 }
 
 /** One pair of students and how often they were neighbours. */
@@ -469,41 +601,55 @@ export interface UsageOrigin {
  * its room but no name. Each name appears once; an arrangement found nowhere
  * (its plan deleted, its mix trimmed) has no entry.
  *
+ * A plan is read in the room it was saved with, a mix in its room's tables
+ * as they are, and each is noted under both its fingerprints, so a record
+ * written before tables pushed together counted finds it too.
+ *
  * @param plans Saved plans of one class
  * @param mixes Recent mixes of that class
- * @param rooms The class's rooms, for their names
+ * @param rooms The class's rooms, for their names and tables
  */
 export function buildUsageOrigins(
   plans: readonly SavedPlan[],
   mixes: readonly MixResult[],
-  rooms: readonly { id: string; name: string }[],
+  rooms: readonly { id: string; name: string; scene?: ClassroomScene }[],
 ): Map<string, UsageOrigin> {
-  const roomNames = new Map(rooms.map((room) => [room.id, room.name]));
+  const roomsById = new Map(rooms.map((room) => [room.id, room]));
   const origins = new Map<string, UsageOrigin>();
   const addOnce = (list: string[], value: string | undefined) => {
     if (value && !list.includes(value)) list.push(value);
   };
 
   const note = (
-    seating: SeatingArrangement,
+    plan: PlanPairs,
     roomId: string | undefined,
     planName: string | undefined,
   ) => {
-    const pairs = collectSeatingPairKeys(seating);
-    if (pairs.length === 0) return;
-    const fingerprint = computePlanFingerprint(pairs);
-    const origin = origins.get(fingerprint) ?? { planNames: [], roomNames: [] };
-    addOnce(origin.planNames, planName);
-    addOnce(origin.roomNames, roomId ? roomNames.get(roomId) : undefined);
-    origins.set(fingerprint, origin);
+    for (const fingerprint of [plan.fingerprint, plan.formerFingerprint]) {
+      if (fingerprint === undefined) continue;
+      const origin = origins.get(fingerprint) ?? {
+        planNames: [],
+        roomNames: [],
+      };
+      addOnce(origin.planNames, planName);
+      addOnce(
+        origin.roomNames,
+        roomId ? roomsById.get(roomId)?.name : undefined,
+      );
+      origins.set(fingerprint, origin);
+    }
   };
 
-  for (const plan of plans) note(plan.seating, plan.roomId, plan.name);
+  for (const plan of plans) {
+    const pairs = planPairsOf(plan.seating, plan.scene);
+    if (pairs) note(pairs, plan.roomId, plan.name);
+  }
   const fromPlans = new Set(origins.keys());
   for (const mix of mixes) {
-    const pairs = collectSeatingPairKeys(mix.seating);
-    if (fromPlans.has(computePlanFingerprint(pairs))) continue;
-    note(mix.seating, mix.roomId, undefined);
+    const scene = mix.roomId ? roomsById.get(mix.roomId)?.scene : undefined;
+    const pairs = planPairsOf(mix.seating, scene);
+    if (!pairs || fromPlans.has(pairs.fingerprint)) continue;
+    note(pairs, mix.roomId, undefined);
   }
   return origins;
 }
@@ -553,12 +699,11 @@ export function buildBackfillUsage(
     if (plan.autoSaved === true) continue;
     const at = storedPlanDateToTimestamp(plan.date ?? '');
     if (!at) continue;
-    const pairs = collectSeatingPairKeys(plan.seating);
-    if (pairs.length === 0) continue;
+    const pairs = planPairsOf(plan.seating, plan.scene);
+    if (!pairs) continue;
 
     entries = mergePlanUsageSignal(entries, {
-      pairs,
-      fingerprint: computePlanFingerprint(pairs),
+      ...pairs,
       source: 'saved',
       at,
       id: createId(),

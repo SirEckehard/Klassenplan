@@ -600,6 +600,7 @@ export function useSeatingGenerator() {
   const { noteSeatingEdited } = usePlanUsageTracking({
     classId: activeClass.id,
     currentSeating,
+    classroomScene,
   });
 
   // Enhanced student move handler that triggers circle regeneration

@@ -70,7 +70,7 @@ afterEach(() => {
 
 describe('recordPlanUsage', () => {
   it('stores a record for the arrangement that was used', async () => {
-    await recordPlanUsage('c1', seatingOf([['a', 'b']]), 'presented');
+    await recordPlanUsage('c1', seatingOf([['a', 'b']]), null, 'presented');
 
     const entries = await loadPlanUsage('c1');
     expect(entries).toHaveLength(1);
@@ -82,8 +82,8 @@ describe('recordPlanUsage', () => {
   });
 
   it('extends the record instead of adding one when the plan repeats', async () => {
-    await recordPlanUsage('c1', seatingOf([['a', 'b']]), 'saved');
-    await recordPlanUsage('c1', seatingOf([['b', 'a']]), 'presented');
+    await recordPlanUsage('c1', seatingOf([['a', 'b']]), null, 'saved');
+    await recordPlanUsage('c1', seatingOf([['b', 'a']]), null, 'presented');
 
     const entries = await loadPlanUsage('c1');
     expect(entries).toHaveLength(1);
@@ -91,25 +91,25 @@ describe('recordPlanUsage', () => {
   });
 
   it('keeps classes apart', async () => {
-    await recordPlanUsage('c1', seatingOf([['a', 'b']]), 'exported');
-    await recordPlanUsage('c2', seatingOf([['c', 'd']]), 'exported');
+    await recordPlanUsage('c1', seatingOf([['a', 'b']]), null, 'exported');
+    await recordPlanUsage('c2', seatingOf([['c', 'd']]), null, 'exported');
 
     expect(await loadPlanUsage('c1')).toHaveLength(1);
     expect((await loadPlanUsage('c2'))[0].pairs).toEqual(['c::d']);
   });
 
   it('does nothing without an active class or without neighbours', async () => {
-    await recordPlanUsage(null, seatingOf([['a', 'b']]), 'presented');
-    await recordPlanUsage('c1', seatingOf([['a'], ['b']]), 'presented');
-    await recordPlanUsage('c1', [], 'presented');
+    await recordPlanUsage(null, seatingOf([['a', 'b']]), null, 'presented');
+    await recordPlanUsage('c1', seatingOf([['a'], ['b']]), null, 'presented');
+    await recordPlanUsage('c1', [], null, 'presented');
 
     expect(await getAllPlanUsage()).toBeUndefined();
   });
 
   it('survives concurrent signals instead of losing one', async () => {
     await Promise.all([
-      recordPlanUsage('c1', seatingOf([['a', 'b']]), 'presented'),
-      recordPlanUsage('c1', seatingOf([['c', 'd']]), 'exported'),
+      recordPlanUsage('c1', seatingOf([['a', 'b']]), null, 'presented'),
+      recordPlanUsage('c1', seatingOf([['c', 'd']]), null, 'exported'),
     ]);
 
     expect(await loadPlanUsage('c1')).toHaveLength(2);
@@ -119,7 +119,7 @@ describe('recordPlanUsage', () => {
 describe('setPlanUsageFeedback', () => {
   // The plan layer asks about a plan no longer on the stage, by its record.
   it('keeps feedback on the record of a plan no longer on the stage', async () => {
-    await recordPlanUsage('c1', seatingOf([['a', 'b']]), 'presented');
+    await recordPlanUsage('c1', seatingOf([['a', 'b']]), null, 'presented');
     const [entry] = await loadPlanUsage('c1');
 
     await setPlanUsageFeedback('c1', entry!, {
@@ -159,7 +159,7 @@ describe('backfillPlanUsage', () => {
   });
 
   it('does not overwrite a record a live signal already wrote', async () => {
-    await recordPlanUsage('c1', seatingOf([['a', 'b']]), 'presented');
+    await recordPlanUsage('c1', seatingOf([['a', 'b']]), null, 'presented');
     await backfillPlanUsage('c1', [planOf('p1', '2026-08-01', [['a', 'b']])]);
 
     const entries = await loadPlanUsage('c1');
@@ -176,8 +176,8 @@ const rosters = (entries: Record<string, string[]>): Map<string, Set<string>> =>
 
 describe('sweepOrphanPlanUsage', () => {
   it('drops records of classes that no longer exist', async () => {
-    await recordPlanUsage('c1', seatingOf([['a', 'b']]), 'presented');
-    await recordPlanUsage('c2', seatingOf([['c', 'd']]), 'presented');
+    await recordPlanUsage('c1', seatingOf([['a', 'b']]), null, 'presented');
+    await recordPlanUsage('c2', seatingOf([['c', 'd']]), null, 'presented');
 
     await sweepOrphanPlanUsage(rosters({ c1: ['a', 'b'] }));
 
@@ -188,8 +188,8 @@ describe('sweepOrphanPlanUsage', () => {
   it('drops records that name nobody from the class they sit under', async () => {
     // The shape cross-class contamination takes: another class's pairs filed
     // under this class, which showed up as pairs of unknown students.
-    await recordPlanUsage('c1', seatingOf([['x', 'y']]), 'presented');
-    await recordPlanUsage('c1', seatingOf([['a', 'b']]), 'presented');
+    await recordPlanUsage('c1', seatingOf([['x', 'y']]), null, 'presented');
+    await recordPlanUsage('c1', seatingOf([['a', 'b']]), null, 'presented');
 
     await sweepOrphanPlanUsage(rosters({ c1: ['a', 'b'] }));
 
@@ -199,7 +199,7 @@ describe('sweepOrphanPlanUsage', () => {
   });
 
   it('keeps a record when only some of its students left the class', async () => {
-    await recordPlanUsage('c1', seatingOf([['a', 'b']]), 'presented');
+    await recordPlanUsage('c1', seatingOf([['a', 'b']]), null, 'presented');
 
     await sweepOrphanPlanUsage(rosters({ c1: ['a'] }));
 
@@ -207,7 +207,12 @@ describe('sweepOrphanPlanUsage', () => {
   });
 
   it('matches pair keys that were written with names', async () => {
-    await recordPlanUsage('c1', seatingOf([['Anna', 'Ben']]), 'presented');
+    await recordPlanUsage(
+      'c1',
+      seatingOf([['Anna', 'Ben']]),
+      null,
+      'presented',
+    );
 
     await sweepOrphanPlanUsage(rosters({ c1: ['s1', 'Anna'] }));
 
@@ -215,7 +220,7 @@ describe('sweepOrphanPlanUsage', () => {
   });
 
   it('leaves an untouched record alone', async () => {
-    await recordPlanUsage('c1', seatingOf([['a', 'b']]), 'presented');
+    await recordPlanUsage('c1', seatingOf([['a', 'b']]), null, 'presented');
     const before = await loadPlanUsage('c1');
 
     await sweepOrphanPlanUsage(rosters({ c1: ['a', 'b'] }));
@@ -234,7 +239,7 @@ describe('sweepOrphanPlanUsage', () => {
 
 describe('restorePlanUsage', () => {
   it('replaces everything on a full import', async () => {
-    await recordPlanUsage('c1', seatingOf([['a', 'b']]), 'presented');
+    await recordPlanUsage('c1', seatingOf([['a', 'b']]), null, 'presented');
 
     await restorePlanUsage({ c9: [] });
 
@@ -243,7 +248,7 @@ describe('restorePlanUsage', () => {
   });
 
   it('clears the store when the backup carried no records', async () => {
-    await recordPlanUsage('c1', seatingOf([['a', 'b']]), 'presented');
+    await recordPlanUsage('c1', seatingOf([['a', 'b']]), null, 'presented');
 
     await restorePlanUsage(undefined);
 
@@ -251,7 +256,7 @@ describe('restorePlanUsage', () => {
   });
 
   it('keeps existing classes on a merge and only adds unknown ones', async () => {
-    await recordPlanUsage('c1', seatingOf([['a', 'b']]), 'presented');
+    await recordPlanUsage('c1', seatingOf([['a', 'b']]), null, 'presented');
     const kept = await loadPlanUsage('c1');
 
     await restorePlanUsage({ c1: [], c2: [] }, { merge: true });
@@ -267,7 +272,7 @@ describe('getAllPlanUsage', () => {
   });
 
   it('returns every class once records exist', async () => {
-    await recordPlanUsage('c1', seatingOf([['a', 'b']]), 'presented');
+    await recordPlanUsage('c1', seatingOf([['a', 'b']]), null, 'presented');
 
     expect(Object.keys((await getAllPlanUsage()) ?? {})).toEqual(['c1']);
   });
@@ -278,6 +283,7 @@ describe('recordPlanUsage outcome', () => {
     const outcome = await recordPlanUsage(
       'c1',
       seatingOf([['a', 'b']]),
+      null,
       'presented',
     );
 
@@ -285,10 +291,11 @@ describe('recordPlanUsage outcome', () => {
   });
 
   it('reports a repeat as neither new nor a first strong signal', async () => {
-    await recordPlanUsage('c1', seatingOf([['a', 'b']]), 'presented');
+    await recordPlanUsage('c1', seatingOf([['a', 'b']]), null, 'presented');
     const outcome = await recordPlanUsage(
       'c1',
       seatingOf([['a', 'b']]),
+      null,
       'exported',
     );
 
@@ -296,10 +303,11 @@ describe('recordPlanUsage outcome', () => {
   });
 
   it('still reports a first strong signal after a hand edit', async () => {
-    await recordPlanUsage('c1', seatingOf([['a', 'b']]), 'edited');
+    await recordPlanUsage('c1', seatingOf([['a', 'b']]), null, 'edited');
     const outcome = await recordPlanUsage(
       'c1',
       seatingOf([['a', 'b']]),
+      null,
       'exported',
     );
 
@@ -310,6 +318,7 @@ describe('recordPlanUsage outcome', () => {
     const outcome = await recordPlanUsage(
       'c1',
       seatingOf([['a', 'b']]),
+      null,
       'edited',
     );
 
@@ -317,9 +326,9 @@ describe('recordPlanUsage outcome', () => {
   });
 
   it('reports nothing when there was nothing to record', async () => {
-    expect(await recordPlanUsage(null, seatingOf([['a', 'b']]), 'saved')).toBe(
-      null,
-    );
+    expect(
+      await recordPlanUsage(null, seatingOf([['a', 'b']]), null, 'saved'),
+    ).toBe(null);
   });
 });
 
@@ -328,6 +337,7 @@ describe('setPlanUsageConfirmed', () => {
     const outcome = await recordPlanUsage(
       'c1',
       seatingOf([['a', 'b']]),
+      null,
       'presented',
     );
 
@@ -342,6 +352,7 @@ describe('setPlanUsageConfirmed', () => {
     const first = await recordPlanUsage(
       'c1',
       seatingOf([['a', 'b']]),
+      null,
       'presented',
     );
     await setPlanUsageConfirmed('c1', first!.id, false);
@@ -349,13 +360,14 @@ describe('setPlanUsageConfirmed', () => {
     const second = await recordPlanUsage(
       'c1',
       seatingOf([['a', 'b']]),
+      null,
       'exported',
     );
     expect(second?.confirmed).toBe(false);
   });
 
   it('ignores an id that does not exist', async () => {
-    await recordPlanUsage('c1', seatingOf([['a', 'b']]), 'presented');
+    await recordPlanUsage('c1', seatingOf([['a', 'b']]), null, 'presented');
     await setPlanUsageConfirmed('c1', 'nope', false);
 
     expect((await loadPlanUsage('c1'))[0].confirmed).toBeUndefined();
@@ -367,11 +379,11 @@ describe('subscribeToPlanUsage', () => {
     const listener = vi.fn();
     const unsubscribe = subscribeToPlanUsage(listener);
 
-    await recordPlanUsage('c1', seatingOf([['a', 'b']]), 'presented');
+    await recordPlanUsage('c1', seatingOf([['a', 'b']]), null, 'presented');
     expect(listener).toHaveBeenCalledOnce();
 
     unsubscribe();
-    await recordPlanUsage('c1', seatingOf([['c', 'd']]), 'presented');
+    await recordPlanUsage('c1', seatingOf([['c', 'd']]), null, 'presented');
     expect(listener).toHaveBeenCalledOnce();
   });
 
@@ -390,8 +402,8 @@ describe('resetPlanUsage', () => {
   const at = new Date('2026-10-03T08:00:00.000Z');
 
   it('empties the class and notes when, leaving other classes alone', async () => {
-    await recordPlanUsage('c1', seatingOf([['a', 'b']]), 'presented');
-    await recordPlanUsage('c2', seatingOf([['x', 'y']]), 'presented');
+    await recordPlanUsage('c1', seatingOf([['a', 'b']]), null, 'presented');
+    await recordPlanUsage('c2', seatingOf([['x', 'y']]), null, 'presented');
 
     const snapshot = await resetPlanUsage('c1', at);
 
@@ -413,15 +425,15 @@ describe('resetPlanUsage', () => {
 
   it('counts what comes after it', async () => {
     await resetPlanUsage('c1', at);
-    await recordPlanUsage('c1', seatingOf([['a', 'b']]), 'presented');
+    await recordPlanUsage('c1', seatingOf([['a', 'b']]), null, 'presented');
 
     expect(await loadPlanUsage('c1')).toHaveLength(1);
   });
 
   it('is taken back with what came after it kept', async () => {
-    await recordPlanUsage('c1', seatingOf([['a', 'b']]), 'presented');
+    await recordPlanUsage('c1', seatingOf([['a', 'b']]), null, 'presented');
     const snapshot = await resetPlanUsage('c1', at);
-    await recordPlanUsage('c1', seatingOf([['c', 'd']]), 'exported');
+    await recordPlanUsage('c1', seatingOf([['c', 'd']]), null, 'exported');
 
     await undoPlanUsageReset('c1', snapshot!);
 
@@ -462,6 +474,7 @@ describe('setPlanUsageManual', () => {
     const outcome = await recordPlanUsage(
       'c1',
       seatingOf([['a', 'b']]),
+      null,
       'presented',
     );
 
@@ -470,7 +483,7 @@ describe('setPlanUsageManual', () => {
   });
 
   it('keeps what was detected before', async () => {
-    await recordPlanUsage('c1', seatingOf([['a', 'b']]), 'presented');
+    await recordPlanUsage('c1', seatingOf([['a', 'b']]), null, 'presented');
     await setPlanUsageManual('c1', true);
 
     expect(await loadPlanUsage('c1')).toHaveLength(1);
@@ -509,6 +522,7 @@ describe('markPlanUsed', () => {
     await markPlanUsed(
       'c1',
       seatingOf([['a', 'b']]),
+      null,
       true,
       '2026-07-01T00:00:00.000Z',
     );
@@ -523,10 +537,11 @@ describe('markPlanUsed', () => {
   });
 
   it('answers the record a detected plan already has', async () => {
-    await recordPlanUsage('c1', seatingOf([['a', 'b']]), 'exported');
+    await recordPlanUsage('c1', seatingOf([['a', 'b']]), null, 'exported');
     await markPlanUsed(
       'c1',
       seatingOf([['b', 'a']]),
+      null,
       false,
       '2026-10-03T08:00:00.000Z',
     );
@@ -544,6 +559,7 @@ describe('markPlanUsed', () => {
     await markPlanUsed(
       'c1',
       seatingOf([['a', 'b']]),
+      null,
       true,
       '2026-10-03T08:00:00.000Z',
     );
@@ -566,6 +582,7 @@ describe('setPlanFeedback', () => {
         ['a', 'b'],
         ['c', 'd'],
       ]),
+      null,
       'presented',
     );
     await setPlanFeedback(
@@ -574,6 +591,7 @@ describe('setPlanFeedback', () => {
         ['d', 'c'],
         ['b', 'a'],
       ]),
+      null,
       poor,
       '2026-09-01T00:00:00.000Z',
     );
@@ -592,6 +610,7 @@ describe('setPlanFeedback', () => {
     await setPlanFeedback(
       'c1',
       seatingOf([['a', 'b']]),
+      null,
       { rating: 'good', at: poor.at },
       '2026-09-01T00:00:00.000Z',
     );
@@ -607,7 +626,13 @@ describe('setPlanFeedback', () => {
 
   it('goes with a reset and comes back with its undo', async () => {
     const seating = seatingOf([['c', 'd']]);
-    await setPlanFeedback('c1', seating, poor, '2026-09-01T00:00:00.000Z');
+    await setPlanFeedback(
+      'c1',
+      seating,
+      null,
+      poor,
+      '2026-09-01T00:00:00.000Z',
+    );
 
     const snapshot = await resetPlanUsage(
       'c1',
@@ -623,6 +648,7 @@ describe('setPlanFeedback', () => {
     await setPlanFeedback(
       'c1',
       seatingOf([['c', 'd']]),
+      null,
       poor,
       '2026-09-01T00:00:00.000Z',
     );
@@ -637,10 +663,10 @@ describe('setPlanFeedback', () => {
 
 describe('a record that cannot be read', () => {
   it('is left as it is instead of being replaced by the next signal', async () => {
-    await recordPlanUsage('c1', seatingOf([['a', 'b']]), 'presented');
+    await recordPlanUsage('c1', seatingOf([['a', 'b']]), null, 'presented');
     vi.mocked(get).mockRejectedValueOnce(new Error('read failed'));
 
-    await recordPlanUsage('c2', seatingOf([['c', 'd']]), 'presented');
+    await recordPlanUsage('c2', seatingOf([['c', 'd']]), null, 'presented');
 
     expect(await loadPlanUsage('c1')).toHaveLength(1);
     expect(await loadPlanUsage('c2')).toEqual([]);
@@ -650,13 +676,13 @@ describe('a record that cannot be read', () => {
     const newer = { version: 2, byClass: { c1: [] } };
     memory.set(DB_KEYS.planUsage, newer);
 
-    await recordPlanUsage('c2', seatingOf([['c', 'd']]), 'presented');
+    await recordPlanUsage('c2', seatingOf([['c', 'd']]), null, 'presented');
 
     expect(memory.get(DB_KEYS.planUsage)).toEqual(newer);
   });
 
   it('does not keep a full restore from replacing it', async () => {
-    await recordPlanUsage('c1', seatingOf([['a', 'b']]), 'presented');
+    await recordPlanUsage('c1', seatingOf([['a', 'b']]), null, 'presented');
     vi.mocked(get).mockClear();
 
     await restorePlanUsage({ c9: [] });

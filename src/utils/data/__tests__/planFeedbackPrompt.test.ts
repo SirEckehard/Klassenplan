@@ -35,19 +35,26 @@ describe('planToAskAbout', () => {
   it('asks about the newest plan in use once another is on the stage', () => {
     const older = record({ id: 'r0', lastSeenAt: daysAgo(20) });
     expect(
-      planToAskAbout([older, record()], 'fp-new', new Set(), NOW)?.id,
+      planToAskAbout(
+        [older, record()],
+        { fingerprint: 'fp-new' },
+        new Set(),
+        NOW,
+      )?.id,
     ).toBe('r1');
   });
 
   it('waits while the plan is still the one on the stage', () => {
-    expect(planToAskAbout([record()], 'fp-1', new Set(), NOW)).toBeNull();
+    expect(
+      planToAskAbout([record()], { fingerprint: 'fp-1' }, new Set(), NOW),
+    ).toBeNull();
   });
 
   it('waits until a plan was in use a week', () => {
     expect(
       planToAskAbout(
         [record({ firstSeenAt: daysAgo(6) })],
-        'fp-new',
+        { fingerprint: 'fp-new' },
         new Set(),
         NOW,
       ),
@@ -56,12 +63,24 @@ describe('planToAskAbout', () => {
 
   it('asks nothing about a plan with feedback, one asked about, or one out of the count', () => {
     const rated = record({ feedback: { rating: 'good', at: daysAgo(1) } });
-    expect(planToAskAbout([rated], 'fp-new', new Set(), NOW)).toBeNull();
-    expect(planToAskAbout([record()], 'fp-new', new Set(['r1']), NOW)).toBe(
-      null,
-    );
     expect(
-      planToAskAbout([record({ confirmed: false })], 'fp-new', new Set(), NOW),
+      planToAskAbout([rated], { fingerprint: 'fp-new' }, new Set(), NOW),
+    ).toBeNull();
+    expect(
+      planToAskAbout(
+        [record()],
+        { fingerprint: 'fp-new' },
+        new Set(['r1']),
+        NOW,
+      ),
+    ).toBe(null);
+    expect(
+      planToAskAbout(
+        [record({ confirmed: false })],
+        { fingerprint: 'fp-new' },
+        new Set(),
+        NOW,
+      ),
     ).toBeNull();
   });
 
@@ -71,9 +90,14 @@ describe('planToAskAbout', () => {
       lastSeenAt: daysAgo(1),
       feedback: { rating: 'poor', at: daysAgo(1) },
     });
-    expect(planToAskAbout([record(), newest], 'fp-new', new Set(), NOW)).toBe(
-      null,
-    );
+    expect(
+      planToAskAbout(
+        [record(), newest],
+        { fingerprint: 'fp-new' },
+        new Set(),
+        NOW,
+      ),
+    ).toBe(null);
   });
 
   it('remembers what it asked about on this device', () => {

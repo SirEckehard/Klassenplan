@@ -11,7 +11,12 @@
  * teacher marked as used counts.
  */
 import { useCallback, useEffect, useState } from 'react';
-import type { PlanFeedback, PlanUsage, SeatingArrangement } from '@/types';
+import type {
+  ClassroomScene,
+  PlanFeedback,
+  PlanUsage,
+  SeatingArrangement,
+} from '@/types';
 import { logError } from '@/utils';
 import { resolvePlanUsageMode } from '@/utils/data/planUsage';
 import {
@@ -42,15 +47,23 @@ export interface PlanUsageRecordsReturn {
   /** Switch the detection off (`true`) or back on. */
   setUsageManual: (manual: boolean) => void;
   /**
-   * Mark a plan as used or not; `at` dates a record it creates (ISO 8601).
+   * Mark a plan, in the room it was made in, as used or not; `at` dates a
+   * record it creates (ISO 8601).
    */
-  markUsed: (seating: SeatingArrangement, used: boolean, at: string) => void;
+  markUsed: (
+    seating: SeatingArrangement,
+    scene: ClassroomScene,
+    used: boolean,
+    at: string,
+  ) => void;
   /**
-   * Say how a plan went, or take it back with `null`; marks the plan as used,
-   * and `at` dates a record it creates (ISO 8601).
+   * Say how a plan, in the room it was made in, went, or take it back with
+   * `null`; marks the plan as used, and `at` dates a record it creates
+   * (ISO 8601).
    */
   setFeedback: (
     seating: SeatingArrangement,
+    scene: ClassroomScene,
     feedback: PlanFeedback | null,
     at: string,
   ) => void;
@@ -123,8 +136,13 @@ export function usePlanUsageRecords(
   );
 
   const markUsed = useCallback(
-    (seating: SeatingArrangement, used: boolean, at: string) => {
-      markPlanUsed(classId, seating, used, at).catch((error) => {
+    (
+      seating: SeatingArrangement,
+      scene: ClassroomScene,
+      used: boolean,
+      at: string,
+    ) => {
+      markPlanUsed(classId, seating, scene, used, at).catch((error) => {
         logError('Failed to mark a plan as used', { error, used }, LOG_SOURCE);
       });
     },

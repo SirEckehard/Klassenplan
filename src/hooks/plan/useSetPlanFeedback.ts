@@ -6,7 +6,7 @@
  * layer, "Bibliothek" and the mixing read the change alike.
  */
 import { useCallback } from 'react';
-import type { PlanFeedback, SeatingArrangement } from '@/types';
+import type { ClassroomScene, PlanFeedback, SeatingArrangement } from '@/types';
 import { logError } from '@/utils';
 import { setPlanFeedback } from '@/repositories/planUsageStore';
 
@@ -14,19 +14,20 @@ const LOG_SOURCE = 'useSetPlanFeedback';
 
 /**
  * @param classId The class the plans belong to
- * @returns Keeps feedback on a plan's arrangement, or takes it back with
- *   `null`; `at` dates a record it creates (ISO 8601)
+ * @returns Keeps feedback on a plan's arrangement in its room, or takes it
+ *   back with `null`; `at` dates a record it creates (ISO 8601)
  */
 export function useSetPlanFeedback(
   classId: string | null,
 ): (
   seating: SeatingArrangement,
+  scene: ClassroomScene,
   feedback: PlanFeedback | null,
   at: string,
 ) => void {
   return useCallback(
-    (seating, feedback, at) => {
-      setPlanFeedback(classId, seating, feedback, at).catch((error) => {
+    (seating, scene, feedback, at) => {
+      setPlanFeedback(classId, seating, scene, feedback, at).catch((error) => {
         logError(
           'Failed to keep how a plan went',
           { error, rating: feedback?.rating ?? null },

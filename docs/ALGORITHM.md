@@ -1,6 +1,6 @@
 # Algorithm Documentation
 
-> **Status:** current · **Last reviewed:** 2026-11-22
+> **Status:** current · **Last reviewed:** 2026-11-26
 
 This document describes the algorithms used in the Klassenplan seating generator.
 
@@ -310,6 +310,17 @@ second one. Presenting the same plan every week for a term is therefore one
 record spanning that term, not twelve records. Experiments never enter at all,
 because nobody presents, exports or names them.
 
+**Who sat together** is read in the room the plan was shown in, as the
+criterion model reads it (`seatedTogether`, `collectSeatingPairKeys`):
+everybody at one table group — a table, or tables pushed together round a
+corner or face to face — and the two at each join of desks pushed together in
+a row. A row of desks is its desks and its joins, not one long table. Without
+the room every table counts on its own, which is all a record written up to
+3.5.0 knew; for a plan with tables pushed together such a record carries
+another fingerprint (`formerFingerprint` in `planPairsOf`), still finds its
+plan by it, and takes the plan's pairs with the next signal, marking or
+feedback for it.
+
 `edited` is deliberately weaker than the rest: rearranging seats says the
 teacher means this arrangement, not yet that it was used. Such a record is
 _provisional_ and is dropped as soon as a different arrangement turns up. If one
@@ -443,10 +454,14 @@ A plan in use can carry feedback
 usage records, ranked as `buildPreviousPairs` ranks them, the plan being read
 left out:
 
-- **A table that did not work** weighs each of its pairs 1. A plan rated "Nicht
-  gut" without a table weighs each of its pairs `POOR_PLAN_PAIR_WEIGHT`
+- **A table that did not work** weighs each of its pairs 1. The tables to
+  choose are those of who sat together: a table group, and each join of
+  desks pushed together in a row, which counts as a double desk. A plan rated
+  "Nicht gut" without a table weighs each of its pairs `POOR_PLAN_PAIR_WEIGHT`
   = ¼: repetition parts them anyway, and the rating alone cannot say which
-  pair it means. A pair adds up to `MAX_PAIR_WEIGHT`.
+  pair it means; its tables, for the fulfilment, are the largest groups of
+  its students who are all pairs of each other (`tablesOfPairs`). A pair adds
+  up to `MAX_PAIR_WEIGHT`.
 - **It lasts twice as long as a repetition**: fully within the repetition's
   window, then fading to nothing over a second window as long
   (`experienceFactor`). "Zurücksetzen" ends it at once with the records.

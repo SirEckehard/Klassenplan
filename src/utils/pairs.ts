@@ -2,6 +2,7 @@
 // Copyright (C) 2026 Eike Schäfer
 // src/utils/pairs.ts
 import type {
+  ClassroomScene,
   PlanUsage,
   SavedPlan,
   SeatingArrangement,
@@ -10,9 +11,11 @@ import type {
 import { MIX_HISTORY_LIMIT } from './constants';
 import {
   collectSeatingPairKeys,
-  computePlanFingerprint,
   isCountedUsage,
+  isRecordOf,
+  planPairsOf,
   storedPlanDateToTimestamp,
+  type PlanPairs,
 } from './data/planUsage';
 
 export type PreviousPairWeights = Map<string, number>;
@@ -58,6 +61,8 @@ type BuildPreviousPairsOptions = {
    * own record — and a saved plan with the same pairs — is left out.
    */
   plan?: SeatingArrangement | null;
+  /** The room of the plan being read, whose tables may be pushed together. */
+  scene?: ClassroomScene | null;
 };
 
 /**
@@ -113,27 +118,11 @@ const addPairKeys = (
   }
 };
 
-const pairKeysOfSeating = (
-  seating: SeatingArrangement | null | undefined,
-): string[] => {
-  if (!seating) return [];
-
-  const keys: string[] = [];
-  for (const table of seating) {
-    const identifiers = (table ?? [])
-      .filter(Boolean)
-      .map((s) => seatStudentIdentifier(s as Student));
-    for (let i = 0; i < identifiers.length; i++) {
-      for (let j = i + 1; j < identifiers.length; j++) {
-        keys.push(seatPairKey(identifiers[i], identifiers[j]));
-      }
-    }
-  }
-  return keys;
-};
-
-const fingerprintOf = (seating: SeatingArrangement | null | undefined) =>
-  computePlanFingerprint(collectSeatingPairKeys(seating));
+/** The plan being read, by its pairs; null for none or one without a pair. */
+const ownPlanOf = (
+  options?: Pick<BuildPreviousPairsOptions, 'plan' | 'scene'>,
+): PlanPairs | null =>
+  options?.plan ? planPairsOf(options.plan, options.scene) : null;
 
 /** One plan of the history, already reduced to pair keys. */
 type WeightedPairSource = { keys: string[]; factor: number };
@@ -186,7 +175,7 @@ export function buildPreviousPairs(
   const windowSize = calculatePairHistoryWindowSize(
     studentCountFromOptions ?? fallbackStudentCount,
   );
-  const ownFingerprint = options?.plan ? fingerprintOf(options.plan) : null;
+  const ownPlan = ownPlanOf(options);
 
   const since = options?.since ? Date.parse(options.since) : Number.NaN;
   const hasReset = Number.isFinite(since);
@@ -198,7 +187,7 @@ export function buildPreviousPairs(
   // presented, exported or deliberately named.
   const countedUsage = (options?.planUsage ?? [])
     .filter(isCountedUsage)
-    .filter((entry) => entry.fingerprint !== ownFingerprint)
+    .filter((entry) => !ownPlan || !isRecordOf(entry, ownPlan))
     .sort((a, b) => b.lastSeenAt.localeCompare(a.lastSeenAt));
 
   if (countedUsage.length > 0 || options?.manual) {
@@ -217,8 +206,9 @@ export function buildPreviousPairs(
         plan?.autoSaved !== true &&
         (!hasReset ||
           isAfterReset(storedPlanDateToTimestamp(plan?.date ?? ''), since)) &&
-        (ownFingerprint === null ||
-          fingerprintOf(plan?.seating) !== ownFingerprint),
+        (ownPlan === null ||
+          planPairsOf(plan?.seating, plan?.scene)?.fingerprint !==
+            ownPlan.fingerprint),
     );
     // Newest first by the day a plan carries; a plan saved again keeps its
     // place in the list, so the list's order is no age.
@@ -236,7 +226,7 @@ export function buildPreviousPairs(
     for (const { plan } of byDate) {
       if (realPlans.length >= windowSize) break;
       realPlans.push({
-        keys: pairKeysOfSeating(plan?.seating),
+        keys: collectSeatingPairKeys(plan?.seating, plan?.scene),
         factor: 1,
       });
     }
@@ -274,35 +264,64 @@ export const emptyPlanExperience = (): PlanExperience => ({
 
 /**
  * The tables an arrangement's pair keys stand for: every two students of a
- * table are a pair and no pair crosses tables, so a table is a group of
- * students linked by pairs. A student alone at a table has no pair and no
- * table here.
+ * table group are a pair, and so are the two at a join of desks pushed
+ * together in a row (`collectSeatingPairKeys`), so a table is a largest group
+ * of students who are all pairs of each other — a row of desks is its desks
+ * and its joins, not one long table. A student alone at a table has no pair
+ * and no table here. Each table's ids sorted, the tables by their ids.
  */
 export function tablesOfPairs(pairs: readonly string[]): string[][] {
-  const parent = new Map<string, string>();
-  const find = (id: string): string => {
-    let root = id;
-    while (parent.get(root) !== root) root = parent.get(root)!;
-    parent.set(id, root);
-    return root;
+  const neighbours = new Map<string, Set<string>>();
+  const link = (a: string, b: string) => {
+    const known = neighbours.get(a);
+    if (known) known.add(b);
+    else neighbours.set(a, new Set([b]));
   };
   for (const key of pairs) {
     const separator = key.indexOf('::');
     if (separator === -1) continue;
     const a = key.slice(0, separator);
     const b = key.slice(separator + 2);
-    if (!parent.has(a)) parent.set(a, a);
-    if (!parent.has(b)) parent.set(b, b);
-    parent.set(find(a), find(b));
+    if (a === b) continue;
+    link(a, b);
+    link(b, a);
   }
-  const tables = new Map<string, string[]>();
-  for (const id of [...parent.keys()].sort()) {
-    const root = find(id);
-    const table = tables.get(root);
-    if (table) table.push(id);
-    else tables.set(root, [id]);
-  }
-  return [...tables.values()];
+
+  // The largest groups (Bron–Kerbosch with a pivot, which goes straight
+  // through a table: its pairs are a few groups, never many).
+  const tables: string[][] = [];
+  const around = (id: string) => neighbours.get(id) ?? new Set<string>();
+  const extend = (group: string[], open: string[], done: string[]) => {
+    if (open.length === 0) {
+      if (done.length === 0 && group.length >= 2) {
+        tables.push([...group].sort());
+      }
+      return;
+    }
+    const linkedTo = (id: string) =>
+      open.filter((other) => around(id).has(other)).length;
+    const pivot = [...open, ...done].reduce((best, id) =>
+      linkedTo(id) > linkedTo(best) ? id : best,
+    );
+    let candidates = open;
+    let excluded = done;
+    for (const id of open.filter((other) => !around(pivot).has(other))) {
+      const near = around(id);
+      extend(
+        [...group, id],
+        candidates.filter((other) => near.has(other)),
+        excluded.filter((other) => near.has(other)),
+      );
+      candidates = candidates.filter((other) => other !== id);
+      excluded = [...excluded, id];
+    }
+  };
+  extend([], [...neighbours.keys()].sort(), []);
+
+  const order = (table: string[]) => table.join('\u0000');
+  return tables.sort((a, b) =>
+    order(a) < order(b) ? -1 : order(a) > order(b) ? 1 : 0,
+  );
 }
 
 /**
@@ -334,15 +353,15 @@ const experienceFactor = (rank: number, windowSize: number): number => {
  */
 export function buildPlanExperience(
   planUsage: readonly PlanUsage[] = [],
-  options?: Pick<BuildPreviousPairsOptions, 'plan' | 'studentCount'>,
+  options?: Pick<BuildPreviousPairsOptions, 'plan' | 'scene' | 'studentCount'>,
 ): PlanExperience {
   const poor: PreviousPairWeights = new Map();
   const groups: string[][] = [];
   const windowSize = calculatePairHistoryWindowSize(options?.studentCount);
-  const ownFingerprint = options?.plan ? fingerprintOf(options.plan) : null;
+  const ownPlan = ownPlanOf(options);
   const counted = planUsage
     .filter(isCountedUsage)
-    .filter((entry) => entry.fingerprint !== ownFingerprint)
+    .filter((entry) => !ownPlan || !isRecordOf(entry, ownPlan))
     .sort((a, b) => b.lastSeenAt.localeCompare(a.lastSeenAt));
 
   const wentWell = new Set<string>();

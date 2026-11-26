@@ -116,8 +116,8 @@ export default function PlanPanel({
 
   // Whether the plan was really in use: its pairs match a usage record.
   const usage = React.useMemo(
-    () => findPlanUsage(planUsage, plan.seating),
-    [plan.seating, planUsage],
+    () => findPlanUsage(planUsage, plan.seating, plan.scene),
+    [plan.seating, plan.scene, planUsage],
   );
   const usageSources = usage
     ? [...new Set(usage.sources.filter((source) => source !== 'edited'))]
@@ -129,7 +129,7 @@ export default function PlanPanel({
   const madeAt = () =>
     storedPlanDateToTimestamp(plan.date ?? '') ?? new Date().toISOString();
   const handleUsedChange = (next: boolean) => {
-    markUsed(plan.seating, next, madeAt());
+    markUsed(plan.seating, plan.scene, next, madeAt());
   };
 
   return (
@@ -248,11 +248,12 @@ export default function PlanPanel({
           {seated > 0 && (
             <PlanFeedbackRows
               seating={plan.seating}
+              scene={plan.scene}
               records={planUsage}
               students={students}
               counts={experienceCounts}
               onChange={(feedback) =>
-                setFeedback(plan.seating, feedback, madeAt())
+                setFeedback(plan.seating, plan.scene, feedback, madeAt())
               }
             />
           )}

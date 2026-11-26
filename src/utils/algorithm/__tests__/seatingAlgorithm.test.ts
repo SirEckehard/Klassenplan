@@ -753,7 +753,7 @@ describe('seatingAlgorithm', () => {
         [students[2]!, students[3]!],
         [students[4]!, students[5]!],
       ];
-      const pairs = collectSeatingPairKeys(inUse);
+      const pairs = collectSeatingPairKeys(inUse, null);
       const planUsage: PlanUsage[] = [
         {
           id: 'u1',

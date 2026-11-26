@@ -1089,8 +1089,8 @@ export default function Export() {
   // A plan that gets printed or exported leaves the app for real classroom use,
   // which is the strongest signal that it is not just another experiment.
   const recordTablePlanExport = useCallback(() => {
-    recordUsage(seating, 'exported');
-  }, [recordUsage, seating]);
+    recordUsage(seating, classroomScene, 'exported');
+  }, [recordUsage, seating, classroomScene]);
 
   // Circle exports are deliberately not recorded: the usage record tracks who
   // sat next to whom at the tables, which a circle says nothing about. Nor is

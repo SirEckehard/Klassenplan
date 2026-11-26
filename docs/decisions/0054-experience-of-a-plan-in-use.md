@@ -134,3 +134,12 @@ plan in use only, never about an older one, and about each once: "Gut" and
 records asked about. The tables where it did not work are named in
 "Bibliothek"; a "Nicht gut" without them weighs each pair a quarter, as
 above.
+
+## Addendum of 2026-11-26: tables pushed together
+
+The tables to name are those of the criterion model: a table group — tables
+pushed together round a corner or face to face are one — and each join of
+desks pushed together in a row as a table of two. Until then a record knew
+the pairs of each table alone, so desks pushed together offered no table and
+a room of single desks no feedback at all; see the addendum of the same day
+in [decision 0031](0031-one-criterion-model.md).

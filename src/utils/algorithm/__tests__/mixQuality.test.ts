@@ -243,7 +243,7 @@ const usageOf = (
   day: number,
   feedback: PlanUsage['feedback'],
 ): PlanUsage => {
-  const pairs = collectSeatingPairKeys(seating);
+  const pairs = collectSeatingPairKeys(seating, null);
   const at = `2026-09-0${day}T08:00:00.000Z`;
   return {
     id: `u${day}`,

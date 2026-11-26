@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Fixed
+
+- Tables pushed together now count as sitting together: for "Repetition", under "How did the plan work?" and as table neighbours in the seating circle
+
 ## [3.5.0] - 2026-11-25
 
 ### Added

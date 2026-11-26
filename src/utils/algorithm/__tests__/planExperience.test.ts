@@ -48,7 +48,7 @@ const usageOf = (
   seating: SeatingArrangement,
   feedback?: PlanUsage['feedback'],
 ): PlanUsage => {
-  const pairs = collectSeatingPairKeys(seating);
+  const pairs = collectSeatingPairKeys(seating, room);
   return {
     id: 'u1',
     fingerprint: computePlanFingerprint(pairs),
@@ -77,7 +77,7 @@ const together = (
       room,
       { rng: createRng(seed), refine: true, planUsage },
     );
-    const now = new Set(collectSeatingPairKeys(seating));
+    const now = new Set(collectSeatingPairKeys(seating, room));
     return pairs.filter((key) => now.has(key)).length;
   });
 
@@ -120,7 +120,7 @@ describe('a mix after feedback on a plan in use', () => {
       index % 2 === 0 ? [`s${index + 1}`] : [],
     );
     const plan = inPairs(students);
-    const pairs = collectSeatingPairKeys(plan);
+    const pairs = collectSeatingPairKeys(plan, room);
     const settings = {
       avoidPreviousPairs: 6,
       considerWishPartners: 5,

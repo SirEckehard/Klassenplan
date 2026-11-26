@@ -343,7 +343,7 @@ describe('seatingStatistics', () => {
     const grace = student('grace');
     const hedy = student('hedy');
     const used = (seating: SeatingArrangement, day: number): PlanUsage => {
-      const pairs = collectSeatingPairKeys(seating);
+      const pairs = collectSeatingPairKeys(seating, null);
       return {
         id: `u${day}`,
         fingerprint: computePlanFingerprint(pairs),
@@ -422,7 +422,7 @@ describe('seatingStatistics', () => {
       seating: SeatingArrangement,
       feedback: PlanUsage['feedback'],
     ): PlanUsage => {
-      const pairs = collectSeatingPairKeys(seating);
+      const pairs = collectSeatingPairKeys(seating, null);
       return {
         id: 'u1',
         fingerprint: computePlanFingerprint(pairs),

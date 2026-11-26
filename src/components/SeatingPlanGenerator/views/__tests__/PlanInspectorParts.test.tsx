@@ -289,6 +289,7 @@ describe('PlanSection: feedback', () => {
 
     expect(mocks.setFeedback).toHaveBeenCalledWith(
       PAIR,
+      mocks.classroomScene,
       { rating: 'good', at: expect.any(String) },
       new Date(2026, 9, 12).toISOString(),
     );
@@ -303,7 +304,7 @@ describe('PlanSection: feedback', () => {
 
   it('asks a mix that was in use', () => {
     mocks.activePlanId = null;
-    const pairs = collectSeatingPairKeys(PAIR);
+    const pairs = collectSeatingPairKeys(PAIR, null);
     mocks.planUsage = [
       {
         id: 'u1',

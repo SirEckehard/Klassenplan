@@ -229,7 +229,7 @@ describe('buildCriterionHighlightEntries', () => {
     const ada = student('ada');
     const alan = student('alan');
     const used = (seating: SeatingArrangement, day: number): PlanUsage => {
-      const pairs = collectSeatingPairKeys(seating);
+      const pairs = collectSeatingPairKeys(seating, null);
       return {
         id: `u${day}`,
         fingerprint: computePlanFingerprint(pairs),

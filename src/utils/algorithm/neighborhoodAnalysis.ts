@@ -3,7 +3,11 @@
 import type { Student, ClassroomScene, SeatingArrangement } from '@/types';
 import type { NeighborhoodAnalysis, NeighborhoodPair } from '@/types/Circle';
 import { getAdjacentSeats, seatPairsFor } from '@/utils/math/seatGeometry';
+import { hasShapeMismatch } from '@/utils/math/scene';
 import { isWishPair } from '@/utils/student/partnerUtils';
+import { getSeatLayout, kindIndex } from './model/seatRelations';
+
+const PARTNER = kindIndex('partner');
 
 /**
  * Analyzes neighborhood relationships from the current table layout
@@ -15,7 +19,13 @@ export function analyzeNeighborhoods(
 ): NeighborhoodAnalysis {
   const adjacentSeats = getAdjacentSeats(scene);
   const studentMap = createStudentMap(arrangement);
-  const studentPartnerMap = createPartnerMap(scene, students, arrangement);
+  const joined = joinedPartners(scene, arrangement);
+  const studentPartnerMap = createPartnerMap(
+    scene,
+    students,
+    joined,
+    arrangement,
+  );
 
   const neighborhoodPairs: NeighborhoodPair[] = [];
   const studentNeighborMap = new Map<string, string[]>();
@@ -84,6 +94,31 @@ export function analyzeNeighborhoods(
     studentNeighborMap.set(currentStudent.id, currentNeighbors);
   }
 
+  // Desks pushed together in a row: the two at each join sit as close as
+  // seat partners (decision 0031), so they are table neighbours too.
+  for (const [studentA, studentB] of joined) {
+    const known = neighborhoodPairs.some(
+      (pair) =>
+        (pair.student1Id === studentA.id && pair.student2Id === studentB.id) ||
+        (pair.student1Id === studentB.id && pair.student2Id === studentA.id),
+    );
+    if (known) continue;
+    neighborhoodPairs.push({
+      student1Id: studentA.id,
+      student2Id: studentB.id,
+      strength: calculateRelationshipStrength(studentA, studentB),
+      preserved: false,
+    });
+    for (const [self, other] of [
+      [studentA, studentB],
+      [studentB, studentA],
+    ] as const) {
+      const neighbours = studentNeighborMap.get(self.id) ?? [];
+      if (!neighbours.includes(other.id)) neighbours.push(other.id);
+      studentNeighborMap.set(self.id, neighbours);
+    }
+  }
+
   // Calculate statistics
   const totalNeighborConnections = Array.from(
     studentNeighborMap.values(),
@@ -137,11 +172,38 @@ function createStudentMap(
 }
 
 /**
+ * The students at the joins of desks pushed together in a row, seat partners
+ * across two tables in the seat layout of the mixing; none for an
+ * arrangement made for other tables.
+ */
+function joinedPartners(
+  scene: ClassroomScene,
+  arrangement?: SeatingArrangement,
+): Array<[Student, Student]> {
+  if (!arrangement || hasShapeMismatch(scene, arrangement)) return [];
+  const layout = getSeatLayout(scene);
+  const occupant = (seat: number) =>
+    arrangement[layout.tableOf[seat]!]?.[layout.seatOf[seat]!] ?? null;
+  const pairs: Array<[Student, Student]> = [];
+  layout.relations.forEach((relations, seat) => {
+    for (const { seat: other, kind } of relations) {
+      if (other <= seat || kind !== PARTNER) continue;
+      if (layout.tableOf[other] === layout.tableOf[seat]) continue;
+      const studentA = occupant(seat);
+      const studentB = occupant(other);
+      if (studentA && studentB) pairs.push([studentA, studentB]);
+    }
+  });
+  return pairs;
+}
+
+/**
  * Creates a mapping of direct table partners for each student
  */
 function createPartnerMap(
   scene: ClassroomScene,
   students: Student[],
+  joined: ReadonlyArray<[Student, Student]>,
   arrangement?: SeatingArrangement,
 ): Map<string, string[]> {
   const partnerMap = new Map<string, string[]>();
@@ -182,6 +244,17 @@ function createPartnerMap(
       }
     });
   });
+
+  for (const [studentA, studentB] of joined) {
+    const partnersForA = partnerMap.get(studentA.id);
+    const partnersForB = partnerMap.get(studentB.id);
+    if (partnersForA && !partnersForA.includes(studentB.id)) {
+      partnersForA.push(studentB.id);
+    }
+    if (partnersForB && !partnersForB.includes(studentA.id)) {
+      partnersForB.push(studentA.id);
+    }
+  }
 
   return partnerMap;
 }

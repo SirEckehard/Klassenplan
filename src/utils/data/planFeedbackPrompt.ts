@@ -8,7 +8,11 @@
  */
 import type { PlanUsage } from '@/types';
 import { LOCAL_STORAGE_KEYS } from '@/utils/data/storageKeys';
-import { isCountedUsage } from '@/utils/data/planUsage';
+import {
+  isCountedUsage,
+  isRecordOf,
+  type PlanPairs,
+} from '@/utils/data/planUsage';
 import { logWarn } from '@/utils';
 
 /** How long a plan must have been in use before the question comes. */
@@ -26,13 +30,13 @@ const SOURCE = 'planFeedbackPrompt';
  * week at least and was not asked about before.
  *
  * @param records The class's usage records, resolved for its mode
- * @param shownFingerprint The fingerprint of the plan on the stage, if any
+ * @param shown The plan on the stage, by its pairs, if any
  * @param asked Records asked about already
  * @param now The moment of asking
  */
 export function planToAskAbout(
   records: readonly PlanUsage[],
-  shownFingerprint: string | null,
+  shown: Pick<PlanPairs, 'fingerprint' | 'formerFingerprint'> | null,
   asked: ReadonlySet<string>,
   now: Date = new Date(),
 ): PlanUsage | null {
@@ -40,7 +44,7 @@ export function planToAskAbout(
     .filter(isCountedUsage)
     .sort((a, b) => b.lastSeenAt.localeCompare(a.lastSeenAt))[0];
   if (!newest || newest.feedback) return null;
-  if (newest.fingerprint === shownFingerprint) return null;
+  if (shown && isRecordOf(newest, shown)) return null;
   if (asked.has(newest.id)) return null;
   const since = Date.parse(newest.firstSeenAt);
   if (!Number.isFinite(since)) return null;

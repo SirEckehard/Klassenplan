@@ -55,7 +55,7 @@ beforeEach(async () => {
   vi.clearAllMocks();
   const { collectSeatingPairKeys, computePlanFingerprint } =
     await import('@/utils/data/planUsage');
-  const pairs = collectSeatingPairKeys(lastPlan);
+  const pairs = collectSeatingPairKeys(lastPlan, null);
   mocks.step = 3;
   mocks.weight = 6;
   mocks.planUsage = [

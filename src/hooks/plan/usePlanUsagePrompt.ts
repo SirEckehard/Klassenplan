@@ -10,7 +10,11 @@
  */
 import { useCallback, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { PlanUsageSource, SeatingArrangement } from '@/types';
+import type {
+  ClassroomScene,
+  PlanUsageSource,
+  SeatingArrangement,
+} from '@/types';
 import { announce, logError, showToast } from '@/utils';
 import {
   recordPlanUsage,
@@ -24,6 +28,7 @@ const PROMPT_DURATION_MS = 8000;
 
 export type RecordUsageWithPrompt = (
   seating: SeatingArrangement | null | undefined,
+  scene: ClassroomScene,
   source: PlanUsageSource,
 ) => void;
 
@@ -78,8 +83,8 @@ export function usePlanUsagePrompt(
   );
 
   return useCallback(
-    (seating, source) => {
-      recordPlanUsage(classId, seating, source)
+    (seating, scene, source) => {
+      recordPlanUsage(classId, seating, scene, source)
         .then((outcome) => {
           // Ask once per arrangement, and only when nothing stronger than a
           // hand edit has been seen for it before.

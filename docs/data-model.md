@@ -1,6 +1,6 @@
 # Data Model
 
-> **Status:** current · **Last reviewed:** 2026-11-24 · **Source of truth:**
+> **Status:** current · **Last reviewed:** 2026-11-26 · **Source of truth:**
 > `src/utils/data/storageKeys.ts`, `src/types/`, `src/repositories/`
 
 Everything Klassenplan stores lives in the teacher's browser. This document
@@ -281,7 +281,10 @@ interface PlanUsageData {
 }
 ```
 
-Each `PlanUsage` holds a `fingerprint`, the sorted pair keys (`"idA::idB"`),
+Each `PlanUsage` holds a `fingerprint`, the sorted pair keys (`"idA::idB"`)
+of who sat together — read in the room, so tables pushed together count
+(`collectSeatingPairKeys`; a record written up to 3.5.0 knew every table on
+its own and is brought up to date by the next signal for its plan),
 `firstSeenAt` / `lastSeenAt`, the `sources` that raised it, the resulting
 `confidence` and `confirmed` — the teacher's answer to the confirmation prompt,
 undefined until they give one — and perhaps `feedback`, how the plan went. It never holds a full arrangement. Semantics are described in

@@ -327,7 +327,7 @@ export const planUsageArb = (
   students: readonly Student[],
 ): fc.Arbitrary<PlanUsage> =>
   groupedSeatingArb(students).chain((seating) => {
-    const pairs = collectSeatingPairKeys(seating);
+    const pairs = collectSeatingPairKeys(seating, null);
     const tables = seating.map((seats) =>
       seats.flatMap((student) => (student ? [student.id] : [])),
     );

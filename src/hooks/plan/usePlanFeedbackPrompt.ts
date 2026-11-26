@@ -15,10 +15,7 @@ import {
   useSeatingPlanState,
 } from '@/contexts/SeatingPlanContext';
 import { setPlanUsageFeedback } from '@/repositories/planUsageStore';
-import {
-  collectSeatingPairKeys,
-  computePlanFingerprint,
-} from '@/utils/data/planUsage';
+import { isRecordOf, planPairsOf } from '@/utils/data/planUsage';
 import {
   noteAskedPlanFeedback,
   planToAskAbout,
@@ -36,17 +33,11 @@ export interface PlanFeedbackPrompt {
   later: () => void;
 }
 
-const fingerprintOf = (
-  seating: Parameters<typeof collectSeatingPairKeys>[0],
-): string | null => {
-  const pairs = collectSeatingPairKeys(seating);
-  return pairs.length > 0 ? computePlanFingerprint(pairs) : null;
-};
-
 export function usePlanFeedbackPrompt(): PlanFeedbackPrompt {
   const { step } = useSeatingAlgorithmContext();
   const {
     activeClass,
+    classroomScene,
     currentSeating,
     mixSettings,
     planUsage,
@@ -57,30 +48,31 @@ export function usePlanFeedbackPrompt(): PlanFeedbackPrompt {
     () => new Set(),
   );
 
-  const shownFingerprint = useMemo(
-    () => fingerprintOf(currentSeating),
-    [currentSeating],
+  const shownPlan = useMemo(
+    () => planPairsOf(currentSeating, classroomScene),
+    [currentSeating, classroomScene],
   );
   const record = useMemo(() => {
     if (step !== 3 || !activeClass.id) return null;
     if ((mixSettings.considerPlanFeedback ?? 0) <= 0) return null;
     const asked = new Set([...readAskedPlanFeedback(), ...answered]);
-    return planToAskAbout(planUsage, shownFingerprint, asked);
+    return planToAskAbout(planUsage, shownPlan, asked);
   }, [
     activeClass.id,
     answered,
     mixSettings.considerPlanFeedback,
     planUsage,
-    shownFingerprint,
+    shownPlan,
     step,
   ]);
 
   const planName = useMemo(() => {
     if (!record) return null;
-    const saved = seatingHistory.find(
-      (plan) =>
-        !plan.autoSaved && fingerprintOf(plan.seating) === record.fingerprint,
-    );
+    const saved = seatingHistory.find((plan) => {
+      if (plan.autoSaved) return false;
+      const pairs = planPairsOf(plan.seating, plan.scene);
+      return pairs !== null && isRecordOf(record, pairs);
+    });
     return saved?.name ?? null;
   }, [record, seatingHistory]);
 

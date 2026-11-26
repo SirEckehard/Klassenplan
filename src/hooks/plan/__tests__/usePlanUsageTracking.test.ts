@@ -10,7 +10,7 @@ vi.mock('@/repositories/planUsageStore', () => ({
 }));
 
 import { usePlanUsageTracking } from '../usePlanUsageTracking';
-import { createMockStudent } from '@/__tests__/utils';
+import { createMockClassroomScene, createMockStudent } from '@/__tests__/utils';
 import type { SeatingArrangement } from '@/types';
 
 const anna = createMockStudent({ id: 'a', name: 'Anna' });
@@ -18,6 +18,7 @@ const ben = createMockStudent({ id: 'b', name: 'Ben' });
 const carla = createMockStudent({ id: 'c', name: 'Carla' });
 
 const seatedWithBen: SeatingArrangement = [[anna, ben]];
+const classroomScene = createMockClassroomScene();
 const seatedWithCarla: SeatingArrangement = [[anna, carla]];
 
 beforeEach(() => {
@@ -35,6 +36,7 @@ describe('usePlanUsageTracking', () => {
       usePlanUsageTracking({
         classId: 'c1',
         currentSeating: seatedWithBen,
+        classroomScene,
       }),
     );
 
@@ -49,6 +51,7 @@ describe('usePlanUsageTracking', () => {
     expect(recordPlanUsage).toHaveBeenCalledExactlyOnceWith(
       'c1',
       seatedWithBen,
+      classroomScene,
       'edited',
     );
   });
@@ -59,6 +62,7 @@ describe('usePlanUsageTracking', () => {
         usePlanUsageTracking({
           classId: 'c1',
           currentSeating: seating,
+          classroomScene,
         }),
       { initialProps: { seating: seatedWithBen } },
     );
@@ -78,6 +82,7 @@ describe('usePlanUsageTracking', () => {
     expect(recordPlanUsage).toHaveBeenCalledExactlyOnceWith(
       'c1',
       seatedWithCarla,
+      classroomScene,
       'edited',
     );
   });
@@ -87,6 +92,7 @@ describe('usePlanUsageTracking', () => {
       usePlanUsageTracking({
         classId: 'c1',
         currentSeating: seatedWithBen,
+        classroomScene,
       }),
     );
 
@@ -106,6 +112,7 @@ describe('usePlanUsageTracking', () => {
       usePlanUsageTracking({
         classId: null,
         currentSeating: seatedWithBen,
+        classroomScene,
       }),
     );
 
@@ -117,6 +124,7 @@ describe('usePlanUsageTracking', () => {
     expect(recordPlanUsage).toHaveBeenCalledExactlyOnceWith(
       null,
       seatedWithBen,
+      classroomScene,
       'edited',
     );
   });
@@ -124,7 +132,11 @@ describe('usePlanUsageTracking', () => {
   it('drops the signal when another arrangement replaced the edited one', () => {
     const { result, rerender } = renderHook(
       ({ seating }: { seating: SeatingArrangement }) =>
-        usePlanUsageTracking({ classId: 'c1', currentSeating: seating }),
+        usePlanUsageTracking({
+          classId: 'c1',
+          currentSeating: seating,
+          classroomScene,
+        }),
       { initialProps: { seating: seatedWithBen } },
     );
 
@@ -145,7 +157,11 @@ describe('usePlanUsageTracking', () => {
   it('records a swap made on the arrangement that replaced an edited one', () => {
     const { result, rerender } = renderHook(
       ({ seating }: { seating: SeatingArrangement }) =>
-        usePlanUsageTracking({ classId: 'c1', currentSeating: seating }),
+        usePlanUsageTracking({
+          classId: 'c1',
+          currentSeating: seating,
+          classroomScene,
+        }),
       { initialProps: { seating: seatedWithBen } },
     );
 
@@ -165,6 +181,7 @@ describe('usePlanUsageTracking', () => {
     expect(recordPlanUsage).toHaveBeenCalledExactlyOnceWith(
       'c1',
       [[carla, ben]],
+      classroomScene,
       'edited',
     );
   });
@@ -172,7 +189,11 @@ describe('usePlanUsageTracking', () => {
   it('drops a pending edit when the class is switched', () => {
     const { result, rerender } = renderHook(
       ({ classId }: { classId: string }) =>
-        usePlanUsageTracking({ classId, currentSeating: seatedWithBen }),
+        usePlanUsageTracking({
+          classId,
+          currentSeating: seatedWithBen,
+          classroomScene,
+        }),
       { initialProps: { classId: 'c1' } },
     );
 

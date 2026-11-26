@@ -2,6 +2,9 @@
 // Copyright (C) 2026 Eike Schäfer
 import { describe, it, expect } from 'vitest';
 import type {
+  ClassroomFeature,
+  ClassroomScene,
+  ClassroomTable,
   MixResult,
   PlanUsage,
   SavedPlan,
@@ -19,9 +22,12 @@ import {
   collectSeatingPairKeys,
   computePlanFingerprint,
   confidenceForSources,
+  findPlanUsage,
   mergePlanUsageSignal,
   normalizePlanFeedback,
   PLAN_USAGE_LIMIT,
+  planPairsOf,
+  seatedTogether,
   storedPlanDateToTimestamp,
   trimPlanUsage,
   withPlanFeedback,
@@ -40,13 +46,13 @@ function idFactory(prefix = 'u') {
 
 describe('collectSeatingPairKeys', () => {
   it('builds one sorted key per pair sharing a table', () => {
-    expect(collectSeatingPairKeys(seatingOf([['b', 'a'], ['c']]))).toEqual([
-      'a::b',
-    ]);
+    expect(
+      collectSeatingPairKeys(seatingOf([['b', 'a'], ['c']]), null),
+    ).toEqual(['a::b']);
   });
 
   it('pairs everyone at a group table with everyone else', () => {
-    expect(collectSeatingPairKeys(seatingOf([['a', 'b', 'c']]))).toEqual([
+    expect(collectSeatingPairKeys(seatingOf([['a', 'b', 'c']]), null)).toEqual([
       'a::b',
       'a::c',
       'b::c',
@@ -58,15 +64,213 @@ describe('collectSeatingPairKeys', () => {
       [student('a'), null, student('b')],
       [null],
     ] as SeatingArrangement;
-    expect(collectSeatingPairKeys(withGaps)).toEqual(['a::b']);
-    expect(collectSeatingPairKeys([])).toEqual([]);
-    expect(collectSeatingPairKeys(null)).toEqual([]);
+    expect(collectSeatingPairKeys(withGaps, null)).toEqual(['a::b']);
+    expect(collectSeatingPairKeys([], null)).toEqual([]);
+    expect(collectSeatingPairKeys(null, null)).toEqual([]);
+  });
+});
+
+/** The board on the right: the desks face it, a row runs top to bottom. */
+const BOARD: ClassroomFeature = {
+  id: 'board',
+  type: 'board',
+  x: 880,
+  y: 200,
+  width: 20,
+  height: 200,
+  anchor: 'free',
+  movable: false,
+};
+
+const desk = (
+  templateType: 'single' | 'double',
+  x: number,
+  y: number,
+  rotation = 0,
+): ClassroomTable => ({
+  x,
+  y,
+  width: 55,
+  height: templateType === 'single' ? 65 : 130,
+  rotation,
+  seatCount: templateType === 'single' ? 1 : 2,
+  locked: false,
+  zIndex: 0,
+  templateType,
+});
+
+const roomOf = (...tables: ClassroomTable[]): ClassroomScene => ({
+  totalStudents: 0,
+  tables,
+  features: [BOARD],
+});
+
+describe('who sat together at tables pushed together', () => {
+  // Three single desks in a row, edge to edge, and one a step away.
+  const row = roomOf(
+    desk('single', 600, 100),
+    desk('single', 600, 165),
+    desk('single', 600, 230),
+    desk('single', 600, 400),
+  );
+  const inRow = seatingOf([['a'], ['b'], ['c'], ['d']]);
+
+  it('pairs the two at each join of desks in a row, not the whole row', () => {
+    expect(collectSeatingPairKeys(inRow, row)).toEqual(['a::b', 'b::c']);
+    expect(
+      seatedTogether(inRow, row)
+        .filter((unit) => unit.length >= 2)
+        .map((unit) => unit.map((seated) => seated.id)),
+    ).toEqual([
+      ['a', 'b'],
+      ['b', 'c'],
+    ]);
+  });
+
+  it('pairs everyone at desks pushed together face to face, as at one table', () => {
+    const island = roomOf(
+      desk('double', 300, 100),
+      desk('double', 355, 100, 180),
+    );
+    expect(
+      collectSeatingPairKeys(
+        seatingOf([
+          ['a', 'b'],
+          ['c', 'd'],
+        ]),
+        island,
+      ),
+    ).toEqual(['a::b', 'a::c', 'a::d', 'b::c', 'b::d', 'c::d']);
+  });
+
+  it('counts every table on its own without the room or for other tables', () => {
+    expect(collectSeatingPairKeys(inRow, null)).toEqual([]);
+    expect(collectSeatingPairKeys(seatingOf([['a'], ['b']]), row)).toEqual([]);
+  });
+
+  it('keeps the fingerprint the records knew up to 3.5.0 where it differs', () => {
+    const doubles = roomOf(desk('double', 600, 100), desk('double', 600, 230));
+    const seating = seatingOf([
+      ['a', 'b'],
+      ['c', 'd'],
+    ]);
+    const tablesAlone = collectSeatingPairKeys(seating, null);
+
+    expect(planPairsOf(seating, doubles)).toEqual({
+      pairs: ['a::b', 'b::c', 'c::d'],
+      fingerprint: computePlanFingerprint(['a::b', 'b::c', 'c::d']),
+      formerFingerprint: computePlanFingerprint(tablesAlone),
+    });
+    // Apart, or single desks no record held a pair of: one fingerprint.
+    expect(planPairsOf(seating, null)).toEqual({
+      pairs: tablesAlone,
+      fingerprint: computePlanFingerprint(tablesAlone),
+    });
+    expect(planPairsOf(inRow, row)?.formerFingerprint).toBeUndefined();
+    expect(planPairsOf(seatingOf([['a'], ['b']]), row)).toBeNull();
+  });
+
+  it('brings a record written before up to date instead of adding one', () => {
+    const doubles = roomOf(desk('double', 600, 100), desk('double', 600, 230));
+    const seating = seatingOf([
+      ['a', 'b'],
+      ['c', 'd'],
+    ]);
+    const tablesAlone = collectSeatingPairKeys(seating, null);
+    const before: PlanUsage = {
+      id: 'u1',
+      fingerprint: computePlanFingerprint(tablesAlone),
+      pairs: tablesAlone,
+      firstSeenAt: '2026-09-01T10:00:00.000Z',
+      lastSeenAt: '2026-09-01T10:00:00.000Z',
+      sources: ['presented'],
+      confidence: 1,
+      feedback: {
+        rating: 'poor',
+        poorTables: [['a', 'b']],
+        at: '2026-09-08T10:00:00.000Z',
+      },
+    };
+    const plan = planPairsOf(seating, doubles)!;
+
+    expect(findPlanUsage([before], seating, doubles)).toBe(before);
+    const merged = mergePlanUsageSignal([before], {
+      ...plan,
+      source: 'exported',
+      at: '2026-09-15T10:00:00.000Z',
+      id: 'u2',
+    });
+    expect(merged).toEqual([
+      {
+        ...before,
+        fingerprint: plan.fingerprint,
+        pairs: plan.pairs,
+        sources: ['presented', 'exported'],
+        lastSeenAt: '2026-09-15T10:00:00.000Z',
+      },
+    ]);
+    expect(findPlanUsage(merged, seating, doubles)).toBe(merged[0]);
+  });
+
+  it('keeps feedback naming the two at a join, on a record written before', () => {
+    const doubles = roomOf(desk('double', 600, 100), desk('double', 600, 230));
+    const seating = seatingOf([
+      ['a', 'b'],
+      ['c', 'd'],
+    ]);
+    const tablesAlone = collectSeatingPairKeys(seating, null);
+    const before: PlanUsage = {
+      id: 'u1',
+      fingerprint: computePlanFingerprint(tablesAlone),
+      pairs: tablesAlone,
+      firstSeenAt: '2026-09-01T10:00:00.000Z',
+      lastSeenAt: '2026-09-01T10:00:00.000Z',
+      sources: ['presented'],
+      confidence: 1,
+    };
+    const at = '2026-09-15T10:00:00.000Z';
+
+    const [entry] = withPlanFeedback(
+      [before],
+      { ...planPairsOf(seating, doubles)!, at, id: 'u2' },
+      { rating: 'poor', poorTables: [['c', 'b']], at },
+    );
+    expect(entry).toMatchObject({
+      id: 'u1',
+      pairs: ['a::b', 'b::c', 'c::d'],
+      feedback: { rating: 'poor', poorTables: [['b', 'c']], at },
+    });
+  });
+
+  it('finds a plan in its room for a record written before as well', () => {
+    const doubles = roomOf(desk('double', 600, 100), desk('double', 600, 230));
+    const seating = seatingOf([
+      ['a', 'b'],
+      ['c', 'd'],
+    ]);
+    const plan = planPairsOf(seating, doubles)!;
+    const origins = buildUsageOrigins(
+      [
+        {
+          name: 'Herbst',
+          seating,
+          scene: doubles,
+          roomId: 'r1',
+        } as unknown as SavedPlan,
+      ],
+      [],
+      [{ id: 'r1', name: 'Klassenraum', scene: doubles }],
+    );
+
+    const herbst = { planNames: ['Herbst'], roomNames: ['Klassenraum'] };
+    expect(origins.get(plan.fingerprint)).toEqual(herbst);
+    expect(origins.get(plan.formerFingerprint!)).toEqual(herbst);
   });
 });
 
 describe('computePlanFingerprint', () => {
   it('is stable for the same neighbourhoods', () => {
-    const pairs = collectSeatingPairKeys(seatingOf([['a', 'b']]));
+    const pairs = collectSeatingPairKeys(seatingOf([['a', 'b']]), null);
     expect(computePlanFingerprint(pairs)).toBe(computePlanFingerprint(pairs));
   });
 
@@ -76,12 +280,14 @@ describe('computePlanFingerprint', () => {
         ['a', 'b'],
         ['c', 'd'],
       ]),
+      null,
     );
     const right = collectSeatingPairKeys(
       seatingOf([
         ['d', 'c'],
         ['b', 'a'],
       ]),
+      null,
     );
     expect(computePlanFingerprint(left)).toBe(computePlanFingerprint(right));
   });
@@ -92,12 +298,14 @@ describe('computePlanFingerprint', () => {
         ['a', 'b'],
         ['c', 'd'],
       ]),
+      null,
     );
     const after = collectSeatingPairKeys(
       seatingOf([
         ['a', 'c'],
         ['b', 'd'],
       ]),
+      null,
     );
     expect(computePlanFingerprint(before)).not.toBe(
       computePlanFingerprint(after),
@@ -461,6 +669,7 @@ describe('normalizePlanFeedback', () => {
       ['a', 'b', 'c'],
       ['d', 'e'],
     ]),
+    null,
   );
 
   it('names no table for a plan that went well', () => {
@@ -771,7 +980,7 @@ describe('buildUsageOrigins', () => {
     { id: 'r2', name: 'Physik' },
   ];
   const fingerprintOf = (tables: string[][]) =>
-    computePlanFingerprint(collectSeatingPairKeys(seatingOf(tables)));
+    computePlanFingerprint(collectSeatingPairKeys(seatingOf(tables), null));
   const planIn = (
     name: string,
     roomId: string | undefined,

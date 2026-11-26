@@ -111,11 +111,11 @@ export default function Present() {
     if (mode !== 'table' || !hasPlan) return;
 
     const timer = window.setTimeout(() => {
-      recordUsage(currentSeating, 'presented');
+      recordUsage(currentSeating, classroomScene, 'presented');
     }, PRESENT_USAGE_DWELL_MS);
 
     return () => window.clearTimeout(timer);
-  }, [mode, hasPlan, currentSeating, recordUsage]);
+  }, [mode, hasPlan, currentSeating, classroomScene, recordUsage]);
 
   const [perspective, setPerspective] = useState<PresentationPerspective>(
     openedWith?.perspective ?? 'student',

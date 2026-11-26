@@ -1,6 +1,6 @@
 # The Interface
 
-> **Status:** current · **Last reviewed:** 2026-11-25 · **Source of truth:**
+> **Status:** current · **Last reviewed:** 2026-11-26 · **Source of truth:**
 > `src/components/shell/`, `src/components/SeatingPlanGenerator/`,
 > `src/contexts/InspectorContext.tsx`
 
@@ -504,7 +504,9 @@ afterwards.
   the plan went (`PlanFeedbackRows`, decision 0054) — "Gut" or "Nicht gut",
   each saying what it does and so a list under the question, pressed again to
   take it back, and with "Nicht gut" a switch for every table of two or more,
-  named by its students' first names — while the stage shows a plan that can have been in use: saved and
+  named by its students' first names, a table as the mixing reads the room:
+  tables pushed together round a corner or face to face are one, and each
+  join of desks pushed together in a row is a table of two — while the stage shows a plan that can have been in use: saved and
   unchanged, or already counted as used; a fresh mix and the circle have
   none. "Bibliothek" has the same rows under "Genutzt", and a sentence under
   them says the feedback waits while "Erfahrung" is off. A name another plan
@@ -885,7 +887,8 @@ afterwards.
   instead: the plan's own section first, as in the table plan, then, in place of
   the criteria — the circle is not built from them — only what the order came to
   (`utils/algorithm/circleSummary.ts`): how many table neighbours stayed side by
-  side. The arcs between table neighbours read the same derivation, because the
+  side — the seat partners at a desk and the two at each join of desks pushed
+  together in a row (`analyzeNeighborhoods`). The arcs between table neighbours read the same derivation, because the
   neighbour lists stored on each seat describe the order the circle was built in
   and go stale on the first drag. `StatusBarPortal` does the same for the status
   bar (`history` for a layer's own undo/redo in the middle, `action` for its

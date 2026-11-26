@@ -242,19 +242,21 @@ function PlanFeedbackOnStage() {
   const setFeedback = useSetPlanFeedback(activeClass.id);
 
   if (!hasPlanForScene(classroomScene, currentSeating)) return null;
-  const record = findPlanUsage(planUsage, currentSeating);
+  const record = findPlanUsage(planUsage, currentSeating, classroomScene);
   const savedAsShown = openPlan !== undefined && !hasUnsavedChanges();
   if (!savedAsShown && !(record && isCountedUsage(record))) return null;
 
   return (
     <PlanFeedbackRows
       seating={currentSeating}
+      scene={classroomScene}
       records={planUsage}
       students={students}
       counts={mixSettings.considerPlanFeedback > 0}
       onChange={(feedback) =>
         setFeedback(
           currentSeating,
+          classroomScene,
           feedback,
           (openPlan && storedPlanDateToTimestamp(openPlan.date)) ??
             new Date().toISOString(),

@@ -20,13 +20,14 @@ import { hasIndexedDB } from '@/utils/data/indexedDb';
 import { generateId, logError, logWarn } from '@/utils';
 import {
   buildBackfillUsage,
-  collectSeatingPairKeys,
-  computePlanFingerprint,
+  findPlanRecord,
   markPlanUsage,
   mergePlanUsageSignal,
+  planPairsOf,
   trimPlanUsage,
   usageBelongsToClass,
   withPlanFeedback,
+  type PlanRoom,
 } from '@/utils/data/planUsage';
 import type {
   PlanFeedback,
@@ -246,25 +247,22 @@ export async function setPlanUsageManual(
  *
  * @param classId Class the plan belongs to
  * @param seating The plan's arrangement
+ * @param scene The room it was made in
  * @param used Whether the plan was really in use
  * @param at When the plan was made (ISO 8601); dates a record it creates
  */
 export async function markPlanUsed(
   classId: string | null | undefined,
   seating: SeatingArrangement | null | undefined,
+  scene: PlanRoom,
   used: boolean,
   at: string,
 ): Promise<void> {
   if (!classId || !hasIndexedDB()) return;
 
-  const pairs = collectSeatingPairKeys(seating);
-  if (pairs.length === 0) return;
-  const signal = {
-    pairs,
-    fingerprint: computePlanFingerprint(pairs),
-    at,
-    id: generateId(),
-  };
+  const plan = planPairsOf(seating, scene);
+  if (!plan) return;
+  const signal = { ...plan, at, id: generateId() };
 
   await mutate((data) => ({
     ...data,
@@ -282,25 +280,22 @@ export async function markPlanUsed(
  *
  * @param classId Class the plan belongs to
  * @param seating The plan's arrangement
+ * @param scene The room it was made in
  * @param feedback What the teacher said, or null to take it back
  * @param at When the plan was made (ISO 8601); dates a record it creates
  */
 export async function setPlanFeedback(
   classId: string | null | undefined,
   seating: SeatingArrangement | null | undefined,
+  scene: PlanRoom,
   feedback: PlanFeedback | null,
   at: string,
 ): Promise<void> {
   if (!classId || !hasIndexedDB()) return;
 
-  const pairs = collectSeatingPairKeys(seating);
-  if (pairs.length === 0) return;
-  const signal = {
-    pairs,
-    fingerprint: computePlanFingerprint(pairs),
-    at,
-    id: generateId(),
-  };
+  const plan = planPairsOf(seating, scene);
+  if (!plan) return;
+  const signal = { ...plan, at, id: generateId() };
 
   await mutate((data) => ({
     ...data,
@@ -462,23 +457,23 @@ export interface RecordPlanUsageOutcome {
  *
  * @param classId Active class; the call is a no-op without one
  * @param seating Arrangement that was presented, exported, saved or edited
+ * @param scene The room it was shown in
  * @param source What the teacher did
  * @returns What happened, or null when nothing was recorded
  */
 export async function recordPlanUsage(
   classId: string | null | undefined,
   seating: SeatingArrangement | null | undefined,
+  scene: PlanRoom,
   source: PlanUsageSource,
 ): Promise<RecordPlanUsageOutcome | null> {
   if (!classId || !hasIndexedDB()) return null;
 
-  const pairs = collectSeatingPairKeys(seating);
-  if (pairs.length === 0) return null;
+  const plan = planPairsOf(seating, scene);
+  if (!plan) return null;
 
-  const fingerprint = computePlanFingerprint(pairs);
   const signal = {
-    pairs,
-    fingerprint,
+    ...plan,
     source,
     at: new Date().toISOString(),
     id: generateId(),
@@ -489,9 +484,11 @@ export async function recordPlanUsage(
   await mutate((data) => {
     if (isManual(data, classId)) return null;
     const entries = data.byClass[classId] ?? [];
-    const existing = entries.find((entry) => entry.fingerprint === fingerprint);
+    const existing = findPlanRecord(entries, plan);
     const merged = mergePlanUsageSignal(entries, signal);
-    const record = merged.find((entry) => entry.fingerprint === fingerprint);
+    const record = merged.find(
+      (entry) => entry.fingerprint === plan.fingerprint,
+    );
 
     const hadStrongSignal =
       existing?.sources.some((entry) => entry !== 'edited') ?? false;

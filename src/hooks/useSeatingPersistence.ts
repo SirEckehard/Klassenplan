@@ -597,7 +597,7 @@ export function useSeatingPersistence(state: SeatingState) {
       // Naming a plan is a deliberate act — unlike the silent auto-save that
       // fires whenever step 3 is left — so it counts as a usage signal.
       if (!autoSave) {
-        recordPlanUsage(activeClass.id, currentSeating, 'saved').catch(
+        recordPlanUsage(activeClass.id, currentSeating, scene, 'saved').catch(
           (error) => {
             logError(
               'Failed to record plan usage signal',

@@ -192,7 +192,7 @@ describe('buildPreviousPairs: only plans in use', () => {
 
   it('leaves the plan being read out of its own record', () => {
     const plan = [[alice, bob]];
-    const pairs = collectSeatingPairKeys(plan);
+    const pairs = collectSeatingPairKeys(plan, null);
     const result = buildPreviousPairs([], {
       plan,
       planUsage: [
@@ -344,6 +344,20 @@ describe('tablesOfPairs', () => {
       ['d', 'e'],
     ]);
   });
+
+  it('gives back a row of desks pushed together as its desks and joins', () => {
+    // Two double desks end to end, b and c at the join, and a table of
+    // three with a desk pushed against it in a row.
+    expect(
+      tablesOfPairs(['a::b', 'b::c', 'c::d', 'e::f', 'e::g', 'f::g', 'g::h']),
+    ).toEqual([
+      ['a', 'b'],
+      ['b', 'c'],
+      ['c', 'd'],
+      ['e', 'f', 'g'],
+      ['g', 'h'],
+    ]);
+  });
 });
 
 // How a plan in use went (decision 0054).
@@ -436,8 +450,10 @@ describe('buildPlanExperience', () => {
     ];
     const read = {
       ...own,
-      pairs: collectSeatingPairKeys(seating),
-      fingerprint: computePlanFingerprint(collectSeatingPairKeys(seating)),
+      pairs: collectSeatingPairKeys(seating, null),
+      fingerprint: computePlanFingerprint(
+        collectSeatingPairKeys(seating, null),
+      ),
     };
 
     expect(

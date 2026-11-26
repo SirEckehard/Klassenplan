@@ -166,7 +166,7 @@ const buildFixture = (size: number): Fixture => {
   const planUsage: PlanUsage[] = Array.from(
     { length: MIX_HISTORY_LIMIT },
     (_, index) => {
-      const pairs = collectSeatingPairKeys(construct(1000 + index));
+      const pairs = collectSeatingPairKeys(construct(1000 + index), scene);
       const at = `2026-09-01T08:${String(index).padStart(2, '0')}:00.000Z`;
       return {
         id: `u${index}`,

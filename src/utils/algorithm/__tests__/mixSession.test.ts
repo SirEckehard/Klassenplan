@@ -100,10 +100,13 @@ describe('runMixSession', () => {
     const [ada, ben, cem, dua] = ['ada', 'ben', 'cem', 'dua'].map((id) =>
       createMockStudent({ id, name: id }),
     );
-    const pairs = collectSeatingPairKeys([
-      [ada!, ben!],
-      [cem!, dua!],
-    ]);
+    const pairs = collectSeatingPairKeys(
+      [
+        [ada!, ben!],
+        [cem!, dua!],
+      ],
+      null,
+    );
     const inUse: PlanUsage = {
       id: 'u1',
       fingerprint: computePlanFingerprint(pairs),

@@ -10,7 +10,7 @@
  * belong together.
  */
 import { useCallback, useEffect, useRef } from 'react';
-import type { SeatingArrangement } from '@/types';
+import type { ClassroomScene, SeatingArrangement } from '@/types';
 import { logError } from '@/utils';
 import { recordPlanUsage } from '@/repositories/planUsageStore';
 
@@ -27,6 +27,8 @@ export interface PlanUsageTrackingParams {
   /** Active class; without one nothing is recorded. */
   classId: string | null;
   currentSeating: SeatingArrangement;
+  /** The room on the stage, which says whose tables are pushed together. */
+  classroomScene: ClassroomScene;
 }
 
 export interface PlanUsageTrackingReturn {
@@ -37,10 +39,12 @@ export interface PlanUsageTrackingReturn {
 export function usePlanUsageTracking({
   classId,
   currentSeating,
+  classroomScene,
 }: PlanUsageTrackingParams): PlanUsageTrackingReturn {
   // Read at fire time rather than captured, so the debounced signal records the
   // arrangement as it ends up, not as it was on the first drag.
   const seatingRef = useRef(currentSeating);
+  const sceneRef = useRef(classroomScene);
   const classIdRef = useRef(classId);
   const timerRef = useRef<number | null>(null);
   // Set by a swap until the arrangement it made arrives.
@@ -49,6 +53,10 @@ export function usePlanUsageTracking({
   // a plan opened, another room, a mix. Recording it would file that one
   // under the edit, so the signal is dropped.
   const replacedRef = useRef(false);
+
+  useEffect(() => {
+    sceneRef.current = classroomScene;
+  }, [classroomScene]);
 
   useEffect(() => {
     seatingRef.current = currentSeating;
@@ -93,15 +101,18 @@ export function usePlanUsageTracking({
         replacedRef.current = false;
         return;
       }
-      recordPlanUsage(classIdRef.current, seatingRef.current, 'edited').catch(
-        (error) => {
-          logError(
-            'Failed to record plan usage signal',
-            { error, source: 'edited' },
-            LOG_SOURCE,
-          );
-        },
-      );
+      recordPlanUsage(
+        classIdRef.current,
+        seatingRef.current,
+        sceneRef.current,
+        'edited',
+      ).catch((error) => {
+        logError(
+          'Failed to record plan usage signal',
+          { error, source: 'edited' },
+          LOG_SOURCE,
+        );
+      });
     }, EDIT_SIGNAL_DEBOUNCE_MS);
   }, []);
 

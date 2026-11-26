@@ -406,3 +406,58 @@ that did not work against the pairs the room forces together
 (`fewestPairsTogether`). Without feedback the term is nothing and a mix
 treats the criterion as off; every room of mixQuality gives the same plans
 as before, seed for seed.
+
+## Addendum of 2026-11-26: who sat together at tables pushed together
+
+The maintainer found that "Wie hat der Plan funktioniert?" offered no table
+for desks pushed together and that the circle did not count them as table
+neighbours. The cause lay underneath: a usage record
+([decision 0010](0010-plan-usage-from-actions.md)) reduced a plan to the
+pairs at one table, without the room, so the plans in use knew nobody who
+sat at a join. "Wiederholung" did not part them, "Nachbarschaften" did not
+list them, and a room of single desks kept no record at all — neither
+"Genutzt" nor feedback could be given there.
+
+- **Who sat together is what this model reads** (`seatedTogether`,
+  `collectSeatingPairKeys` in `utils/data/planUsage.ts`): everybody at one
+  table group and the two at each join of desks in a row
+  (`SeatLayout.groups`, `joins`), read in the room the plan was shown, saved
+  or made in. Every place that writes or looks up a record passes that room:
+  the signals, "Genutzt", the feedback and the question after a plan, the
+  plans and mixes behind a record in "Bibliothek", the saved plans that
+  stand in for the records and the plan being read (`buildPreviousPairs`'
+  `scene`).
+- **A record written before keeps counting.** It holds pairs and no room,
+  so it cannot be read anew; for a plan with tables pushed together it
+  carries the fingerprint of its tables alone. `planPairsOf` gives that one
+  as `formerFingerprint`: the record still finds its plan by it, and the
+  next signal, marking or feedback for the plan brings its pairs and
+  fingerprint up to date instead of adding a second record. Until then it
+  counts with the pairs it has.
+- **Feedback names the tables of this model**
+  ([decision 0054](0054-experience-of-a-plan-in-use.md)): a table group, and
+  each join of a row as a table of two. A row of desks is no table, as it is
+  no group — a horseshoe would be one table of twenty. A "Nicht gut" without
+  a table counts, for the fulfilment, the largest groups of its students who
+  are all pairs of each other (`tablesOfPairs`), so a row is its desks and
+  joins there as well.
+- **The circle** counts the two at a join as table neighbours, as seat
+  partners are (`analyzeNeighborhoods`); round a corner and face to face
+  only the seat partners are, as at a group table.
+
+Measured with the mixQuality class (24 students, recommended weights), six
+plans one after the other, each in use for the next, 30 seeds; "again" is
+the share of who sat together in plans two to six that had sat together
+earlier in the run:
+
+| Room, 24 students                       | Again old → new | Overall old → new | Wiederholung old → new |
+| --------------------------------------- | --------------: | ----------------: | ---------------------: |
+| Twelve pairs of single desks            |   77.8 → 14.2 % |     89.8 → 85.2 % |           100 → 89.1 % |
+| Four rows of six single desks, no gaps  |   62.4 → 17.5 % |     91.3 → 85.7 % |           100 → 86.0 % |
+| Twelve double desks where the pairs are |          13.9 % |            85.2 % |                 89.4 % |
+
+The old figures read 100 % for "Wiederholung" because the fulfilment saw no
+repetition either; the pairs of single desks are now parted, and read, as
+the double desks in their place are. Rooms without a join — the double desks above,
+all rooms of mixQuality — give the same plans for every seed, so the
+figures in [PERFORMANCE.md](../PERFORMANCE.md) stand.

@@ -323,7 +323,7 @@ describe.skipIf(!process.env.MIX_RUNS)('mix runs with feedback', () => {
               refine: true,
               planUsage: records,
             });
-            const now = new Set(collectSeatingPairKeys(seating));
+            const now = new Set(collectSeatingPairKeys(seating, scene));
             for (const key of poorPairs) {
               chances += 1;
               if (now.has(key)) again += 1;
@@ -354,8 +354,8 @@ describe.skipIf(!process.env.MIX_RUNS)('mix runs with feedback', () => {
             const table = worst.flatMap((seated) =>
               seated ? [seated.id] : [],
             );
-            poorPairs.push(...collectSeatingPairKeys([worst]));
-            const pairs = collectSeatingPairKeys(seating);
+            poorPairs.push(...collectSeatingPairKeys([worst], null));
+            const pairs = collectSeatingPairKeys(seating, scene);
             const at = `2026-09-${String(plan + 1).padStart(2, '0')}T08:00:00.000Z`;
             records.push({
               id: `u${plan}`,

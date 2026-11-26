@@ -9,6 +9,7 @@ import {
 } from '@/components/shell/InspectorPanel';
 import ToggleSwitch from '@/components/ui/controls/ToggleSwitch';
 import type {
+  ClassroomScene,
   PlanFeedback,
   PlanFeedbackRating,
   PlanUsage,
@@ -16,7 +17,7 @@ import type {
   Student,
 } from '@/types';
 import { buildNameLabels, getDisplayNameForMode } from '@/utils';
-import { findPlanUsage } from '@/utils/data/planUsage';
+import { findPlanUsage, seatedTogether } from '@/utils/data/planUsage';
 import { CRITERIA_ICON_MAP } from '@/utils/ui/criteriaIcons';
 
 /** A table's students as feedback names them: their sorted ids. */
@@ -27,11 +28,15 @@ const tableKey = (ids: readonly string[]) => JSON.stringify(ids);
  * "Bibliothek" and in the plan layer's: "Gut" or "Nicht gut", each saying
  * what it does and so a list under the question, the option pressed again
  * taking it back, and with "Nicht gut" a row for each table of two or more,
- * named by who sat there, to say where it did not work. What it changes in the mixing is "Erfahrung"'s; while that criterion
- * is off, a sentence says the feedback waits for it.
+ * named by who sat there, to say where it did not work — a table as the
+ * mixing reads the room: tables pushed together round a corner or face to
+ * face are one, desks pushed together in a row are their own and each join
+ * a double desk. What it changes in the mixing is "Erfahrung"'s; while that
+ * criterion is off, a sentence says the feedback waits for it.
  */
 export default function PlanFeedbackRows({
   seating,
+  scene,
   records,
   students,
   counts,
@@ -39,6 +44,8 @@ export default function PlanFeedbackRows({
 }: {
   /** The plan's arrangement: its tables, and its record by its pairs */
   seating: SeatingArrangement;
+  /** The room it was made in, whose tables may be pushed together */
+  scene: ClassroomScene;
   /** The class's usage records */
   records: readonly PlanUsage[];
   /** The class, for first names that tell its students apart */
@@ -49,15 +56,14 @@ export default function PlanFeedbackRows({
   onChange: (feedback: PlanFeedback | null) => void;
 }) {
   const { t } = useTranslation('generator');
-  const feedback = findPlanUsage(records, seating)?.feedback;
+  const feedback = findPlanUsage(records, seating, scene)?.feedback;
 
   const tables = React.useMemo(() => {
     const labels = buildNameLabels(
       students.map((student) => student.name),
       'firstName',
     );
-    return seating
-      .map((seats) => seats.filter((seat): seat is Student => Boolean(seat)))
+    return seatedTogether(seating, scene)
       .filter((seated) => seated.length >= 2)
       .map((seated) => {
         const ids = seated.map((student) => student.id).sort();
@@ -71,7 +77,7 @@ export default function PlanFeedbackRows({
             .join(' · '),
         };
       });
-  }, [seating, students]);
+  }, [seating, scene, students]);
 
   const poorTables = feedback?.poorTables ?? [];
   const chosen = new Set(poorTables.map(tableKey));

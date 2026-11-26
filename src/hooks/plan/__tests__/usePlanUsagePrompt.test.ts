@@ -21,7 +21,7 @@ vi.mock('@/repositories/planUsageStore', () => ({
 
 import { usePlanUsagePrompt } from '../usePlanUsagePrompt';
 import { subscribeToToasts, type ToastInstance } from '@/utils/ui/toast';
-import { createMockStudent } from '@/__tests__/utils';
+import { createMockClassroomScene, createMockStudent } from '@/__tests__/utils';
 import type { SeatingArrangement } from '@/types';
 
 const seating: SeatingArrangement = [
@@ -30,6 +30,7 @@ const seating: SeatingArrangement = [
     createMockStudent({ id: 'b', name: 'Ben' }),
   ],
 ];
+const scene = createMockClassroomScene();
 
 /** Collect the toasts raised while the hook runs. */
 function collectToasts() {
@@ -51,13 +52,14 @@ describe('usePlanUsagePrompt', () => {
     const { result } = renderHook(() => usePlanUsagePrompt('c1'));
 
     act(() => {
-      result.current(seating, 'presented');
+      result.current(seating, scene, 'presented');
     });
 
     await waitFor(() => expect(toasts).toHaveLength(1));
     expect(recordPlanUsage).toHaveBeenCalledExactlyOnceWith(
       'c1',
       seating,
+      scene,
       'presented',
     );
     expect(toasts[0].action?.label).toMatch(/War nur ein Test|Just a test/i);
@@ -72,7 +74,7 @@ describe('usePlanUsagePrompt', () => {
     );
 
     act(() => {
-      result.current(seating, 'presented');
+      result.current(seating, scene, 'presented');
     });
     await waitFor(() => expect(recordPlanUsage).toHaveBeenCalled());
     await act(async () => {});
@@ -90,7 +92,7 @@ describe('usePlanUsagePrompt', () => {
     const { result } = renderHook(() => usePlanUsagePrompt('c1'));
 
     act(() => {
-      result.current(seating, 'exported');
+      result.current(seating, scene, 'exported');
     });
     await waitFor(() => expect(toasts).toHaveLength(1));
 
@@ -116,7 +118,7 @@ describe('usePlanUsagePrompt', () => {
     const { result } = renderHook(() => usePlanUsagePrompt('c1'));
 
     act(() => {
-      result.current(seating, 'presented');
+      result.current(seating, scene, 'presented');
     });
 
     await waitFor(() => expect(recordPlanUsage).toHaveBeenCalled());
@@ -135,7 +137,7 @@ describe('usePlanUsagePrompt', () => {
     const { result } = renderHook(() => usePlanUsagePrompt('c1'));
 
     act(() => {
-      result.current(seating, 'exported');
+      result.current(seating, scene, 'exported');
     });
 
     await waitFor(() => expect(recordPlanUsage).toHaveBeenCalled());

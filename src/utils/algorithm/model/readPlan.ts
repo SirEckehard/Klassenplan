@@ -45,6 +45,7 @@ export function readPlan(reading: PlanReading): {
     (settings.avoidPreviousPairs ?? 0) > 0
       ? buildPreviousPairs(reading.seatingHistory ?? [], {
           plan: arrangement,
+          scene,
           planUsage: reading.planUsage,
           since: reading.planUsageSince,
           manual: reading.planUsageManual,
@@ -55,6 +56,7 @@ export function readPlan(reading: PlanReading): {
     (settings.considerPlanFeedback ?? 0) > 0
       ? buildPlanExperience(reading.planUsage, {
           plan: arrangement,
+          scene,
           studentCount: students.length,
         })
       : undefined;
