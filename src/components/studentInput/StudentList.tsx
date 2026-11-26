@@ -97,9 +97,12 @@ const StudentList = ({
   const [listElement, setListElement] = React.useState<HTMLDivElement | null>(
     null,
   );
+  // Below `lg` a finger unfolds the row instead: a long press there would
+  // only repeat what the unfolded markers say.
   const { card } = useStudentCard(listElement, {
     enabled: brushKey === null,
     kinds: cards,
+    touch: isLgUp,
   });
 
   const [expandedIds, setExpandedIds] = React.useState<ReadonlySet<string>>(

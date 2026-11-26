@@ -550,7 +550,8 @@ afterwards.
   "Möchte neben", "Wunsch von", "Distanz zu" — and the faces carry names in a
   pill, so a wide screen shows who named whom; below it the line folds under
   the name, the faces stand alone and "2× genannt" counts. The faces open
-  their profile card on hover or a long press, as names in the list do. The
+  their profile card on hover or a long press, as names in the list do from
+  `lg` up. The
   lines follow the class list's order, or sort by how rarely or how often a
   student was named. Its words never judge ("noch von niemandem genannt"),
   and nothing of it reaches a projection or an export. A view that wants the
@@ -577,13 +578,17 @@ afterwards.
   panel's dash for "Aus", which is a step to press only there
   (`ImportanceMeter`) — with the word beside it, in three columns so the scales stand one under
   another; the card
-  is a little wider than a seat's (`FloatingCard wide`) — and where all are off, that it
+  is a little wider than a seat's (`FloatingCard wide`), each as wide as its
+  content up to that wherever it stands (`w-max`) — and where all are off, that it
   does not count now; a partner badge lights the rows of the classmates
   it names in the social family's colour, as a badge on a seat lights seats.
   The pointer resting on a name or a face opens the student at a glance: the
   markers by family and the day they last changed (`markersUpdatedAt`). A
-  finger holds instead: a long press opens the same card until the next touch
-  and does not open the row (`useStudentCard`, `touch-callout-none`). Each of
+  finger holds instead from `lg` up: a long press opens the same card until
+  the next touch and does not open the row (`useStudentCard`,
+  `touch-callout-none`). Below `lg` the row unfolds the same in words, so a
+  finger held there opens nothing and the press is the row's (`touch: false`,
+  addendum of 2026-11-26 to decision 0051). Each of
   the two cards can be switched off, under the mouse and the finger alike, in
   the toolbar's "Merkmale" under Ansichtseinstellungen ("Erklärung beim
   Überfahren", "Überblick beim Überfahren des Namens"; `spg.studentCards`,

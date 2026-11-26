@@ -121,6 +121,11 @@ export function shownBadges(
  * clear of the window's edges, below the box where there is no room above
  * it. Takes no pointer events, so it never stands between the pointer and
  * the next thing to hover.
+ *
+ * Its width is its content's, up to the cap (`w-max`): a fixed box with only
+ * `left` set would otherwise shrink to the room between `left` and the
+ * window's right edge before the transform centres it — on a phone a card
+ * over a badge in the middle came out half as wide, its lines squeezed.
  */
 export function FloatingCard({
   rect,
@@ -146,7 +151,7 @@ export function FloatingCard({
   return (
     <div
       role="tooltip"
-      className={`${menuSurfaceClass} pointer-events-none fixed z-50 flex flex-col gap-2 px-3 py-2 ${wide ? 'max-w-72' : 'max-w-64'}`}
+      className={`${menuSurfaceClass} pointer-events-none fixed z-50 flex w-max flex-col gap-2 px-3 py-2 ${wide ? 'max-w-72' : 'max-w-64'}`}
       style={{
         left: centerX,
         top: above ? rect.top - 6 : rect.top + rect.height + 6,

@@ -355,6 +355,29 @@ describe('below lg', () => {
     expect(within(rowOf('a')).queryByText(/^(Unruhig|Restless)$/)).toBeNull();
   });
 
+  // The row unfolds the same in words, so a finger held on a badge or a name
+  // opens no card there; the press is the row's. A mouse still hovers.
+  it('opens no card under a finger held on a badge or a name', () => {
+    vi.useFakeTimers();
+    layout.lgUp = false;
+    renderList();
+
+    for (const target of [
+      badge('a', 'restless'),
+      within(rowOf('a')).getByText('Aylin'),
+    ]) {
+      fireEvent.pointerDown(target, { pointerType: 'touch', clientX: 5 });
+      act(() => vi.advanceTimersByTime(LONG_PRESS_MS));
+      fireEvent.pointerUp(target, { pointerType: 'touch', clientX: 5 });
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+    }
+    fireEvent.click(badge('a', 'restless'));
+    expect(screen.getByTestId('inspected')).toHaveTextContent('a');
+
+    fireEvent.pointerOver(badge('a', 'restless'), { pointerType: 'mouse' });
+    expect(screen.getByRole('tooltip')).toHaveTextContent(/Unruhig|Restless/);
+  });
+
   it('unfolds a row in words and brings a partner into view', () => {
     layout.lgUp = false;
     renderList();

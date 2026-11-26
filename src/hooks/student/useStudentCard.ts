@@ -101,6 +101,9 @@ const sameCard = (a: StudentCard | null, b: StudentCard | null) =>
  * `data-card-student`, and `data-card-hidden` behind a "+N") and
  * `data-card-profile`. `kinds` leaves either kind closed, by a mouse and a
  * finger alike, as the seats' tooltip is (`useStudentCardSettings`).
+ * `touch: false` leaves the finger out: a long press opens nothing and the
+ * press is the row's, where the row unfolds the same in words (the class
+ * list below `lg`, decision 0051).
  *
  * `root` is the element itself, which the caller keeps in state through a
  * callback ref, not a ref object: a list that is drawn only once it has
@@ -113,7 +116,8 @@ export function useStudentCard(
   {
     enabled = true,
     kinds = ALL_KINDS,
-  }: { enabled?: boolean; kinds?: CardKinds } = {},
+    touch = true,
+  }: { enabled?: boolean; kinds?: CardKinds; touch?: boolean } = {},
 ): { card: StudentCard | null; dismiss: () => void } {
   const [card, setCard] = React.useState<StudentCard | null>(null);
   const cardRef = React.useRef<StudentCard | null>(null);
@@ -177,7 +181,7 @@ export function useStudentCard(
       clearProfileTimer();
       cancelPress();
       swallowClick = false;
-      if (event.pointerType !== 'touch') return;
+      if (event.pointerType !== 'touch' || !touch) return;
       const target = event.target;
       if (!cardFor(target, true, allowed)) return;
       press = { x: event.clientX, y: event.clientY };
@@ -247,7 +251,7 @@ export function useStudentCard(
       window.removeEventListener('resize', dismiss);
       window.removeEventListener('keydown', handleKey);
     };
-  }, [badgeCards, dismiss, enabled, profileCards, root, update]);
+  }, [badgeCards, dismiss, enabled, profileCards, root, touch, update]);
 
   const shown =
     enabled && card && (card.kind === 'badge' ? badgeCards : profileCards)

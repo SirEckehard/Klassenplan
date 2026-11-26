@@ -90,40 +90,111 @@ async function expectAbsentListOverBar(
   return list;
 }
 
+/** A finger put down at the middle of an element and kept there. */
+async function holdFinger(page: Page, locator: Locator) {
+  const box = await boxOf(locator);
+  const cdp = await page.context().newCDPSession(page);
+  await cdp.send('Input.dispatchTouchEvent', {
+    type: 'touchStart',
+    touchPoints: [
+      {
+        x: box.x + box.width / 2,
+        y: box.y + box.height / 2,
+        id: 1,
+        radiusX: 4,
+        radiusY: 4,
+        force: 1,
+      },
+    ],
+  });
+  return {
+    lift: () =>
+      cdp.send('Input.dispatchTouchEvent', {
+        type: 'touchEnd',
+        touchPoints: [],
+      }),
+  };
+}
+
+/** Longer than `LONG_PRESS_MS`, which a spec cannot import. */
+const HELD_LONG_ENOUGH_MS = 1000;
+
 test(
-  'a finger held on a marker in the class list explains it',
+  'a finger held on a marker in the class list opens no card',
   { tag: '@tablet' },
   async ({ page }) => {
-    // Decision 0051: below `lg` the markers are the seats' icons, and a long
-    // press opens the card a pointer opens on hover; the row stays closed.
+    // Decision 0051: below `lg` the markers are the seats' icons and a row
+    // unfolds them in words, so a long press opens no card there.
     await loadSampleClass(page);
     const badge = page.locator('[data-student-list] [data-card-badge]').first();
     await expect(badge).toBeVisible();
-    const box = await boxOf(badge);
-    const finger = {
-      x: box.x + box.width / 2,
-      y: box.y + box.height / 2,
-      id: 1,
-      radiusX: 4,
-      radiusY: 4,
-      force: 1,
-    };
-    const cdp = await page.context().newCDPSession(page);
-    await cdp.send('Input.dispatchTouchEvent', {
-      type: 'touchStart',
-      touchPoints: [finger],
-    });
-    await expect(page.getByRole('tooltip')).toBeVisible();
-    await cdp.send('Input.dispatchTouchEvent', {
-      type: 'touchEnd',
-      touchPoints: [],
-    });
+    const finger = await holdFinger(page, badge);
+    await page.waitForTimeout(HELD_LONG_ENOUGH_MS);
+    await expect(page.getByRole('tooltip')).toHaveCount(0);
+    await finger.lift();
+    await expect(page.getByRole('tooltip')).toHaveCount(0);
+  },
+);
 
-    // It stays after the finger lifts, and the student was not opened.
-    await expect(page.getByRole('tooltip')).toBeVisible();
-    await expect(
-      page.getByRole('complementary', { name: 'Eigenschaften' }),
-    ).toBeHidden();
+test(
+  'a card held open on a phone is as wide as its content',
+  { tag: '@phone' },
+  async ({ page }) => {
+    // The card stands with `left` at the middle of the face; without a width
+    // of its own it shrank to the room between there and the window's edge,
+    // and its lines ran into one another.
+    await loadSampleClass(page);
+    const toolbarSwitch = statusBar(page).getByRole('button', {
+      name: 'Werkzeugleiste',
+      exact: true,
+    });
+    await toolbarSwitch.click();
+    await page
+      .getByRole('button', { name: 'Beziehungen', exact: true })
+      .click();
+    if ((await toolbarSwitch.getAttribute('aria-expanded')) === 'true') {
+      await toolbarSwitch.click();
+    }
+
+    // The face farthest right of those in sight, where the room was least.
+    const faces = page.locator('[data-card-profile]');
+    await expect(faces.first()).toBeVisible();
+    const width = page.viewportSize()?.width ?? 0;
+    const height = page.viewportSize()?.height ?? 0;
+    let face = faces.first();
+    let rightmost = -1;
+    for (const candidate of await faces.all()) {
+      const box = await candidate.boundingBox();
+      if (!box || box.y < 0 || box.y + box.height > height) continue;
+      if (box.x > rightmost) {
+        rightmost = box.x;
+        face = candidate;
+      }
+    }
+
+    const finger = await holdFinger(page, face);
+    const card = page.getByRole('tooltip');
+    await expect(card).toBeVisible();
+    await finger.lift();
+
+    const box = await boxOf(card);
+    expect(box.x).toBeGreaterThanOrEqual(0);
+    expect(box.x + box.width).toBeLessThanOrEqual(width);
+    // The same card at the window's left edge has all the room it may take.
+    const unhindered = await card.evaluate((element) => {
+      const copy = element.cloneNode(true) as HTMLElement;
+      Object.assign(copy.style, {
+        left: '0px',
+        top: '0px',
+        transform: 'none',
+        visibility: 'hidden',
+      });
+      document.body.append(copy);
+      const copyWidth = copy.getBoundingClientRect().width;
+      copy.remove();
+      return copyWidth;
+    });
+    expect(box.width).toBeCloseTo(unhindered, 0);
   },
 );
 

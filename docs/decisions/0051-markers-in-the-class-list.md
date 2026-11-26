@@ -43,6 +43,8 @@ own with a card per student that left the rest of the list behind.
   "Ansichtseinstellungen" → "Merkmale" in the class toolbar
   (`spg.studentCards`), as the seats' tooltip can in the plan's — asked for
   by the maintainer on 2026-11-22.
+  _Below `lg` without the long press:
+  [addendum of 2026-11-26](#addendum-of-2026-11-26-no-long-press-below-lg)._
 - **Below `lg` a row unfolds in place** (`StudentMarkerDetails`): the markers
   in words, what they mean, the partners as names to jump to, and
   "Bearbeiten" into the inspector. It only reads.
@@ -83,3 +85,18 @@ own with a card per student that left the rest of the list behind.
   always was.
 - The brush's markers are told apart without the selection's blue: the
   chosen one in its family's fill, the others as a quiet outline.
+
+## Addendum of 2026-11-26: no long press below `lg`
+
+On a phone the card held open by a finger came out cut off — it stood with
+`left` at the badge's middle and shrank to the room between there and the
+window's edge — and said what the unfolded row says anyway. The maintainer
+chose to leave it out there: below `lg` a finger held on a badge or a name in
+the class list opens nothing and the press is the row's
+(`useStudentCard`'s `touch: false`, which `StudentList` sets from `isLgUp`);
+the arrow at the row's end is the way to the markers in words. A mouse or a
+pen still opens the card at any width, a finger from `lg` up as before, and
+the faces in "Beziehungen", which have no row to unfold, keep their long
+press. Every floating card now takes its content's width up to its cap
+(`FloatingCard`, `w-max`), the seats' tooltip near the window's right edge
+included.
