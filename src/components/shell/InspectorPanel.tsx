@@ -685,9 +685,12 @@ export function InspectorMenuButton({
   rows,
   focusRequest = 0,
   describedBy,
+  muted = false,
 }: {
   /** The word on the button. */
   label: string;
+  /** The word in muted ink, as a placeholder: nothing is chosen. */
+  muted?: boolean;
   /** The button's accessible name, where the word alone does not say enough. */
   ariaLabel?: string;
   /** Names the menu for a screen reader. */
@@ -760,7 +763,11 @@ export function InspectorMenuButton({
         aria-describedby={describedBy}
         className="flex min-h-7 w-full cursor-pointer items-center gap-2 rounded-md border border-(--border-card) bg-(--surface-card) px-2 py-1 text-left text-control text-(--text-page) transition hover:border-(--border-option-hover) pointer-coarse:min-h-11 pointer-coarse:px-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--focus-ring)"
       >
-        <span className="min-w-0 flex-1 truncate">{label}</span>
+        <span
+          className={`min-w-0 flex-1 truncate ${muted ? 'text-(--text-muted)' : ''}`}
+        >
+          {label}
+        </span>
         <CaretDownIcon
           size={10}
           aria-hidden="true"

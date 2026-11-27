@@ -1,6 +1,6 @@
 # The Interface
 
-> **Status:** current · **Last reviewed:** 2026-11-26 · **Source of truth:**
+> **Status:** current · **Last reviewed:** 2026-11-27 · **Source of truth:**
 > `src/components/shell/`, `src/components/SeatingPlanGenerator/`,
 > `src/contexts/InspectorContext.tsx`
 
@@ -984,7 +984,12 @@ afterwards.
   highest level, two of its criteria and "+2" for the rest, a changed one led by
   "Angepasst" —, since the whole list is the criteria's below. Moving a
   criterion after choosing a preset names it "Klassenarbeit · geändert", after a
-  reload too (`useMixRecipes`) — and rows under the button offer what can be
+  reload too (`useMixRecipes`); while no criterion carries weight it says
+  "Aus" in muted ink, no preset checked, and neither the count nor a warning
+  stands beside it, since the switch says the same — a preset chosen then
+  switches the criteria back on, a criterion switched on makes a mix of one's
+  own (`useMixCriteria`), and the switch brings back the weights and the
+  preset it switched off — and rows under the button offer what can be
   kept, only while it can (`MixPresetActions`): the change in that preset (never
   in "Standard"), the mix as a new preset, named in a row of its own as a room
   is, and for a changed shipped preset "Original wiederherstellen". Kept is said

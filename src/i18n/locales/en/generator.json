@@ -463,6 +463,7 @@
     "recipes": {
       "title": "Preset",
       "custom": "Your own mix",
+      "off": "Off",
       "activeCount": "{{active}} of {{total}} criteria active",
       "standard": {
         "label": "Default",
@@ -537,7 +538,6 @@
       "wishedOften_other": "{{name}} is wished for by {{count}} classmates, but in this room at most {{room}} sit directly around anyone.",
       "andMore": "{{names}} and {{more}} more"
     },
-    "randomWarning": "Mixing is purely random!",
     "criteria": {
       "avoidPreviousPairs": {
         "label": "Repetition",

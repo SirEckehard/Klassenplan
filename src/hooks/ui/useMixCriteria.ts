@@ -260,11 +260,16 @@ export function useMixCriteria({
 
   // A hidden "Erfahrung" weighs nothing, so it does not keep the mix from
   // chance (decision 0054).
-  const isRandom = !hasActiveWeights(
-    allCriteria || planFeedback
-      ? settings
-      : { ...settings, considerPlanFeedback: 0 },
+  const weighsNothing = React.useCallback(
+    (candidate: MixSettings) =>
+      !hasActiveWeights(
+        allCriteria || planFeedback
+          ? candidate
+          : { ...candidate, considerPlanFeedback: 0 },
+      ),
+    [allCriteria, planFeedback],
   );
+  const isRandom = weighsNothing(settings);
 
   /** The weight a criterion's control shows; see {@link criterionWeight}. */
   const weightOf = React.useCallback(
@@ -282,9 +287,15 @@ export function useMixCriteria({
         );
         return;
       }
-      setMixSettings((prev) => withCriterionWeight(prev, key, value));
+      setMixSettings((prev) => {
+        const next = withCriterionWeight(prev, key, value);
+        // A criterion switched on from nothing starts a mix of the teacher's
+        // own: the preset noted before the weights went to zero has nothing
+        // to do with it, so the button must not read "Standard · geändert".
+        return weighsNothing(prev) ? { ...next, presetId: undefined } : next;
+      });
     },
-    [setMixSettings, students, allCriteria],
+    [setMixSettings, students, allCriteria, weighsNothing],
   );
 
   /** The level a criterion's control shows; see {@link criterionImportance}. */
@@ -316,13 +327,16 @@ export function useMixCriteria({
 
   /**
    * Brings back what {@link disableAll} switched off — a slip on the switch
-   * must not cost the teacher their weights. With nothing kept, the
-   * recommended weights.
+   * must not cost the teacher their weights, nor the preset they came from,
+   * which a criterion switched on in between let go of. With nothing kept,
+   * the recommended weights.
    */
   const enableAll = React.useCallback(() => {
     const previous = suspended.take();
     setMixSettings((prev) =>
-      previous ? withWeightsFrom(prev, previous) : withDefaultWeights(prev),
+      previous
+        ? { ...withWeightsFrom(prev, previous), presetId: previous.presetId }
+        : withDefaultWeights(prev),
     );
   }, [setMixSettings, suspended]);
 

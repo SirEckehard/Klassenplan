@@ -463,6 +463,7 @@
     "recipes": {
       "title": "Voreinstellung",
       "custom": "Eigene Mischung",
+      "off": "Aus",
       "activeCount": "{{active}} von {{total}} Kriterien aktiv",
       "standard": {
         "label": "Standard",
@@ -537,7 +538,6 @@
       "wishedOften_other": "{{name}} wird von {{count}} Mitschülern gewünscht, im Raum sitzen aber höchstens {{room}} direkt um jemanden herum.",
       "andMore": "{{names}} und {{more}} weitere"
     },
-    "randomWarning": "Mischen ist zufällig!",
     "criteria": {
       "avoidPreviousPairs": {
         "label": "Wiederholung",

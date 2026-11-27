@@ -273,19 +273,43 @@ describe('SmartMixControls — comfortable density', () => {
     expect(weightOf('homogeneousPerformanceGroups')).toBe(0);
   });
 
-  it('master switch disables all criteria and shows that mixing is random', () => {
+  it('master switch disables all criteria and the preset says "Aus"', () => {
     render(<Harness initial={{ peerTutoring: 4 }} />);
+    const recipeButton = () =>
+      screen.getByRole('button', { name: /^(Voreinstellung|Preset):/ });
 
-    expect(
-      screen.queryByText(/Mischen ist zufällig!|mixing is purely random!/i),
-    ).not.toBeInTheDocument();
+    expect(screen.getByText(/1 (von|of) 13/)).toBeInTheDocument();
     fireEvent.click(allCriteriaSwitch());
 
     expect(weightOf('peerTutoring')).toBe(0);
     expect(weightOf('homogeneousPerformanceGroups')).toBe(0);
+    // Not "Standard · geändert": nothing is chosen, and the switch and the
+    // button say it once — no count, no warning beside them.
+    expect(recipeButton()).toHaveTextContent(/^(Aus|Off)$/);
+    expect(screen.queryByText(/0 (von|of) 13/)).not.toBeInTheDocument();
+    fireEvent.click(recipeButton());
     expect(
-      screen.getByText(/Mischen ist zufällig!|mixing is purely random!/i),
-    ).toBeInTheDocument();
+      within(screen.getByRole('dialog')).queryByRole('button', {
+        pressed: true,
+      }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('a preset chosen while all is off switches the criteria back on', () => {
+    render(<Harness initial={{ peerTutoring: 4 }} />);
+    fireEvent.click(allCriteriaSwitch());
+
+    fireEvent.click(
+      screen.getByRole('button', { name: /^(Voreinstellung|Preset):/ }),
+    );
+    fireEvent.click(
+      within(screen.getByRole('dialog')).getByRole('button', {
+        name: /Klassenarbeit|Written test/,
+      }),
+    );
+
+    expect(weightOf('avoidRestlessTogether')).toBe(9);
+    expect(allCriteriaSwitch()).toBeChecked();
   });
 
   it('master switch brings back the weights it switched off', () => {
@@ -339,8 +363,8 @@ describe('SmartMixControls — recipes', () => {
   it('sets every weight at once and names the recipe it is on', () => {
     render(<Harness />);
 
-    // Nothing is set yet, so the mix belongs to nobody.
-    expect(recipeButton()).toHaveTextContent(/Eigene Mischung|Your own mix/);
+    // Nothing is set yet, so no preset is chosen.
+    expect(recipeButton()).toHaveTextContent(/^(Aus|Off)$/);
 
     chooseRecipe(/Klassenarbeit|Written test/);
 
@@ -362,6 +386,35 @@ describe('SmartMixControls — recipes', () => {
     // Left, but still named as where the mix came from (decision 0038).
     expect(recipeButton()).toHaveTextContent(
       /Ruhige Arbeitsphase · geändert|Quiet work · changed/,
+    );
+  });
+
+  it('names a criterion switched on after all were off a mix of its own', () => {
+    render(<Harness />);
+    chooseRecipe(/^(Standard|Default)/);
+    fireEvent.click(allCriteriaSwitch());
+
+    fireEvent.click(restlessLevel(IMPORTANT));
+
+    // Started from nothing, not from "Standard".
+    expect(recipeButton()).toHaveTextContent(/Eigene Mischung|Your own mix/);
+  });
+
+  it('brings the preset back with the weights the switch kept', () => {
+    render(<Harness />);
+    chooseRecipe(/Klassenarbeit|Written test/);
+    // Changed, so only the noted preset — not the weights — can name it.
+    fireEvent.click(restlessLevel(IMPORTANT));
+    fireEvent.click(allCriteriaSwitch());
+
+    // A criterion on and off again lets go of the preset meanwhile …
+    fireEvent.click(restlessLevel(ESSENTIAL));
+    fireEvent.click(restlessLevel(OFF));
+    fireEvent.click(allCriteriaSwitch());
+
+    // … and the switch brings back both.
+    expect(recipeButton()).toHaveTextContent(
+      /Klassenarbeit · geändert|Written test · changed/,
     );
   });
 

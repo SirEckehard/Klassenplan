@@ -2,7 +2,6 @@
 // Copyright (C) 2026 Eike Schäfer
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { WarningIcon } from '@phosphor-icons/react';
 import {
   CRITERIA_FAMILY_MAP,
   CRITERIA_ICON_MAP,
@@ -424,8 +423,8 @@ function SmartMixControls({
  * "Standard" — and under the recipe what can be kept of it (decision 0038):
  * a change in the preset it came from, a mix as a preset of one's own, a
  * shipped preset's own weights back. Under that how many of the criteria
- * this class has data for carry weight, and, when none does, that nothing is
- * weighed.
+ * this class has data for carry weight; when none does, the switch is off and
+ * the preset's button says "Aus", which is all there is to say.
  */
 export function MixRecipeSection({
   settings,
@@ -528,6 +527,7 @@ export function MixRecipeSection({
         recipes={presets.recipes}
         activeId={recipes.activeId}
         base={recipes.base}
+        off={mix.isRandom}
         onSelect={(id) => {
           setRenamingId(null);
           recipes.apply(id);
@@ -538,7 +538,7 @@ export function MixRecipeSection({
         }}
       />
       {/* Nothing to keep while every criterion is off: that is the
-          switch's, and the warning below says so. */}
+          switch's, and the button says "Aus". */}
       {(!mix.isRandom || renaming) && (
         <MixPresetActions
           recipes={presets.recipes}
@@ -560,21 +560,11 @@ export function MixRecipeSection({
           onRenameDone={() => setRenamingId(null)}
         />
       )}
-      <p className="text-xs tabular-nums text-(--text-muted)">
-        {t('mix.recipes.activeCount', { active, total: criteria.length })}
-      </p>
-      {mix.isRandom && (
-        <div
-          role="status"
-          className="flex items-center gap-2 rounded-md border border-(--border-card) bg-(--surface-sunken) px-2.5 py-1.5 text-xs font-medium text-(--text-page)"
-        >
-          <WarningIcon
-            size={16}
-            aria-hidden="true"
-            className="shrink-0 text-(--status-warn)"
-          />
-          {t('mix.randomWarning')}
-        </div>
+      {/* With none active the switch and the button already say so. */}
+      {!mix.isRandom && (
+        <p className="text-xs tabular-nums text-(--text-muted)">
+          {t('mix.recipes.activeCount', { active, total: criteria.length })}
+        </p>
       )}
     </InspectorSection>
   );

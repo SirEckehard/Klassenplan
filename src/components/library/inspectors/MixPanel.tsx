@@ -76,7 +76,6 @@ export default function MixPanel({
       />
       <InspectorBody>
         {!fits && (
-          // The same notice as the criteria panel's for a purely random mix.
           <div
             role="status"
             className="mb-3 flex items-center gap-2 rounded-md border border-(--border-card) bg-(--surface-sunken) px-2.5 py-1.5 text-xs font-medium text-(--text-page)"

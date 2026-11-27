@@ -87,12 +87,15 @@ export function useMixRecipeText() {
  * shipped ones, a changed one's line starting "Angepasst", and under a rule the
  * teacher's own with a pencil and a bin. The menu lies over the criteria, as
  * the student inspector's values do (`InspectorSelect`), instead of pushing
- * every one of them down.
+ * every one of them down. While no criterion carries weight the button says
+ * "Aus" in muted ink and no row is checked — a preset chosen then switches
+ * the criteria back on.
  */
 export function MixRecipePanel({
   recipes,
   activeId,
   base,
+  off = false,
   onSelect,
   onRename,
   onDelete,
@@ -101,6 +104,8 @@ export function MixRecipePanel({
   activeId: string | null;
   /** The recipe the weights were set from and have since left. */
   base?: MixRecipe;
+  /** No criterion carries weight: the mix is random. */
+  off?: boolean;
   onSelect: (id: string) => void;
   onRename: (recipe: MixRecipe) => void;
   onDelete: (recipe: MixRecipe) => void;
@@ -108,17 +113,22 @@ export function MixRecipePanel({
   const { t } = useTranslation('generator');
   const text = useMixRecipeText();
   const title = t('mix.recipes.title');
-  const active = recipes.find((recipe) => recipe.id === activeId);
-  const shownLabel = active
-    ? text.label(active)
-    : base
-      ? t('mix.recipes.changed', { name: text.label(base) })
-      : t('mix.recipes.custom');
+  const active = off
+    ? undefined
+    : recipes.find((recipe) => recipe.id === activeId);
+  const shownLabel = off
+    ? t('mix.recipes.off')
+    : active
+      ? text.label(active)
+      : base
+        ? t('mix.recipes.changed', { name: text.label(base) })
+        : t('mix.recipes.custom');
   const firstOwn = recipes.find((recipe) => !recipe.builtin);
 
   return (
     <InspectorMenuButton
       label={shownLabel}
+      muted={off}
       ariaLabel={`${title}: ${shownLabel}`}
       menuLabel={title}
       rows={recipes.map((recipe) => {
@@ -127,7 +137,7 @@ export function MixRecipePanel({
           key: recipe.id,
           label: name,
           description: text.description(recipe),
-          checked: recipe.id === activeId,
+          checked: recipe.id === active?.id,
           separatorBefore: recipe === firstOwn,
           onSelect: () => onSelect(recipe.id),
           ...(!recipe.builtin && {
