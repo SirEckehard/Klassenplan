@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2026 Eike Schäfer
 import '@testing-library/jest-dom/vitest';
+import type React from 'react';
 import {
   render,
   screen,
@@ -16,6 +17,8 @@ import {
   PlanSection,
 } from '@/components/SeatingPlanGenerator/views/PlanInspectorParts';
 import { getButton } from '@/__tests__/utils';
+import { PlanFeedbackContext } from '@/contexts/PlanFeedbackContext';
+import { usePlanFeedbackFlow } from '@/hooks/plan/usePlanFeedbackFlow';
 import { toIsoDate } from '@/utils';
 import type {
   PlanUsage,
@@ -43,6 +46,7 @@ const mocks = vi.hoisted(() => ({
   planUsage: [] as PlanUsage[],
   considerPlanFeedback: 6,
   setFeedback: vi.fn(),
+  handleMix: vi.fn(async () => 'mixed' as const),
   handleSaveSeatingPlan: vi.fn((..._args: unknown[]) => true),
   handleHistoryLoad: vi.fn(),
   renameSeatingPlan: vi.fn((..._args: unknown[]) => true),
@@ -273,7 +277,28 @@ describe('PlanSection: feedback', () => {
     ],
   ] as SeatingArrangement;
   const wentWell = () =>
-    screen.queryByRole('button', { name: /^(Gut|Good):/i });
+    screen.queryByRole('button', { name: /^(Gut|Good)$/i });
+  const wentPoorly = () =>
+    screen.queryByRole('button', { name: /^(Nicht gut|Not good)$/i });
+
+  /** The table view holds the flow the section reads. */
+  function WithFlow({ children }: { children: React.ReactNode }) {
+    const flow = usePlanFeedbackFlow({
+      handleMix: mocks.handleMix,
+      mixingLocked: false,
+    });
+    return (
+      <PlanFeedbackContext.Provider value={flow}>
+        {children}
+      </PlanFeedbackContext.Provider>
+    );
+  }
+  const renderSection = () =>
+    render(
+      <WithFlow>
+        <PlanSection />
+      </WithFlow>,
+    );
 
   beforeEach(() => {
     mocks.classroomScene = { tables: [{ seatCount: 2 }], features: [] };
@@ -283,7 +308,7 @@ describe('PlanSection: feedback', () => {
 
   it('asks how the saved plan on the stage went, dated the day it was saved', async () => {
     const user = userEvent.setup();
-    render(<PlanSection />);
+    renderSection();
 
     await user.click(wentWell()!);
 
@@ -293,16 +318,26 @@ describe('PlanSection: feedback', () => {
       { rating: 'good', at: expect.any(String) },
       new Date(2026, 9, 12).toISOString(),
     );
+    expect(wentWell()).toHaveAttribute('aria-pressed', 'true');
   });
 
-  it('asks nothing of a fresh mix', () => {
-    mocks.activePlanId = null;
-    render(<PlanSection />);
+  it('asks nothing of a plan saved today, which no class has sat in yet', () => {
+    mocks.seatingHistory = [
+      savedPlan('Deutsch', { seating: PAIR, date: toIsoDate() }),
+    ];
+    renderSection();
 
     expect(wentWell()).not.toBeInTheDocument();
   });
 
-  it('asks a mix that was in use', () => {
+  it('asks nothing of a fresh mix', () => {
+    mocks.activePlanId = null;
+    renderSection();
+
+    expect(wentWell()).not.toBeInTheDocument();
+  });
+
+  it('asks a mix that was in use before today', () => {
     mocks.activePlanId = null;
     const pairs = collectSeatingPairKeys(PAIR, null);
     mocks.planUsage = [
@@ -316,13 +351,38 @@ describe('PlanSection: feedback', () => {
         confidence: 1,
       },
     ];
-    render(<PlanSection />);
+    renderSection();
 
     expect(wentWell()).toBeInTheDocument();
   });
 
+  it('turns to the stage for the tables once it did not go well', async () => {
+    const user = userEvent.setup();
+    renderSection();
+
+    await user.click(wentPoorly()!);
+
+    expect(mocks.setFeedback).toHaveBeenCalledWith(
+      PAIR,
+      mocks.classroomScene,
+      { rating: 'poor', at: expect.any(String) },
+      expect.any(String),
+    );
+    expect(
+      screen.getByText(
+        /Wähle die Tische auf dem Plan|Choose the tables on the plan/i,
+      ),
+    ).toBeInTheDocument();
+  });
+
   it('asks nothing in the circle, where no tables are named', () => {
     mocks.seatingMode = 'circle';
+    renderSection();
+
+    expect(wentWell()).not.toBeInTheDocument();
+  });
+
+  it('asks nothing outside the table view, which holds no flow', () => {
     render(<PlanSection />);
 
     expect(wentWell()).not.toBeInTheDocument();

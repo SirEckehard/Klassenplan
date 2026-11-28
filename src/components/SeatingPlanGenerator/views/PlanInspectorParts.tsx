@@ -12,7 +12,7 @@ import {
   useSeatingPlanActions,
 } from '@/contexts/SeatingPlanContext';
 import { usePlanSaveState } from '@/hooks/plan/usePlanSaveState';
-import { useSetPlanFeedback } from '@/hooks/plan/useSetPlanFeedback';
+import { usePlanFeedback } from '@/contexts/PlanFeedbackContext';
 import {
   InspectorActionRow,
   InspectorHeader,
@@ -32,11 +32,6 @@ import {
   toIsoDate,
   uniqueName,
 } from '@/utils';
-import {
-  findPlanUsage,
-  isCountedUsage,
-  storedPlanDateToTimestamp,
-} from '@/utils/data/planUsage';
 import PlanFeedbackRows from './PlanFeedbackRows';
 
 /** The day a plan was saved, "heute" and "gestern" by name. */
@@ -223,28 +218,19 @@ export function PlanInspectorHeader() {
 }
 
 /**
- * How the plan on the stage went (decision 0054), for a plan that can have
- * been in use: one saved and shown as saved, or one already counted as used.
- * A fresh mix is an experiment and gets none, nor does the circle — feedback
- * names the tables, so `PlanSection` renders this in the table plan alone. A
- * record it creates is dated the day the plan was saved.
+ * How the plan on the stage went (decision 0054), for a plan that was in use
+ * before today or already says how it went — a plan saved a minute ago has
+ * not been in a classroom yet. A fresh mix is an experiment and gets none,
+ * nor does the circle: feedback names the tables, so `PlanSection` renders
+ * this in the table plan alone, whose view holds the flow it shares with the
+ * stage and with "Mischen" (`usePlanFeedbackFlow`).
  */
 function PlanFeedbackOnStage() {
-  const {
-    activeClass,
-    classroomScene,
-    currentSeating,
-    mixSettings,
-    planUsage,
-    students,
-  } = useSeatingPlanState();
-  const { openPlan, hasUnsavedChanges } = usePlanSaveState();
-  const setFeedback = useSetPlanFeedback(activeClass.id);
+  const flow = usePlanFeedback();
+  const { classroomScene, currentSeating, mixSettings, planUsage, students } =
+    useSeatingPlanState();
 
-  if (!hasPlanForScene(classroomScene, currentSeating)) return null;
-  const record = findPlanUsage(planUsage, currentSeating, classroomScene);
-  const savedAsShown = openPlan !== undefined && !hasUnsavedChanges();
-  if (!savedAsShown && !(record && isCountedUsage(record))) return null;
+  if (!flow?.available) return null;
 
   return (
     <PlanFeedbackRows
@@ -253,15 +239,10 @@ function PlanFeedbackOnStage() {
       records={planUsage}
       students={students}
       counts={mixSettings.considerPlanFeedback > 0}
-      onChange={(feedback) =>
-        setFeedback(
-          currentSeating,
-          classroomScene,
-          feedback,
-          (openPlan && storedPlanDateToTimestamp(openPlan.date)) ??
-            new Date().toISOString(),
-        )
-      }
+      onChange={flow.give}
+      feedback={flow.feedback}
+      onPickTables={() => flow.startPicking('done')}
+      picking={flow.picking !== null}
     />
   );
 }

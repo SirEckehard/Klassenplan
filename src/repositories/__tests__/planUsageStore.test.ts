@@ -29,7 +29,6 @@ import {
   resetPlanUsage,
   restorePlanUsage,
   setPlanFeedback,
-  setPlanUsageFeedback,
   setPlanUsageManual,
   sweepOrphanPlanUsage,
   undoPlanUsageReset,
@@ -113,26 +112,6 @@ describe('recordPlanUsage', () => {
     ]);
 
     expect(await loadPlanUsage('c1')).toHaveLength(2);
-  });
-});
-
-describe('setPlanUsageFeedback', () => {
-  // The plan layer asks about a plan no longer on the stage, by its record.
-  it('keeps feedback on the record of a plan no longer on the stage', async () => {
-    await recordPlanUsage('c1', seatingOf([['a', 'b']]), null, 'presented');
-    const [entry] = await loadPlanUsage('c1');
-
-    await setPlanUsageFeedback('c1', entry!, {
-      rating: 'good',
-      at: '2026-11-24T08:00:00.000Z',
-    });
-
-    const [kept] = await loadPlanUsage('c1');
-    expect(kept).toMatchObject({
-      id: entry!.id,
-      confirmed: true,
-      feedback: { rating: 'good' },
-    });
   });
 });
 

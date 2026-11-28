@@ -1,6 +1,6 @@
 # Data Model
 
-> **Status:** current · **Last reviewed:** 2026-11-26 · **Source of truth:**
+> **Status:** current · **Last reviewed:** 2026-11-27 · **Source of truth:**
 > `src/utils/data/storageKeys.ts`, `src/types/`, `src/repositories/`
 
 Everything Klassenplan stores lives in the teacher's browser. This document
@@ -437,7 +437,8 @@ list is `PROJECT_LOCAL_STORAGE_KEYS` in `storageKeys.ts`. Groups:
   the automatic backup reads beside each class's `updatedAt`
   ([decision 0050](decisions/0050-automatic-backup.md)).
 - **Plan feedback asked:** `spg.planFeedbackAsked`, the ids of the usage
-  records the plan layer asked about how they went, at most 60
+  records "Mischen" asked about how they went before mixing them over, at
+  most 60
   ([decision 0054](decisions/0054-experience-of-a-plan-in-use.md)).
 - **Marker review:** `spg.markerReviewSnoozedUntil`, the day the question
   whether a class's markers still hold may come again, by class id

@@ -9,6 +9,12 @@ import {
   ShuffleIcon,
   SpinnerGapIcon,
 } from '@phosphor-icons/react';
+import { PlanFeedbackContext } from '@/contexts/PlanFeedbackContext';
+import { usePlanFeedbackFlow } from '@/hooks/plan/usePlanFeedbackFlow';
+import { usePlanFeedbackTables } from '@/hooks/plan/usePlanFeedbackTables';
+import MixFeedbackQuestion from '@/components/SeatingPlanGenerator/views/MixFeedbackQuestion';
+import PlanFeedbackPicker from '@/components/SeatingPlanGenerator/views/PlanFeedbackPicker';
+import { CRITERIA_ICON_MAP } from '@/utils/ui/criteriaIcons';
 import SmartSidebar from '@/components/ui/panels/SmartSidebar';
 import SmartMixControls, {
   MixRecipeSection,
@@ -47,7 +53,7 @@ import {
   withoutUnavailableWeights,
   formatPercent,
 } from '@/utils';
-import { hasPlanFeedback } from '@/utils/data/planUsage';
+import { hasPlanFeedback, poorTableKey } from '@/utils/data/planUsage';
 import {
   buildBadgeHighlightLookup,
   type BadgeDisplayMode,
@@ -139,6 +145,9 @@ function PlanNotice({
     </div>
   );
 }
+
+/** The symbol of "Erfahrung", which the band asking for the tables wears. */
+const FeedbackIcon = CRITERIA_ICON_MAP.considerPlanFeedback;
 
 const planNoticeActionClass = `${secondaryButtonClass} h-8 shrink-0 px-3 text-xs`;
 
@@ -744,15 +753,35 @@ export default function SeatingPlanEditorView({
     () => saveSeatingPlan(planName, classroomScene),
     [classroomScene, planName, saveSeatingPlan],
   );
-  const handleMixShortcut = React.useCallback(() => {
-    if (!mixingLocked) {
-      void handleMix();
-    }
-  }, [handleMix, mixingLocked]);
+  // "Mischen" asks once how a plan in use went before it mixes it over, and
+  // the stage asks for the tables where it did not work (decision 0054).
+  const feedbackFlow = usePlanFeedbackFlow({ handleMix, mixingLocked });
+  const { requestMix, picking, finishPicking } = feedbackFlow;
+  const feedbackTables = usePlanFeedbackTables(
+    currentSeating,
+    classroomScene,
+    students,
+  );
+  const chosenFeedbackTables = React.useMemo(
+    () => new Set((feedbackFlow.feedback?.poorTables ?? []).map(poorTableKey)),
+    [feedbackFlow.feedback],
+  );
+  const mixAnchorRef = React.useRef<HTMLSpanElement | null>(null);
+  // Escape ends choosing the tables, without mixing.
+  React.useEffect(() => {
+    if (!picking) return undefined;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape' || event.defaultPrevented) return;
+      event.preventDefault();
+      finishPicking(false);
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [finishPicking, picking]);
   usePlanShortcuts({
     onSave: handleSaveShortcut,
     onExport: exportPlan,
-    onMix: handleMixShortcut,
+    onMix: requestMix,
   });
 
   // What "all criteria off" cleared, for "all on" to bring back — shared by the
@@ -800,7 +829,11 @@ export default function SeatingPlanEditorView({
         <InspectorPortal label={t('planSave.section')}>
           <PlanInspectorHeader />
           <InspectorBody>
-            <PlanSection />
+            {/* How the plan went, which it shares with the stage and with
+                "Mischen" (decision 0054). */}
+            <PlanFeedbackContext.Provider value={feedbackFlow}>
+              <PlanSection />
+            </PlanFeedbackContext.Provider>
             {/* The recipe first: it sets every criterion below at once. */}
             <MixRecipeSection
               settings={settings}
@@ -832,20 +865,29 @@ export default function SeatingPlanEditorView({
             beside undo/redo, which take a mix back; below `md` it hangs over
             the bar's middle instead, where its word has room. */}
         <StatusBarPortal slot="action">
-          <button
-            type="button"
-            data-tour={TOUR_ANCHORS.mixButton}
-            onClick={() => void handleMix()}
-            disabled={mixingLocked}
-            title={t('mixButton.shortcut')}
-            aria-label={t('actions.mixAgain')}
-            className={`${primaryButtonClass} ${touchHitAreaBorderlessClass} flex h-9 items-center gap-2 whitespace-nowrap ${
-              mixingLocked ? 'cursor-not-allowed opacity-60' : ''
-            }`}
-          >
-            <ShuffleIcon className="h-4 w-4" aria-hidden="true" />
-            <span>{t('actions.mixAgain')}</span>
-          </button>
+          <span ref={mixAnchorRef} className="relative flex">
+            <button
+              type="button"
+              data-tour={TOUR_ANCHORS.mixButton}
+              onClick={requestMix}
+              disabled={mixingLocked}
+              title={t('mixButton.shortcut')}
+              aria-label={t('actions.mixAgain')}
+              className={`${primaryButtonClass} ${touchHitAreaBorderlessClass} flex h-9 items-center gap-2 whitespace-nowrap ${
+                mixingLocked ? 'cursor-not-allowed opacity-60' : ''
+              }`}
+            >
+              <ShuffleIcon className="h-4 w-4" aria-hidden="true" />
+              <span>{t('actions.mixAgain')}</span>
+            </button>
+            {feedbackFlow.question && (
+              <MixFeedbackQuestion
+                question={feedbackFlow.question}
+                onAnswer={feedbackFlow.answer}
+                insideRef={mixAnchorRef}
+              />
+            )}
+          </span>
         </StatusBarPortal>
 
         {/* How well the plan meets the criteria, at the bar's left end where
@@ -960,7 +1002,7 @@ export default function SeatingPlanEditorView({
                   <div className="flex flex-wrap gap-2">
                     <button
                       type="button"
-                      onClick={() => void handleMix()}
+                      onClick={requestMix}
                       disabled={mixingLocked}
                       className={planNoticeActionClass}
                     >
@@ -984,6 +1026,38 @@ export default function SeatingPlanEditorView({
                 </p>
               </PlanNotice>
             )}
+            {/* While the teacher says where a plan in use did not work: the
+                tables are buttons over the plan (`PlanFeedbackPicker`). */}
+            {picking && (
+              <PlanNotice
+                icon={
+                  <FeedbackIcon
+                    aria-hidden="true"
+                    className="mt-0.5 h-4 w-4 shrink-0 text-(--data-history)"
+                  />
+                }
+                action={
+                  <button
+                    type="button"
+                    onClick={() => finishPicking(picking === 'mix')}
+                    className={planNoticeActionClass}
+                  >
+                    {picking === 'mix'
+                      ? t('actions.mixAgain')
+                      : t('planFeedback.pickDone')}
+                  </button>
+                }
+              >
+                <p className="font-semibold">{t('planFeedback.pickTitle')}</p>
+                <p className="text-(--text-muted)">
+                  {chosenFeedbackTables.size > 0
+                    ? t('planFeedback.picked', {
+                        count: chosenFeedbackTables.size,
+                      })
+                    : t('planFeedback.pickedNone')}
+                </p>
+              </PlanNotice>
+            )}
             {/* The notices above take their height out of the stage, so the
                 plan is fitted into what is left rather than into the whole
                 stage, which would push its bottom edge out of sight. */}
@@ -1002,8 +1076,18 @@ export default function SeatingPlanEditorView({
                   style={{
                     backgroundColor,
                   }}
-                  className="h-auto w-full rounded-none"
+                  className="relative h-auto w-full rounded-none"
                 >
+                  {picking && (
+                    <PlanFeedbackPicker
+                      width={shownPlan.width}
+                      height={shownPlan.height}
+                      tables={shownPlan.tables}
+                      units={feedbackTables}
+                      chosen={chosenFeedbackTables}
+                      onToggle={feedbackFlow.toggleTable}
+                    />
+                  )}
                   <SeatingPlanCanvas
                     canvasWidth={shownPlan.width}
                     classroomHeight={shownPlan.height}

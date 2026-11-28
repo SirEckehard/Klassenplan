@@ -143,3 +143,37 @@ desks pushed together in a row as a table of two. Until then a record knew
 the pairs of each table alone, so desks pushed together offered no table and
 a room of single desks no feedback at all; see the addendum of the same day
 in [decision 0031](0031-one-criterion-model.md).
+
+## Addendum of 2026-11-27: asked before the next mix, the tables on the stage
+
+The maintainer found the row in the plan's inspector out of place (the page
+"Rückmeldung zum Plan", ideas A, B and D chosen). It asked a minute after a
+save, which counts as use, about a plan no class had sat in yet; its two
+sentences outweighed "Plan speichern" beside it; it named the tables by first
+names while the same plan stood on the stage; and the card of 2026-11-24 came
+only once another plan stood there, so it could not ask for tables at all.
+
+- **"Mischen" asks** (`usePlanFeedbackFlow`, `planToAskBeforeMix`): before it
+  mixes over the plan on the stage, while "Erfahrung" counts, once that plan
+  was in use before today, has no feedback and was not asked about on this
+  device (`spg.planFeedbackAsked`). The question stands over the button,
+  with "Gut", "Nicht gut" and "Überspringen & mischen", which has the focus,
+  so Enter mixes as before; Escape or a press elsewhere puts it away. The
+  button, Ctrl/⌘+Enter and the notice "Jetzt neu mischen" all go through it.
+  It is the one moment the teacher knows how the plan went, the plan is
+  still there to point at, and the answer counts in the mix that follows,
+  which waits until the class's records carry it. The card of 2026-11-24
+  is gone.
+- **The tables are chosen on the stage** (`PlanFeedbackPicker`): after "Nicht
+  gut" a band over the plan asks for them, and every table feedback can name
+  is a button over the plan — a group as one, each join of desks pushed
+  together in a row a capsule across its seam — in the ink of "Verlauf" once
+  chosen. "Fertig", or "Mischen" when the question led there, ends it, Escape
+  without mixing. It reverses the choice of 2026-11-22 to name the tables
+  only as rows of names on the plan layer; "Bibliothek", which has no stage,
+  keeps those rows.
+- **The inspector's row is one line** ("Wie lief der Plan?" with
+  "Gut" and "Nicht gut", what each does in its tooltip), at the end of the
+  section "Plan", from the day after the plan was first in use
+  (`inUseBeforeToday`) or once it has feedback; with "Nicht gut" it says how
+  many tables were chosen and offers "Tische wählen".

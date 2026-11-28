@@ -8,7 +8,6 @@ import { usePageSeo } from '@/hooks/usePageSeo';
 import PostUpdateNotice from '@/components/ui/feedback/PostUpdateNotice';
 import BackupReminder from '@/components/ui/feedback/BackupReminder';
 import MarkerReviewReminder from '@/components/ui/feedback/MarkerReviewReminder';
-import PlanFeedbackReminder from '@/components/ui/feedback/PlanFeedbackReminder';
 
 // Compound components. The header and the status bar belong to `AppShell`,
 // which frames every layer; only the layer itself is composed here.
@@ -61,7 +60,6 @@ export default function SeatingPlanGenerator() {
           <PostUpdateNotice />
           <BackupReminder />
           <MarkerReviewReminder />
-          <PlanFeedbackReminder />
         </div>
         <SeatingPlanGenerator.Controls />
       </AppShell>

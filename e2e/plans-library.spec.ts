@@ -196,8 +196,10 @@ test('a plan is found in its room, and a lab is a room of its own', async ({
 });
 
 // Decision 0054: how a plan in use went is said in its inspector, on the
-// plan layer and in "Bibliothek" alike, and "Erfahrung" stands among the
-// criteria once a plan has feedback.
+// plan layer and in "Bibliothek" alike, from the day after it was first in
+// use; the tables where it did not work are chosen on the plan, "Mischen"
+// asks once before it mixes a plan in use over, and "Erfahrung" stands among
+// the criteria once a plan has feedback.
 test('how a plan went is said in its inspector, and "Erfahrung" follows', async ({
   page,
 }) => {
@@ -209,16 +211,35 @@ test('how a plan went is said in its inspector, and "Erfahrung" follows', async 
 
   const inspector = page.getByRole('complementary', { name: 'Plan' });
   const experience = inspector.getByText('Erfahrung', { exact: true });
+  const wentPoorly = inspector.getByRole('button', {
+    name: 'Nicht gut',
+    exact: true,
+  });
 
-  await test.step('a table that did not work, on the plan layer', async () => {
+  await test.step('a plan saved today is not asked about yet', async () => {
+    await expect(wentPoorly).toHaveCount(0);
+  });
+
+  await test.step('two days on, the tables are chosen on the plan', async () => {
+    await page.clock.setFixedTime(new Date(Date.now() + 2 * 864e5));
+    await page.reload();
+    await page.getByRole('button', { name: 'Weiter zum Raum' }).click();
+    await page.getByRole('button', { name: 'Weiter zum Sitzplan' }).click();
     await expect(experience).toHaveCount(0);
-    await inspector.getByRole('button', { name: /^Nicht gut:/ }).click();
 
-    const tables = inspector.getByRole('switch', { name: /^Tisch mit / });
+    await wentPoorly.click();
+    await expect(
+      page.getByText('Tippe die Tische an, an denen es nicht lief.'),
+    ).toBeVisible();
+    const tables = page.getByRole('button', { name: /^Tisch mit / });
     await expect(tables).toHaveCount(2);
     await tables.first().click();
-    await expect(tables.first()).toHaveAttribute('aria-checked', 'true');
+    await expect(tables.first()).toHaveAttribute('aria-pressed', 'true');
     await expect(experience).toBeVisible();
+
+    await page.getByRole('button', { name: 'Fertig', exact: true }).click();
+    await expect(tables).toHaveCount(0);
+    await expect(inspector.getByText('1 Tisch gewählt')).toBeVisible();
   });
 
   await test.step('"Bibliothek" says the same of the plan', async () => {
@@ -228,7 +249,7 @@ test('how a plan went is said in its inspector, and "Erfahrung" follows', async 
       page.getByRole('heading', { level: 2, name: 'Woche 1' }),
     ).toBeVisible();
     await expect(
-      page.getByRole('button', { name: /^Nicht gut:/ }),
+      page.getByRole('button', { name: 'Nicht gut', exact: true }),
     ).toHaveAttribute('aria-pressed', 'true');
     await expect(
       page.getByRole('switch', { name: /^Tisch mit / }).first(),
@@ -237,6 +258,32 @@ test('how a plan went is said in its inspector, and "Erfahrung" follows', async 
       'aria-checked',
       'true',
     );
+  });
+
+  await test.step('"Mischen" asks once before it mixes the plan over', async () => {
+    await statusBar(page).getByRole('button', { name: 'Öffnen' }).click();
+    await expect(page).toHaveURL(/\/generator$/);
+    await expect(wentPoorly).toHaveAttribute('aria-pressed', 'true');
+    // Taken back, the plan has not said how it went.
+    await wentPoorly.click();
+    await expect(wentPoorly).toHaveAttribute('aria-pressed', 'false');
+
+    await statusBar(page).getByRole('button', { name: 'Mischen' }).click();
+    const question = page.getByRole('alertdialog', { name: /Woche 1/ });
+    await expect(question).toBeVisible();
+    await question.getByRole('button', { name: 'Gut', exact: true }).click();
+    await expect(question).toHaveCount(0);
+    await expect(
+      inspector.getByText('Geändert, nicht gespeichert'),
+    ).toBeVisible();
+
+    // The plan said how it went before the mix took its place.
+    await statusBar(page)
+      .getByRole('button', { name: 'Letzte Aktion rückgängig machen' })
+      .click();
+    await expect(
+      inspector.getByRole('button', { name: 'Gut', exact: true }),
+    ).toHaveAttribute('aria-pressed', 'true');
   });
 });
 

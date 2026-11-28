@@ -49,6 +49,77 @@ export type PlanRoom = ClassroomScene | null | undefined;
 const seatedOnly = (seats: readonly (Student | null | undefined)[]) =>
   seats.filter((seat): seat is Student => Boolean(seat));
 
+/** A seat of an arrangement: its table, and its place at that table. */
+export interface SeatAddress {
+  tableIndex: number;
+  seatIndex: number;
+}
+
+/**
+ * Who sat together at one place of the room ({@link seatedTogether}), and
+ * where that place is: the tables of a group, or the two seats of a join.
+ */
+export interface SeatedUnit {
+  /** Who sat there, in seat order */
+  students: Student[];
+  /** The tables of a group, by index; none for a join */
+  tables: number[];
+  /** The two seats at a join of desks pushed together in a row */
+  join: [SeatAddress, SeatAddress] | null;
+}
+
+/**
+ * {@link seatedTogether} with where each unit stands, for whoever draws it on
+ * the plan: a group by its tables, a join by its two seats.
+ *
+ * @param seating The arrangement
+ * @param scene The room it was made in
+ */
+export function seatedUnits(
+  seating: SeatingArrangement | null | undefined,
+  scene: PlanRoom,
+): SeatedUnit[] {
+  if (!seating) return [];
+  if (!scene || hasShapeMismatch(scene, seating)) {
+    return seating.map((table, tableIndex) => ({
+      students: seatedOnly(table ?? []),
+      tables: [tableIndex],
+      join: null,
+    }));
+  }
+  const layout = getSeatLayout(scene);
+  const address = (seat: number): SeatAddress => ({
+    tableIndex: layout.tableOf[seat]!,
+    seatIndex: layout.seatOf[seat]!,
+  });
+  const occupant = (seat: number) => {
+    const { tableIndex, seatIndex } = address(seat);
+    return seating[tableIndex]?.[seatIndex];
+  };
+  // Groups first, so a group and a join starting at one seat keep that order.
+  return [
+    ...layout.groups.map((seats) => ({
+      first: seats[0] ?? 0,
+      seats,
+      join: false,
+    })),
+    ...layout.joins.map(([a, b]) => ({ first: a, seats: [a, b], join: true })),
+  ]
+    .sort((x, y) => x.first - y.first)
+    .map(({ seats, join }) => ({
+      students: seatedOnly(seats.map(occupant)),
+      tables: join
+        ? []
+        : [...new Set(seats.map((seat) => address(seat).tableIndex))],
+      join: join
+        ? ([address(seats[0]!), address(seats[1]!)] as [
+            SeatAddress,
+            SeatAddress,
+          ])
+        : null,
+    }));
+}
+
 /**
  * Who sat together in an arrangement, as the mixing reads the room (decision
  * 0031): the students of every table group — a table on its own, or tables
@@ -65,20 +136,7 @@ export function seatedTogether(
   seating: SeatingArrangement | null | undefined,
   scene: PlanRoom,
 ): Student[][] {
-  if (!seating) return [];
-  if (!scene || hasShapeMismatch(scene, seating)) {
-    return seating.map((table) => seatedOnly(table ?? []));
-  }
-  const layout = getSeatLayout(scene);
-  const occupant = (seat: number) =>
-    seating[layout.tableOf[seat]!]?.[layout.seatOf[seat]!];
-  // Groups first, so a group and a join starting at one seat keep that order.
-  return [
-    ...layout.groups.map((seats) => ({ first: seats[0] ?? 0, seats })),
-    ...layout.joins.map(([a, b]) => ({ first: a, seats: [a, b] })),
-  ]
-    .sort((x, y) => x.first - y.first)
-    .map(({ seats }) => seatedOnly(seats.map(occupant)));
+  return seatedUnits(seating, scene).map((unit) => unit.students);
 }
 
 /**
@@ -377,6 +435,35 @@ export function normalizePlanFeedback(
   return poorTables.length > 0
     ? { rating: 'poor', poorTables, at: feedback.at }
     : { rating: 'poor', at: feedback.at };
+}
+
+/** A table where it did not work, as feedback names it: its sorted ids. */
+export const poorTableKey = (ids: readonly string[]): string =>
+  JSON.stringify([...ids].sort());
+
+/**
+ * Feedback "Nicht gut" with a table added or taken out, the tables named
+ * before kept: what choosing a table does, on the plan as in a list.
+ *
+ * @param feedback The feedback so far, if any
+ * @param ids Who sat at the table
+ * @param on Whether it did not work there
+ * @param at When this was said (ISO 8601)
+ */
+export function withPoorTable(
+  feedback: PlanFeedback | null | undefined,
+  ids: readonly string[],
+  on: boolean,
+  at: string,
+): PlanFeedback {
+  const key = poorTableKey(ids);
+  const kept = (
+    feedback?.rating === 'poor' ? (feedback.poorTables ?? []) : []
+  ).filter((table) => poorTableKey(table) !== key);
+  const poorTables = on ? [...kept, [...ids].sort()] : kept;
+  return poorTables.length > 0
+    ? { rating: 'poor', poorTables, at }
+    : { rating: 'poor', at };
 }
 
 /**

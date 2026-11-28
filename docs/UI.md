@@ -190,14 +190,10 @@ afterwards.
   backup reminder) asks once they stood still for twelve weeks, with "Zur
   Klassenliste", "Passt noch", "Alle Klassen passen noch" where there is more
   than one class, and "Später"
-  ([decision 0044](decisions/0044-markers-carry-a-date.md)). After them,
-  while "Erfahrung" counts, a card asks how the last plan in use went once
-  another followed it after a week at least (`PlanFeedbackReminder`), with
-  "Gut", "Nicht gut" and "Später"; it asks about a plan once, and the tables
-  are named in "Bibliothek"
-  ([decision 0054](decisions/0054-experience-of-a-plan-in-use.md)). The
-  notices above the layer — what is new, the backup, the markers, the last
-  plan — stand one at a time, in
+  ([decision 0044](decisions/0044-markers-carry-a-date.md)). How the
+  last plan in use went is asked by "Mischen", not by a card (see the plan's
+  inspector). The notices above the layer — what is new, the backup, the
+  markers — stand one at a time, in
   that order (`*:not-first:hidden` on their container, each rendering nothing
   until it is due), and below `lg` keep their sentence and their answers
   only, without icon, reason or link: stacked and full, they pushed the plan
@@ -501,15 +497,36 @@ afterwards.
   named with its room once the class has more than one, a plan of another room
   opening that room (`handleHistoryLoad`, as "Bibliothek" does); renaming and
   removing another plan stay in "Bibliothek". Last in the section stands how
-  the plan went (`PlanFeedbackRows`, decision 0054) — "Gut" or "Nicht gut",
-  each saying what it does and so a list under the question, pressed again to
-  take it back, and with "Nicht gut" a switch for every table of two or more,
-  named by its students' first names, a table as the mixing reads the room:
-  tables pushed together round a corner or face to face are one, and each
-  join of desks pushed together in a row is a table of two — while the stage shows a plan that can have been in use: saved and
-  unchanged, or already counted as used; a fresh mix and the circle have
-  none. "Bibliothek" has the same rows under "Genutzt", and a sentence under
-  them says the feedback waits while "Erfahrung" is off. A name another plan
+  the plan went (`PlanFeedbackRows`, decision 0054), one row: "Gut" or "Nicht
+  gut" beside the question, what each does in its tooltip, pressed again to
+  take it back — while the stage shows a plan in use before today (a save
+  counts as use, and a plan saved a minute ago has not been in a classroom)
+  or one that already says how it went; a fresh mix and the circle have none.
+  With "Nicht gut" the tables where it did not work are chosen on the stage,
+  and the row says how many with "Tische wählen" beside it. A table is one as
+  the mixing reads the room: tables pushed together round a corner or face
+  to face are one, and each join of desks pushed together in a row is a
+  table of two. "Bibliothek", which has no stage, has the same row under
+  "Genutzt" with a switch for every table of two or more, named by its
+  students' first names, and a sentence under them says the feedback waits
+  while "Erfahrung" is off.
+- **"Mischen" asks how the plan in use went, once.** Before it mixes over a
+  plan in use before today without feedback, while "Erfahrung" counts, a
+  question stands over the status bar's button — "Gut", "Nicht gut",
+  "Überspringen & mischen" with the focus, so Enter mixes as it always did —
+  and Escape or a press elsewhere puts it away; the button, Ctrl/⌘+Enter and
+  "Jetzt neu mischen" all go through it (`usePlanFeedbackFlow`). The mix
+  waits until the class's records carry the answer, so it counts at once.
+  "Nicht gut", here or in the inspector, turns the stage into a choice of
+  tables: a band over the plan asks for them, and a drawing of its own over
+  the canvas (`PlanFeedbackPicker`) makes every table a button — dashed,
+  then ringed in the ink of "Verlauf" once chosen, a join of desks in a row
+  a capsule across its seam — that takes every press, so no drag and no
+  lock starts, and comes before the canvas, so the keyboard reaches the
+  tables before the seats. "Fertig", or "Mischen", ends it; Escape ends it
+  without mixing; another plan on the stage ends it too. Below `lg` the
+  inspector's drawer closes for it ([decision 0054](decisions/0054-experience-of-a-plan-in-use.md),
+  addendum of 2026-11-27). A name another plan
   carries is
   refused under the name, not by a toast. Ctrl/⌘+S saves straight away under the
   name the plan has, from the open name field under the typed one. The header

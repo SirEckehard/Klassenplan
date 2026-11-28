@@ -74,7 +74,7 @@
       },
       "feedback": {
         "title": "Rückmeldung zum Plan",
-        "body": "Sag im Inspektor, wie ein genutzter Plan lief: Wer an Tischen saß, an denen es nicht lief, bleibt mit „Erfahrung“ länger getrennt."
+        "body": "Bevor du einen genutzten Plan neu mischst, fragt „Mischen“, wie er lief; die Tische, an denen es nicht lief, tippst du auf dem Plan an."
       },
       "seats": {
         "title": "Plätze tauschen und sperren",
@@ -1283,23 +1283,29 @@
     "classTools": "Klassenwerkzeuge"
   },
   "planFeedback": {
-    "label": "Wie hat der Plan funktioniert?",
-    "good": "Gut: Wer nebeneinandersaß, darf früher wieder zusammensitzen.",
-    "poor": "Nicht gut: Wer an den gewählten Tischen saß, bleibt länger getrennt.",
+    "label": "Wie lief der Plan?",
+    "good": "Wer nebeneinandersaß, darf früher wieder zusammensitzen.",
+    "poor": "Wer an den gewählten Tischen saß, bleibt länger getrennt.",
     "hint": "„Gut“: Wer nebeneinandersaß, darf früher wieder zusammensitzen. „Nicht gut“: Wer an den gewählten Tischen saß, bleibt länger getrennt.",
     "tables": "Wähle die Tische, an denen es Probleme gab.",
     "table": "Tisch mit {{names}}",
     "off": "Wirkt beim Mischen, sobald das Kriterium „Erfahrung“ an ist.",
     "atTheirTable": "an ihrem Tisch",
     "ratedGood": "Gut",
-    "ratedPoor": "Nicht gut"
+    "ratedPoor": "Nicht gut",
+    "pickTitle": "Tippe die Tische an, an denen es nicht lief.",
+    "picking": "Wähle die Tische auf dem Plan.",
+    "picked_one": "{{count}} Tisch gewählt",
+    "picked_other": "{{count}} Tische gewählt",
+    "pickedNone": "Ohne ausgewählten Tisch gilt „Nicht gut“ für den ganzen Plan, nur schwächer.",
+    "pickTables": "Tische wählen",
+    "pickDone": "Fertig"
   },
   "planFeedbackPrompt": {
-    "eyebrow": "Wie lief der letzte Plan?",
     "named": "Du hast „{{name}}“ seit dem {{since}} genutzt. Wie lief er?",
     "unnamed": "Du hast einen Plan seit dem {{since}} genutzt. Wie lief er?",
-    "why": "Was du sagst, nutzt „Erfahrung“ beim Mischen. Die Tische, an denen es nicht lief, gibst du in der Bibliothek an.",
-    "later": "Später"
+    "effect": "Deine Einschätzung hat beim nächsten Mischen Einfluss auf das Ergebnis.",
+    "skip": "Überspringen & mischen"
   },
   "planSave": {
     "section": "Plan",

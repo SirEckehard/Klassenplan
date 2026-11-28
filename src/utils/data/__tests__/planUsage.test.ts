@@ -28,9 +28,11 @@ import {
   PLAN_USAGE_LIMIT,
   planPairsOf,
   seatedTogether,
+  seatedUnits,
   storedPlanDateToTimestamp,
   trimPlanUsage,
   withPlanFeedback,
+  withPoorTable,
 } from '../planUsage';
 
 const student = (id: string): Student => ({ id, name: id }) as Student;
@@ -125,6 +127,35 @@ describe('who sat together at tables pushed together', () => {
       ['a', 'b'],
       ['b', 'c'],
     ]);
+  });
+
+  it('says where each unit stands: a desk by its table, a join by its two seats', () => {
+    const units = seatedUnits(inRow, row);
+    expect(units.map((unit) => unit.tables)).toEqual([
+      [0],
+      [],
+      [1],
+      [],
+      [2],
+      [3],
+    ]);
+    expect(units.map((unit) => unit.join)).toEqual([
+      null,
+      [
+        { tableIndex: 0, seatIndex: 0 },
+        { tableIndex: 1, seatIndex: 0 },
+      ],
+      null,
+      [
+        { tableIndex: 1, seatIndex: 0 },
+        { tableIndex: 2, seatIndex: 0 },
+      ],
+      null,
+      null,
+    ]);
+    expect(units.map((unit) => unit.students)).toEqual(
+      seatedTogether(inRow, row),
+    );
   });
 
   it('pairs everyone at desks pushed together face to face, as at one table', () => {
@@ -712,6 +743,45 @@ describe('normalizePlanFeedback', () => {
         pairs,
       ),
     ).toEqual({ rating: 'poor', at });
+  });
+});
+
+describe('withPoorTable', () => {
+  const at = '2026-11-27T08:00:00.000Z';
+
+  it('adds a table to the ones named, its ids sorted', () => {
+    expect(
+      withPoorTable(
+        { rating: 'poor', poorTables: [['a', 'b']], at: 'earlier' },
+        ['d', 'c'],
+        true,
+        at,
+      ),
+    ).toEqual({
+      rating: 'poor',
+      poorTables: [
+        ['a', 'b'],
+        ['c', 'd'],
+      ],
+      at,
+    });
+  });
+
+  it('takes a table out, and leaves "Nicht gut" without one', () => {
+    expect(
+      withPoorTable(
+        { rating: 'poor', poorTables: [['a', 'b']], at: 'earlier' },
+        ['b', 'a'],
+        false,
+        at,
+      ),
+    ).toEqual({ rating: 'poor', at });
+  });
+
+  it('turns a plan that went well into one that did not, at that table', () => {
+    expect(
+      withPoorTable({ rating: 'good', at: 'earlier' }, ['a', 'b'], true, at),
+    ).toEqual({ rating: 'poor', poorTables: [['a', 'b']], at });
   });
 });
 

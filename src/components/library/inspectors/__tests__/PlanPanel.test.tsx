@@ -179,10 +179,10 @@ describe('PlanPanel', () => {
   // How a plan in use went (decision 0054).
   describe('feedback', () => {
     const wentWell = () =>
-      screen.getByRole('button', { name: /^(Gut|Good):/i });
+      screen.getByRole('button', { name: /^(Gut|Good)$/i });
     const wentPoorly = () =>
       screen.getByRole('button', {
-        name: /^(Nicht gut|Not good):/i,
+        name: /^(Nicht gut|Not good)$/i,
       });
 
     it('says a plan went well, dated the day it was made', async () => {

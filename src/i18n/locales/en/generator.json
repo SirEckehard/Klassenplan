@@ -74,7 +74,7 @@
       },
       "feedback": {
         "title": "Plan feedback",
-        "body": "Say in the inspector how a plan in use went: with “Experience”, who sat at tables where it didn't work stays apart for longer."
+        "body": "Before you mix a plan in use again, “Mix” asks how it went; you tap the tables where it did not work on the plan."
       },
       "seats": {
         "title": "Swapping and locking seats",
@@ -1283,23 +1283,29 @@
     "classTools": "Class tools"
   },
   "planFeedback": {
-    "label": "How did the plan work?",
-    "good": "Good: who sat next to each other may sit together again sooner.",
-    "poor": "Not good: who sat at the chosen tables stays apart for longer.",
+    "label": "How did the plan go?",
+    "good": "Who sat next to each other may sit together again sooner.",
+    "poor": "Who sat at the chosen tables stays apart for longer.",
     "hint": "“Good”: who sat next to each other may sit together again sooner. “Not good”: who sat at the chosen tables stays apart for longer.",
     "tables": "Choose the tables where there were problems.",
     "table": "Table with {{names}}",
     "off": "Takes effect when mixing once the “Experience” criterion is on.",
     "atTheirTable": "at their table",
     "ratedGood": "Good",
-    "ratedPoor": "Not good"
+    "ratedPoor": "Not good",
+    "pickTitle": "Tap the tables where it did not work.",
+    "picking": "Choose the tables on the plan.",
+    "picked_one": "{{count}} table chosen",
+    "picked_other": "{{count}} tables chosen",
+    "pickedNone": "Without a chosen table, “Not good” counts for the whole plan, only less.",
+    "pickTables": "Choose tables",
+    "pickDone": "Done"
   },
   "planFeedbackPrompt": {
-    "eyebrow": "How did the last plan go?",
     "named": "You used “{{name}}” since {{since}}. How did it go?",
     "unnamed": "You used a plan since {{since}}. How did it go?",
-    "why": "What you say is used by “Experience” when mixing. The tables where it did not work are named in the Library.",
-    "later": "Later"
+    "effect": "Your assessment influences the result of the next mix.",
+    "skip": "Skip & mix"
   },
   "planSave": {
     "section": "Plan",
